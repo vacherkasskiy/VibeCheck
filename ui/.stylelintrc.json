@@ -1,0 +1,15 @@
+{
+  "extends": ["stylelint-config-recess-order"],
+  "plugins": ["stylelint-order"],
+  "rules": {
+    "color-named": "never",
+    "selector-max-id": 2,
+    "no-duplicate-selectors": true,
+    "block-no-empty": true,
+    "function-linear-gradient-no-nonstandard-direction": true,
+    "declaration-block-no-shorthand-property-overrides": true,
+    "at-rule-empty-line-before": "always",
+    "rule-empty-line-before": "always",
+    "font-weight-notation": "numeric"
+  }
+}

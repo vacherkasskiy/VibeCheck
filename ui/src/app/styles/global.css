@@ -1,0 +1,172 @@
+/* Reset and base styles  */
+
+* {
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Yandex Sans Text', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4d4d4d;
+}
+
+/* Links */
+
+a,
+a:link,
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+/* Common */
+
+aside,
+nav,
+footer,
+header,
+section,
+main {
+    display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+ul,
+ul li {
+    list-style: none;
+}
+
+img {
+    vertical-align: top;
+}
+
+img,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+address {
+    font-style: normal;
+}
+
+/* Form */
+
+input,
+textarea,
+button,
+select {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background-color: transparent;
+}
+
+input::-ms-clear {
+    display: none;
+}
+
+button,
+input[type='submit'] {
+    display: inline-block;
+    cursor: pointer;
+    background: transparent none;
+    box-shadow: none;
+}
+
+input:focus,
+input:active,
+button:focus,
+button:active {
+    outline: none;
+}
+
+button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+
+label {
+    cursor: pointer;
+}
+
+legend {
+    display: block;
+}
+
+input[type='file'] {
+    max-width: 100%;
+}
+
+/* Стили для поля ввода в поисковом контроле Яндекс.Карты */
+/* Применяются только для position = top для компонента YMapControls */
+
+.ymaps3x0--controls_top.ymaps3x0--controls_center {
+    top: 0.5em;
+    left: 48px !important;
+    display: flex;
+    justify-content: start !important;
+    padding: 0;
+}
+
+.ymaps3--search-control__form {
+    position: relative;
+    top: 0;
+    left: 0.6em;
+    width: 270px !important;
+    height: 48px !important;
+}
+
+.ymaps3--search-control__input {
+    width: 220px !important;
+    padding: 0 0 0 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 2px 4px 0 rgba(95, 105, 131, 0), 0 0 2px 0 rgba(95, 105, 131, 0) !important;
+}
+
+.ymaps3--suggest-control {
+    position: absolute;
+    top: 55px;
+    left: -32px;
+    width: 388px !important;
+    box-shadow: 0 0 5px 1px rgb(0, 0, 0, .2) !important;
+}
+
+.ymaps3--suggest-item-control__title {
+    font-weight: 400 !important;
+}
+
+.ymaps3--suggest-item-control__subtitle {
+    font-size: 14px;
+    font-weight: 400 !important;
+}
+
+.ymaps3x0--controls_right.ymaps3x0--controls_center {
+    top: 0;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}

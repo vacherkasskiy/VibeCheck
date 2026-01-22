@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "d8Rxdb0veiY=",
+  "success": true,
+  "projectFilePath": "/Users/vacherk/RiderProjects/VibeCheck/backend/ReviewService/ReviewService.Api/ReviewService.Api.csproj",
+  "expectedPackageFiles": [
+    "/Users/vacherk/.nuget/packages/microsoft.aspnetcore.openapi/9.0.8/microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
+    "/Users/vacherk/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

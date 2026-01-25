@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Abstractions\Storages\ReviewService.CloudStorage.Abstractions\ReviewService.CloudStorage.Abstractions.csproj" />
+    </ItemGroup>
+
 </Project>

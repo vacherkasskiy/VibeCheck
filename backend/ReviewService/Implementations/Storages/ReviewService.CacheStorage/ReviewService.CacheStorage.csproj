@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Abstractions\Storages\ReviewService.CacheStorage.Abstractions\ReviewService.CacheStorage.Abstractions.csproj" />
+    </ItemGroup>
+
 </Project>

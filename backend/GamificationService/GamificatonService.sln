@@ -1,30 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Gateway", "ReviewService.Gateway\ReviewService.Gateway.csproj", "{DFC865A7-1A46-4E82-8144-CE1B115CAB81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.Gateway", "GamificatonService.Gateway\GamificatonService.Gateway.csproj", "{DFC865A7-1A46-4E82-8144-CE1B115CAB81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Core.Abstractions", "Abstractions\ReviewService.Core.Abstractions\ReviewService.Core.Abstractions.csproj", "{3898702C-6409-4764-8886-52F29902D6E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.Core.Abstractions", "Abstractions\GamificatonService.Core.Abstractions\GamificatonService.Core.Abstractions.csproj", "{3898702C-6409-4764-8886-52F29902D6E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Core", "Implementations\ReviewService.Core\ReviewService.Core.csproj", "{31A59785-0F51-4F31-B2C1-621F31263535}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.Core", "Implementations\GamificatonService.Core\GamificatonService.Core.csproj", "{31A59785-0F51-4F31-B2C1-621F31263535}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Abstractions", "Abstractions", "{AE28EF24-4C62-4BEE-993C-77CA5EB0174C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementations", "Implementations", "{956167AC-5B25-4677-912A-DD5E6D75DE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.CloudStorage.Abstractions", "Abstractions\Storages\ReviewService.CloudStorage.Abstractions\ReviewService.CloudStorage.Abstractions.csproj", "{BD4CC79D-58F5-4889-8DD6-7126C1B5F39F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.CloudStorage.Abstractions", "Abstractions\Storages\GamificatonService.CloudStorage.Abstractions\GamificatonService.CloudStorage.Abstractions.csproj", "{BD4CC79D-58F5-4889-8DD6-7126C1B5F39F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.CloudStorage", "Implementations\Storages\ReviewService.CloudStorage\ReviewService.CloudStorage.csproj", "{2A18D587-7188-43FA-8721-D004125D1D8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.CloudStorage", "Implementations\Storages\GamificatonService.CloudStorage\GamificatonService.CloudStorage.csproj", "{2A18D587-7188-43FA-8721-D004125D1D8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.PersistentStorage.Abstractions", "Abstractions\Storages\ReviewService.PersistentStorage.Abstractions\ReviewService.PersistentStorage.Abstractions.csproj", "{FA29D869-20AB-4EB8-A542-86BE31983375}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.PersistentStorage.Abstractions", "Abstractions\Storages\GamificatonService.PersistentStorage.Abstractions\GamificatonService.PersistentStorage.Abstractions.csproj", "{FA29D869-20AB-4EB8-A542-86BE31983375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.PersistentStorage", "Implementations\Storages\ReviewService.PersistentStorage\ReviewService.PersistentStorage.csproj", "{32AF3014-A7B7-4994-A231-9BEB433E471D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.PersistentStorage", "Implementations\Storages\GamificatonService.PersistentStorage\GamificatonService.PersistentStorage.csproj", "{32AF3014-A7B7-4994-A231-9BEB433E471D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.MessageBroker.Abstractions", "Abstractions\ReviewService.MessageBroker.Abstractions\ReviewService.MessageBroker.Abstractions.csproj", "{A2157B0B-96BF-4497-B68C-ED6A35552537}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.MessageBroker.Abstractions", "Abstractions\GamificatonService.MessageBroker.Abstractions\GamificatonService.MessageBroker.Abstractions.csproj", "{A2157B0B-96BF-4497-B68C-ED6A35552537}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.MessageBroker", "Implementations\ReviewService.MessageBroker\ReviewService.MessageBroker.csproj", "{56F46CBD-74A2-4855-9E30-C85A21C31F3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.MessageBroker", "Implementations\GamificatonService.MessageBroker\GamificatonService.MessageBroker.csproj", "{56F46CBD-74A2-4855-9E30-C85A21C31F3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.CacheStorage.Abstractions", "Abstractions\Storages\ReviewService.CacheStorage.Abstractions\ReviewService.CacheStorage.Abstractions.csproj", "{96E0EAA6-18A0-4F31-89A0-DDC1C6F79B7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.CacheStorage.Abstractions", "Abstractions\Storages\GamificatonService.CacheStorage.Abstractions\GamificatonService.CacheStorage.Abstractions.csproj", "{96E0EAA6-18A0-4F31-89A0-DDC1C6F79B7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.CacheStorage", "Implementations\Storages\ReviewService.CacheStorage\ReviewService.CacheStorage.csproj", "{EC4157C9-62D7-42C4-8D09-95C78DD113F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.CacheStorage", "Implementations\Storages\GamificatonService.CacheStorage\GamificatonService.CacheStorage.csproj", "{EC4157C9-62D7-42C4-8D09-95C78DD113F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storages", "Storages", "{94398973-11D7-41F9-8E88-AEC667C5D179}"
 EndProject

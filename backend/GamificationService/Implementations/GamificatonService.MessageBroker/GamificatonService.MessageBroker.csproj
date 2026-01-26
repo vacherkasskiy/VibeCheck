@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Abstractions\Storages\ReviewService.PersistentStorage.Abstractions\ReviewService.PersistentStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.MessageBroker.Abstractions\GamificatonService.MessageBroker.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

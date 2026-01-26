@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <RootNamespace>ReviewService.Gateway</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,11 +23,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Implementations\ReviewService.MessageBroker\ReviewService.MessageBroker.csproj" />
-      <ProjectReference Include="..\Implementations\Storages\ReviewService.CacheStorage\ReviewService.CacheStorage.csproj" />
-      <ProjectReference Include="..\Implementations\Storages\ReviewService.CloudStorage\ReviewService.CloudStorage.csproj" />
-      <ProjectReference Include="..\Implementations\Storages\ReviewService.PersistentStorage\ReviewService.PersistentStorage.csproj" />
-      <ProjectReference Include="..\Implementations\ReviewService.Core\ReviewService.Core.csproj" />
+      <ProjectReference Include="..\Implementations\GamificatonService.MessageBroker\GamificatonService.MessageBroker.csproj" />
+      <ProjectReference Include="..\Implementations\Storages\GamificatonService.CacheStorage\GamificatonService.CacheStorage.csproj" />
+      <ProjectReference Include="..\Implementations\Storages\GamificatonService.CloudStorage\GamificatonService.CloudStorage.csproj" />
+      <ProjectReference Include="..\Implementations\Storages\GamificatonService.PersistentStorage\GamificatonService.PersistentStorage.csproj" />
+      <ProjectReference Include="..\Implementations\GamificatonService.Core\GamificatonService.Core.csproj" />
     </ItemGroup>
 
 </Project>

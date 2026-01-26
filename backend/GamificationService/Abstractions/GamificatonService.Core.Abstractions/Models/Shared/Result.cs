@@ -1,4 +1,4 @@
-namespace ReviewService.Core.Abstractions.Models.Shared;
+namespace GamificatonService.Core.Abstractions.Models.Shared;
 
 public class Result
 {

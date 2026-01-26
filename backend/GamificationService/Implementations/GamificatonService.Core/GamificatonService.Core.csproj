@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Abstractions\ReviewService.Core.Abstractions\ReviewService.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.Core.Abstractions\GamificatonService.Core.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

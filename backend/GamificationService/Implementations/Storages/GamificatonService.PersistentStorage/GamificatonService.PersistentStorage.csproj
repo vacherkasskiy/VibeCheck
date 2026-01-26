@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Abstractions\Storages\ReviewService.CloudStorage.Abstractions\ReviewService.CloudStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\Abstractions\Storages\GamificatonService.PersistentStorage.Abstractions\GamificatonService.PersistentStorage.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

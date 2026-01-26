@@ -4,288 +4,167 @@ using ReviewService.Core.Abstractions.Models;
 using ReviewService.Core.Abstractions.Operations;
 using ReviewService.Gateway.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
-using ReviewsSort = ReviewService.Gateway.DTOs.ReviewsSort;
 
 namespace ReviewService.Gateway.Controllers;
 
 /// <summary>
-/// компании и отзывы.
+/// компании.
 /// </summary>
 /// <remarks>
-/// эндпоинты строго по твоей спецификации: создание/правка/удаление/получение списка отзывов по компании,
-/// а также эндпоинты пользователя: список своих/чужих отзывов, голосование, жалоба.
+/// методы из твоей спецификации:
+/// - список компаний
+/// - страница компании
+/// - флаги компании
+/// - заявка на добавление компании
 /// </remarks>
 [ApiController]
-[Route("api")]
+[Route("api/companies")]
 [Produces("application/json")]
-[SwaggerTag("компании: отзывы (crud + списки), пользователи: отзывы (списки/голоса/жалобы)")]
+[SwaggerTag("компании (список, страница, флаги, заявки)")]
 //[Authorize]
 public sealed class CompaniesController(IMapper mapper) : ControllerBase
 {
     /// <summary>
-    /// создание нового отзыва компании.
+    /// GET …/companies — список компаний для текущего пользователя, отсортированный по весу
     /// </summary>
-    [HttpPost("companies/{companyId:guid}/reviews")]
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [HttpGet]
+    [ProducesResponseType(typeof(GetCompaniesResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [SwaggerOperation(
-        Summary = "создание нового отзыва",
-        Description = "создаёт отзыв о компании. accessToken обязателен."
+        Summary = "список компаний",
+        Description = "возвращает компании для текущего пользователя, сортировка по weight."
     )]
-    public async Task<IActionResult> CreateCompanyReview(
-        [FromServices] ICreateCompanyReviewOperation operation,
-        Guid companyId,
-        [FromBody, SwaggerRequestBody("данные отзыва", Required = true)]
-        CreateCompanyReviewRequest request,
-        CancellationToken ct)
+    public async Task<ActionResult<GetCompaniesResponse>> GetCompanies(
+        [FromServices] IGetCompaniesOperation operation,
+        [FromQuery] string? query = null,
+        [FromQuery] long take = 20,
+        [FromQuery] long pageNum = 1,
+        [FromQuery] string? q = null,
+        CancellationToken ct = default)
     {
-        if (request.CompanyId != companyId)
+        var model = new GetCompaniesOperationModel(
+            Query: query,
+            Take: take,
+            PageNum: pageNum,
+            Q: q);
+
+        var result = await operation.GetAsync(model, ct);
+
+        if (result.IsFailure)
             return BadRequest(new ProblemDetails
             {
-                Title = "companyId mismatch",
-                Detail = "companyId в route не совпадает с companyId в body"
+                Title = "get companies failed",
+                Detail = result.Error.Message
             });
 
-        var model = mapper.Map<CreateCompanyReviewOperationModel>(request);
+        return Ok(mapper.Map<GetCompaniesResponse>(result.Value));
+    }
+
+    /// <summary>
+    /// GET …/companies/{companyId} — страница компании (короткая сводка + топ-20 флагов)
+    /// </summary>
+    [HttpGet("{companyId:guid}")]
+    [ProducesResponseType(typeof(GetCompanyResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [SwaggerOperation(
+        Summary = "страница компании",
+        Description = "короткая сводка компании + topFlags (до 20)."
+    )]
+    public async Task<ActionResult<GetCompanyResponse>> GetCompany(
+        [FromServices] IGetCompanyOperation operation,
+        Guid companyId,
+        CancellationToken ct = default)
+    {
+        var result = await operation.GetAsync(companyId, ct);
+
+        if (result.IsFailure)
+            return NotFound(new ProblemDetails
+            {
+                Title = "company not found",
+                Detail = result.Error.Message
+            });
+
+        return Ok(mapper.Map<GetCompanyResponse>(result.Value));
+    }
+
+    /// <summary>
+    /// GET …/companies/{companyId}/flags — полный список флагов компании с количествами (сортировка по count)
+    /// </summary>
+    [HttpGet("{companyId:guid}/flags")]
+    [ProducesResponseType(typeof(GetCompanyFlagsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [SwaggerOperation(
+        Summary = "флаги компании",
+        Description = "полный список флагов компании с количествами, сортировка по count."
+    )]
+    public async Task<ActionResult<GetCompanyFlagsResponse>> GetCompanyFlags(
+        [FromServices] IGetCompanyFlagsOperation operation,
+        Guid companyId,
+        [FromQuery] string? q = null,
+        [FromQuery] long take = 50,
+        [FromQuery] long pageNum = 1,
+        CancellationToken ct = default)
+    {
+        var model = new GetCompanyFlagsOperationModel(
+            CompanyId: companyId,
+            Q: q,
+            Take: take,
+            PageNum: pageNum);
+
+        var result = await operation.GetAsync(model, ct);
+
+        if (result.IsFailure)
+            return NotFound(new ProblemDetails
+            {
+                Title = "company flags not found",
+                Detail = result.Error.Message
+            });
+
+        return Ok(mapper.Map<GetCompanyFlagsResponse>(result.Value));
+    }
+
+    /// <summary>
+    /// POST …/companies — заявка на добавление новой компании
+    /// </summary>
+    [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(CreateCompanyRequestResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [SwaggerOperation(
+        Summary = "заявка на добавление компании",
+        Description = "создаёт заявку (status=pending). 403 — если политика запрещает подачу заявок."
+    )]
+    public async Task<ActionResult<CreateCompanyRequestResponse>> CreateCompanyRequest(
+        [FromServices] ICreateCompanyRequestOperation operation,
+        [FromBody, SwaggerRequestBody("данные заявки", Required = true)]
+        CreateCompanyRequest request,
+        CancellationToken ct)
+    {
+        var model = mapper.Map<CreateCompanyRequestOperationModel>(request);
         var result = await operation.CreateAsync(model, ct);
 
         if (result.IsFailure)
+        {
+            // если у тебя есть код ошибки для политики — лучше маппить по нему.
+            // сейчас: условно 403, если код "policy_forbidden", иначе 400.
+            if (string.Equals(result.Error.Message, "policy_forbidden", StringComparison.OrdinalIgnoreCase))
+                return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
+                {
+                    Title = "forbidden",
+                    Detail = result.Error.Message
+                });
+
             return BadRequest(new ProblemDetails
             {
-                Title = "review create failed",
+                Title = "create company request failed",
                 Detail = result.Error.Message
             });
+        }
 
-        return NoContent();
-    }
-
-    /// <summary>
-    /// исправить отзыв в первые 5 минут.
-    /// </summary>
-    [HttpPatch("companies/reviews/{reviewId:guid}")]
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [SwaggerOperation(
-        Summary = "правка отзыва",
-        Description = "разрешено исправлять отзыв только в первые 5 минут (проверяется в домене/операции)."
-    )]
-    public async Task<IActionResult> PatchCompanyReview(
-        [FromServices] IUpdateCompanyReviewOperation operation,
-        Guid reviewId,
-        [FromBody, SwaggerRequestBody("данные для правки", Required = true)]
-        UpdateCompanyReviewRequest request,
-        CancellationToken ct)
-    {
-        var model = mapper.Map<UpdateCompanyReviewOperationModel>(request) with { ReviewId = reviewId };
-        var result = await operation.UpdateAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "review update failed",
-                Detail = result.Error.Message
-            });
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// удаление отзыва когда угодно.
-    /// </summary>
-    [HttpDelete("companies/reviews/{reviewId:guid}")]
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [SwaggerOperation(
-        Summary = "удаление отзыва",
-        Description = "удаляет отзыв. проверка прав/владельца — на стороне операции."
-    )]
-    public async Task<IActionResult> DeleteCompanyReview(
-        [FromServices] IDeleteCompanyReviewOperation operation,
-        Guid reviewId,
-        [FromBody, SwaggerRequestBody("данные для удаления", Required = true)]
-        DeleteCompanyReviewRequest request,
-        CancellationToken ct)
-    {
-        var model = mapper.Map<DeleteCompanyReviewOperationModel>(request) with { ReviewId = reviewId };
-        var result = await operation.DeleteAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "review delete failed",
-                Detail = result.Error.Message
-            });
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// получить список отзывов компании.
-    /// </summary>
-    [HttpGet("companies/{companyId:guid}/reviews")]
-    [ProducesResponseType(typeof(GetCompanyReviewsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [SwaggerOperation(
-        Summary = "список отзывов компании",
-        Description = "пагинация take/pageNum, сортировка sort."
-    )]
-    public async Task<ActionResult<GetCompanyReviewsResponse>> GetCompanyReviews(
-        [FromServices] IGetCompanyReviewsOperation operation,
-        Guid companyId,
-        [FromQuery] int take = 20,
-        [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
-        CancellationToken ct = default)
-    {
-        var model = new GetCompanyReviewsOperationModel(
-            companyId,
-            take,
-            pageNum,
-            mapper.Map<ReviewsSortOperationEnum>(sort));
-        
-        var result = await operation.GetAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "get reviews failed",
-                Detail = result.Error.Message
-            });
-
-        return Ok(mapper.Map<GetCompanyReviewsResponse>(result.Value));
-    }
-
-    /// <summary>
-    /// получить отзывы текущего юзера.
-    /// </summary>
-    [HttpGet("users/me/reviews")]
-    [ProducesResponseType(typeof(GetUserReviewsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    [SwaggerOperation(
-        Summary = "отзывы текущего пользователя",
-        Description = "пагинация take/pageNum, сортировка sort."
-    )]
-    public async Task<ActionResult<GetUserReviewsResponse>> GetMyReviews(
-        [FromServices] IGetMyReviewsOperation operation,
-        [FromQuery] int take = 20,
-        [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
-        CancellationToken ct = default)
-    {
-        var model = new GetMyReviewsOperationModel(take, pageNum, mapper.Map<ReviewsSortOperationEnum>(sort));
-        var result = await operation.GetAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "get my reviews failed",
-                Detail = result.Error.Message
-            });
-
-        return Ok(mapper.Map<GetUserReviewsResponse>(result.Value));
-    }
-
-    /// <summary>
-    /// получить отзывы другого юзера.
-    /// </summary>
-    [HttpGet("users/{userId:guid}/reviews")]
-    [ProducesResponseType(typeof(GetUserReviewsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    [SwaggerOperation(
-        Summary = "отзывы пользователя",
-        Description = "пагинация take/pageNum, сортировка sort."
-    )]
-    public async Task<ActionResult<GetUserReviewsResponse>> GetUserReviews(
-        [FromServices] IGetUserReviewsOperation operation,
-        Guid userId,
-        [FromQuery] int take = 20,
-        [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
-        CancellationToken ct = default)
-    {
-        var model = new GetUserReviewsOperationModel(userId, take, pageNum, mapper.Map<ReviewsSortOperationEnum>(sort));
-        var result = await operation.GetAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "get user reviews failed",
-                Detail = result.Error.Message
-            });
-
-        return Ok(mapper.Map<GetUserReviewsResponse>(result.Value));
-    }
-
-    /// <summary>
-    /// лайк/дизлайк отзыва.
-    /// </summary>
-    [HttpPatch("users/reviews/{reviewId:guid}/vote")]
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    [SwaggerOperation(
-        Summary = "голосование за отзыв",
-        Description = "mode: like/dislike/clear (если нужно)."
-    )]
-    public async Task<IActionResult> VoteReview(
-        [FromServices] IVoteReviewOperation operation,
-        Guid reviewId,
-        [FromBody, SwaggerRequestBody("режим голосования", Required = true)]
-        VoteReviewRequest request,
-        CancellationToken ct)
-    {
-        var model = mapper.Map<VoteReviewOperationModel>(request) with { ReviewId = reviewId };
-        var result = await operation.VoteAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "vote failed",
-                Detail = result.Error.Message
-            });
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// жалоба на отзыв.
-    /// </summary>
-    [HttpPost("users/reviews/{reviewId:guid}/report")]
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [SwaggerOperation(
-        Summary = "жалоба на отзыв",
-        Description = "reasonType + опциональный reasonText."
-    )]
-    public async Task<IActionResult> ReportReview(
-        [FromServices] IReportReviewOperation operation,
-        Guid reviewId,
-        [FromBody, SwaggerRequestBody("данные жалобы", Required = true)]
-        ReportReviewRequest request,
-        CancellationToken ct)
-    {
-        var model = mapper.Map<ReportReviewOperationModel>(request) with { ReviewId = reviewId };
-        var result = await operation.ReportAsync(model, ct);
-
-        if (result.IsFailure)
-            return BadRequest(new ProblemDetails
-            {
-                Title = "report failed",
-                Detail = result.Error.Message
-            });
-
-        return NoContent();
+        // можно вернуть Location на ресурс заявки, но в спеках его нет — просто 201 с body.
+        return StatusCode(StatusCodes.Status201Created, mapper.Map<CreateCompanyRequestResponse>(result.Value));
     }
 }

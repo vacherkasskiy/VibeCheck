@@ -1,5 +1,8 @@
 using AutoMapper;
+using GamificatonService.Core.Abstractions.Enums;
 using GamificatonService.Core.Abstractions.Models;
+using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
+using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
 using GamificatonService.Core.Abstractions.Operations;
 using GamificatonService.Gateway.DTOs;
 using Microsoft.AspNetCore.Mvc;

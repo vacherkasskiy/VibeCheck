@@ -1,4 +1,7 @@
 using GamificatonService.Core.Abstractions.Models;
+using GamificatonService.Core.Abstractions.Models.GetLevel;
+using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
+using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
 using GamificatonService.Core.Abstractions.Models.Shared;
 
 namespace GamificatonService.Core.Abstractions.Operations;

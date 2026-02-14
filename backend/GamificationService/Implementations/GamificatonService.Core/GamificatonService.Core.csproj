@@ -14,6 +14,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Abstractions\GamificatonService.Core.Abstractions\GamificatonService.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.MessageBroker.Abstractions\GamificatonService.MessageBroker.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.CacheStorage.Abstractions\GamificatonService.CacheStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.CloudStorage.Abstractions\GamificatonService.CloudStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.PersistentStorage.Abstractions\GamificatonService.PersistentStorage.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

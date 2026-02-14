@@ -1,6 +1,6 @@
 using AutoMapper;
-using GamificatonService.Core.Abstractions.Operations;
-using GamificatonService.Gateway.DTOs;
+using GamificatonService.Core.Abstractions.Operations.Levels;
+using GamificatonService.Gateway.DTOs.GetLevel;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -20,17 +20,18 @@ public sealed class LevelsController(IMapper mapper) : ControllerBase
     /// GET /users/me/level — получить уровень текущего юзера
     /// </summary>
     [HttpGet("me/level")]
-    [ProducesResponseType(typeof(GetLevelResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetLevelGatewayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "уровень текущего пользователя",
         Description = "возвращает currentLevel и прогресс до следующего уровня."
     )]
-    public async Task<ActionResult<GetLevelResponse>> GetMyLevel(
-        [FromServices] IGetMyLevelOperation operation,
+    public async Task<ActionResult<GetLevelGatewayResponse>> GetMyLevel(
+        [FromServices] IGetUserLevelOperation operation,
         CancellationToken ct = default)
     {
-        var result = await operation.GetAsync(ct);
+        var userId = Guid.NewGuid(); // todo get from token
+        var result = await operation.GetAsync(userId, ct);
 
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
@@ -39,20 +40,20 @@ public sealed class LevelsController(IMapper mapper) : ControllerBase
                 Detail = result.Error.Message
             });
 
-        return Ok(mapper.Map<GetLevelResponse>(result.Value));
+        return Ok(mapper.Map<GetLevelGatewayResponse>(result.Value));
     }
 
     /// <summary>
     /// GET /users/{userId}/level — получить уровень другого юзера
     /// </summary>
     [HttpGet("{userId:guid}/level")]
-    [ProducesResponseType(typeof(GetLevelResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetLevelGatewayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "уровень пользователя",
         Description = "возвращает currentLevel и прогресс пользователя."
     )]
-    public async Task<ActionResult<GetLevelResponse>> GetUserLevel(
+    public async Task<ActionResult<GetLevelGatewayResponse>> GetUserLevel(
         [FromServices] IGetUserLevelOperation operation,
         Guid userId,
         CancellationToken ct = default)
@@ -66,6 +67,6 @@ public sealed class LevelsController(IMapper mapper) : ControllerBase
                 Detail = result.Error.Message
             });
 
-        return Ok(mapper.Map<GetLevelResponse>(result.Value));
+        return Ok(mapper.Map<GetLevelGatewayResponse>(result.Value));
     }
 }

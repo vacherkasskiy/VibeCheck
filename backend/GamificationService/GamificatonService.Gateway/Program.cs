@@ -1,6 +1,22 @@
+using System.Text.Json.Serialization;
+using GamificatonService.Core;
+using GamificatonService.Gateway.Configurations;
+using GamificatonService.PersistentStorage;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddGatewayMapperProfiles()
+    .AddCoreMapperProfiles()
+    .AddPersistentStorageServices()
+    .AddCoreServices()
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -13,9 +29,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

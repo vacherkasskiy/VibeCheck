@@ -1,4 +1,11 @@
+using GamificatonService.Core;
+using GamificatonService.PersistentStorage;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddPersistentStorageServices()
+    .AddCoreServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

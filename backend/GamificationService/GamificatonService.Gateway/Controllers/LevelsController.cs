@@ -27,10 +27,11 @@ public sealed class LevelsController(IMapper mapper) : ControllerBase
         Description = "возвращает currentLevel и прогресс до следующего уровня."
     )]
     public async Task<ActionResult<GetLevelGatewayResponse>> GetMyLevel(
-        [FromServices] IGetMyLevelOperation operation,
+        [FromServices] IGetUserLevelOperation operation,
         CancellationToken ct = default)
     {
-        var result = await operation.GetAsync(ct);
+        var userId = Guid.NewGuid(); // todo get from token
+        var result = await operation.GetAsync(userId, ct);
 
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails

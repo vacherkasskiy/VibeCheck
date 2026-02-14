@@ -13,7 +13,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IGetMyAchievementsOperation, GetMyAchievementsOperation>();
         services.AddScoped<IGetUserAchievementsOperation, GetUserAchievementsOperation>();
-        services.AddScoped<IGetMyLevelOperation, GetMyLevelOperation>();
         services.AddScoped<IGetUserLevelOperation, GetUserLevelOperation>();
 
         return services;

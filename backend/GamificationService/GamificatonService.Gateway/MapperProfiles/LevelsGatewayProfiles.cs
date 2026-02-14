@@ -4,9 +4,9 @@ using GamificatonService.Gateway.DTOs.GetLevel;
 
 namespace GamificatonService.Gateway.MapperProfiles;
 
-public class LevelsProfiles : Profile
+public class LevelsGatewayProfiles : Profile
 {
-    public LevelsProfiles()
+    public LevelsGatewayProfiles()
     {
         CreateMap<GetLevelOperationResultModel, GetLevelGatewayResponse>();
         CreateMap<ProgressIntOperationModel, ProgressIntDto>();

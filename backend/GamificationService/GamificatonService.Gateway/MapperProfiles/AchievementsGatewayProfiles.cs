@@ -6,9 +6,9 @@ using GamificatonService.Gateway.DTOs.GetUserAchievements;
 
 namespace GamificatonService.Gateway.MapperProfiles;
 
-internal sealed class AchievementsProfiles : Profile
+internal sealed class AchievementsGatewayProfiles : Profile
 {
-    public AchievementsProfiles()
+    public AchievementsGatewayProfiles()
     {
         CreateMap<GetUserAchievementsOperationResultModel, GetUserAchievementsGatewayResponse>();
         CreateMap<UserAchievementItemOperationModel, UserAchievementItemDto>();

@@ -92,7 +92,7 @@ internal sealed class MockAchievementsQueryRepository : IAchievementsQueryReposi
         if (input.UserId == Guid.Empty)
             return Task.FromResult<GetUserAchievementsRepositoryOutputModel?>(null);
 
-        var allCompleted = new List<UserAchievementRepositoryItemOutputModel>
+        var allCompleted = new List<UserAchievementItemRepositoryOutputModel>
         {
             new()
             {

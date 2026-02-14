@@ -6,7 +6,7 @@ public static class MapperConfiguration
 {
     public static IServiceCollection AddGatewayMapperProfiles(this IServiceCollection services)
     {
-        services.AddAutoMapper(typeof(SharedProfiles).Assembly);
+        services.AddAutoMapper(typeof(SharedGatewayProfiles).Assembly);
 
         return services;
     }

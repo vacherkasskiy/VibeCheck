@@ -4,9 +4,9 @@ using GamificatonService.Gateway.DTOs.GetMyAchievements;
 
 namespace GamificatonService.Gateway.MapperProfiles;
 
-internal sealed class SharedProfiles : Profile
+internal sealed class SharedGatewayProfiles : Profile
 {
-    public SharedProfiles()
+    public SharedGatewayProfiles()
     {
         CreateMap<MyAchievementsFilterStatusGatewayEnum, MyAchievementsFilterStatusOperationEnum>();
     }

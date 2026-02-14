@@ -3,6 +3,7 @@ using GamificatonService.Core.Abstractions.Enums;
 using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
 using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
 using GamificatonService.Core.Abstractions.Operations;
+using GamificatonService.Core.Abstractions.Operations.Achievements;
 using GamificatonService.Gateway.DTOs.GetMyAchievements;
 using GamificatonService.Gateway.DTOs.GetUserAchievements;
 using Microsoft.AspNetCore.Mvc;

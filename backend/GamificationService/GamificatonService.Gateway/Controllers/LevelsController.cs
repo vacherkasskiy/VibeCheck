@@ -1,6 +1,7 @@
 using AutoMapper;
 using GamificatonService.Core.Abstractions.Operations;
 using GamificatonService.Gateway.DTOs;
+using GamificatonService.Gateway.DTOs.GetLevel;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

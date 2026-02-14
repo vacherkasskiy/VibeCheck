@@ -12,7 +12,7 @@ public sealed class GetUserLevelOperation(
     ILevelsQueryRepository queryRepository)
     : IGetUserLevelOperation
 {
-    public async Task<Result<GetLevelResultModel>> GetAsync(Guid userId, CancellationToken ct)
+    public async Task<Result<GetLevelOperationResultModel>> GetAsync(Guid userId, CancellationToken ct)
     {
         var repoInput = mapper.Map<GetUserLevelRepositoryInputModel>(userId);
         var repoOutput = await queryRepository.GetUserLevelAsync(repoInput, ct);
@@ -20,6 +20,6 @@ public sealed class GetUserLevelOperation(
         if (repoOutput is null)
             return Error.NotFound("user not found");
 
-        return mapper.Map<GetLevelResultModel>(repoOutput);
+        return mapper.Map<GetLevelOperationResultModel>(repoOutput);
     }
 }

@@ -2,7 +2,7 @@ using GamificatonService.Core.Abstractions.Enums;
 
 namespace GamificatonService.Core.Abstractions.Models.GetMyAchievements;
 
-public sealed record GetMyAchievementsResultModel
+public sealed record GetMyAchievementsOperationResultModel
 {
     public required long TotalCount { get; init; }
     public required IReadOnlyList<MyAchievementItemModel> Achievements { get; init; }

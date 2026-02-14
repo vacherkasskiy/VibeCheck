@@ -1,9 +1,11 @@
 using GamificatonService.Core;
+using GamificatonService.Gateway.Configurations;
 using GamificatonService.PersistentStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddGatewayMapperProfiles()
     .AddPersistentStorageServices()
     .AddCoreServices();
 

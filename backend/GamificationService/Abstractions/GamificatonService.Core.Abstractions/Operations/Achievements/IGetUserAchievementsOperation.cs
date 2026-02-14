@@ -5,7 +5,7 @@ namespace GamificatonService.Core.Abstractions.Operations.Achievements;
 
 public interface IGetUserAchievementsOperation
 {
-    Task<Result<GetUserAchievementsResultModel>> GetAsync(
+    Task<Result<GetUserAchievementsOperationResultModel>> GetAsync(
         GetUserAchievementsOperationModel model,
         CancellationToken ct);
 }

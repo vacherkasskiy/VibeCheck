@@ -1,6 +1,6 @@
 namespace GamificatonService.Gateway.DTOs.GetMyAchievements;
 
-public sealed record GetMyAchievementsResponse
+public sealed record GetMyAchievementsGatewayResponse
 {
     public required long TotalCount { get; init; }
     public required IReadOnlyList<MyAchievementItemDto> Achievements { get; init; }

@@ -5,5 +5,5 @@ namespace GamificatonService.Core.Abstractions.Operations.Levels;
 
 public interface IGetMyLevelOperation
 {
-    Task<Result<GetLevelResultModel>> GetAsync(CancellationToken ct);
+    Task<Result<GetLevelOperationResultModel>> GetAsync(CancellationToken ct);
 }

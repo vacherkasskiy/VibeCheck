@@ -1,12 +1,12 @@
 namespace GamificatonService.Core.Abstractions.Models.GetUserAchievements;
 
-public sealed record GetUserAchievementsResultModel
+public sealed record GetUserAchievementsOperationResultModel
 {
     public required long TotalCount { get; init; }
-    public required IReadOnlyList<UserAchievementItemModel> Achievements { get; init; }
+    public required IReadOnlyList<UserAchievementItemOperationModel> Achievements { get; init; }
 }
 
-public sealed record UserAchievementItemModel
+public sealed record UserAchievementItemOperationModel
 {
     public required Guid AchievementId { get; init; }
     public required string Name { get; init; }

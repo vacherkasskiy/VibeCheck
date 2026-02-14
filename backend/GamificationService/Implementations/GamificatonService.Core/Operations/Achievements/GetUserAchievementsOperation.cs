@@ -12,7 +12,7 @@ public sealed class GetUserAchievementsOperation(
     IAchievementsQueryRepository queryRepository)
     : IGetUserAchievementsOperation
 {
-    public async Task<Result<GetUserAchievementsResultModel>> GetAsync(
+    public async Task<Result<GetUserAchievementsOperationResultModel>> GetAsync(
         GetUserAchievementsOperationModel model,
         CancellationToken ct)
     {
@@ -23,6 +23,6 @@ public sealed class GetUserAchievementsOperation(
         if (repoOutput is null)
             return Error.NotFound("user not found");
 
-        return mapper.Map<GetUserAchievementsResultModel>(repoOutput);
+        return mapper.Map<GetUserAchievementsOperationResultModel>(repoOutput);
     }
 }

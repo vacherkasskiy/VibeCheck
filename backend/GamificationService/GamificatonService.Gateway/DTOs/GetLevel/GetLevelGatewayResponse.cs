@@ -1,6 +1,6 @@
 namespace GamificatonService.Gateway.DTOs.GetLevel;
 
-public sealed record GetLevelResponse
+public sealed record GetLevelGatewayResponse
 {
     public required int CurrentLevel { get; init; }
     public required ProgressIntDto Progress { get; init; }

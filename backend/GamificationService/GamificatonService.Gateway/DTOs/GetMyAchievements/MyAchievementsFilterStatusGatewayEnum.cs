@@ -1,6 +1,6 @@
 namespace GamificatonService.Gateway.DTOs.GetMyAchievements;
 
-public enum MyAchievementsFilterStatus
+public enum MyAchievementsFilterStatusGatewayEnum
 {
     All = 0,
     Completed = 1,

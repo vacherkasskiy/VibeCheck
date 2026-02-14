@@ -12,7 +12,7 @@ public sealed class GetMyAchievementsOperation(
     IAchievementsQueryRepository queryRepository)
     : IGetMyAchievementsOperation
 {
-    public async Task<Result<GetMyAchievementsResultModel>> GetAsync(
+    public async Task<Result<GetMyAchievementsOperationResultModel>> GetAsync(
         GetMyAchievementsOperationModel model,
         CancellationToken ct)
     {
@@ -23,6 +23,6 @@ public sealed class GetMyAchievementsOperation(
         if (repoOutput is null)
             return Error.Failure("failed to load achievements");
 
-        return mapper.Map<GetMyAchievementsResultModel>(repoOutput);
+        return mapper.Map<GetMyAchievementsOperationResultModel>(repoOutput);
     }
 }

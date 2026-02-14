@@ -12,7 +12,7 @@ public sealed class GetMyLevelOperation(
     ILevelsQueryRepository queryRepository)
     : IGetMyLevelOperation
 {
-    public async Task<Result<GetLevelResultModel>> GetAsync(CancellationToken ct)
+    public async Task<Result<GetLevelOperationResultModel>> GetAsync(CancellationToken ct)
     {
         var repoInput = mapper.Map<GetMyLevelRepositoryInputModel>(new GetMyLevelOperationModel());
         var repoOutput = await queryRepository.GetMyLevelAsync(repoInput, ct);
@@ -20,7 +20,7 @@ public sealed class GetMyLevelOperation(
         if (repoOutput is null)
             return Error.Failure("failed to load current user level");
 
-        return mapper.Map<GetLevelResultModel>(repoOutput);
+        return mapper.Map<GetLevelOperationResultModel>(repoOutput);
     }
 
     private sealed record GetMyLevelOperationModel;

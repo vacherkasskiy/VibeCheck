@@ -2,7 +2,6 @@ using AutoMapper;
 using GamificatonService.Core.Abstractions.Enums;
 using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
 using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
-using GamificatonService.Core.Abstractions.Operations;
 using GamificatonService.Core.Abstractions.Operations.Achievements;
 using GamificatonService.Gateway.DTOs.GetMyAchievements;
 using GamificatonService.Gateway.DTOs.GetUserAchievements;
@@ -25,17 +24,17 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
     /// GET …/users/me/achievements — список достижений текущего пользователя (все статусы)
     /// </summary>
     [HttpGet("me/achievements")]
-    [ProducesResponseType(typeof(GetMyAchievementsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetMyAchievementsGatewayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [SwaggerOperation(
         Summary = "достижения текущего пользователя",
         Description = "возвращает весь каталог достижений пользователя с их статусами/прогрессом."
     )]
-    public async Task<ActionResult<GetMyAchievementsResponse>> GetMyAchievements(
+    public async Task<ActionResult<GetMyAchievementsGatewayResponse>> GetMyAchievements(
         [FromServices] IGetMyAchievementsOperation operation,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
-        [FromQuery] MyAchievementsFilterStatus status = MyAchievementsFilterStatus.All,
+        [FromQuery] MyAchievementsFilterStatusGatewayEnum status = MyAchievementsFilterStatusGatewayEnum.All,
         CancellationToken ct = default)
     {
         var model = new GetMyAchievementsOperationModel(
@@ -52,14 +51,14 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
                 Detail = result.Error.Message
             });
 
-        return Ok(mapper.Map<GetMyAchievementsResponse>(result.Value));
+        return Ok(mapper.Map<GetMyAchievementsGatewayResponse>(result.Value));
     }
 
     /// <summary>
     /// GET …/users/{userId}/achievements — список полученных достижений другого пользователя
     /// </summary>
     [HttpGet("{userId:guid}/achievements")]
-    [ProducesResponseType(typeof(GetUserAchievementsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetUserAchievementsGatewayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -67,7 +66,7 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
         Summary = "полученные достижения пользователя",
         Description = "всегда возвращает только полученные достижения другого пользователя."
     )]
-    public async Task<ActionResult<GetUserAchievementsResponse>> GetUserAchievements(
+    public async Task<ActionResult<GetUserAchievementsGatewayResponse>> GetUserAchievements(
         [FromServices] IGetUserAchievementsOperation operation,
         Guid userId,
         [FromQuery] long take = 20,
@@ -105,6 +104,6 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
             });
         }
 
-        return Ok(mapper.Map<GetUserAchievementsResponse>(result.Value));
+        return Ok(mapper.Map<GetUserAchievementsGatewayResponse>(result.Value));
     }
 }

@@ -1,7 +1,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ReviewService.Core.Abstractions.Models;
+using ReviewService.Core.Abstractions.Models.Companies.CreateCompany;
+using ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
+using ReviewService.Core.Abstractions.Models.Companies.GetCompanyFlags;
 using ReviewService.Core.Abstractions.Operations;
+using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Gateway.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -143,7 +147,7 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
         CreateCompanyRequest request,
         CancellationToken ct)
     {
-        var model = mapper.Map<CreateCompanyRequestOperationModel>(request);
+        var model = mapper.Map<CreateCompanyOperationRequestModel>(request);
         var result = await operation.CreateAsync(model, ct);
 
         if (result.IsFailure)

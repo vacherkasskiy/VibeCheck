@@ -1,7 +1,16 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models;
+using ReviewService.Core.Abstractions.Models.Reviews.CreateCompanyReview;
+using ReviewService.Core.Abstractions.Models.Reviews.DeleteCompanyReview;
+using ReviewService.Core.Abstractions.Models.Reviews.GetCompanyReviews;
+using ReviewService.Core.Abstractions.Models.Reviews.GetMyReviews;
+using ReviewService.Core.Abstractions.Models.Reviews.GetUserReviews;
+using ReviewService.Core.Abstractions.Models.Reviews.ReportReview;
+using ReviewService.Core.Abstractions.Models.Reviews.UpdateCompanyReview;
 using ReviewService.Core.Abstractions.Operations;
+using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.Gateway.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 

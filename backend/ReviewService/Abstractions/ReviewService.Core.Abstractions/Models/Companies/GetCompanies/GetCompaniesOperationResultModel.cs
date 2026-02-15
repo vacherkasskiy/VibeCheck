@@ -1,6 +1,6 @@
 namespace ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 
-public sealed record GetCompaniesResultModel
+public sealed record GetCompaniesOperationResultModel
 {
     public required long TotalCount { get; init; }
     public required IReadOnlyList<CompanyListItemModel> Companies { get; init; }

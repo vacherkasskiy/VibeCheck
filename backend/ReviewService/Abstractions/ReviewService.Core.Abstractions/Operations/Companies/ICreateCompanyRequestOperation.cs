@@ -1,4 +1,3 @@
-using ReviewService.Core.Abstractions.Models;
 using ReviewService.Core.Abstractions.Models.Companies.CreateCompany;
 using ReviewService.Core.Abstractions.Models.Shared;
 

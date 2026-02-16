@@ -1,4 +1,4 @@
-namespace ReviewService.PersistentStorage.Abstractions.Models.Companies;
+namespace ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanyFlags;
 
 public sealed record GetCompanyFlagsRepositoryInputModel
 {

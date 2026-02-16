@@ -168,7 +168,13 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
         [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
         CancellationToken ct = default)
     {
-        var model = new GetMyReviewsOperationModel(take, pageNum, mapper.Map<ReviewsSortOperationEnum>(sort));
+        var currentUserId = Guid.NewGuid(); // todo
+        var model = new GetMyReviewsOperationModel(
+            currentUserId,
+            take,
+            pageNum,
+            mapper.Map<ReviewsSortOperationEnum>(sort));
+
         var result = await operation.GetAsync(model, ct);
 
         if (result.IsFailure)

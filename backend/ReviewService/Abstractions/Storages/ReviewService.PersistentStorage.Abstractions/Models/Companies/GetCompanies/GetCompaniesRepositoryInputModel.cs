@@ -1,9 +1,5 @@
-namespace ReviewService.PersistentStorage.Abstractions.Models.Companies;
+namespace ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies;
 
-/// <summary>
-/// input для GET /companies.
-/// только реально нужные поля из спеки.
-/// </summary>
 public sealed record GetCompaniesRepositoryInputModel
 {
     public string? Query { get; init; }   // поиск по названию/описанию

@@ -1,6 +1,6 @@
-namespace ReviewService.PersistentStorage.Abstractions.Models.Companies;
+namespace ReviewService.PersistentStorage.Abstractions.Models.Companies.Shared;
 
-public sealed record CompanyFlagRepositoryModel
+public sealed record FlagCountRepositoryModel
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }

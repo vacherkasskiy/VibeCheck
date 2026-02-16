@@ -3,11 +3,12 @@ using ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies;
+using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
 namespace ReviewService.Core.Operations.Companies;
 
-public sealed class GetCompaniesOperation(
+internal sealed class GetCompaniesOperation(
     IMapper mapper,
     ICompaniesQueryRepository queryRepository)
     : IGetCompaniesOperation

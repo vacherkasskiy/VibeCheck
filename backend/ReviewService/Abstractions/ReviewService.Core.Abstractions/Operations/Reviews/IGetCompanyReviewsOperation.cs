@@ -5,5 +5,7 @@ namespace ReviewService.Core.Abstractions.Operations.Reviews;
 
 public interface IGetCompanyReviewsOperation
 {
-    Task<Result<CompanyReviewsPageOperationModel>> GetAsync(GetCompanyReviewsOperationModel model, CancellationToken ct);
+    Task<Result<CompanyReviewsPageOperationModel>> GetAsync(
+        GetCompanyReviewsOperationModel model,
+        CancellationToken ct);
 }

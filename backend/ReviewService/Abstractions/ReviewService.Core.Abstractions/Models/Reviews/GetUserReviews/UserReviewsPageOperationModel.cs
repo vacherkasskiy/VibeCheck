@@ -15,5 +15,5 @@ public sealed record UserReviewReadOperationModel
     public required string Text { get; init; }
     public required long Score { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }
-    public required IReadOnlyList<FlagReadOperationModel> Flags { get; init; }
+    public required IReadOnlyList<FlagOperationModel> Flags { get; init; }
 }

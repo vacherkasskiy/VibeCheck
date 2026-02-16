@@ -7,7 +7,7 @@ using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
 namespace ReviewService.Core.Operations.Reviews;
 
-public sealed class GetUserReviewsOperation(
+internal sealed class GetUserReviewsOperation(
     IMapper mapper,
     IReviewsQueryRepository queryRepository)
     : IGetUserReviewsOperation

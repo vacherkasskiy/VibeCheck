@@ -4,5 +4,5 @@ public sealed record GetCompanyFlagsOperationResultModel
 {
     public required Guid CompanyId { get; init; }
     public required long TotalCount { get; init; }
-    public required IReadOnlyList<FlagCountModel> Flags { get; init; }
+    public required IReadOnlyList<CompanyFlagOperationModel> Flags { get; init; }
 }

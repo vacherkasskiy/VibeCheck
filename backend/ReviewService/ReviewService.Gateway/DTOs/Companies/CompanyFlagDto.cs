@@ -1,4 +1,4 @@
-namespace ReviewService.Gateway.DTOs;
+namespace ReviewService.Gateway.DTOs.Companies;
 
 public sealed record CompanyFlagDto
 {

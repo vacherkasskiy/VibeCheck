@@ -1,6 +1,6 @@
 namespace ReviewService.Core.Abstractions.Models.Companies;
 
-public sealed record FlagCountModel
+public sealed record CompanyFlagOperationModel
 {
     public required Guid Id { get; init; }
     public required string Name { get; init; }

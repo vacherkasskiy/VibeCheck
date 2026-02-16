@@ -12,5 +12,5 @@ public sealed record CompanyListItemModel
     public required string Name { get; init; }
     public required string IconId { get; init; }
     public required double Weight { get; init; }
-    public required IReadOnlyList<FlagCountModel> TopFlags { get; init; } // max 5
+    public required IReadOnlyList<CompanyFlagOperationModel> TopFlags { get; init; } // max 5
 }

@@ -12,6 +12,10 @@ using ReviewService.Core.Abstractions.Models.Reviews.UpdateCompanyReview;
 using ReviewService.Core.Abstractions.Operations;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.Gateway.DTOs;
+using ReviewService.Gateway.DTOs.Reviews.CreateCompanyReview;
+using ReviewService.Gateway.DTOs.Reviews.DeleteCompanyReview;
+using ReviewService.Gateway.DTOs.Reviews.GetCompanyReviews;
+using ReviewService.Gateway.DTOs.Reviews.GetUserReviews;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ReviewService.Gateway.Controllers;
@@ -136,7 +140,7 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
         Guid companyId,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
+        [FromQuery] ReviewsSortGatewayEnum sort = ReviewsSortGatewayEnum.Newest,
         CancellationToken ct = default)
     {
         var model = new GetCompanyReviewsOperationModel(companyId, take, pageNum, mapper.Map<ReviewsSortOperationEnum>(sort));
@@ -165,7 +169,7 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
         [FromServices] IGetMyReviewsOperation operation,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
+        [FromQuery] ReviewsSortGatewayEnum sort = ReviewsSortGatewayEnum.Newest,
         CancellationToken ct = default)
     {
         var currentUserId = Guid.NewGuid(); // todo
@@ -201,7 +205,7 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
         Guid userId,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
-        [FromQuery] ReviewsSort sort = ReviewsSort.Newest,
+        [FromQuery] ReviewsSortGatewayEnum sort = ReviewsSortGatewayEnum.Newest,
         CancellationToken ct = default)
     {
         var model = new GetUserReviewsOperationModel(userId, take, pageNum, mapper.Map<ReviewsSortOperationEnum>(sort));

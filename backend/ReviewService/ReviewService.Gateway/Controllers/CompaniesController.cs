@@ -7,6 +7,10 @@ using ReviewService.Core.Abstractions.Models.Companies.GetCompanyFlags;
 using ReviewService.Core.Abstractions.Operations;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Gateway.DTOs;
+using ReviewService.Gateway.DTOs.Companies.CreateCompany;
+using ReviewService.Gateway.DTOs.Companies.GetCompanies;
+using ReviewService.Gateway.DTOs.Companies.GetCompany;
+using ReviewService.Gateway.DTOs.Companies.GetCompanyFlags;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ReviewService.Gateway.Controllers;
@@ -134,14 +138,14 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
     /// </summary>
     [HttpPost]
     [Consumes("application/json")]
-    [ProducesResponseType(typeof(CreateCompanyRequestResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CreateCompanyResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [SwaggerOperation(
         Summary = "заявка на добавление компании",
         Description = "создаёт заявку (status=pending). 403 — если политика запрещает подачу заявок."
     )]
-    public async Task<ActionResult<CreateCompanyRequestResponse>> CreateCompanyRequest(
+    public async Task<ActionResult<CreateCompanyResponse>> CreateCompanyRequest(
         [FromServices] ICreateCompanyRequestOperation operation,
         [FromBody, SwaggerRequestBody("данные заявки", Required = true)]
         CreateCompanyRequest request,
@@ -169,6 +173,6 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
         }
 
         // можно вернуть Location на ресурс заявки, но в спеках его нет — просто 201 с body.
-        return StatusCode(StatusCodes.Status201Created, mapper.Map<CreateCompanyRequestResponse>(result.Value));
+        return StatusCode(StatusCodes.Status201Created, mapper.Map<CreateCompanyResponse>(result.Value));
     }
 }

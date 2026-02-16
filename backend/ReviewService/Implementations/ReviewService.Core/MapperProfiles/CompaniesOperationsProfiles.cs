@@ -36,7 +36,8 @@ internal sealed class CompaniesOperationsProfiles : Profile
 
         // repository output -> operation result
         CreateMap<GetCompanyRepositoryOutputModel, GetCompanyOperationResultModel>();
-        CreateMap<CompanyLinksRepositoryModel, CompanyFlagOperationModel>();
+        CreateMap<CompanyLinksRepositoryModel, CompanyLinksOperationModel>();
+        CreateMap<FlagCountRepositoryModel, CompanyFlagOperationModel>();
 
         // operation input -> repository input
         CreateMap<GetCompanyFlagsOperationModel, GetCompanyFlagsRepositoryInputModel>();

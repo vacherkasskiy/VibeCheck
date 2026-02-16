@@ -6,11 +6,11 @@ public sealed record GetCompanyOperationResultModel
     public required string Name { get; init; }
     public required string IconId { get; init; }
     public required string Description { get; init; }
-    public CompanyLinksModel? Links { get; init; }
+    public CompanyLinksOperationModel? Links { get; init; }
     public required IReadOnlyList<CompanyFlagOperationModel> TopFlags { get; init; } // max 20
 }
 
-public sealed record CompanyLinksModel
+public sealed record CompanyLinksOperationModel
 {
     public string? Site { get; init; }
     public string? Linkedin { get; init; }

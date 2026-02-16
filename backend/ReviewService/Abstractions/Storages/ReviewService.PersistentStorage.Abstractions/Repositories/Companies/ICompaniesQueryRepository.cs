@@ -1,4 +1,3 @@
-using ReviewService.PersistentStorage.Abstractions.Models.Companies;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompany;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanyFlags;

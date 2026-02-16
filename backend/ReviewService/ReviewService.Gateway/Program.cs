@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using ReviewService.Core;
 using ReviewService.Gateway.Configurations;
+using ReviewService.PersistentStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
     .AddCoreServices()
+    .AddPersistentStorageServices()
     .AddControllers()
     .AddJsonOptions(options =>
     {

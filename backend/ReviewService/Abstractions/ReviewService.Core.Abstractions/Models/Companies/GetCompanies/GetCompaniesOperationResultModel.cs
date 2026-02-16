@@ -3,10 +3,10 @@ namespace ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 public sealed record GetCompaniesOperationResultModel
 {
     public required long TotalCount { get; init; }
-    public required IReadOnlyList<CompanyListItemModel> Companies { get; init; }
+    public required IReadOnlyList<CompanyListItemOperationModel> Companies { get; init; }
 }
 
-public sealed record CompanyListItemModel
+public sealed record CompanyListItemOperationModel
 {
     public required Guid CompanyId { get; init; }
     public required string Name { get; init; }

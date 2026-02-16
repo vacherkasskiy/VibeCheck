@@ -1,12 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.Core.MapperProfiles;
 using ReviewService.Core.Operations.Companies;
 using ReviewService.Core.Operations.Reviews;
 
 namespace ReviewService.Core;
 
-public static class ServiceCollectionExtension
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
@@ -19,6 +20,14 @@ public static class ServiceCollectionExtension
         services.AddScoped<IGetCompanyReviewsOperation, GetCompanyReviewsOperation>();
         services.AddScoped<IGetMyReviewsOperation, GetMyReviewsOperation>();
         services.AddScoped<IGetUserReviewsOperation, GetUserReviewsOperation>();
+
+        return services;
+    }
+    
+    public static IServiceCollection AddCoreMapperProfiles(
+        this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(SharedOperationsProfiles).Assembly);
 
         return services;
     }

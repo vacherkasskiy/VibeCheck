@@ -1,4 +1,4 @@
-using ReviewService.PersistentStorage.Abstractions.Models.Companies.Shared;
+using ReviewService.PersistentStorage.Abstractions.Models.Shared;
 
 namespace ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompany;
 

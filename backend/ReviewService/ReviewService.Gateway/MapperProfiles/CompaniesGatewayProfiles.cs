@@ -23,7 +23,7 @@ public sealed class CompaniesGatewayProfiles : Profile
 
         // GET /companies
         CreateMap<GetCompaniesOperationResultModel, GetCompaniesResponse>();
-        CreateMap<CompanyListItemModel, CompanyListItemDto>();
+        CreateMap<CompanyListItemOperationModel, CompanyListItemDto>();
         CreateMap<CompanyFlagOperationModel, CompanyFlagDto>();
 
         // GET /companies/{companyId}

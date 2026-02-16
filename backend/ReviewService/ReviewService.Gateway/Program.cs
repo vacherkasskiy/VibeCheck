@@ -1,9 +1,12 @@
 using System.Text.Json.Serialization;
 using ReviewService.Core;
+using ReviewService.Gateway.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddGatewayMapperProfiles()
+    .AddCoreMapperProfiles()
     .AddCoreServices()
     .AddControllers()
     .AddJsonOptions(options =>

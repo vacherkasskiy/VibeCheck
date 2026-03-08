@@ -9,7 +9,7 @@ public sealed record GetCompanyRepositoryOutputModel
     public required string IconId { get; init; }
     public required string Description { get; init; }
     public CompanyLinksRepositoryModel? Links { get; init; }
-    public required IReadOnlyList<FlagCountRepositoryModel> TopFlags { get; init; }
+    public required IReadOnlyList<FlagCountRepositoryModel> TopFlags { get; set; }
 }
 
 public sealed record CompanyLinksRepositoryModel

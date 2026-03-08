@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using ReviewService.Core;
 using ReviewService.Gateway.Configurations;
-using ReviewService.PersistentStorage;
+using ReviewService.PersistentStorage.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +10,7 @@ builder.Services
     .AddCoreMapperProfiles()
     .AddApplicationOptions(builder.Configuration)
     .AddCoreServices()
+    .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()
     .AddControllers()
     .AddJsonOptions(options =>
@@ -32,4 +33,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();
+
 app.Run();

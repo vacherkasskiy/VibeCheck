@@ -1,0 +1,25 @@
+insert into review_reports (id, review_id, reporter_id, reason_type, reason_text, created_at)
+values ('f3c4ab91-bae3-4e7b-8649-5fa3fd1f0901',
+        'baf9e0c0-4930-4b13-b1e7-8ef5218c0108',
+        '4d3f9d74-c4cb-4e6f-8d31-4ef4c2eaa101',
+        'toxicity',
+        'формулировки слишком эмоциональные и почти без конкретики по процессам',
+        now() - interval '8 days'),
+       ('b2f4ce04-2a86-4e3d-bf7f-f9d3645a0902',
+        'c16d3c74-4f4e-4f4d-8ea8-5c5348a30110',
+        '69b7f1de-3a0d-43bd-a6ef-3ecbfe6b7103',
+        'misleading',
+        'слишком общий отзыв, непонятно про какую именно команду идёт речь',
+        now() - interval '14 days'),
+       ('9d7cbad0-64ff-43b7-b614-6df3d7280903',
+        '1d6e0d2d-71c1-4cd8-82ef-bfef89b70106',
+        'a4f9a730-6a71-41cb-97a1-365a4f4b6110',
+        'other',
+        'нужна дополнительная ручная модерация перед финальным показом',
+        now() - interval '13 days') on conflict (id) do
+update
+    set review_id = excluded.review_id,
+    reporter_id = excluded.reporter_id,
+    reason_type = excluded.reason_type,
+    reason_text = excluded.reason_text,
+    created_at = excluded.created_at;

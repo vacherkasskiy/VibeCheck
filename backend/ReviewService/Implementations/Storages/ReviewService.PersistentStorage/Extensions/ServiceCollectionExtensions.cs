@@ -4,17 +4,18 @@ using Microsoft.Extensions.Options;
 using ReviewService.PersistentStorage.Abstractions.Options;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
+using ReviewService.PersistentStorage.MapperProfiles;
 using ReviewService.PersistentStorage.Repositories.Companies;
 using ReviewService.PersistentStorage.Repositories.Reviews;
 
-namespace ReviewService.PersistentStorage;
+namespace ReviewService.PersistentStorage.Extensions;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddPersistentStorageServices(this IServiceCollection services)
     {
-        services.AddScoped<ICompaniesQueryRepository,  MockCompaniesQueryRepository>();
-        services.AddScoped<IReviewsQueryRepository,  MockReviewsQueryRepository>();
+        services.AddScoped<ICompaniesQueryRepository, CompaniesQueryRepository>();
+        services.AddScoped<IReviewsQueryRepository, ReviewsQueryRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
@@ -27,6 +28,14 @@ public static class ServiceCollectionExtensions
                     npgsqlOptions.CommandTimeout(postgresOptions.CommandTimeout);
                 });
         });
+
+        return services;
+    }
+    
+    public static IServiceCollection AddPersistentStorageMapperProfiles(
+        this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(CompaniesRepositoryProfile).Assembly);
 
         return services;
     }

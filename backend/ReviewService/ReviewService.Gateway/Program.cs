@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
+    .AddApplicationOptions(builder.Configuration)
     .AddCoreServices()
     .AddPersistentStorageServices()
     .AddControllers()

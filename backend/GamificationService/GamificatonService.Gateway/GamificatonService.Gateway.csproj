@@ -17,17 +17,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Implementations\GamificatonService.MessageBroker\GamificatonService.MessageBroker.csproj" />
       <ProjectReference Include="..\Implementations\Storages\GamificatonService.CacheStorage\GamificatonService.CacheStorage.csproj" />
       <ProjectReference Include="..\Implementations\Storages\GamificatonService.CloudStorage\GamificatonService.CloudStorage.csproj" />
       <ProjectReference Include="..\Implementations\Storages\GamificatonService.PersistentStorage\GamificatonService.PersistentStorage.csproj" />
       <ProjectReference Include="..\Implementations\GamificatonService.Core\GamificatonService.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

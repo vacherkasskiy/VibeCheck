@@ -1,9 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.Core.MapperProfiles;
 using ReviewService.Core.Operations.Companies;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Options;
 
 namespace ReviewService.Core;
 
@@ -21,6 +23,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetMyReviewsOperation, GetMyReviewsOperation>();
         services.AddScoped<IGetUserReviewsOperation, GetUserReviewsOperation>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddApplicationOptions(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<DbOptions>(
+            configuration.GetSection(nameof(DbOptions)));
+        
         return services;
     }
     

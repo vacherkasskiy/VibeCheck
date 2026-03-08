@@ -1,0 +1,35 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "postgres"
+      username: "app_user"
+      password: "app_password"
+      database: "pet_db"
+
+architecture: standalone
+
+primary:
+  persistence:
+    enabled: true
+    size: 2Gi
+
+  service:
+    type: NodePort
+    ports:
+      postgresql: 5432
+    nodePorts:
+      postgresql: 30432
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+volumePermissions:
+  enabled: true
+
+metrics:
+  enabled: false

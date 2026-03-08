@@ -18,6 +18,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetCompanyFlagsOperation, GetCompanyFlagsOperation>();
         services.AddScoped<IGetCompanyOperation, GetCompanyOperation>();
         
+        services.AddScoped<ICreateCompanyRequestOperation, CreateCompanyRequestOperation>();
+        
         // Reviews
         services.AddScoped<IGetCompanyReviewsOperation, GetCompanyReviewsOperation>();
         services.AddScoped<IGetMyReviewsOperation, GetMyReviewsOperation>();

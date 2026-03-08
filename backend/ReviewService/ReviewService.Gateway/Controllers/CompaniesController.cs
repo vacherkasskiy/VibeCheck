@@ -156,8 +156,6 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
 
         if (result.IsFailure)
         {
-            // если у тебя есть код ошибки для политики — лучше маппить по нему.
-            // сейчас: условно 403, если код "policy_forbidden", иначе 400.
             if (string.Equals(result.Error.Message, "policy_forbidden", StringComparison.OrdinalIgnoreCase))
                 return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
                 {
@@ -171,8 +169,7 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
                 Detail = result.Error.Message
             });
         }
-
-        // можно вернуть Location на ресурс заявки, но в спеках его нет — просто 201 с body.
+        
         return StatusCode(StatusCodes.Status201Created, mapper.Map<CreateCompanyResponse>(result.Value));
     }
 }

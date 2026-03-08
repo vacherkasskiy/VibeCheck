@@ -17,7 +17,6 @@ internal sealed class GetMyReviewsOperation(
         GetMyReviewsOperationModel model,
         CancellationToken ct)
     {
-        // currentUserId должен приходить из api слоя (контроллер), полностью согласен.
         if (model.CurrentUserId == Guid.Empty)
             return Error.Validation("currentUserId is required");
 

@@ -15,6 +15,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddPersistentStorageServices(this IServiceCollection services)
     {
         services.AddScoped<ICompaniesQueryRepository, CompaniesQueryRepository>();
+        services.AddScoped<ICompaniesCommandRepository, CompaniesCommandRepository>();
+
         services.AddScoped<IReviewsQueryRepository, ReviewsQueryRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>

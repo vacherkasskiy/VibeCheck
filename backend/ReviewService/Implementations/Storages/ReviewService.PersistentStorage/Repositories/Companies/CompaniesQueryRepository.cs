@@ -13,6 +13,33 @@ internal sealed class CompaniesQueryRepository(
     IMapper mapper)
     : ICompaniesQueryRepository
 {
+    public Task<bool> CompanyExistsByNameAsync(
+        string name,
+        CancellationToken ct)
+    {
+        var normalizedName = name.Trim();
+
+        return dbContext.Companies
+            .AsNoTracking()
+            .AnyAsync(
+                x => EF.Functions.ILike(x.Name, normalizedName),
+                ct);
+    }
+
+    public Task<bool> PendingCompanyRequestExistsByNameAsync(
+        string name,
+        CancellationToken ct)
+    {
+        var normalizedName = name.Trim();
+
+        return dbContext.CompanyRequests
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.Status == "pending" &&
+                     EF.Functions.ILike(x.Name, normalizedName),
+                ct);
+    }
+    
     public async Task<GetCompaniesRepositoryOutputModel?> GetCompaniesAsync(
         GetCompaniesRepositoryInputModel input,
         CancellationToken ct)

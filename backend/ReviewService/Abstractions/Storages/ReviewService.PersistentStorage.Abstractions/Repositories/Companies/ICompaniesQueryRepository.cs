@@ -6,6 +6,10 @@ namespace ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
 public interface ICompaniesQueryRepository
 {
+    Task<bool> CompanyExistsByNameAsync(string name, CancellationToken ct);
+
+    public Task<bool> PendingCompanyRequestExistsByNameAsync(string name, CancellationToken ct);
+    
     Task<GetCompaniesRepositoryOutputModel?> GetCompaniesAsync(
         GetCompaniesRepositoryInputModel input,
         CancellationToken ct);

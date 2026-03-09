@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models;
+using ReviewService.Core.Abstractions.Models.Reviews;
 using ReviewService.Core.Abstractions.Models.Reviews.CreateCompanyReview;
 using ReviewService.Core.Abstractions.Models.Reviews.DeleteCompanyReview;
 using ReviewService.Core.Abstractions.Models.Reviews.GetCompanyReviews;
@@ -114,7 +115,8 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
         DeleteCompanyReviewRequest request,
         CancellationToken ct)
     {
-        var model = mapper.Map<DeleteCompanyReviewOperationModel>(request) with { ReviewId = reviewId };
+        // todo
+        var model = mapper.Map<DeleteCompanyReviewOperationModel>(request) with { UserId = Guid.NewGuid() };
         var result = await operation.DeleteAsync(model, ct);
 
         if (result.IsFailure)

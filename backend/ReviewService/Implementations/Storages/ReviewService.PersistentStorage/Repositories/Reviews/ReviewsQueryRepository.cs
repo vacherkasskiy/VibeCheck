@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ReviewService.PersistentStorage.Abstractions.Enums;
+using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetCompanyReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
@@ -15,10 +16,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
         GetCompanyReviewsRepositoryInputModel input,
         CancellationToken ct)
     {
-        var companyExists = await dbContext.Companies
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == input.CompanyId, ct);
-
+        var companyExists = await CompanyExistsAsync(input.CompanyId, ct);
         if (!companyExists)
             return null;
 
@@ -48,9 +46,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             })
             .ToListAsync(ct);
 
-        var reviewIds = reviews
-            .Select(x => x.Id)
-            .ToArray();
+        var reviewIds = reviews.Select(x => x.Id).ToArray();
 
         var flagsRaw = await dbContext.ReviewFlags
             .AsNoTracking()
@@ -71,17 +67,15 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             .GroupBy(x => x.ReviewId)
             .ToDictionary(
                 g => g.Key,
-                g => (IReadOnlyList<FlagRepositoryModel>)g
-                    .Select(x => x.Flag)
-                    .ToList());
+                g => (IReadOnlyList<FlagRepositoryModel>)g.Select(x => x.Flag).ToList());
 
         var items = reviews
             .Select(x => new CompanyReviewRepositoryItemOutputModel
             {
                 ReviewId = x.Id,
                 AuthorId = x.AuthorId,
-                IconId = x.AuthorIconId ?? string.Empty,
-                Text = x.Text ?? string.Empty,
+                IconId = x.AuthorIconId,
+                Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Weight = 0, // пока без имплементации
@@ -125,9 +119,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             })
             .ToListAsync(ct);
 
-        var reviewIds = reviews
-            .Select(x => x.Id)
-            .ToArray();
+        var reviewIds = reviews.Select(x => x.Id).ToArray();
 
         var flagsRaw = await dbContext.ReviewFlags
             .AsNoTracking()
@@ -148,9 +140,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             .GroupBy(x => x.ReviewId)
             .ToDictionary(
                 g => g.Key,
-                g => (IReadOnlyList<FlagRepositoryModel>)g
-                    .Select(x => x.Flag)
-                    .ToList());
+                g => (IReadOnlyList<FlagRepositoryModel>)g.Select(x => x.Flag).ToList());
 
         var items = reviews
             .Select(x => new UserReviewRepositoryItemOutputModel
@@ -158,7 +148,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
                 AuthorId = null,
-                Text = x.Text ?? string.Empty,
+                Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
@@ -208,9 +198,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             })
             .ToListAsync(ct);
 
-        var reviewIds = reviews
-            .Select(x => x.Id)
-            .ToArray();
+        var reviewIds = reviews.Select(x => x.Id).ToArray();
 
         var flagsRaw = await dbContext.ReviewFlags
             .AsNoTracking()
@@ -231,9 +219,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             .GroupBy(x => x.ReviewId)
             .ToDictionary(
                 g => g.Key,
-                g => (IReadOnlyList<FlagRepositoryModel>)g
-                    .Select(x => x.Flag)
-                    .ToList());
+                g => (IReadOnlyList<FlagRepositoryModel>)g.Select(x => x.Flag).ToList());
 
         var items = reviews
             .Select(x => new UserReviewRepositoryItemOutputModel
@@ -241,7 +227,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
                 AuthorId = null,
-                Text = x.Text ?? string.Empty,
+                Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
@@ -255,43 +241,78 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
         };
     }
 
+    public Task<bool> CompanyExistsAsync(Guid companyId, CancellationToken ct) =>
+        dbContext.Companies
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == companyId, ct);
+
+    public Task<bool> ReviewExistsAsync(Guid reviewId, CancellationToken ct) =>
+        dbContext.Reviews
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == reviewId, ct);
+
+    public async Task<bool> AllFlagsExistAsync(IReadOnlyCollection<Guid> flagIds, CancellationToken ct)
+    {
+        var distinctIds = flagIds.Distinct().ToArray();
+
+        var count = await dbContext.Flags
+            .AsNoTracking()
+            .CountAsync(x => distinctIds.Contains(x.Id), ct);
+
+        return count == distinctIds.Length;
+    }
+
+    public Task<ReviewOwnershipRepositoryModel?> GetReviewOwnershipAsync(Guid reviewId, CancellationToken ct) =>
+        dbContext.Reviews
+            .AsNoTracking()
+            .Where(x => x.Id == reviewId)
+            .Select(x => new ReviewOwnershipRepositoryModel
+            {
+                ReviewId = x.Id,
+                AuthorId = x.AuthorId,
+                IsDeleted = x.DeletedAt != null
+            })
+            .FirstOrDefaultAsync(ct);
+
+    public Task<ReviewEditInfoRepositoryModel?> GetReviewEditInfoAsync(Guid reviewId, CancellationToken ct) =>
+        dbContext.Reviews
+            .AsNoTracking()
+            .Where(x => x.Id == reviewId)
+            .Select(x => new ReviewEditInfoRepositoryModel
+            {
+                ReviewId = x.Id,
+                AuthorId = x.AuthorId,
+                CreatedAtUtc = x.CreatedAt,
+                IsDeleted = x.DeletedAt != null
+            })
+            .FirstOrDefaultAsync(ct);
+
+    public Task<bool> ReportAlreadyExistsAsync(
+        Guid reviewId,
+        Guid reporterId,
+        string reasonType,
+        CancellationToken ct) =>
+        dbContext.ReviewReports
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.ReviewId == reviewId &&
+                     x.ReporterId == reporterId &&
+                     x.ReasonType == reasonType,
+                ct);
+
     private static IQueryable<ReviewEntity> ApplySort(
         IQueryable<ReviewEntity> query,
         ReviewsSortRepositoryEnum sort)
     {
         return sort switch
         {
-            ReviewsSortRepositoryEnum.Newest => query
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id),
-
-            ReviewsSortRepositoryEnum.Oldest => query
-                .OrderBy(x => x.CreatedAt)
-                .ThenBy(x => x.Id),
-
-            ReviewsSortRepositoryEnum.BestScore => query
-                .OrderByDescending(x => x.Score)
-                .ThenByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id),
-
-            ReviewsSortRepositoryEnum.WorstScore => query
-                .OrderBy(x => x.Score)
-                .ThenByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id),
-
-            // пока без имплементации веса
-            // todo
-            ReviewsSortRepositoryEnum.WeightDesc => query
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id),
-
-            ReviewsSortRepositoryEnum.WeightAsc => query
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id),
-
-            _ => query
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id)
+            ReviewsSortRepositoryEnum.Newest => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            ReviewsSortRepositoryEnum.Oldest => query.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id),
+            ReviewsSortRepositoryEnum.BestScore => query.OrderByDescending(x => x.Score).ThenByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            ReviewsSortRepositoryEnum.WorstScore => query.OrderBy(x => x.Score).ThenByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            ReviewsSortRepositoryEnum.WeightDesc => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            ReviewsSortRepositoryEnum.WeightAsc => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id),
+            _ => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id)
         };
     }
 

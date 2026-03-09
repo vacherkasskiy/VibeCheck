@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICompaniesCommandRepository, CompaniesCommandRepository>();
 
         services.AddScoped<IReviewsQueryRepository, ReviewsQueryRepository>();
+        services.AddScoped<IReviewsCommandRepository, ReviewsCommandRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {

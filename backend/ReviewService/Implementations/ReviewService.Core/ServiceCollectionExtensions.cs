@@ -17,13 +17,19 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetCompaniesOperation, GetCompaniesOperation>();
         services.AddScoped<IGetCompanyFlagsOperation, GetCompanyFlagsOperation>();
         services.AddScoped<IGetCompanyOperation, GetCompanyOperation>();
-        
+
         services.AddScoped<ICreateCompanyRequestOperation, CreateCompanyRequestOperation>();
-        
+
         // Reviews
         services.AddScoped<IGetCompanyReviewsOperation, GetCompanyReviewsOperation>();
         services.AddScoped<IGetMyReviewsOperation, GetMyReviewsOperation>();
         services.AddScoped<IGetUserReviewsOperation, GetUserReviewsOperation>();
+
+        services.AddScoped<ICreateCompanyReviewOperation, CreateCompanyReviewOperation>();
+        services.AddScoped<IUpdateCompanyReviewOperation, UpdateCompanyReviewOperation>();
+        services.AddScoped<IDeleteCompanyReviewOperation, DeleteCompanyReviewOperation>();
+        services.AddScoped<IVoteReviewOperation, VoteReviewOperation>();
+        services.AddScoped<IReportReviewOperation, ReportReviewOperation>();
 
         return services;
     }
@@ -34,10 +40,10 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DbOptions>(
             configuration.GetSection(nameof(DbOptions)));
-        
+
         return services;
     }
-    
+
     public static IServiceCollection AddCoreMapperProfiles(
         this IServiceCollection services)
     {

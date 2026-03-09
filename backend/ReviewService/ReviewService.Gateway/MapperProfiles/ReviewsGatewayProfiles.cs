@@ -20,9 +20,27 @@ public sealed class ReviewsGatewayProfiles : Profile
     public ReviewsGatewayProfiles()
     {
         // create/update/delete
-        CreateMap<CreateCompanyReviewRequest, CreateCompanyReviewOperationModel>();
-        CreateMap<UpdateCompanyReviewRequest, UpdateCompanyReviewOperationModel>();
         CreateMap<DeleteCompanyReviewRequest, DeleteCompanyReviewOperationModel>();
+        
+        CreateMap<CreateCompanyReviewRequest, CreateCompanyReviewOperationModel>()
+            .ForMember(x => x.UserId, opt => opt.Ignore());
+        
+        CreateMap<UpdateCompanyReviewRequest, UpdateCompanyReviewOperationModel>()
+            .ForMember(x => x.ReviewId, opt => opt.Ignore())
+            .ForMember(x => x.UserId, opt => opt.Ignore());
+
+        CreateMap<VoteReviewRequest, VoteReviewOperationModel>()
+            .ForMember(x => x.ReviewId, opt => opt.Ignore())
+            .ForMember(x => x.UserId, opt => opt.Ignore())
+            .ForMember(x => x.Mode, opt => opt.MapFrom(src => src.Mode));
+
+        CreateMap<ReportReviewRequest, ReportReviewOperationModel>()
+            .ForMember(x => x.ReviewId, opt => opt.Ignore())
+            .ForMember(x => x.UserId, opt => opt.Ignore())
+            .ForMember(x => x.ReasonType, opt => opt.MapFrom(src => src.ReasonType));
+
+        CreateMap<VoteModeGatewayEnum, VoteModeOperationEnum>();
+        CreateMap<ReportReasonGatewayEnum, ReportReasonTypeOperationEnum>();
 
         // report/vote
         CreateMap<ReportReviewRequest, ReportReviewOperationModel>();

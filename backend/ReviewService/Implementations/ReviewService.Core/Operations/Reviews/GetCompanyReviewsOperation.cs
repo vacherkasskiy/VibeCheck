@@ -16,9 +16,12 @@ internal sealed class GetCompanyReviewsOperation(
         GetCompanyReviewsOperationModel model,
         CancellationToken ct)
     {
+        if (model.CompanyId == null || model.CompanyId == Guid.Empty)
+            return Error.Validation("companyId is required");
+        
         var repoInput = mapper.Map<GetCompanyReviewsRepositoryInputModel>(model);
         var repoOutput = await queryRepository.GetCompanyReviewsAsync(repoInput, ct);
-
+        
         if (repoOutput is null)
             return Error.NotFound("company not found");
 

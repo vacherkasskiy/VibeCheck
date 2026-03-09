@@ -1,3 +1,4 @@
+using AutoMapper;
 using ReviewService.Core.Abstractions.Models.Companies.CreateCompany;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Companies;
@@ -7,6 +8,7 @@ using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 namespace ReviewService.Core.Operations.Companies;
 
 internal sealed class CreateCompanyRequestOperation(
+    IMapper mapper,
     ICompaniesQueryRepository companiesQueryRepository,
     ICompaniesCommandRepository companiesCommandRepository)
     : ICreateCompanyRequestOperation
@@ -15,30 +17,33 @@ internal sealed class CreateCompanyRequestOperation(
         CreateCompanyOperationRequestModel model,
         CancellationToken ct)
     {
+        if (model.UserId == Guid.Empty)
+            return Error.Validation("userId is required");
+
         var normalizedName = model.Name.Trim();
 
         if (string.IsNullOrWhiteSpace(normalizedName))
-            return Result<CreateCompanyOperationResultModel>.Failure(Error.Validation("company_name_is_required"));
+            return Error.Validation("name is required");
 
         if (normalizedName.Length > 200)
-            return Result<CreateCompanyOperationResultModel>.Failure(Error.Validation("company_name_is_too_long"));
+            return Error.Validation("name is too long");
 
         if (string.IsNullOrWhiteSpace(model.IconId))
-            return Result<CreateCompanyOperationResultModel>.Failure(Error.Validation("icon_id_is_required"));
+            return Error.Validation("iconId is required");
 
         var companyExists = await companiesQueryRepository.CompanyExistsByNameAsync(
             normalizedName,
             ct);
 
         if (companyExists)
-            return Result<CreateCompanyOperationResultModel>.Failure(Error.Conflict("company_already_exists"));
+            return Error.Conflict("company already exists");
 
         var pendingRequestExists = await companiesQueryRepository.PendingCompanyRequestExistsByNameAsync(
             normalizedName,
             ct);
 
         if (pendingRequestExists)
-            return Result<CreateCompanyOperationResultModel>.Failure(Error.Conflict("pending_request_already_exists"));
+            return Error.Conflict("pending request already exists");
 
         var repositoryResult = await companiesCommandRepository.CreateCompanyRequestAsync(
             new CreateCompanyRequestRepositoryInputModel
@@ -50,11 +55,14 @@ internal sealed class CreateCompanyRequestOperation(
             },
             ct);
 
-        return Result<CreateCompanyOperationResultModel>.Success(new CreateCompanyOperationResultModel
+        if (repositoryResult is null)
+            return Error.Failure("failed to create company request");
+
+        return new CreateCompanyOperationResultModel
         {
             RequestId = repositoryResult.RequestId.ToString(),
             Status = repositoryResult.Status,
             CreatedAt = new DateTimeOffset(DateTime.SpecifyKind(repositoryResult.CreatedAtUtc, DateTimeKind.Utc))
-        });
+        };
     }
 }

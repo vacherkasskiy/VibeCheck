@@ -6,4 +6,4 @@ public sealed record GetUserReviewsOperationModel(
     Guid UserId,
     int Take,
     int PageNum,
-    ReviewsSortOperationEnum SortOperationEnum);
+    ReviewsSortOperationEnum Sort);

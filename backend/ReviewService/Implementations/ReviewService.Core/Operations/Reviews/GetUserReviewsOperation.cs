@@ -16,6 +16,9 @@ internal sealed class GetUserReviewsOperation(
         GetUserReviewsOperationModel model,
         CancellationToken ct)
     {
+        if (model.UserId == null || model.UserId == Guid.Empty)
+            return Error.Validation("userId is required");
+
         var repoInput = mapper.Map<GetUserReviewsRepositoryInputModel>(model);
         var repoOutput = await queryRepository.GetUserReviewsAsync(repoInput, ct);
 

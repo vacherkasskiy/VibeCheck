@@ -10,4 +10,10 @@
       <ProjectReference Include="..\..\Abstractions\ReviewService.MessageBroker.Abstractions\ReviewService.MessageBroker.Abstractions.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ReviewService.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
 </Project>

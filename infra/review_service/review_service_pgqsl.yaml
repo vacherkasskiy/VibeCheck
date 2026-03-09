@@ -4,7 +4,7 @@ global:
       postgresPassword: "postgres"
       username: "app_user"
       password: "app_password"
-      database: "pet_db"
+      database: "review_service"
 
 architecture: standalone
 

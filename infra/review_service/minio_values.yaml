@@ -1,0 +1,32 @@
+auth:
+  rootUser: "minio_admin"
+  rootPassword: "minio_admin_password"
+
+mode: standalone
+
+defaultBuckets: "review-service"
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+service:
+  type: ClusterIP
+  ports:
+    api: 9000
+
+consoleService:
+  type: ClusterIP
+  ports:
+    console: 9001
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+ingress:
+  enabled: false

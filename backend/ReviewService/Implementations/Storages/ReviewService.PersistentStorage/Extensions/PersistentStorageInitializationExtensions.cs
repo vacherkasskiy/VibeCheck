@@ -16,7 +16,8 @@ public static class PersistentStorageInitializationExtensions
         "ReviewService.PersistentStorage.Seed.006_reviews.sql",
         "ReviewService.PersistentStorage.Seed.007_review_flags.sql",
         "ReviewService.PersistentStorage.Seed.008_review_votes.sql",
-        "ReviewService.PersistentStorage.Seed.009_review_reports.sql"
+        "ReviewService.PersistentStorage.Seed.009_review_reports.sql",
+        "ReviewService.PersistentStorage.Seed.010_work_exp.sql",
     ];
 
     public static async Task ApplyPersistentStorageMigrationsAndSeedAsync(

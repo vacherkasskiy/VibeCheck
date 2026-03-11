@@ -136,7 +136,7 @@ public sealed class GetCompanyReviewsOperationTests
                 {
                     ReviewId = reviewId,
                     AuthorId = authorId,
-                    IconId = "ic_user_1",
+                    IconId = Guid.NewGuid(),
                     Text = "сильная команда, но процессы местами сыроваты",
                     Score = 12,
                     Weight = 0,

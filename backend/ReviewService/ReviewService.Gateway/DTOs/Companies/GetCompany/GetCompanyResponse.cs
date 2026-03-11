@@ -4,7 +4,7 @@ public sealed record GetCompanyResponse
 {
     public required Guid CompanyId { get; init; }
     public required string Name { get; init; }
-    public required string IconId { get; init; }
+    public required string IconUrl { get; init; }
     public required string Description { get; init; }
     public CompanyLinksDto? Links { get; init; }
     public required IReadOnlyList<CompanyFlagDto> TopFlags { get; init; } // max 20

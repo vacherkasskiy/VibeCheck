@@ -118,7 +118,7 @@ internal sealed class CompaniesQueryRepository(
             {
                 CompanyId = x.Id,
                 Name = x.Name,
-                IconId = x.IconId ?? string.Empty,
+                IconId = x.IconId ?? Guid.Empty,
                 TopFlags = topFlagsByCompanyId.GetValueOrDefault(x.Id, Array.Empty<FlagCountRepositoryModel>())
             })
             .ToList();

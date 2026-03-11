@@ -8,7 +8,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies
 using ReviewService.PersistentStorage.Abstractions.Models.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
-namespace ReviewService.Tests.UnitTests.Operations.Companies;
+namespace ReviewService.Tests.UnitTests.Operations.Companies.Query;
 
 public sealed class GetCompaniesOperationTests
 {
@@ -34,6 +34,8 @@ public sealed class GetCompaniesOperationTests
             PageNum = 1,
             Q = null
         };
+        
+        var guid =  Guid.NewGuid();
 
         var repoOutput = new GetCompaniesRepositoryOutputModel
         {
@@ -44,7 +46,7 @@ public sealed class GetCompaniesOperationTests
                 {
                     CompanyId = Guid.NewGuid(),
                     Name = "Ozon",
-                    IconId = "ic_ozon",
+                    IconId = guid,
                     TopFlags =
                     [
                         new FlagCountRepositoryModel
@@ -67,7 +69,7 @@ public sealed class GetCompaniesOperationTests
                 {
                     CompanyId = repoOutput.Companies[0].CompanyId,
                     Name = "Ozon",
-                    IconId = "ic_ozon",
+                    IconUrl = "ic_ozon",
                     Weight = 0.94,
                     TopFlags =
                     [

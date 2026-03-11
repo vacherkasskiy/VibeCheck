@@ -44,9 +44,8 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnType("character varying(512)")
                         .HasColumnName("hr_url");
 
-                    b.Property<string>("IconId")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
+                    b.Property<Guid?>("IconId")
+                        .HasColumnType("uuid")
                         .HasColumnName("icon_id");
 
                     b.Property<string>("LinkedinUrl")
@@ -132,11 +131,6 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("decided_by_user_id");
 
-                    b.Property<string>("IconId")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("icon_id");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -159,8 +153,6 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IconId");
 
                     b.HasIndex("RequesterUserId");
 
@@ -198,9 +190,9 @@ namespace ReviewService.PersistentStorage.Migrations
 
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.IconEntity", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<string>("Bucket")
@@ -330,8 +322,6 @@ namespace ReviewService.PersistentStorage.Migrations
 
                     b.HasKey("ReviewId", "FlagId");
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("FlagId");
 
                     b.ToTable("review_flags", (string)null);
@@ -428,15 +418,31 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("birthday");
+
                     b.Property<string>("DisplayName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("display_name");
 
+                    b.Property<string>("Education")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("education");
+
                     b.Property<string>("IconId")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
                         .HasColumnName("icon_id");
+
+                    b.Property<string>("Specialization")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("specialization");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -446,11 +452,39 @@ namespace ReviewService.PersistentStorage.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("DisplayName");
-
-                    b.HasIndex("IconId");
-
                     b.ToTable("user_profiles", (string)null);
+                });
+
+            modelBuilder.Entity("ReviewService.PersistentStorage.Entites.UserWorkExperienceEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<string>("Specialization")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("specialization");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_work_experience", (string)null);
                 });
 
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.CompanyEntity", b =>
@@ -480,16 +514,6 @@ namespace ReviewService.PersistentStorage.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("Flag");
-                });
-
-            modelBuilder.Entity("ReviewService.PersistentStorage.Entites.CompanyRequestEntity", b =>
-                {
-                    b.HasOne("ReviewService.PersistentStorage.Entites.IconEntity", "Icon")
-                        .WithMany("CompanyRequests")
-                        .HasForeignKey("IconId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Icon");
                 });
 
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.ReviewEntity", b =>
@@ -568,14 +592,15 @@ namespace ReviewService.PersistentStorage.Migrations
                     b.Navigation("Voter");
                 });
 
-            modelBuilder.Entity("ReviewService.PersistentStorage.Entites.UserProfileEntity", b =>
+            modelBuilder.Entity("ReviewService.PersistentStorage.Entites.UserWorkExperienceEntity", b =>
                 {
-                    b.HasOne("ReviewService.PersistentStorage.Entites.IconEntity", "Icon")
-                        .WithMany("UserProfiles")
-                        .HasForeignKey("IconId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("ReviewService.PersistentStorage.Entites.UserProfileEntity", "User")
+                        .WithMany("WorkExperience")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Icon");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.CompanyEntity", b =>
@@ -595,10 +620,6 @@ namespace ReviewService.PersistentStorage.Migrations
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.IconEntity", b =>
                 {
                     b.Navigation("Companies");
-
-                    b.Navigation("CompanyRequests");
-
-                    b.Navigation("UserProfiles");
                 });
 
             modelBuilder.Entity("ReviewService.PersistentStorage.Entites.ReviewEntity", b =>
@@ -617,6 +638,8 @@ namespace ReviewService.PersistentStorage.Migrations
                     b.Navigation("ReviewReports");
 
                     b.Navigation("ReviewVotes");
+
+                    b.Navigation("WorkExperience");
                 });
 #pragma warning restore 612, 618
         }

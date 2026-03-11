@@ -28,9 +28,6 @@ internal sealed class CreateCompanyRequestOperation(
         if (normalizedName.Length > 200)
             return Error.Validation("name is too long");
 
-        if (string.IsNullOrWhiteSpace(model.IconId))
-            return Error.Validation("iconId is required");
-
         var companyExists = await companiesQueryRepository.CompanyExistsByNameAsync(
             normalizedName,
             ct);
@@ -50,7 +47,6 @@ internal sealed class CreateCompanyRequestOperation(
             {
                 RequesterUserId = model.UserId,
                 Name = normalizedName,
-                IconId = model.IconId,
                 SiteUrl = model.Site
             },
             ct);

@@ -15,6 +15,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<CompanyEntity> Companies => Set<CompanyEntity>();
     public DbSet<CompanyRequestEntity> CompanyRequests => Set<CompanyRequestEntity>();
     public DbSet<UserProfileEntity> UserProfiles => Set<UserProfileEntity>();
+    public DbSet<UserWorkExperienceEntity> UserWorkExperiences => Set<UserWorkExperienceEntity>();
     public DbSet<ReviewEntity> Reviews => Set<ReviewEntity>();
     public DbSet<CompanyFlagEntity> CompanyFlags => Set<CompanyFlagEntity>();
     public DbSet<ReviewFlagEntity> ReviewFlags => Set<ReviewFlagEntity>();
@@ -28,6 +29,7 @@ public sealed class AppDbContext : DbContext
         ConfigureCompanies(modelBuilder);
         ConfigureCompanyRequests(modelBuilder);
         ConfigureUserProfiles(modelBuilder);
+        ConfigureUserWorkExperience(modelBuilder);
         ConfigureReviews(modelBuilder);
         ConfigureCompanyFlags(modelBuilder);
         ConfigureReviewFlags(modelBuilder);
@@ -59,8 +61,7 @@ public sealed class AppDbContext : DbContext
             .HasDefaultValueSql("now()")
             .IsRequired();
 
-        entity.HasIndex(x => x.Name)
-            .IsUnique();
+        entity.HasIndex(x => x.Name).IsUnique();
     }
 
     private static void ConfigureIcons(ModelBuilder modelBuilder)
@@ -72,8 +73,7 @@ public sealed class AppDbContext : DbContext
         entity.HasKey(x => x.Id);
 
         entity.Property(x => x.Id)
-            .HasColumnName("id")
-            .HasMaxLength(128);
+            .HasColumnName("id");
 
         entity.Property(x => x.Bucket)
             .HasColumnName("bucket")
@@ -105,8 +105,7 @@ public sealed class AppDbContext : DbContext
             .HasDefaultValueSql("now()")
             .IsRequired();
 
-        entity.HasIndex(x => new { x.Bucket, x.ObjectKey })
-            .IsUnique();
+        entity.HasIndex(x => new { x.Bucket, x.ObjectKey }).IsUnique();
     }
 
     private static void ConfigureCompanies(ModelBuilder modelBuilder)
@@ -117,8 +116,7 @@ public sealed class AppDbContext : DbContext
 
         entity.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
-            .HasColumnName("id");
+        entity.Property(x => x.Id).HasColumnName("id");
 
         entity.Property(x => x.Name)
             .HasColumnName("name")
@@ -130,8 +128,7 @@ public sealed class AppDbContext : DbContext
             .HasColumnType("text");
 
         entity.Property(x => x.IconId)
-            .HasColumnName("icon_id")
-            .HasMaxLength(128);
+            .HasColumnName("icon_id");
 
         entity.Property(x => x.SiteUrl)
             .HasColumnName("site_url")
@@ -174,8 +171,7 @@ public sealed class AppDbContext : DbContext
 
         entity.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
-            .HasColumnName("id");
+        entity.Property(x => x.Id).HasColumnName("id");
 
         entity.Property(x => x.RequesterUserId)
             .HasColumnName("requester_user_id")
@@ -185,10 +181,6 @@ public sealed class AppDbContext : DbContext
             .HasColumnName("name")
             .HasMaxLength(200)
             .IsRequired();
-
-        entity.Property(x => x.IconId)
-            .HasColumnName("icon_id")
-            .HasMaxLength(128);
 
         entity.Property(x => x.SiteUrl)
             .HasColumnName("site_url")
@@ -214,12 +206,6 @@ public sealed class AppDbContext : DbContext
 
         entity.HasIndex(x => x.RequesterUserId);
         entity.HasIndex(x => x.Status);
-        entity.HasIndex(x => x.IconId);
-
-        entity.HasOne(x => x.Icon)
-            .WithMany(x => x.CompanyRequests)
-            .HasForeignKey(x => x.IconId)
-            .OnDelete(DeleteBehavior.SetNull);
     }
 
     private static void ConfigureUserProfiles(ModelBuilder modelBuilder)
@@ -230,8 +216,7 @@ public sealed class AppDbContext : DbContext
 
         entity.HasKey(x => x.UserId);
 
-        entity.Property(x => x.UserId)
-            .HasColumnName("user_id");
+        entity.Property(x => x.UserId).HasColumnName("user_id");
 
         entity.Property(x => x.IconId)
             .HasColumnName("icon_id")
@@ -241,19 +226,64 @@ public sealed class AppDbContext : DbContext
             .HasColumnName("display_name")
             .HasMaxLength(200);
 
+        entity.Property(x => x.Birthday)
+            .HasColumnName("birthday")
+            .HasColumnType("timestamp with time zone");
+
+        entity.Property(x => x.Education)
+            .HasColumnName("education")
+            .HasMaxLength(64)
+            .HasConversion<string>()
+            .IsRequired();
+
+        entity.Property(x => x.Specialization)
+            .HasColumnName("specialization")
+            .HasMaxLength(64)
+            .HasConversion<string>()
+            .IsRequired();
+
         entity.Property(x => x.UpdatedAt)
             .HasColumnName("updated_at")
             .HasColumnType("timestamp with time zone")
             .HasDefaultValueSql("now()")
             .IsRequired();
+    }
 
-        entity.HasIndex(x => x.IconId);
-        entity.HasIndex(x => x.DisplayName);
+    private static void ConfigureUserWorkExperience(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<UserWorkExperienceEntity>();
 
-        entity.HasOne(x => x.Icon)
-            .WithMany(x => x.UserProfiles)
-            .HasForeignKey(x => x.IconId)
-            .OnDelete(DeleteBehavior.SetNull);
+        entity.ToTable("user_work_experience");
+
+        entity.HasKey(x => x.Id);
+
+        entity.Property(x => x.Id).HasColumnName("id");
+
+        entity.Property(x => x.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        entity.Property(x => x.Specialization)
+            .HasColumnName("specialization")
+            .HasMaxLength(64)
+            .HasConversion<string>()
+            .IsRequired();
+
+        entity.Property(x => x.StartedAt)
+            .HasColumnName("started_at")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
+
+        entity.Property(x => x.FinishedAt)
+            .HasColumnName("finished_at")
+            .HasColumnType("timestamp with time zone");
+
+        entity.HasIndex(x => x.UserId);
+
+        entity.HasOne(x => x.User)
+            .WithMany(x => x.WorkExperience)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     private static void ConfigureReviews(ModelBuilder modelBuilder)
@@ -264,8 +294,7 @@ public sealed class AppDbContext : DbContext
 
         entity.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
-            .HasColumnName("id");
+        entity.Property(x => x.Id).HasColumnName("id");
 
         entity.Property(x => x.CompanyId)
             .HasColumnName("company_id")
@@ -390,7 +419,6 @@ public sealed class AppDbContext : DbContext
             .IsRequired();
 
         entity.HasIndex(x => x.FlagId);
-        entity.HasIndex(x => x.CreatedAt);
 
         entity.HasOne(x => x.Review)
             .WithMany(x => x.ReviewFlags)
@@ -459,8 +487,7 @@ public sealed class AppDbContext : DbContext
 
         entity.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
-            .HasColumnName("id");
+        entity.Property(x => x.Id).HasColumnName("id");
 
         entity.Property(x => x.ReviewId)
             .HasColumnName("review_id")

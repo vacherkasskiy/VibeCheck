@@ -24,7 +24,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = Guid.Empty,
             Name = "JetBrains",
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -53,7 +52,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = Guid.NewGuid(),
             Name = "   ",
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -76,7 +74,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = Guid.NewGuid(),
             Name = new string('a', 201),
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -90,29 +87,6 @@ public sealed class CreateCompanyRequestOperationTests
     }
 
     [Fact]
-    public async Task CreateAsync_WhenIconIdIsEmpty_ShouldReturnValidationError()
-    {
-        // Arrange
-        var operation = new CreateCompanyRequestOperation(_mapper, _queryRepository, _commandRepository);
-
-        var model = new CreateCompanyOperationRequestModel
-        {
-            UserId = Guid.NewGuid(),
-            Name = "JetBrains",
-            IconId = " ",
-            Site = "https://www.jetbrains.com"
-        };
-
-        // Act
-        var result = await operation.CreateAsync(model, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsFailure);
-        Assert.Equal("iconId is required", result.Error.Message);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-    }
-
-    [Fact]
     public async Task CreateAsync_WhenCompanyAlreadyExists_ShouldReturnConflict()
     {
         // Arrange
@@ -122,7 +96,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = Guid.NewGuid(),
             Name = "JetBrains",
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -155,7 +128,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = Guid.NewGuid(),
             Name = "JetBrains",
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -195,7 +167,6 @@ public sealed class CreateCompanyRequestOperationTests
         {
             UserId = userId,
             Name = "  JetBrains  ",
-            IconId = "ic_jetbrains",
             Site = "https://www.jetbrains.com"
         };
 
@@ -236,7 +207,6 @@ public sealed class CreateCompanyRequestOperationTests
             Arg.Is<CreateCompanyRequestRepositoryInputModel>(x =>
                 x.RequesterUserId == userId &&
                 x.Name == "JetBrains" &&
-                x.IconId == "ic_jetbrains" &&
                 x.SiteUrl == "https://www.jetbrains.com"),
             Arg.Any<CancellationToken>());
 

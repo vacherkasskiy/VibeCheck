@@ -1,0 +1,15 @@
+namespace ReviewService.Core.Abstractions.Enums;
+
+public enum SpecializationOperationEnum
+{
+    Unknown = 0,
+    Backend = 1,
+    Frontend = 2,
+    Fullstack = 3,
+    Mobile = 4,
+    Data = 5,
+    DevOps = 6,
+    QA = 7,
+    PM = 8,
+    Design = 9
+}

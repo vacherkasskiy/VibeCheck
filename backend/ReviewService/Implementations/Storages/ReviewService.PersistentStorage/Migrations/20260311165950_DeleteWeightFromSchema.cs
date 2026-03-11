@@ -6,11 +6,29 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ReviewService.PersistentStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class DeleteWeightFromSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "company_requests",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    requester_user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    site_url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    decided_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    decided_by_user_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_requests", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "flags",
                 columns: table => new
@@ -28,7 +46,7 @@ namespace ReviewService.PersistentStorage.Migrations
                 name: "icons",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     bucket = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     object_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
                     content_type = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
@@ -42,14 +60,30 @@ namespace ReviewService.PersistentStorage.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "user_profiles",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    icon_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    birthday = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    education = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    specialization = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_user_profiles", x => x.user_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "companies",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    icon_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    weight = table.Column<double>(type: "double precision", nullable: false),
+                    icon_id = table.Column<Guid>(type: "uuid", nullable: true),
                     site_url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     linkedin_url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     hr_url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
@@ -68,48 +102,24 @@ namespace ReviewService.PersistentStorage.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "company_requests",
+                name: "user_work_experience",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    requester_user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    icon_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    site_url = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
-                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    decided_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    decided_by_user_id = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_company_requests", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_company_requests_icons_icon_id",
-                        column: x => x.icon_id,
-                        principalTable: "icons",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "user_profiles",
-                columns: table => new
-                {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    icon_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
+                    specialization = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    started_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    finished_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user_profiles", x => x.user_id);
+                    table.PrimaryKey("PK_user_work_experience", x => x.id);
                     table.ForeignKey(
-                        name: "FK_user_profiles_icons_icon_id",
-                        column: x => x.icon_id,
-                        principalTable: "icons",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        name: "FK_user_work_experience_user_profiles_user_id",
+                        column: x => x.user_id,
+                        principalTable: "user_profiles",
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -261,11 +271,6 @@ namespace ReviewService.PersistentStorage.Migrations
                 column: "name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_companies_weight",
-                table: "companies",
-                column: "weight");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_company_flags_company_id_reviews_count",
                 table: "company_flags",
                 columns: new[] { "company_id", "reviews_count" });
@@ -279,11 +284,6 @@ namespace ReviewService.PersistentStorage.Migrations
                 name: "IX_company_flags_reviews_count",
                 table: "company_flags",
                 column: "reviews_count");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_company_requests_icon_id",
-                table: "company_requests",
-                column: "icon_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_company_requests_requester_user_id",
@@ -306,11 +306,6 @@ namespace ReviewService.PersistentStorage.Migrations
                 table: "icons",
                 columns: new[] { "bucket", "object_key" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_review_flags_created_at",
-                table: "review_flags",
-                column: "created_at");
 
             migrationBuilder.CreateIndex(
                 name: "IX_review_flags_flag_id",
@@ -388,14 +383,9 @@ namespace ReviewService.PersistentStorage.Migrations
                 column: "score");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_profiles_display_name",
-                table: "user_profiles",
-                column: "display_name");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_user_profiles_icon_id",
-                table: "user_profiles",
-                column: "icon_id");
+                name: "IX_user_work_experience_user_id",
+                table: "user_work_experience",
+                column: "user_id");
         }
 
         /// <inheritdoc />
@@ -415,6 +405,9 @@ namespace ReviewService.PersistentStorage.Migrations
 
             migrationBuilder.DropTable(
                 name: "review_votes");
+
+            migrationBuilder.DropTable(
+                name: "user_work_experience");
 
             migrationBuilder.DropTable(
                 name: "flags");

@@ -8,7 +8,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompany;
 using ReviewService.PersistentStorage.Abstractions.Models.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
-namespace ReviewService.Tests.UnitTests.Operations.Companies;
+namespace ReviewService.Tests.UnitTests.Operations.Companies.Query;
 
 public sealed class GetCompanyOperationTests
 {
@@ -32,7 +32,7 @@ public sealed class GetCompanyOperationTests
         {
             CompanyId = companyId,
             Name = "Яндекс",
-            IconId = "ic_yandex",
+            IconId = Guid.NewGuid(),
             Description = "крупная технологическая компания",
             Links = new CompanyLinksRepositoryModel
             {
@@ -55,7 +55,7 @@ public sealed class GetCompanyOperationTests
         {
             CompanyId = companyId,
             Name = "Яндекс",
-            IconId = "ic_yandex",
+            IconUrl = "ic_yandex",
             Description = "крупная технологическая компания",
             Links = new CompanyLinksOperationModel
             {

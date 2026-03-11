@@ -4,6 +4,5 @@ public sealed record CreateCompanyOperationRequestModel
 {
     public required Guid UserId { get; init; }
     public required string Name { get; init; }
-    public required string IconId { get; init; }
     public string? Site { get; init; }
 }

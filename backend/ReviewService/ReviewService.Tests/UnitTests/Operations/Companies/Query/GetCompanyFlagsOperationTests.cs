@@ -7,7 +7,7 @@ using ReviewService.Core.Operations.Companies;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanyFlags;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
-namespace ReviewService.Tests.UnitTests.Operations.Companies;
+namespace ReviewService.Tests.UnitTests.Operations.Companies.Query;
 
 public sealed class GetCompanyFlagsOperationTests
 {

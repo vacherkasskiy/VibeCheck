@@ -18,7 +18,6 @@ internal sealed class CompaniesCommandRepository(AppDbContext dbContext) : IComp
             Id = Guid.NewGuid(),
             RequesterUserId = model.RequesterUserId,
             Name = model.Name.Trim(),
-            IconId = model.IconId,
             SiteUrl = model.SiteUrl,
             Status = "pending",
             CreatedAt = now,

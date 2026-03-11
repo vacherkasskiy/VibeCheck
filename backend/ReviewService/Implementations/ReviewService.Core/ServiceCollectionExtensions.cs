@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ReviewService.Core.Abstractions.Helpers;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.Core.Helpers;
 using ReviewService.Core.MapperProfiles;
 using ReviewService.Core.Operations.Companies;
 using ReviewService.Core.Operations.Reviews;
@@ -30,6 +32,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDeleteCompanyReviewOperation, DeleteCompanyReviewOperation>();
         services.AddScoped<IVoteReviewOperation, VoteReviewOperation>();
         services.AddScoped<IReportReviewOperation, ReportReviewOperation>();
+        
+        // Helpers
+        services.AddSingleton<ICurrentUserAccessor, JwtCurrentUserAccessor>();
 
         return services;
     }

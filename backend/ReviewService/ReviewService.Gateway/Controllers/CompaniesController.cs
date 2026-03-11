@@ -1,12 +1,10 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ReviewService.Core.Abstractions.Models;
 using ReviewService.Core.Abstractions.Models.Companies.CreateCompany;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompanyFlags;
-using ReviewService.Core.Abstractions.Operations;
 using ReviewService.Core.Abstractions.Operations.Companies;
-using ReviewService.Gateway.DTOs;
 using ReviewService.Gateway.DTOs.Companies.CreateCompany;
 using ReviewService.Gateway.DTOs.Companies.GetCompanies;
 using ReviewService.Gateway.DTOs.Companies.GetCompany;
@@ -29,7 +27,7 @@ namespace ReviewService.Gateway.Controllers;
 [Route("api/companies")]
 [Produces("application/json")]
 [SwaggerTag("компании (список, страница, флаги, заявки)")]
-//[Authorize]
+[Authorize]
 public sealed class CompaniesController(IMapper mapper) : ControllerBase
 {
     /// <summary>

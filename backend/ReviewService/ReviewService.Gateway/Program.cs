@@ -12,6 +12,7 @@ builder.Services
     .AddCoreServices()
     .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()
+    .AddJwtAuth(builder.Configuration)
     .AddControllers()
     .AddJsonOptions(options =>
     {
@@ -31,6 +32,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

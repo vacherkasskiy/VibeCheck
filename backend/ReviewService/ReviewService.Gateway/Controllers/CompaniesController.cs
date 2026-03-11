@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReviewService.Core.Abstractions.Helpers;
 using ReviewService.Core.Abstractions.Models.Companies.CreateCompany;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompanyFlags;
@@ -145,11 +146,13 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
     )]
     public async Task<ActionResult<CreateCompanyResponse>> CreateCompanyRequest(
         [FromServices] ICreateCompanyRequestOperation operation,
+        [FromServices] ICurrentUserAccessor currentUserAccessor,
         [FromBody, SwaggerRequestBody("данные заявки", Required = true)]
         CreateCompanyRequest request,
         CancellationToken ct)
     {
-        var model = mapper.Map<CreateCompanyOperationRequestModel>(request);
+        var currentUserId = currentUserAccessor.GetRequiredUserId(User);
+        var model = mapper.Map<CreateCompanyOperationRequestModel>(request) with {UserId = currentUserId};
         var result = await operation.CreateAsync(model, ct);
 
         if (result.IsFailure)

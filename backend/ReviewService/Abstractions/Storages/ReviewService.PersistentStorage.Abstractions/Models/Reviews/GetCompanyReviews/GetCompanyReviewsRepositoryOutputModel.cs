@@ -12,7 +12,7 @@ public sealed record CompanyReviewRepositoryItemOutputModel
 {
     public required Guid ReviewId { get; init; }
     public required Guid AuthorId { get; init; }
-    public required string IconId { get; init; }
+    public required string AuthorIconId { get; init; }
     public required string Text { get; init; }
     public required long Score { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }

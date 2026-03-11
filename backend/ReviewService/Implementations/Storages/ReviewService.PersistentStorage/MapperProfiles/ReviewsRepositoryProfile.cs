@@ -24,7 +24,7 @@ public sealed class ReviewsRepositoryProfile : Profile
                 dest => dest.ReviewId,
                 opt => opt.MapFrom(src => src.Id))
             .ForMember(
-                dest => dest.IconId,
+                dest => dest.AuthorIconId,
                 opt => opt.MapFrom(src => src.Author.IconId))
             .ForMember(
                 dest => dest.CreatedAt,

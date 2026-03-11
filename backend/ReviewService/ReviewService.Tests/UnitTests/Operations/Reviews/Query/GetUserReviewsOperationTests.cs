@@ -8,6 +8,7 @@ using ReviewService.Core.Operations.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
 
 namespace ReviewService.Tests.UnitTests.Operations.Reviews.Query;
 
@@ -15,12 +16,13 @@ public sealed class GetUserReviewsOperationTests
 {
     private readonly IMapper _mapper = Substitute.For<IMapper>();
     private readonly IReviewsQueryRepository _queryRepository = Substitute.For<IReviewsQueryRepository>();
+    private readonly IUserProfilesQueryRepository _userProfilesQueryRepository = Substitute.For<IUserProfilesQueryRepository>();
 
     [Fact]
     public async Task GetAsync_WhenUserIdIsEmpty_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new GetUserReviewsOperation(_mapper, _queryRepository);
+        var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var model = new GetUserReviewsOperationModel(
             UserId: Guid.Empty,
@@ -37,14 +39,20 @@ public sealed class GetUserReviewsOperationTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
 
         _mapper.DidNotReceive().Map<GetUserReviewsRepositoryInputModel>(Arg.Any<GetUserReviewsOperationModel>());
-        await _queryRepository.DidNotReceive().GetUserReviewsAsync(Arg.Any<GetUserReviewsRepositoryInputModel>(), Arg.Any<CancellationToken>());
+        await _queryRepository.DidNotReceive().GetUserReviewsAsync(
+            Arg.Any<GetUserReviewsRepositoryInputModel>(),
+            Arg.Any<CancellationToken>());
+
+        await _userProfilesQueryRepository.DidNotReceive().GetIconIdByUserIdAsync(
+            Arg.Any<Guid>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task GetAsync_WhenRepositoryReturnsNull_ShouldReturnNotFound()
+    public async Task GetAsync_WhenRepositoryReturnsNull_ShouldReturnNotFound_AndNotCallUserProfilesRepo()
     {
         // Arrange
-        var operation = new GetUserReviewsOperation(_mapper, _queryRepository);
+        var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var model = new GetUserReviewsOperationModel(
             UserId: Guid.NewGuid(),
@@ -75,13 +83,17 @@ public sealed class GetUserReviewsOperationTests
         _mapper.Received(1).Map<GetUserReviewsRepositoryInputModel>(model);
         await _queryRepository.Received(1).GetUserReviewsAsync(repoInput, Arg.Any<CancellationToken>());
         _mapper.DidNotReceive().Map<UserReviewsPageOperationModel>(Arg.Any<GetUserReviewsRepositoryOutputModel>());
+
+        await _userProfilesQueryRepository.DidNotReceive().GetIconIdByUserIdAsync(
+            Arg.Any<Guid>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task GetAsync_WhenRepositoryReturnsData_ShouldReturnSuccess()
+    public async Task GetAsync_WhenRepositoryReturnsData_ShouldEnrichAuthorIconId_AndReturnSuccess()
     {
         // Arrange
-        var operation = new GetUserReviewsOperation(_mapper, _queryRepository);
+        var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
@@ -127,7 +139,8 @@ public sealed class GetUserReviewsOperationTests
             ]
         };
 
-        var expected = new UserReviewsPageOperationModel
+        // mapped page (до обогащения)
+        var mapped = new UserReviewsPageOperationModel
         {
             TotalCount = 1,
             Reviews =
@@ -136,9 +149,9 @@ public sealed class GetUserReviewsOperationTests
                 {
                     ReviewId = reviewId,
                     CompanyId = companyId,
-                    AuthorId = null,
-                    Text = "интересные задачи и сильные коллеги, но ритм местами тяжёлый",
-                    Score = 7,
+                    AuthorId = Guid.Empty,
+                    Text = repoOutput.Reviews[0].Text,
+                    Score = repoOutput.Reviews[0].Score,
                     CreatedAt = repoOutput.Reviews[0].CreatedAt,
                     Flags =
                     [
@@ -147,7 +160,8 @@ public sealed class GetUserReviewsOperationTests
                             Id = flagId,
                             Name = "сильная команда"
                         }
-                    ]
+                    ],
+                    AuthorIconId = null
                 }
             ]
         };
@@ -155,7 +169,10 @@ public sealed class GetUserReviewsOperationTests
         _mapper.Map<GetUserReviewsRepositoryInputModel>(model).Returns(repoInput);
         _queryRepository.GetUserReviewsAsync(repoInput, Arg.Any<CancellationToken>())
             .Returns(repoOutput);
-        _mapper.Map<UserReviewsPageOperationModel>(repoOutput).Returns(expected);
+        _mapper.Map<UserReviewsPageOperationModel>(repoOutput).Returns(mapped);
+
+        _userProfilesQueryRepository.GetIconIdByUserIdAsync(userId, Arg.Any<CancellationToken>())
+            .Returns("usr_ava_lena");
 
         // Act
         var result = await operation.GetAsync(model, CancellationToken.None);
@@ -165,9 +182,14 @@ public sealed class GetUserReviewsOperationTests
         Assert.Equal(1, result.Value.TotalCount);
         Assert.Single(result.Value.Reviews);
         Assert.Equal(reviewId, result.Value.Reviews[0].ReviewId);
+        Assert.Equal("usr_ava_lena", result.Value.Reviews[0].AuthorIconId);
 
         _mapper.Received(1).Map<GetUserReviewsRepositoryInputModel>(model);
         await _queryRepository.Received(1).GetUserReviewsAsync(repoInput, Arg.Any<CancellationToken>());
         _mapper.Received(1).Map<UserReviewsPageOperationModel>(repoOutput);
+
+        await _userProfilesQueryRepository.Received(1).GetIconIdByUserIdAsync(
+            userId,
+            Arg.Any<CancellationToken>());
     }
 }

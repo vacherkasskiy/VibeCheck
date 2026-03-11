@@ -11,7 +11,7 @@ public sealed record CompanyReviewOperationModel
     public required double Weight { get; init; }
     public required Guid ReviewId { get; init; }
     public required Guid AuthorId { get; init; }
-    public required Guid IconId { get; init; }
+    public required string AuthorIconId { get; set; }
     public required string Text { get; init; }
     public required long Score { get; init; } // likes - dislikes
     public required DateTimeOffset CreatedAt { get; init; }

@@ -4,19 +4,21 @@ using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
 
 namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class GetUserReviewsOperation(
     IMapper mapper,
-    IReviewsQueryRepository queryRepository)
+    IReviewsQueryRepository queryRepository,
+    IUserProfilesQueryRepository userProfilesQueryRepository)
     : IGetUserReviewsOperation
 {
     public async Task<Result<UserReviewsPageOperationModel>> GetAsync(
         GetUserReviewsOperationModel model,
         CancellationToken ct)
     {
-        if (model.UserId == null || model.UserId == Guid.Empty)
+        if (model.UserId == Guid.Empty)
             return Error.Validation("userId is required");
 
         var repoInput = mapper.Map<GetUserReviewsRepositoryInputModel>(model);
@@ -25,6 +27,13 @@ internal sealed class GetUserReviewsOperation(
         if (repoOutput is null)
             return Error.NotFound("user not found");
 
-        return mapper.Map<UserReviewsPageOperationModel>(repoOutput);
+        var iconId = await userProfilesQueryRepository.GetIconIdByUserIdAsync(model.UserId, ct);
+
+        var ans = mapper.Map<UserReviewsPageOperationModel>(repoOutput);
+
+        foreach (var review in ans.Reviews)
+            review.AuthorIconId = iconId;
+
+        return ans;
     }
 }

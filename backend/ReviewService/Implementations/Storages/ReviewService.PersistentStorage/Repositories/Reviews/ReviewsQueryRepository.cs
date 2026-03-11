@@ -74,7 +74,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 ReviewId = x.Id,
                 AuthorId = x.AuthorId,
-                IconId = x.AuthorIconId,
+                AuthorIconId = x.AuthorIconId,
                 Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
@@ -97,7 +97,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
         var pageNum = Math.Max(1, input.PageNum);
         var skip = (pageNum - 1) * take;
 
-        IQueryable<ReviewEntity> query = dbContext.Reviews
+        var query = dbContext.Reviews
             .AsNoTracking()
             .Where(x => x.AuthorId == input.CurrentUserId && x.DeletedAt == null);
 
@@ -176,7 +176,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
         var pageNum = Math.Max(1, input.PageNum);
         var skip = (pageNum - 1) * take;
 
-        IQueryable<ReviewEntity> query = dbContext.Reviews
+        var query = dbContext.Reviews
             .AsNoTracking()
             .Where(x => x.AuthorId == input.UserId && x.DeletedAt == null);
 

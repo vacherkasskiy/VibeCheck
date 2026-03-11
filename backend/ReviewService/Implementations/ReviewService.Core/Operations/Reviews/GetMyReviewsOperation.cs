@@ -5,12 +5,14 @@ using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
 
 namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class GetMyReviewsOperation(
     IMapper mapper,
-    IReviewsQueryRepository queryRepository)
+    IReviewsQueryRepository queryRepository,
+    IUserProfilesQueryRepository userProfilesQueryRepository)
     : IGetMyReviewsOperation
 {
     public async Task<Result<UserReviewsPageOperationModel>> GetAsync(
@@ -23,10 +25,16 @@ internal sealed class GetMyReviewsOperation(
         var repoInput = mapper.Map<GetMyReviewsRepositoryInputModel>(model);
         var repoOutput = await queryRepository.GetMyReviewsAsync(repoInput, ct);
 
-        // для "me" 404 не заявлен, null трактуем как internal failure
         if (repoOutput is null)
             return Error.Failure("failed to load my reviews");
+        
+        var iconId = await userProfilesQueryRepository.GetIconIdByUserIdAsync(model.CurrentUserId, ct);
 
-        return mapper.Map<UserReviewsPageOperationModel>(repoOutput);
+        var ans = mapper.Map<UserReviewsPageOperationModel>(repoOutput);
+
+        foreach (var review in ans.Reviews)
+            review.AuthorIconId = iconId;
+
+        return ans;
     }
 }

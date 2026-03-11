@@ -16,6 +16,8 @@ public sealed record UserReviewItemDto
     [SwaggerSchema(Nullable = true)]
     public Guid? AuthorId { get; init; }
 
+    public required string IconId { get; init; }
+    
     [SwaggerSchema(Nullable = true)]
     public Guid? CompanyId { get; init; }
 

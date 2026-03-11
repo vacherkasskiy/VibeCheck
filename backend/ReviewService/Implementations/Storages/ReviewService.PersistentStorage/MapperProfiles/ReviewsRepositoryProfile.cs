@@ -42,7 +42,7 @@ public sealed class ReviewsRepositoryProfile : Profile
                 opt => opt.MapFrom(src => DateTime.SpecifyKind(src.CreatedAt, DateTimeKind.Utc)))
             .ForMember(
                 dest => dest.AuthorId,
-                opt => opt.Ignore())
+                opt => opt.MapFrom(src => src.AuthorId))
             .ForMember(
                 dest => dest.Flags,
                 opt => opt.Ignore());

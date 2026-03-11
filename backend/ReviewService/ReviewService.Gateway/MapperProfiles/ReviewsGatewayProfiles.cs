@@ -21,10 +21,10 @@ public sealed class ReviewsGatewayProfiles : Profile
     {
         // create/update/delete
         CreateMap<DeleteCompanyReviewRequest, DeleteCompanyReviewOperationModel>();
-        
+
         CreateMap<CreateCompanyReviewRequest, CreateCompanyReviewOperationModel>()
             .ForMember(x => x.UserId, opt => opt.Ignore());
-        
+
         CreateMap<UpdateCompanyReviewRequest, UpdateCompanyReviewOperationModel>()
             .ForMember(x => x.ReviewId, opt => opt.Ignore())
             .ForMember(x => x.UserId, opt => opt.Ignore());
@@ -48,12 +48,17 @@ public sealed class ReviewsGatewayProfiles : Profile
 
         // company reviews list
         CreateMap<CompanyReviewsPageOperationModel, GetCompanyReviewsResponse>();
-        CreateMap<CompanyReviewOperationModel, CompanyReviewItemDto>();
+
+        CreateMap<CompanyReviewOperationModel, CompanyReviewItemDto>()
+            .ForMember(x => x.IconId, opt => opt.MapFrom(src => src.AuthorIconId));
+
         CreateMap<FlagOperationModel, FlagDto>();
 
         // user reviews list (me + user)
         CreateMap<UserReviewsPageOperationModel, GetUserReviewsResponse>();
-        CreateMap<UserReviewReadOperationModel, UserReviewItemDto>();
+
+        CreateMap<UserReviewReadOperationModel, UserReviewItemDto>()
+            .ForMember(x => x.IconId, opt => opt.MapFrom(src => src.AuthorIconId));
 
         // sort enum: gateway -> operation
         CreateMap<ReviewsSortGatewayEnum, ReviewsSortOperationEnum>();

@@ -112,6 +112,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 x.Id,
                 x.CompanyId,
+                x.AuthorId,
                 x.Text,
                 x.Score,
                 x.CreatedAt
@@ -146,7 +147,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
-                AuthorId = null,
+                AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
@@ -191,6 +192,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 x.Id,
                 x.CompanyId,
+                x.AuthorId,
                 x.Text,
                 x.Score,
                 x.CreatedAt
@@ -225,7 +227,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
-                AuthorId = null,
+                AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),

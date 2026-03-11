@@ -114,7 +114,6 @@ public sealed class GetCompanyReviewsOperationTests
                     IconId = "ic_user_1",
                     Text = "сильная команда, но процессы местами сыроваты",
                     Score = 12,
-                    Weight = 0,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [

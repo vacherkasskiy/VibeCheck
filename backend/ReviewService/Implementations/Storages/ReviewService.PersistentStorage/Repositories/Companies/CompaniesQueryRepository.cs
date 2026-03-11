@@ -70,17 +70,16 @@ internal sealed class CompaniesQueryRepository(
 
         var totalCount = await query.LongCountAsync(ct);
 
+        // todo calculate weight
         var companies = await query
-            .OrderByDescending(x => x.Weight)
-            .ThenBy(x => x.Name)
+            .OrderByDescending(x => x.Name)
             .Skip((int)skip)
             .Take((int)take)
             .Select(x => new
             {
                 x.Id,
                 x.Name,
-                x.IconId,
-                x.Weight
+                x.IconId
             })
             .ToListAsync(ct);
 
@@ -120,7 +119,6 @@ internal sealed class CompaniesQueryRepository(
                 CompanyId = x.Id,
                 Name = x.Name,
                 IconId = x.IconId ?? string.Empty,
-                Weight = x.Weight,
                 TopFlags = topFlagsByCompanyId.GetValueOrDefault(x.Id, Array.Empty<FlagCountRepositoryModel>())
             })
             .ToList();

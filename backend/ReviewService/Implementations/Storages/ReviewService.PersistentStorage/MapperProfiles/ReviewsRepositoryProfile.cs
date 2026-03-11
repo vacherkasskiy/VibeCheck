@@ -30,9 +30,6 @@ public sealed class ReviewsRepositoryProfile : Profile
                 dest => dest.CreatedAt,
                 opt => opt.MapFrom(src => DateTime.SpecifyKind(src.CreatedAt, DateTimeKind.Utc)))
             .ForMember(
-                dest => dest.Weight,
-                opt => opt.Ignore())
-            .ForMember(
                 dest => dest.Flags,
                 opt => opt.Ignore());
 

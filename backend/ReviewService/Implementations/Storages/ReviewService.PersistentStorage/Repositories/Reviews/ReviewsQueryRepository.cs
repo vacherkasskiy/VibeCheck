@@ -78,7 +78,6 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 Text = x.Text,
                 Score = x.Score,
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
-                Weight = 0, // пока без имплементации
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
             })
             .ToList();
@@ -300,6 +299,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                      x.ReasonType == reasonType,
                 ct);
 
+    // todo implement weight asc/desc
     private static IQueryable<ReviewEntity> ApplySort(
         IQueryable<ReviewEntity> query,
         ReviewsSortRepositoryEnum sort)

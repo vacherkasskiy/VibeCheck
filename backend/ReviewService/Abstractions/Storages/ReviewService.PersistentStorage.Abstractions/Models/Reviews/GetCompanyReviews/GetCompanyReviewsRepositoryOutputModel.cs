@@ -10,7 +10,6 @@ public sealed record GetCompanyReviewsRepositoryOutputModel
 
 public sealed record CompanyReviewRepositoryItemOutputModel
 {
-    public required double Weight { get; init; }
     public required Guid ReviewId { get; init; }
     public required Guid AuthorId { get; init; }
     public required string IconId { get; init; }

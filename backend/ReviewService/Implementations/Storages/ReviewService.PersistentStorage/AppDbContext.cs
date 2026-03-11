@@ -133,10 +133,6 @@ public sealed class AppDbContext : DbContext
             .HasColumnName("icon_id")
             .HasMaxLength(128);
 
-        entity.Property(x => x.Weight)
-            .HasColumnName("weight")
-            .IsRequired();
-
         entity.Property(x => x.SiteUrl)
             .HasColumnName("site_url")
             .HasMaxLength(512);
@@ -162,7 +158,6 @@ public sealed class AppDbContext : DbContext
             .IsRequired();
 
         entity.HasIndex(x => x.Name);
-        entity.HasIndex(x => x.Weight);
         entity.HasIndex(x => x.IconId);
 
         entity.HasOne(x => x.Icon)

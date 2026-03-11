@@ -45,7 +45,6 @@ public sealed class GetCompaniesOperationTests
                     CompanyId = Guid.NewGuid(),
                     Name = "Ozon",
                     IconId = "ic_ozon",
-                    Weight = 0.94,
                     TopFlags =
                     [
                         new FlagCountRepositoryModel

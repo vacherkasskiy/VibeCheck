@@ -31,7 +31,6 @@ public sealed class CompanyEntity
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string? IconId { get; set; }
-    public double Weight { get; set; }
     public string? SiteUrl { get; set; }
     public string? LinkedinUrl { get; set; }
     public string? HrUrl { get; set; }

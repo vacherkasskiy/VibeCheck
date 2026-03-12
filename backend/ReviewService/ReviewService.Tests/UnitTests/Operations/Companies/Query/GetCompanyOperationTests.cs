@@ -1,5 +1,6 @@
 using AutoMapper;
 using NSubstitute;
+using ReviewService.CloudStorage.Abstractions.Services;
 using ReviewService.Core.Abstractions.Models.Companies;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompany;
 using ReviewService.Core.Abstractions.Models.Shared;
@@ -14,14 +15,16 @@ public sealed class GetCompanyOperationTests
 {
     private readonly IMapper _mapper = Substitute.For<IMapper>();
     private readonly ICompaniesQueryRepository _queryRepository = Substitute.For<ICompaniesQueryRepository>();
+    private readonly ICompanyIconsStorage _iconsStorage = Substitute.For<ICompanyIconsStorage>();
 
     [Fact]
-    public async Task GetAsync_WhenRepositoryReturnsData_ShouldReturnSuccess()
+    public async Task GetAsync_WhenRepositoryReturnsData_ShouldEnrichIconUrl_AndReturnSuccess()
     {
         // Arrange
-        var operation = new GetCompanyOperation(_mapper, _queryRepository);
+        var operation = new GetCompanyOperation(_mapper, _queryRepository, _iconsStorage);
 
         var companyId = Guid.NewGuid();
+        var iconId = Guid.NewGuid();
 
         var repoInput = new GetCompanyRepositoryInputModel
         {
@@ -32,7 +35,7 @@ public sealed class GetCompanyOperationTests
         {
             CompanyId = companyId,
             Name = "Яндекс",
-            IconId = Guid.NewGuid(),
+            IconId = iconId,
             Description = "крупная технологическая компания",
             Links = new CompanyLinksRepositoryModel
             {
@@ -51,11 +54,12 @@ public sealed class GetCompanyOperationTests
             ]
         };
 
-        var expected = new GetCompanyOperationResultModel
+        // mapper отдаёт модель БЕЗ url (операция должна обогатить через s3)
+        var mapped = new GetCompanyOperationResultModel
         {
             CompanyId = companyId,
             Name = "Яндекс",
-            IconUrl = "ic_yandex",
+            IconUrl = string.Empty,
             Description = "крупная технологическая компания",
             Links = new CompanyLinksOperationModel
             {
@@ -74,10 +78,13 @@ public sealed class GetCompanyOperationTests
             ]
         };
 
+        var expectedUrl = "http://minio.local/review-service/company-icons/yandex.png?sig=123";
+
         _mapper.Map<GetCompanyRepositoryInputModel>(companyId).Returns(repoInput);
-        _queryRepository.GetCompanyAsync(repoInput, Arg.Any<CancellationToken>())
-            .Returns(repoOutput);
-        _mapper.Map<GetCompanyOperationResultModel>(repoOutput).Returns(expected);
+        _queryRepository.GetCompanyAsync(repoInput, Arg.Any<CancellationToken>()).Returns(repoOutput);
+        _mapper.Map<GetCompanyOperationResultModel>(repoOutput).Returns(mapped);
+
+        _iconsStorage.GetIconReadUrlAsync(iconId, Arg.Any<CancellationToken>()).Returns(expectedUrl);
 
         // Act
         var result = await operation.GetAsync(companyId, CancellationToken.None);
@@ -86,17 +93,19 @@ public sealed class GetCompanyOperationTests
         Assert.True(result.IsSuccess);
         Assert.Equal(companyId, result.Value.CompanyId);
         Assert.Equal("Яндекс", result.Value.Name);
+        Assert.Equal(expectedUrl, result.Value.IconUrl);
 
         _mapper.Received(1).Map<GetCompanyRepositoryInputModel>(companyId);
         await _queryRepository.Received(1).GetCompanyAsync(repoInput, Arg.Any<CancellationToken>());
         _mapper.Received(1).Map<GetCompanyOperationResultModel>(repoOutput);
+        await _iconsStorage.Received(1).GetIconReadUrlAsync(iconId, Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task GetAsync_WhenRepositoryReturnsNull_ShouldReturnNotFound()
+    public async Task GetAsync_WhenRepositoryReturnsNull_ShouldReturnNotFound_AndNotCallIconsStorage()
     {
         // Arrange
-        var operation = new GetCompanyOperation(_mapper, _queryRepository);
+        var operation = new GetCompanyOperation(_mapper, _queryRepository, _iconsStorage);
 
         var companyId = Guid.NewGuid();
 
@@ -120,5 +129,54 @@ public sealed class GetCompanyOperationTests
         _mapper.Received(1).Map<GetCompanyRepositoryInputModel>(companyId);
         await _queryRepository.Received(1).GetCompanyAsync(repoInput, Arg.Any<CancellationToken>());
         _mapper.DidNotReceive().Map<GetCompanyOperationResultModel>(Arg.Any<GetCompanyRepositoryOutputModel>());
+
+        await _iconsStorage.DidNotReceive().GetIconReadUrlAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenIconIdIsEmpty_ShouldReturnSuccess_AndNotCallIconsStorage()
+    {
+        // Arrange
+        var operation = new GetCompanyOperation(_mapper, _queryRepository, _iconsStorage);
+
+        var companyId = Guid.NewGuid();
+
+        var repoInput = new GetCompanyRepositoryInputModel
+        {
+            CompanyId = companyId
+        };
+
+        var repoOutput = new GetCompanyRepositoryOutputModel
+        {
+            CompanyId = companyId,
+            Name = "NoIconCo",
+            IconId = Guid.Empty,
+            Description = "no icon",
+            Links = new CompanyLinksRepositoryModel { Site = null, Linkedin = null, Hh = null },
+            TopFlags = []
+        };
+
+        var mapped = new GetCompanyOperationResultModel
+        {
+            CompanyId = companyId,
+            Name = "NoIconCo",
+            IconUrl = string.Empty,
+            Description = "no icon",
+            Links = new CompanyLinksOperationModel { Site = null, Linkedin = null, Hh = null },
+            TopFlags = []
+        };
+
+        _mapper.Map<GetCompanyRepositoryInputModel>(companyId).Returns(repoInput);
+        _queryRepository.GetCompanyAsync(repoInput, Arg.Any<CancellationToken>()).Returns(repoOutput);
+        _mapper.Map<GetCompanyOperationResultModel>(repoOutput).Returns(mapped);
+
+        // Act
+        var result = await operation.GetAsync(companyId, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal("NoIconCo", result.Value.Name);
+
+        await _iconsStorage.DidNotReceive().GetIconReadUrlAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
     }
 }

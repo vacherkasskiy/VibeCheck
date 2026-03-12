@@ -14,11 +14,9 @@ primary:
     size: 2Gi
 
   service:
-    type: NodePort
+    type: LoadBalancer
     ports:
       postgresql: 5432
-    nodePorts:
-      postgresql: 30432
 
   resources:
     requests:

@@ -21,7 +21,7 @@ persistence:
   size: 5Gi
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     api: 9000
 

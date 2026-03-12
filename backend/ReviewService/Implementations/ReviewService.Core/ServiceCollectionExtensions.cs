@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ReviewService.CloudStorage.Abstractions.Models;
 using ReviewService.Core.Abstractions.Helpers;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Reviews;
@@ -45,6 +46,9 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DbOptions>(
             configuration.GetSection(nameof(DbOptions)));
+        
+        services.Configure<MinioOptions>(
+            configuration.GetSection(nameof(MinioOptions)));
 
         return services;
     }

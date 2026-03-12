@@ -1,8 +1,8 @@
 using AutoMapper;
+using ReviewService.CloudStorage.Abstractions.Services;
 using ReviewService.Core.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Companies;
-using ReviewService.PersistentStorage.Abstractions.Models.Companies;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
 
@@ -10,7 +10,8 @@ namespace ReviewService.Core.Operations.Companies;
 
 internal sealed class GetCompaniesOperation(
     IMapper mapper,
-    ICompaniesQueryRepository queryRepository)
+    ICompaniesQueryRepository queryRepository,
+    ICompanyIconsStorage iconsStorage)
     : IGetCompaniesOperation
 {
     public async Task<Result<GetCompaniesOperationResultModel>> GetAsync(
@@ -23,6 +24,39 @@ internal sealed class GetCompaniesOperation(
         if (repoOutput is null)
             return Error.Failure("failed to load companies");
 
-        return mapper.Map<GetCompaniesOperationResultModel>(repoOutput);
+        var result = mapper.Map<GetCompaniesOperationResultModel>(repoOutput);
+
+        // соберём iconId -> url
+        var iconIds = repoOutput.Companies
+            .Select(x => x.IconId)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (iconIds.Length == 0)
+            return result;
+
+        var urlTasks = iconIds.ToDictionary(
+            id => id,
+            id => iconsStorage.GetIconReadUrlAsync(id, ct));
+
+        await Task.WhenAll(urlTasks.Values);
+
+        var urls = urlTasks.ToDictionary(k => k.Key, v => v.Value.Result);
+
+        var companyIconIds = repoOutput.Companies.ToDictionary(x => x.CompanyId, x => x.IconId);
+
+        foreach (var company in result.Companies)
+        {
+            if (!companyIconIds.TryGetValue(company.CompanyId, out var iconId) || iconId == Guid.Empty)
+                continue;
+
+            if (urls.TryGetValue(iconId, out var url))
+            {
+                company.IconUrl = url;
+            }
+        }
+
+        return result;
     }
 }

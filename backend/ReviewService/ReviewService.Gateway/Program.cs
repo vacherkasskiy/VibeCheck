@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using ReviewService.CloudStorage.Extensions;
 using ReviewService.Core;
 using ReviewService.Gateway.Configurations;
 using ReviewService.PersistentStorage.Extensions;
@@ -9,6 +10,7 @@ builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
     .AddApplicationOptions(builder.Configuration)
+    .AddMinioServices()
     .AddCoreServices()
     .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()
@@ -37,5 +39,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();
+await app.Services.EnsureCloudStorageSeededAsync();
 
 app.Run();

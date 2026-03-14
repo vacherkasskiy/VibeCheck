@@ -14,7 +14,7 @@
 		"strict": true,
 		"paths": {
 			"*": ["./src/*"],
-			"@widgets": ["./src/widgets/*"],
+			"@widgets": ["./src/widgets"],
 			"@shared/*": ["./src/shared/*"],
 			"@pages": ["./src/pages/*"],
 			"@features": ["./src/features/*"],

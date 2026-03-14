@@ -1,0 +1,86 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+.title {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--color-accent-black);
+	margin: 0 0 8px 0;
+}
+
+.subtitle {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	color: var(--color-grey-text);
+	margin: 0;
+	line-height: 1.5;
+}
+
+.email {
+	color: var(--color-purple);
+	font-weight: 500;
+}
+
+.timer {
+	text-align: center;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	color: var(--color-grey-text);
+	min-height: 20px;
+}
+
+.resendButton {
+	background: none;
+	border: none;
+	color: var(--color-purple);
+	cursor: pointer;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	padding: 0;
+	text-decoration: underline;
+}
+
+.resendButton:hover {
+	color: var(--color-purple-dark);
+}
+
+.resendButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.submitButton {
+	margin-top: 8px;
+}
+
+.generalError {
+	background: var(--color-light-red);
+	color: var(--color-red);
+	padding: 12px 16px;
+	border-radius: 12px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+}
+
+@media (min-width: 768px) {
+	.title {
+		font-size: 36px;
+	}
+
+	.subtitle {
+		font-size: 18px;
+	}
+}

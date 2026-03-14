@@ -1,0 +1,118 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
+	position: relative;
+}
+
+.label {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--color-accent-black);
+}
+
+.required {
+	color: var(--color-red);
+	margin-left: 4px;
+}
+
+.dropdown {
+	width: 100%;
+	padding: 14px 40px 14px 16px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	color: var(--color-accent-black);
+	background: var(--color-white);
+	border: 2px solid var(--color-border-grey);
+	border-radius: 12px;
+	outline: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.dropdown:hover {
+	border-color: var(--color-purple-light);
+}
+
+.dropdown:focus,
+.dropdown.open {
+	border-color: var(--color-purple);
+	box-shadow: 0 0 0 3px var(--color-purple-glow);
+}
+
+.dropdown.error {
+	border-color: var(--color-red);
+}
+
+.selected {
+	color: var(--color-accent-black);
+}
+
+.placeholder {
+	color: var(--color-label-grey);
+}
+
+.chevron {
+	transition: transform 0.2s ease;
+	color: var(--color-grey-text);
+}
+
+.chevron.open {
+	transform: rotate(180deg);
+}
+
+.options {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	margin-top: 4px;
+	padding: 8px 0;
+	background: var(--color-white);
+	border: 2px solid var(--color-purple);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	z-index: 100;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.option {
+	padding: 12px 16px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	color: var(--color-accent-black);
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.option:hover {
+	background: var(--color-main-background-grey);
+}
+
+.option.selected {
+	background: var(--color-light-lime);
+	color: var(--color-accent-green);
+}
+
+.errorMessage {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 12px;
+	color: var(--color-red);
+}
+
+@media (min-width: 768px) {
+	.label {
+		font-size: 16px;
+	}
+
+	.dropdown {
+		padding: 16px 44px 16px 20px;
+		font-size: 16px;
+	}
+}

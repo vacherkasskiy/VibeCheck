@@ -1,0 +1,35 @@
+:root {
+	--color-inherit: inherit;
+	--color-accent-green: #8BC540;
+	--color-red: #FF4D4D;
+	--color-light-red: #FFEEEE;
+	--color-orange: #FF9446;
+	--color-blue: #0085FF;
+	--color-accent-black: #1C1B28;
+	--color-white: #FFFFFF;
+	--color-main-background-grey: #F4F5F9;
+	--color-lime: #D3F090;
+	--color-light-lime: #F3FBE1;
+	--color-grey-text: #686A7A;
+	--color-yellow: #FED141;
+	--color-icon-grey: #BABCD1;
+	--color-dark-hover: #1c1b28c2;
+	--color-light-hover: #e6e6e6;
+	--color-transparent: transparent;
+	--color-label-grey: #999999;
+	--color-border-grey: #C8C8CB;
+	--color-shadow: #565656;
+	--color-light-shadow: #aaaa;
+	--color-button-black: #252628;
+	--color-light-grey: #F4F4F4;
+	--color-purple: #8B5CF6;
+	--color-purple-dark: #7C3AED;
+	--color-purple-light: #A78BFA;
+	--color-purple-glow: rgba(139, 92, 246, 0.3);
+	--color-pink: #EC4899;
+	--color-cyan: #22D3EE;
+	--color-green-badge: #169941;
+	--color-lightgreen-badge: #EEFDF2;
+	--color-red-badge: #D72222;
+	--color-lightred-badge: #FEE0E0;
+}

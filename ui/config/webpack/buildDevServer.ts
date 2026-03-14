@@ -1,10 +1,14 @@
-import type { BuildEnv } from './types/config';
-import type { WebpackConfiguration } from 'webpack-cli';
+import type { BuildEnv, WebpackConfiguration } from './types/config';
 
-export const BuildDevServer = ({ PORT }: BuildEnv): WebpackConfiguration['devServer'] => {
+export const BuildDevServer = (env: BuildEnv, PORT: number): WebpackConfiguration['devServer'] => {
 	return {
 		port: PORT,
-		historyApiFallback: true, // чтобы не падало при перезагрузке на маршруте
+		historyApiFallback: true,
 		hot: true,
+		liveReload: false,
+		client: {
+			overlay: true,
+			progress: true,
+		},
 	};
 };

@@ -22,7 +22,7 @@ export const BuildWebpackConfig = (options: BuildOptions): WebpackConfiguration 
 		},
 		mode: env.MODE,
 		plugins: BuildPlugins(options),
-		devServer: BuildDevServer(env),
+		devServer: BuildDevServer(env, options.paths.port || 3000),
 		ignoreWarnings: [
 			{
 				message: /Deprecation/,

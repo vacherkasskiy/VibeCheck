@@ -1,0 +1,492 @@
+.container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #d8d8ff, #f8d8f8);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #333;
+}
+
+:global(body) {
+  margin: 0;
+  background: transparent;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  backdrop-filter: blur(10px);
+  
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.headerBack {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headerBack::before {
+  content: "←";
+  font-size: 18px;
+}
+
+.headerTitle {
+  text-align: center;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d2d2d;
+  flex: 1;
+  padding: 0 20px;
+}
+
+.headerSubtitle {
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+}
+
+.continueButton {
+  background: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.continueButton:hover {
+  background: #5a56e0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 100, 255, 0.25);
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(500px, 2fr);
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.library {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e0e0f0;
+  background: white;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+}
+
+.tagsGrid {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.category {
+  margin: 0;
+}
+
+.categoryTitle {
+  margin: 16px 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #4a4a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tagButton {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid #e0e0f0;
+  background: white;
+  color: #4a4a6a;
+  cursor: grab;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tagButton:hover {
+  background: #f5f5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tagButton:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.flagsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.column {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 350px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.columnTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.columnTitle::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.countBadge {
+  background: #e0e0f0;
+  color: #666;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.greenColumn {
+  border: 1px solid #c8f0d4;
+}
+
+.greenColumn .columnTitle::before {
+  background: #34a853;
+}
+
+.redColumn {
+  border: 1px solid #ffcccc;
+}
+
+.redColumn .columnTitle::before {
+  background: #ea4335;
+}
+
+.emptyMessage {
+  color: #9aa0a6;
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
+  padding: 20px 0;
+  font-style: italic;
+}
+
+.selectedTagsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.selectedTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f8f0;
+  border: 1px solid #c8f0d4;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.greenColumn .selectedTag {
+  background: #f0f8f0;
+  border: 1px solid #c8f0d4;
+}
+
+.redColumn .selectedTag {
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+}
+
+.tagLink {
+  background: transparent;
+  color: #2d2d2d;
+  border: 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.tagLink:hover {
+  text-decoration: underline;
+  color: #34a853;
+}
+
+.prioritySelect {
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  border: 1px solid #e0e0f0;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.prioritySelect:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+}
+
+.removeButton {
+  background: transparent;
+  border: 0;
+  color: #e57373;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.removeButton:hover {
+  background: #ffe0e0;
+}
+
+.moveButton {
+  background: transparent;
+  border: 1px solid #e0e0f0;
+  border-radius: 8px;
+  color: #4a4a6a;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.moveButton:hover {
+  background: #f0f0ff;
+  border-color: #6c63ff;
+  color: #6c63ff;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  width: 1420px;
+  max-width: 95%;
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  
+}
+
+.modalTitle {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d2d2d;
+  text-align: center;
+}
+
+.modalDescription {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #4a4a6a;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.conflictDialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.conflictDialogContent {
+  width: 520px;
+  max-width: 95%;
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0f0;
+  
+}
+
+.conflictTitle {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d2d2d;
+  text-align: center;
+}
+
+.conflictMessage {
+  color: #4a4a6a;
+  font-size: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.conflictButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flagsContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .column {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerTitle {
+    font-size: 20px;
+  }
+  
+  .header {
+    padding: 12px 16px;
+  }
+  
+  .library {
+    padding: 16px;
+  }
+  
+  .searchInput {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+  
+  .tagButton {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .selectedTagsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modalContent, .conflictDialogContent {
+    padding: 20px 16px;
+  }
+  
+  .modalTitle, .conflictTitle {
+    font-size: 20px;
+  }
+  
+  .continueButton {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.selectedTag {
+  animation: fadeIn 0.3s ease-out;
+}

@@ -1,4 +1,4 @@
-/* Reset and base styles  */
+@import '../../shared/styles/variables.css';
 
 * {
     padding: 0;
@@ -118,55 +118,4 @@ legend {
 
 input[type='file'] {
     max-width: 100%;
-}
-
-/* Стили для поля ввода в поисковом контроле Яндекс.Карты */
-/* Применяются только для position = top для компонента YMapControls */
-
-.ymaps3x0--controls_top.ymaps3x0--controls_center {
-    top: 0.5em;
-    left: 48px !important;
-    display: flex;
-    justify-content: start !important;
-    padding: 0;
-}
-
-.ymaps3--search-control__form {
-    position: relative;
-    top: 0;
-    left: 0.6em;
-    width: 270px !important;
-    height: 48px !important;
-}
-
-.ymaps3--search-control__input {
-    width: 220px !important;
-    padding: 0 0 0 6px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    box-shadow: 0 2px 4px 0 rgba(95, 105, 131, 0), 0 0 2px 0 rgba(95, 105, 131, 0) !important;
-}
-
-.ymaps3--suggest-control {
-    position: absolute;
-    top: 55px;
-    left: -32px;
-    width: 388px !important;
-    box-shadow: 0 0 5px 1px rgb(0, 0, 0, .2) !important;
-}
-
-.ymaps3--suggest-item-control__title {
-    font-weight: 400 !important;
-}
-
-.ymaps3--suggest-item-control__subtitle {
-    font-size: 14px;
-    font-weight: 400 !important;
-}
-
-.ymaps3x0--controls_right.ymaps3x0--controls_center {
-    top: 0;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
 }

@@ -1,0 +1,378 @@
+.container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f0ff, #e0e0ff);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #333;
+  
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f0f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c63ff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.logoText {
+  font-weight: 700;
+  font-size: 18px;
+  color: #2d2d2d;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchContainer {
+  position: relative;
+  width: 320px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border-radius: 12px;
+  border: 1px solid #e0e0f0;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9aa0a6;
+}
+
+.main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+  display: grid;
+  gap: 20px;
+}
+
+.companyCard {
+  border: 1px solid #e0e0f0;
+  border-radius: 16px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.companyCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+  border-color: #d8d8ff;
+}
+
+.companyHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.companyLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f0f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c63ff;
+  font-weight: bold;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.companyName {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.companyTags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: #6c63ff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.companyTagsIcon {
+  width: 18px;
+  height: 18px;
+  color: #6c63ff;
+}
+
+.flagsSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0ff;
+}
+
+.flagsTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #6c63ff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.flagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.flag.green {
+  background: rgba(52, 168, 83, 0.12);
+  border: 1px solid rgba(52, 168, 83, 0.35);
+  color: #34a853;
+}
+
+.flag.green:hover {
+  background: rgba(52, 168, 83, 0.2);
+}
+
+.flag.red {
+  background: rgba(234, 67, 53, 0.12);
+  border: 1px solid rgba(234, 67, 53, 0.35);
+  color: #ea4335;
+}
+
+.flag.red:hover {
+  background: rgba(234, 67, 53, 0.2);
+}
+
+.flagCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff5e6;
+  border: 1px solid #ffd699;
+  color: #ff9800;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.spinnerContainer {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #2c2f36;
+  border-top-color: #8ab4f8;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyState {
+  text-align: center;
+  margin-top: 40px;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.emptyStateTitle {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.emptyStateText {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .logoText {
+    font-size: 16px;
+  }
+
+  .searchContainer {
+    width: 100%;
+  }
+
+  .searchInput {
+    padding: 10px 12px 10px 36px;
+  }
+
+  .main {
+    padding: 12px 12px 40px;
+  }
+
+  .companyCard {
+    padding: 14px;
+  }
+
+  .companyName {
+    font-size: 18px;
+  }
+
+  .flag {
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+
+  .emptyState {
+    padding: 30px 15px;
+  }
+
+  .emptyStateTitle {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 12px;
+  }
+
+  .logo {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+
+  .logoText {
+    font-size: 14px;
+  }
+
+  .companyLogo {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .companyName {
+    font-size: 16px;
+  }
+
+  .flagsTitle {
+    font-size: 13px;
+  }
+
+  .flag {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+
+  .flagCount {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .emptyState {
+    padding: 20px 10px;
+  }
+
+  .emptyStateTitle {
+    font-size: 18px;
+  }
+
+  .emptyStateText {
+    font-size: 14px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.companyCard {
+  animation: fadeIn 0.3s ease-out;
+}

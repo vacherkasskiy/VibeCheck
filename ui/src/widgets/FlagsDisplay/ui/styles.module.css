@@ -1,0 +1,14 @@
+.container {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 24px 0;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 22px;
+	max-width: 600px;
+}

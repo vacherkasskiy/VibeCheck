@@ -1,0 +1,142 @@
+.page {
+	position: relative;
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.container {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 440px;
+}
+
+.backButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--color-grey-text);
+	text-decoration: none;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	margin-bottom: 24px;
+	transition: color 0.2s ease;
+}
+
+.backButton:hover {
+	color: var(--color-purple);
+}
+
+.form {
+	background: var(--color-white);
+	border-radius: 24px;
+	padding: 32px 24px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+.title {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--color-accent-black);
+	margin: 0 0 8px 0;
+}
+
+.subtitle {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	color: var(--color-grey-text);
+	margin: 0;
+}
+
+.submitButton {
+	margin: 24px 0 12px;
+}
+
+.forgotPassword {
+	text-align: right;
+	margin-bottom: 12px;
+}
+
+.forgotPassword a {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	color: var(--color-purple);
+	text-decoration: none;
+}
+
+.forgotPassword a:hover {
+	text-decoration: underline;
+}
+
+.divider {
+	display: flex;
+	align-items: center;
+	margin: 24px 0;
+	color: var(--color-label-grey);
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+	content: '';
+	flex: 1;
+	height: 1px;
+	background: var(--color-border-grey);
+}
+
+.divider span {
+	padding: 0 16px;
+}
+
+.registerLink {
+	text-align: center;
+	margin-top: 24px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	color: var(--color-grey-text);
+}
+
+.registerLink a {
+	color: var(--color-purple);
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.registerLink a:hover {
+	text-decoration: underline;
+}
+
+.generalError {
+	background: var(--color-light-red);
+	color: var(--color-red);
+	padding: 12px 16px;
+	border-radius: 12px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+	.form {
+		padding: 48px 40px;
+	}
+
+	.title {
+		font-size: 36px;
+	}
+
+	.subtitle {
+		font-size: 18px;
+	}
+}

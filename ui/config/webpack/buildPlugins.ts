@@ -1,6 +1,8 @@
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
+import path from 'path';
 import type { BuildOptions } from './types/config';
 import type { WebpackConfiguration } from 'webpack-cli';
 
@@ -25,5 +27,21 @@ export const BuildPlugins = (props: BuildOptions): WebpackConfiguration['plugins
 		new webpack.ProgressPlugin(),
 		//
 		new webpack.HotModuleReplacementPlugin(),
+		//
+		new CopyWebpackPlugin({
+			patterns: [
+				{
+					from: path.resolve(paths.public, 'manifest.json'),
+					to: path.resolve(paths.build, 'manifest.json'),
+				},
+				{
+					from: path.resolve(paths.public, 'assets'),
+					to: path.resolve(paths.build, 'assets'),
+					globOptions: {
+						ignore: ['**/icon.svg'],
+					},
+				},
+			],
+		}),
 	];
 };

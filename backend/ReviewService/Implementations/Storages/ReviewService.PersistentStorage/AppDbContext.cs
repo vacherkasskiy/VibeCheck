@@ -55,6 +55,17 @@ public sealed class AppDbContext : DbContext
             .HasMaxLength(128)
             .IsRequired();
 
+        entity.Property(x => x.Category)
+            .HasColumnName("category")
+            .HasMaxLength(64)
+            .HasConversion<string>()
+            .IsRequired();
+
+        entity.Property(x => x.Description)
+            .HasColumnName("description")
+            .HasColumnType("text")
+            .IsRequired();
+
         entity.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .HasColumnType("timestamp with time zone")
@@ -62,6 +73,7 @@ public sealed class AppDbContext : DbContext
             .IsRequired();
 
         entity.HasIndex(x => x.Name).IsUnique();
+        entity.HasIndex(x => x.Category);
     }
 
     private static void ConfigureIcons(ModelBuilder modelBuilder)

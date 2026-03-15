@@ -168,11 +168,22 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("category");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -181,6 +192,8 @@ namespace ReviewService.PersistentStorage.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Category");
 
                     b.HasIndex("Name")
                         .IsUnique();

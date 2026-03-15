@@ -3,10 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using ReviewService.CloudStorage.Abstractions.Models;
 using ReviewService.Core.Abstractions.Helpers;
 using ReviewService.Core.Abstractions.Operations.Companies;
+using ReviewService.Core.Abstractions.Operations.Flags;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.Core.Helpers;
 using ReviewService.Core.MapperProfiles;
 using ReviewService.Core.Operations.Companies;
+using ReviewService.Core.Operations.Flags;
 using ReviewService.Core.Operations.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Options;
 
@@ -33,6 +35,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDeleteCompanyReviewOperation, DeleteCompanyReviewOperation>();
         services.AddScoped<IVoteReviewOperation, VoteReviewOperation>();
         services.AddScoped<IReportReviewOperation, ReportReviewOperation>();
+        
+        // Flags
+        services.AddScoped<IGetAllFlagsOperation, GetAllFlagsOperation>();
         
         // Helpers
         services.AddSingleton<ICurrentUserAccessor, JwtCurrentUserAccessor>();

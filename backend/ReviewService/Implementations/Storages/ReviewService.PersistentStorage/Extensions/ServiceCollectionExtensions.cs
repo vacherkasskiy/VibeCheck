@@ -3,10 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ReviewService.PersistentStorage.Abstractions.Options;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
+using ReviewService.PersistentStorage.Abstractions.Repositories.Flags;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
 using ReviewService.PersistentStorage.MapperProfiles;
 using ReviewService.PersistentStorage.Repositories.Companies;
+using ReviewService.PersistentStorage.Repositories.Flags;
 using ReviewService.PersistentStorage.Repositories.Reviews;
 using ReviewService.PersistentStorage.Repositories.UserProfiles;
 
@@ -23,6 +25,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReviewsCommandRepository, ReviewsCommandRepository>();
         
         services.AddScoped<IUserProfilesQueryRepository, UserProfilesQueryRepository>();
+        
+        services.AddScoped<IFlagsQueryRepository, FlagsQueryRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {

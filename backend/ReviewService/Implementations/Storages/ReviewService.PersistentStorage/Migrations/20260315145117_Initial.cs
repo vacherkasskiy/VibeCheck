@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ReviewService.PersistentStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class DeleteWeightFromSchema : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +35,8 @@ namespace ReviewService.PersistentStorage.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    category = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
@@ -294,6 +296,11 @@ namespace ReviewService.PersistentStorage.Migrations
                 name: "IX_company_requests_status",
                 table: "company_requests",
                 column: "status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_flags_category",
+                table: "flags",
+                column: "category");
 
             migrationBuilder.CreateIndex(
                 name: "IX_flags_name",

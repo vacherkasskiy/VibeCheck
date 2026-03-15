@@ -36,4 +36,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();
+// await app.Services.EnsureCloudStorageSeededAsync();
+
 app.Run();

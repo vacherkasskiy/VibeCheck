@@ -13,6 +13,14 @@ primary:
     enabled: true
     size: 2Gi
 
+  initdb:
+    scripts:
+      01-create-extra-dbs.sql: |
+        SELECT 'CREATE DATABASE gamification_service'
+        WHERE NOT EXISTS (
+          SELECT FROM pg_database WHERE datname = 'gamification_service'
+        )\gexec
+
   service:
     type: LoadBalancer
     ports:

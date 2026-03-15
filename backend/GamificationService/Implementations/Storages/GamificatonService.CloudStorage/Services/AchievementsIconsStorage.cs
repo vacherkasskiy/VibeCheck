@@ -70,8 +70,7 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
     }
 
     private static string BuildObjectKey(Guid iconId)
-        // договорённость: все иконки компаний лежат тут
-        => $"company-icons/{iconId}.png";
+        => $"achievements-icons/{iconId}.png";
 
     private static (string host, int port) NormalizeEndpoint(string endpoint)
     {

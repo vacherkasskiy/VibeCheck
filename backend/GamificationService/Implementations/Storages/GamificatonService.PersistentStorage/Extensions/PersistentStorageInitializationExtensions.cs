@@ -7,7 +7,6 @@ public static class PersistentStorageInitializationExtensions
 {
     private static readonly string[] SeedResourceNames =
     [
-        // поменяй prefix, если у тебя другой DefaultNamespace у проекта persistent storage
         "GamificatonService.PersistentStorage.Seed.001_achievement_icons.sql",
         "GamificatonService.PersistentStorage.Seed.002_achievements.sql",
         "GamificatonService.PersistentStorage.Seed.003_level_thresholds.sql",

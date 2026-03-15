@@ -14,7 +14,13 @@ auth:
 
 mode: standalone
 
-defaultBuckets: "review-service"
+defaultBuckets:
+  - name: review-service
+    policy: none
+    purge: false
+  - name: gamification-service
+    policy: none
+    purge: false
 
 persistence:
   enabled: true

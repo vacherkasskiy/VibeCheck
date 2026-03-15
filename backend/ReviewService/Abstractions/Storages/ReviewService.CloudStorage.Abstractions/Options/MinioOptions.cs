@@ -1,4 +1,4 @@
-namespace ReviewService.CloudStorage.Abstractions.Models;
+namespace ReviewService.CloudStorage.Abstractions.Options;
 
 public sealed record MinioOptions
 {

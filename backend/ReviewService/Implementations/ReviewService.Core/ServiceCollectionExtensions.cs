@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ReviewService.CloudStorage.Abstractions.Models;
+using ReviewService.CloudStorage.Abstractions.Options;
 using ReviewService.Core.Abstractions.Helpers;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Flags;

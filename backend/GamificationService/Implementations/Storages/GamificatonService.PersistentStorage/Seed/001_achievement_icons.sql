@@ -1,0 +1,60 @@
+insert into achievement_icons (id, bucket, object_key, content_type, etag, size_bytes, created_at)
+values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001', 'gamification-service', 'achievement-icons/welcome.png', 'image/png',
+        'etag_welcome', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002', 'gamification-service', 'achievement-icons/first_review.png',
+        'image/png', 'etag_first_review', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003', 'gamification-service', 'achievement-icons/first_review_update.png',
+        'image/png', 'etag_first_review_update', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0004', 'gamification-service', 'achievement-icons/reviews_10.png', 'image/png',
+        'etag_reviews_10', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005', 'gamification-service', 'achievement-icons/reviews_50.png', 'image/png',
+        'etag_reviews_50', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006', 'gamification-service', 'achievement-icons/first_vote.png', 'image/png',
+        'etag_first_vote', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007', 'gamification-service', 'achievement-icons/votes_10.png', 'image/png',
+        'etag_votes_10', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0008', 'gamification-service', 'achievement-icons/votes_50.png', 'image/png',
+        'etag_votes_50', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0009', 'gamification-service', 'achievement-icons/votes_100.png', 'image/png',
+        'etag_votes_100', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0010', 'gamification-service', 'achievement-icons/following_1.png',
+        'image/png', 'etag_following_1', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0011', 'gamification-service', 'achievement-icons/following_10.png',
+        'image/png', 'etag_following_10', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0012', 'gamification-service', 'achievement-icons/following_50.png',
+        'image/png', 'etag_following_50', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0013', 'gamification-service', 'achievement-icons/sub_first.png', 'image/png',
+        'etag_sub_first', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0014', 'gamification-service', 'achievement-icons/sub_year.png', 'image/png',
+        'etag_sub_year', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0015', 'gamification-service', 'achievement-icons/flags_change.png',
+        'image/png', 'etag_flags_change', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0016', 'gamification-service', 'achievement-icons/likes_10.png', 'image/png',
+        'etag_likes_10', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0017', 'gamification-service', 'achievement-icons/likes_100.png', 'image/png',
+        'etag_likes_100', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0018', 'gamification-service', 'achievement-icons/likes_1000.png', 'image/png',
+        'etag_likes_1000', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0019', 'gamification-service', 'achievement-icons/followers_1.png',
+        'image/png', 'etag_followers_1', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0020', 'gamification-service', 'achievement-icons/followers_10.png',
+        'image/png', 'etag_followers_10', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0021', 'gamification-service', 'achievement-icons/followers_100.png',
+        'image/png', 'etag_followers_100', 12345, now()),
+
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0022', 'gamification-service', 'achievement-icons/company_suggestion.png',
+        'image/png', 'etag_company_suggestion', 12345, now()),
+       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0023', 'gamification-service', 'achievement-icons/platform_feedback.png',
+        'image/png', 'etag_platform_feedback', 12345, now()) on conflict (id) do
+update
+    set bucket = excluded.bucket,
+    object_key = excluded.object_key,
+    content_type = excluded.content_type,
+    etag = excluded.etag,
+    size_bytes = excluded.size_bytes;

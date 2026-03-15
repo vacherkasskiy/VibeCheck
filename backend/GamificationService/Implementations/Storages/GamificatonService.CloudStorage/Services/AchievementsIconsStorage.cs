@@ -1,20 +1,20 @@
 using System.Text.RegularExpressions;
+using GamificatonService.CloudStorage.Abstractions.Options;
+using GamificatonService.CloudStorage.Abstractions.Services;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
-using ReviewService.CloudStorage.Abstractions.Options;
-using ReviewService.CloudStorage.Abstractions.Services;
 
-namespace ReviewService.CloudStorage.Services;
+namespace GamificatonService.CloudStorage.Services;
 
-public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
+public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
 {
     private readonly IMinioClient _client;
     private readonly MinioOptions _options;
 
     private const int DefaultPresignExpirySeconds = 60 * 60 * 24;
 
-    public CompanyIconsMinioStorage(IOptions<MinioOptions> options)
+    public AchievementsIconsStorage(IOptions<MinioOptions> options)
     {
         _options = options.Value;
 
@@ -97,8 +97,6 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
 
     private static byte[] DecodeBase64(string base64)
     {
-        // поддержка data-uri
-        // data:image/png;base64,AAAA...
         var match = Regex.Match(base64, @"^data:.*?;base64,(?<data>.+)$", RegexOptions.IgnoreCase);
         if (match.Success)
             base64 = match.Groups["data"].Value;

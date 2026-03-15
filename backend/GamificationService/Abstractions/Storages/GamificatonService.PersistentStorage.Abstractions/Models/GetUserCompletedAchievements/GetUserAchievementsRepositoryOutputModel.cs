@@ -10,6 +10,6 @@ public sealed record UserAchievementItemRepositoryOutputModel
 {
     public required Guid AchievementId { get; init; }
     public required string Name { get; init; }
-    public required string IconId { get; init; }
+    public required Guid IconId { get; init; }
     public required DateTimeOffset ObtainedAt { get; init; }
 }

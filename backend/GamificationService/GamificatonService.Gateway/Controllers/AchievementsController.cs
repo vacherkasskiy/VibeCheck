@@ -1,10 +1,13 @@
 using AutoMapper;
 using GamificatonService.Core.Abstractions.Enums;
+using GamificatonService.Core.Abstractions.Helpers;
 using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
 using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
+using GamificatonService.Core.Abstractions.Models.Shared;
 using GamificatonService.Core.Abstractions.Operations.Achievements;
 using GamificatonService.Gateway.DTOs.GetMyAchievements;
 using GamificatonService.Gateway.DTOs.GetUserAchievements;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -17,7 +20,7 @@ namespace GamificatonService.Gateway.Controllers;
 [Route("api/users")]
 [Produces("application/json")]
 [SwaggerTag("пользователи: достижения")]
-//[Authorize]
+[Authorize]
 public sealed class AchievementsController(IMapper mapper) : ControllerBase
 {
     /// <summary>
@@ -26,18 +29,23 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
     [HttpGet("me/achievements")]
     [ProducesResponseType(typeof(GetMyAchievementsGatewayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "достижения текущего пользователя",
         Description = "возвращает весь каталог достижений пользователя с их статусами/прогрессом."
     )]
     public async Task<ActionResult<GetMyAchievementsGatewayResponse>> GetMyAchievements(
         [FromServices] IGetMyAchievementsOperation operation,
+        [FromServices] ICurrentUserAccessor currentUserAccessor,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
         [FromQuery] MyAchievementsFilterStatusGatewayEnum status = MyAchievementsFilterStatusGatewayEnum.All,
         CancellationToken ct = default)
     {
+        var currentUserId = currentUserAccessor.GetRequiredUserId(User);
+
         var model = new GetMyAchievementsOperationModel(
+            CurrentUserId: currentUserId,
             Take: take,
             PageNum: pageNum,
             Status: mapper.Map<MyAchievementsFilterStatusOperationEnum>(status));
@@ -45,7 +53,7 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
         var result = await operation.GetAsync(model, ct);
 
         if (result.IsFailure)
-            return BadRequest(new ProblemDetails
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "get my achievements failed",
                 Detail = result.Error.Message
@@ -62,6 +70,7 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "полученные достижения пользователя",
         Description = "всегда возвращает только полученные достижения другого пользователя."
@@ -82,22 +91,29 @@ public sealed class AchievementsController(IMapper mapper) : ControllerBase
 
         if (result.IsFailure)
         {
-            // если есть коды ошибок — лучше маппить по ним
-            if (string.Equals(result.Error.Message, "not_found", StringComparison.OrdinalIgnoreCase))
+            if (result.Error.Type == ErrorType.NotFound)
                 return NotFound(new ProblemDetails
                 {
                     Title = "user not found",
                     Detail = result.Error.Message
                 });
 
-            if (string.Equals(result.Error.Message, "forbidden", StringComparison.OrdinalIgnoreCase))
+            if (result.Error.Type == ErrorType.Conflict || result.Error.Type == ErrorType.Validation)
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "get user achievements failed",
+                    Detail = result.Error.Message
+                });
+
+            // на случай, если когда-то появится политика видимости
+            if (result.Error.Type == ErrorType.Failure && string.Equals(result.Error.Message, "forbidden", StringComparison.OrdinalIgnoreCase))
                 return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
                 {
                     Title = "forbidden",
                     Detail = result.Error.Message
                 });
 
-            return BadRequest(new ProblemDetails
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "get user achievements failed",
                 Detail = result.Error.Message

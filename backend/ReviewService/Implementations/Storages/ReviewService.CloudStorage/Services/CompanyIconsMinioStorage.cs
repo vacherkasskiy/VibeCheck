@@ -75,10 +75,6 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
 
     private static (string host, int port) NormalizeEndpoint(string endpoint)
     {
-        // принимаем:
-        // - "http://localhost:9000"
-        // - "https://minio.example.com"
-        // - "localhost:9000"
         endpoint = endpoint.Trim();
 
         if (!endpoint.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&

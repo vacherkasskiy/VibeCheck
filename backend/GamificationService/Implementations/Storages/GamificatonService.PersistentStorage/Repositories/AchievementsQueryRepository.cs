@@ -14,7 +14,7 @@ public sealed class AchievementsQueryRepository(AppDbContext dbContext) : IAchie
     {
         ct.ThrowIfCancellationRequested();
 
-        if (input.UserId == Guid.Empty)
+        if (input.CurrentUserId == Guid.Empty)
             return null;
 
         var take = Clamp(input.Take, 1, 100);
@@ -26,7 +26,7 @@ public sealed class AchievementsQueryRepository(AppDbContext dbContext) : IAchie
             .AsNoTracking()
             .Where(a => a.IsActive)
             .GroupJoin(
-                dbContext.UserAchievements.AsNoTracking().Where(ua => ua.UserId == input.UserId),
+                dbContext.UserAchievements.AsNoTracking().Where(ua => ua.UserId == input.CurrentUserId),
                 a => a.Id,
                 ua => ua.AchievementId,
                 (a, uas) => new { a, uas })

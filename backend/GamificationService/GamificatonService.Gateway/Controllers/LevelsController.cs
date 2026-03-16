@@ -1,6 +1,8 @@
 using AutoMapper;
+using GamificatonService.Core.Abstractions.Helpers;
 using GamificatonService.Core.Abstractions.Operations.Levels;
 using GamificatonService.Gateway.DTOs.GetLevel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,7 +15,7 @@ namespace GamificatonService.Gateway.Controllers;
 [Route("api/users")]
 [Produces("application/json")]
 [SwaggerTag("пользователи: уровень")]
-//[Authorize]
+[Authorize]
 public sealed class LevelsController(IMapper mapper) : ControllerBase
 {
     /// <summary>
@@ -28,9 +30,11 @@ public sealed class LevelsController(IMapper mapper) : ControllerBase
     )]
     public async Task<ActionResult<GetLevelGatewayResponse>> GetMyLevel(
         [FromServices] IGetUserLevelOperation operation,
+        [FromServices] ICurrentUserAccessor currentUserAccessor,
         CancellationToken ct = default)
     {
-        var userId = Guid.NewGuid(); // todo get from token
+        var userId = currentUserAccessor.GetRequiredUserId(User);
+
         var result = await operation.GetAsync(userId, ct);
 
         if (result.IsFailure)

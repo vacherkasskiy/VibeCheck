@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ReviewService.Core.Abstractions.Helpers;
+using GamificatonService.Core.Abstractions.Helpers;
 
-namespace ReviewService.Core.Helpers;
+namespace GamificatonService.Core.Helpers;
 
 internal sealed class JwtCurrentUserAccessor : ICurrentUserAccessor
 {

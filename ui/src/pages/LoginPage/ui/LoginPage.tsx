@@ -1,5 +1,5 @@
+import { CenterGlow, HeaderGlow } from '@shared/ui';
 import { AuthButton } from '@shared/ui/AuthButton';
-import { CenterGlow } from '@shared/ui/CenterGlow';
 import { InputField } from '@shared/ui/InputField';
 import { PasswordInput } from '@shared/ui/PasswordInput';
 import { useState } from 'react';
@@ -101,6 +101,7 @@ export const LoginPage = () => {
 
 	return (
 		<div className={styles.page}>
+			<HeaderGlow />
 			<CenterGlow />
 			<div className={styles.container}>
 				<button type="button" className={styles.backButton} onClick={handleBack}>

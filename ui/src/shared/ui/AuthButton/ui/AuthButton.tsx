@@ -48,7 +48,13 @@ export const AuthButton = ({
 	}
 
 	return (
-		<Button variant="primary" size="large" fullWidth={fullWidth} onClick={onClick} disabled={disabled}>
+		<Button
+			variant="primary"
+			size="medium"
+			fullWidth={fullWidth}
+			onClick={onClick}
+			disabled={disabled}
+		>
 			{children}
 		</Button>
 	);

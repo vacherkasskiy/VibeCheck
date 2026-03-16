@@ -1,0 +1,103 @@
+.container {
+	background: white;
+	border-radius: 16px;
+	padding: 24px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.title {
+	font-size: 20px;
+	font-weight: 600;
+	color: #1a1a1a;
+	margin: 0;
+}
+
+.flagsGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+}
+
+.flagsColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.columnTitle {
+	font-size: 16px;
+	font-weight: 600;
+	color: #333;
+	margin: 0 0 8px 0;
+}
+
+.flagsList {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.flag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 6px 12px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: 'Inter-Medium', 'Arial', sans-serif;
+	min-height: 32px;
+	border: 3px solid;
+	box-shadow: 0 2px 2px var(--color-shadow);
+	transition: transform 0.2s ease;
+}
+
+.flag:hover {
+	transform: translateY(-1px);
+}
+
+.greenFlag {
+	background: var(--color-lightgreen-badge);
+	border-color: var(--color-green-badge);
+	color: var(--color-green-badge);
+}
+
+.redFlag {
+	background: var(--color-lightred-badge);
+	border-color: var(--color-red-badge);
+	color: var(--color-red-badge);
+}
+
+.flagName {
+	font-weight: 500;
+}
+
+.flagPriority {
+	font-size: 12px;
+	opacity: 0.7;
+	font-weight: 600;
+}
+
+.empty {
+	color: #999;
+	font-size: 14px;
+	font-style: italic;
+	padding: 12px;
+	text-align: center;
+	background: #f5f5f5;
+	border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+	.flagsGrid {
+		grid-template-columns: 1fr;
+	}
+}

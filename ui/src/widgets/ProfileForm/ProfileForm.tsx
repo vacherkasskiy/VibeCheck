@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { AvatarSelector } from 'shared/ui/AvatarSelector';
 import { Button } from 'shared/ui/Button';
 import { Input } from 'shared/ui/Input';
 import { Select } from 'shared/ui/Select';
 import styles from './styles.module.css';
+import type { Avatar } from 'shared/ui/AvatarSelector';
 
 interface ProfileFormProps {
 	email: string;
@@ -11,7 +13,16 @@ interface ProfileFormProps {
 }
 
 export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
-	const [avatar, setAvatar] = useState('');
+	const [avatarId, setAvatarId] = useState<string | null>(null);
+
+	const [avatars] = useState<Avatar[]>([
+		{ id: '1', url: '/assets/avatars/avatar1.png' },
+		{ id: '2', url: '/assets/avatars/avatar2.png' },
+		{ id: '3', url: '/assets/avatars/avatar3.png' },
+		{ id: '4', url: '/assets/avatars/avatar4.png' },
+		{ id: '5', url: '/assets/avatars/avatar5.png' },
+		{ id: '6', url: '/assets/avatars/avatar6.png' },
+	]);
 	const [nickname, setNickname] = useState('');
 	const [gender, setGender] = useState('');
 	const [dob, setDob] = useState('');
@@ -28,8 +39,9 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	};
 
 	const handleSubmit = () => {
+		const selectedAvatar = avatars.find((a) => a.id === avatarId);
 		onSubmit({
-			avatar,
+			avatarUrl: selectedAvatar?.url || '',
 			nickname,
 			gender,
 			dob,
@@ -62,15 +74,23 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	return (
 		<div className={styles.container}>
 			<div className={styles.header}>
-			<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<img src="/assets/vibecheck-favicon.png" alt="VibeCheck" style={{ width: 64, height: 50, borderRadius: 6 }} />
+				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+					<img
+						src="/assets/vibecheck-favicon.png"
+						alt="VibeCheck"
+						style={{ width: 64, height: 50, borderRadius: 6 }}
+					/>
 				</div>
-			<h2 className={styles.title}>Заполните свой профиль</h2>
+				<h2 className={styles.title}>Заполните свой профиль</h2>
 			</div>
 
-			<div className={styles.avatarSelection}>
-				{/* PENDING: Avatar selection component */}
-				<p>Выберите аватар</p>
+			<div className={styles.avatarSection}>
+				<h3 className={styles.sectionTitle}>Выберите аватар</h3>
+				<AvatarSelector
+					avatars={avatars}
+					selectedId={avatarId}
+					onSelect={(id) => setAvatarId(id)}
+				/>
 			</div>
 
 			<Input
@@ -150,12 +170,16 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 								setExperience(newExp);
 							}}
 						/>
-						<Button onClick={() => handleRemoveExperience(index)} variant="secondary">
+						<Button
+							onClick={() => handleRemoveExperience(index)}
+							variant="secondary"
+							size="small"
+						>
 							Удалить
 						</Button>
 					</div>
 				))}
-				<Button onClick={handleAddExperience} variant="secondary">
+				<Button onClick={handleAddExperience} variant="secondary" size="small">
 					+ Добавить опыт
 				</Button>
 			</div>
@@ -164,7 +188,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				<Button onClick={onBack} variant="secondary">
 					Назад
 				</Button>
-				<Button onClick={handleSubmit} variant="primary" disabled={false}>
+				<Button onClick={handleSubmit} variant="primary" size="small" disabled={false}>
 					Продолжить
 				</Button>
 			</div>

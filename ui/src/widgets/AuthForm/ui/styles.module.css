@@ -31,6 +31,12 @@
 	color: var(--color-purple);
 }
 
+.logo {
+	width: 32px;
+	height: 28px;
+	border-radius: 6px;
+}
+
 .form {
 	background: var(--color-white);
 	border-radius: 24px;

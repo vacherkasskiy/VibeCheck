@@ -1,3 +1,4 @@
+import { Eye, EyeOff } from 'lucide-react';
 import { forwardRef, useState } from 'react';
 import styles from './styles.module.css';
 
@@ -19,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 			type = 'text',
 			...props
 		},
-		ref
+		ref,
 	) => {
 		const [showPassword, setShowPassword] = useState(false);
 
@@ -27,8 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 			setShowPassword(!showPassword);
 		};
 
-		const inputType =
-			showPasswordToggle && showPassword ? 'text' : type;
+		const inputType = showPasswordToggle && showPassword ? 'text' : type;
 
 		return (
 			<div className={`${styles.container} ${className}`}>
@@ -39,29 +39,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 					</label>
 				)}
 				<div className={`${styles.inputWrapper} ${error ? styles.error : ''}`}>
-					<input
-						ref={ref}
-						type={inputType}
-						className={styles.input}
-						{...props}
-					/>
+					<input ref={ref} type={inputType} className={styles.input} {...props} />
 					{showPasswordToggle && (
 						<button
 							type="button"
 							className={styles.passwordToggle}
 							onClick={togglePassword}
+							aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
 						>
-							{showPassword ? '🙈' : '👁️'}
+							{showPassword ? (
+								<EyeOff size={20} color="#6B7280" />
+							) : (
+								<Eye size={20} color="#6B7280" />
+							)}
 						</button>
 					)}
 				</div>
 				{error && <span className={styles.errorText}>{error}</span>}
-				{helperText && !error && (
-					<span className={styles.helperText}>{helperText}</span>
-				)}
+				{helperText && !error && <span className={styles.helperText}>{helperText}</span>}
 			</div>
 		);
-	}
+	},
 );
 
 Input.displayName = 'Input';

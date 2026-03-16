@@ -1,11 +1,10 @@
-import CenterGlowImg from './../../../assets/images/CenterGlow.svg';
 import styles from './styles.module.css';
+import CenterGlowSvg from '../../../assets/images/CenterGlow.svg';
 
-//TODO: replace img with custom styles
 export const CenterGlow = () => {
 	return (
 		<div className={styles.centerGlow}>
-			<CenterGlowImg/>
+			<CenterGlowSvg className={styles.glowImage} aria-hidden="true" />
 		</div>
 	);
 };

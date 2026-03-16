@@ -13,7 +13,7 @@
 }
 
 .required {
-	color: #EF4444;
+	color: #ef4444;
 	margin-left: 4px;
 }
 
@@ -28,12 +28,14 @@
 	padding: 12px 16px;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 16px;
-	color: #1F2937;
-	background: #FFFFFF;
-	border: 2px solid #E5E7EB;
+	color: #1f2937;
+	background: #ffffff;
+	border: 2px solid #e5e7eb;
 	border-radius: 10px;
 	outline: none;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .input:focus {
@@ -42,16 +44,16 @@
 }
 
 .input::placeholder {
-	color: #9CA3AF;
+	color: #9ca3af;
 }
 
 .input:disabled {
-	background: #F3F4F6;
+	background: #f3f4f6;
 	cursor: not-allowed;
 }
 
 .inputWrapper.error .input {
-	border-color: #EF4444;
+	border-color: #ef4444;
 }
 
 .inputWrapper.error .input:focus {
@@ -64,7 +66,10 @@
 	background: none;
 	border: none;
 	cursor: pointer;
-	font-size: 18px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	opacity: 0.6;
 	transition: opacity 0.2s ease;
 }
@@ -73,14 +78,18 @@
 	opacity: 1;
 }
 
+.passwordToggle:focus {
+	outline: none;
+}
+
 .errorText {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 13px;
-	color: #EF4444;
+	color: #ef4444;
 }
 
 .helperText {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 13px;
-	color: #6B7280;
+	color: #6b7280;
 }

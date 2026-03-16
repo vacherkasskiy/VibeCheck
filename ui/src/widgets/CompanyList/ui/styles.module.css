@@ -1,0 +1,52 @@
+.container {
+	display: grid;
+	gap: 20px;
+	width: 100%;
+}
+
+.emptyState {
+	text-align: center;
+	margin-top: 40px;
+	padding: 40px 20px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.emptyStateTitle {
+	margin: 0 0 12px;
+	font-size: 24px;
+	font-weight: 700;
+	color: #2d2d2d;
+}
+
+.emptyStateText {
+	margin: 0 0 20px;
+	color: #666;
+	font-size: 16px;
+	line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+	.emptyState {
+		padding: 30px 15px;
+	}
+
+	.emptyStateTitle {
+		font-size: 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.emptyState {
+		padding: 20px 10px;
+	}
+
+	.emptyStateTitle {
+		font-size: 18px;
+	}
+
+	.emptyStateText {
+		font-size: 14px;
+	}
+}

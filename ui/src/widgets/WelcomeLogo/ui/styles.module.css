@@ -30,19 +30,39 @@
 
 .title {
 	width: 100%;
-	max-width: 1140px;
+	max-width: 100%;
 	height: auto;
-	aspect-ratio: 1140 / 284;
+	display: block;
+}
+
+.title svg {
+	width: 100%;
+	height: auto;
+	display: block;
 }
 
 @media (max-width: 768px) {
 	.logoContainer {
 		margin-bottom: 32px;
 	}
+
+	.title {
+		max-width: 100%;
+	}
 }
 
 @media (max-width: 1024px) {
 	.logoContainer {
 		margin-bottom: 40px;
+	}
+
+	.title {
+		max-width: 90%;
+	}
+}
+
+@media (min-width: 1440px) {
+	.title {
+		max-width: 1200px;
 	}
 }

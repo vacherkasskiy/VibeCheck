@@ -11,13 +11,11 @@ export const WelcomePage = () => {
 	return (
 		<div className={styles.page}>
 			<main className={styles.main}>
-				<div className={styles.glowEffects}>
-					<HeaderGlow />
-					<CenterGlow />
-				</div>
-				<WelcomeLogo />
+				<HeaderGlow />
+				<CenterGlow />
 
 				<section className={styles.hero}>
+					<WelcomeLogo />
 					<div className={styles.headingContainer}>
 						<h1 className={styles.heading}>Определи свой карьерный вайб</h1>
 						<div className={styles.lineWrapper}>

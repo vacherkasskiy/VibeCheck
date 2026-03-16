@@ -11,6 +11,7 @@ export const AuthForm = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [emailError, setEmailError] = useState('');
+	const [passwordError, setPasswordError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
 
@@ -31,12 +32,29 @@ export const AuthForm = () => {
 		setGeneralError('');
 	};
 
+	const validatePassword = (value: string): string => {
+		if (!value) {
+			return 'Обязательное поле';
+		}
+		return '';
+	};
+
+	const handlePasswordChange = (value: string) => {
+		setPassword(value);
+		setPasswordError(validatePassword(value));
+		setGeneralError('');
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		const emailValidationError = validateEmail(email);
-		if (emailValidationError) {
-			setEmailError(emailValidationError);
+		const passwordValidationError = validatePassword(password);
+
+		setEmailError(emailValidationError);
+		setPasswordError(passwordValidationError);
+
+		if (emailValidationError || passwordValidationError) {
 			return;
 		}
 
@@ -93,6 +111,11 @@ export const AuthForm = () => {
 
 				<div className={styles.form}>
 					<div className={styles.header}>
+						<img
+							src="/assets/vibecheck-favicon.png"
+							alt="VibeCheck"
+							className={styles.logo}
+						/>
 						<h1 className={styles.title}>Войти</h1>
 						<p className={styles.subtitle}>Введите почту и пароль</p>
 					</div>
@@ -111,8 +134,9 @@ export const AuthForm = () => {
 						<PasswordInput
 							label="Пароль"
 							value={password}
-							onChange={setPassword}
+							onChange={handlePasswordChange}
 							required
+							error={passwordError}
 						/>
 
 						{generalError && <div className={styles.generalError}>{generalError}</div>}

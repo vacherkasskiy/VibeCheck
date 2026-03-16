@@ -1,79 +1,32 @@
 .headerGlow {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 0;
 	pointer-events: none;
 	overflow: hidden;
-	z-index: 0;
+	z-index: -1;
+	width: 100%;
+	height: 50vh;
+}
+
+.glowImage {
+	position: absolute;
 	width: 100%;
 	height: 100%;
-}
-
-.glowCircle1 {
-	position: absolute;
-	width: 400px;
-	height: 400px;
-	border-radius: 50%;
-	background: radial-gradient(circle, var(--color-purple-glow) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%);
-	top: -150px;
-	left: 50%;
-	transform: translateX(-50%);
-	animation: float1 8s ease-in-out infinite;
-}
-
-.glowCircle2 {
-	position: absolute;
-	width: 300px;
-	height: 300px;
-	border-radius: 50%;
-	background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, rgba(124, 58, 237, 0.03) 40%, transparent 70%);
-	top: -80px;
-	right: 10%;
-	animation: float2 10s ease-in-out infinite;
-}
-
-@keyframes float1 {
-	0%, 100% {
-		transform: translateX(-50%) translateY(0) scale(1);
-	}
-	50% {
-		transform: translateX(-50%) translateY(-30px) scale(1.05);
-	}
-}
-
-@keyframes float2 {
-	0%, 100% {
-		transform: translateY(0) scale(1);
-	}
-	50% {
-		transform: translateY(-20px) scale(1.1);
-	}
+	object-fit: cover;
+	top: 0;
+	left: 0;
 }
 
 @media (min-width: 768px) {
-	.glowCircle1 {
-		width: 600px;
-		height: 600px;
-		top: -200px;
-	}
-
-	.glowCircle2 {
-		width: 400px;
-		height: 400px;
+	.headerGlow {
+		height: 50vh;
 	}
 }
 
 @media (min-width: 1024px) {
-	.glowCircle1 {
-		width: 800px;
-		height: 800px;
-		top: -250px;
-	}
-
-	.glowCircle2 {
-		width: 500px;
-		height: 500px;
+	.headerGlow {
+		height: 50vh;
 	}
 }

@@ -1,0 +1,72 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.label {
+	font-size: 14px;
+	font-weight: 500;
+	color: #374151;
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.required {
+	color: #ef4444;
+	font-size: 12px;
+}
+
+.textareaWrapper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.textarea {
+	width: 100%;
+	min-height: 160px;
+	padding: 16px;
+	border: 2px solid #e5e7eb;
+	border-radius: 12px;
+	font-size: 16px;
+	font-family: inherit;
+	line-height: 1.5;
+	resize: vertical;
+	background: #fafbfc;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+	box-sizing: border-box;
+}
+
+.textarea:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea::placeholder {
+	color: #9ca3af;
+}
+
+.textarea.error {
+	border-color: #ef4444;
+	background: #fef2f2;
+}
+
+.charCounter {
+	align-self: flex-end;
+	font-size: 12px;
+	color: #6b7280;
+	margin-top: 4px;
+	font-variant-numeric: tabular-nums;
+}
+
+.errorMessage {
+	color: #ef4444;
+	font-size: 12px;
+	margin-top: 4px;
+}

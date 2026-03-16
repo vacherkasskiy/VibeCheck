@@ -8,21 +8,22 @@
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 24px;
 	font-weight: 700;
-	color: #1F2937;
+	color: #1f2937;
 	margin-bottom: 20px;
 	text-align: center;
 }
 
-.avatarSelection {
-	text-align: center;
-	min-height: 100px;
-	border: 1px dashed #D1D5DB;
-	border-radius: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #6B7280;
+.avatarSection {
+	margin-bottom: 20px;
+}
+
+.sectionTitle {
 	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #374151;
+	margin-top: 0;
+	margin-bottom: 15px;
 }
 
 .experienceBlock {
@@ -30,7 +31,7 @@
 	flex-direction: column;
 	gap: 15px;
 	padding: 15px;
-	border: 1px solid #E5E7EB;
+	border: 1px solid #e5e7eb;
 	border-radius: 12px;
 }
 
@@ -49,7 +50,7 @@
 	gap: 10px;
 	padding-bottom: 15px;
 	margin-bottom: 15px;
-	border-bottom: 1px dashed #E5E7EB;
+	border-bottom: 1px dashed #e5e7eb;
 }
 
 .experienceItem:last-child {

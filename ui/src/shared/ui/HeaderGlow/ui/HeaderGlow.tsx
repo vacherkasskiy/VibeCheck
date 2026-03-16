@@ -1,12 +1,10 @@
-import HeaderGlowImg from './../../../assets/images/HeaderGlow.svg';
 import styles from './styles.module.css';
+import HeaderGlowSvg from '../../../assets/images/HeaderGlow.svg';
 
-//TODO: replace img with custom styles
 export const HeaderGlow = () => {
 	return (
 		<div className={styles.headerGlow}>
-			
-			<HeaderGlowImg/>
+			<HeaderGlowSvg className={styles.glowImage} aria-hidden="true" />
 		</div>
 	);
 };

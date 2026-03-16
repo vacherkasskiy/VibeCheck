@@ -6,6 +6,7 @@ using GamificatonService.Core.Helpers;
 using GamificatonService.Core.MapperProfiles;
 using GamificatonService.Core.Operations.Achievements;
 using GamificatonService.Core.Operations.Levels;
+using GamificatonService.MessageBroker.Abstractions.Options;
 using GamificatonService.PersistentStorage.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,9 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DbOptions>(
             configuration.GetSection(nameof(DbOptions)));
+        
+        services.Configure<KafkaOptions>(
+            configuration.GetSection(nameof(KafkaOptions)));
         
         services.Configure<MinioOptions>(
             configuration.GetSection(nameof(MinioOptions)));

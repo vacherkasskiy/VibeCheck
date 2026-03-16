@@ -7,12 +7,16 @@ helm repo update
 
 helm upgrade --install postgres bitnami/postgresql \
   -n vibecheck \
-  -f ../review_service/pgsql_values.yaml
+  -f ../manifests/pgsql_values.yaml
 
 helm upgrade --install minio bitnami/minio \
   -n vibecheck \
-  -f ../review_service/minio_values.yaml
+  -f ../manifests/minio_values.yaml
 
-kubectl apply -f ../review_service/ingress.yaml
+helm upgrade --install kafka bitnami/kafka \
+  -n vibecheck \
+  -f ../manifests/kafka_values.yaml
+
+kubectl apply -f ../manifests/ingress.yaml
 
 sudo minikube tunnel

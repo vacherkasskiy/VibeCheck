@@ -1,0 +1,138 @@
+.container {
+	background: white;
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+}
+
+.title {
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--text-primary);
+	margin: 0;
+}
+
+.reviewsList {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.reviewCard {
+	background: var(--background-primary);
+	border-radius: 8px;
+	padding: 16px;
+	border: 1px solid var(--border-color);
+}
+
+.reviewHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.companyName {
+	font-weight: 600;
+	color: var(--text-primary);
+	font-size: 16px;
+}
+
+.reviewDate {
+	font-size: 14px;
+	color: var(--text-secondary);
+}
+
+.reviewText {
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--text-primary);
+	margin-bottom: 12px;
+}
+
+.reviewFlags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.greenFlag,
+.redFlag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 28px;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 500;
+	font-family: 'Inter-Medium', 'Arial', sans-serif;
+	border: 3px solid;
+	box-shadow: 0 2px 2px var(--color-shadow);
+}
+
+.greenFlag {
+	background: var(--color-lightgreen-badge);
+	border-color: var(--color-green-badge);
+	color: var(--color-green-badge);
+}
+
+.redFlag {
+	background: var(--color-lightred-badge);
+	border-color: var(--color-red-badge);
+	color: var(--color-red-badge);
+}
+
+.reviewFooter {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 12px;
+	border-top: 1px solid var(--border-color);
+}
+
+.reactions {
+	display: flex;
+	gap: 16px;
+	font-size: 14px;
+	color: var(--text-secondary);
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+}
+
+.editButton,
+.deleteButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 16px;
+	padding: 4px;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+.editButton:hover {
+	background-color: var(--background-secondary);
+}
+
+.deleteButton:hover {
+	background-color: rgba(239, 68, 68, 0.1);
+}
+
+.empty {
+	text-align: center;
+	color: var(--text-secondary);
+	padding: 32px;
+	font-style: italic;
+}

@@ -1,0 +1,95 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
+}
+
+.label {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: #374151;
+}
+
+.required {
+	color: #ef4444;
+	margin-left: 4px;
+}
+
+.inputWrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.input {
+	width: 100%;
+	padding: 12px 16px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	color: #1f2937;
+	background: #ffffff;
+	border: 2px solid #e5e7eb;
+	border-radius: 10px;
+	outline: none;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.input:focus {
+	border-color: var(--color-purple);
+	box-shadow: 0 0 0 3px var(--color-purple-glow);
+}
+
+.input::placeholder {
+	color: #9ca3af;
+}
+
+.input:disabled {
+	background: #f3f4f6;
+	cursor: not-allowed;
+}
+
+.inputWrapper.error .input {
+	border-color: #ef4444;
+}
+
+.inputWrapper.error .input:focus {
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.passwordToggle {
+	position: absolute;
+	right: 12px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.6;
+	transition: opacity 0.2s ease;
+}
+
+.passwordToggle:hover {
+	opacity: 1;
+}
+
+.passwordToggle:focus {
+	outline: none;
+}
+
+.errorText {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 13px;
+	color: #ef4444;
+}
+
+.helperText {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 13px;
+	color: #6b7280;
+}

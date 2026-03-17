@@ -1,0 +1,137 @@
+.container {
+	background: white;
+	border-radius: 16px;
+	padding: 24px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mainInfo {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 24px;
+}
+
+.avatarSection {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+}
+
+.avatar {
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 3px solid #f0f0f0;
+}
+
+.avatarPlaceholder {
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 32px;
+	font-weight: 600;
+	border: 3px solid #f0f0f0;
+}
+
+.userInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.nickname {
+	font-size: 24px;
+	font-weight: 600;
+	color: #1a1a1a;
+	margin: 0;
+}
+
+.email {
+	font-size: 14px;
+	color: #666;
+	margin: 0;
+}
+
+.levelSection {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.levelLabel {
+	font-size: 12px;
+	color: #888;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.progressBar {
+	width: 100px;
+	height: 6px;
+	background: #e0e0e0;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.progressFill {
+	height: 100%;
+	background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+	border-radius: 3px;
+	transition: width 0.3s ease;
+}
+
+.levelText {
+	font-size: 12px;
+	color: #4caf50;
+	font-weight: 500;
+}
+
+.editButton {
+	flex-shrink: 0;
+}
+
+.details {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f0;
+}
+
+.detailItem {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.detailLabel {
+	font-size: 12px;
+	color: #888;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.detailValue {
+	font-size: 14px;
+	color: #333;
+	font-weight: 500;
+}
+
+@media (max-width: 768px) {
+	.mainInfo {
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.details {
+		grid-template-columns: 1fr;
+	}
+}

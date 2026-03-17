@@ -1,0 +1,43 @@
+.googleButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	width: 100%;
+	padding: 14px 24px;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 16px;
+	font-weight: 500;
+	color: var(--color-accent-black);
+	background: var(--color-white);
+	border: 2px solid var(--color-border-grey);
+	border-radius: 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.googleButton:hover:not(:disabled) {
+	background: var(--color-main-background-grey);
+	border-color: var(--color-purple-light);
+	transform: translateY(-2px);
+}
+
+.googleButton:active:not(:disabled) {
+	transform: translateY(0);
+}
+
+.googleButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.fullWidth {
+	width: 100%;
+}
+
+@media (min-width: 768px) {
+	.googleButton {
+		padding: 16px 28px;
+		font-size: 18px;
+	}
+}

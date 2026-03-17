@@ -1,0 +1,39 @@
+.page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 40px 20px;
+	background: linear-gradient(135deg, #f0f4ff 0%, #fff0f5 50%, #f5f0ff 100%);
+	position: relative;
+	overflow-x: hidden;
+}
+
+.container {
+	width: 100%;
+	max-width: 680px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	z-index: 1;
+}
+
+.logo {
+	color: #111827;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (max-width: 640px) {
+	.page {
+		padding: 20px 0;
+		background: white;
+	}
+
+	.container {
+		gap: 16px;
+	}
+}

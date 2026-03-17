@@ -1,0 +1,1 @@
+export { formatTextLength } from './formatTextLength';

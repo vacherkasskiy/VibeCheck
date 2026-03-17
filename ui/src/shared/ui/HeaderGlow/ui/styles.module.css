@@ -1,0 +1,32 @@
+.headerGlow {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	overflow: hidden;
+	z-index: -1;
+	width: 100%;
+	height: 50vh;
+}
+
+.glowImage {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	top: 0;
+	left: 0;
+}
+
+@media (min-width: 768px) {
+	.headerGlow {
+		height: 50vh;
+	}
+}
+
+@media (min-width: 1024px) {
+	.headerGlow {
+		height: 50vh;
+	}
+}

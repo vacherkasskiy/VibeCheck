@@ -1,0 +1,46 @@
+:root {
+	--color-inherit: inherit;
+	--color-accent-green: #8bc540;
+	--color-red: #ff4d4d;
+	--color-light-red: #ffeeee;
+	--color-orange: #ff9446;
+	--color-blue: #0085ff;
+	--color-accent-black: #1c1b28;
+	--color-white: #ffffff;
+	--color-main-background-grey: #f4f5f9;
+	--color-lime: #d3f090;
+	--color-light-lime: #f3fbe1;
+	--color-grey-text: #686a7a;
+	--color-yellow: #fed141;
+	--color-icon-grey: #babcd1;
+	--color-dark-hover: #1c1b28c2;
+	--color-light-hover: #e6e6e6;
+	--color-transparent: transparent;
+	--color-label-grey: #999999;
+	--color-border-grey: #c8c8cb;
+	--color-shadow: #565656;
+	--color-light-shadow: #aaaa;
+	--color-button-black: #252628;
+	--color-light-grey: #f4f4f4;
+	--color-purple: #8b5cf6;
+	--color-purple-dark: #7c3aed;
+	--color-purple-light: #a78bfa;
+	--color-purple-glow: rgba(139, 92, 246, 0.3);
+	--color-pink: #ec4899;
+	--color-cyan: #22d3ee;
+	--color-green-badge: #169941;
+	--color-lightgreen-badge: #eefdf2;
+	--color-red-badge: #d72222;
+	--color-lightred-badge: #fee0e0;
+
+	/* Enhanced glow effects for buttons */
+	--color-purple-glow-strong: rgba(139, 92, 246, 0.5);
+	--color-purple-glow-soft: rgba(139, 92, 246, 0.15);
+	--color-white-glow: rgba(255, 255, 255, 0.4);
+	--color-pink-glow: rgba(236, 72, 153, 0.3);
+
+	/* Animation timing */
+	--transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+	--transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+	--transition-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

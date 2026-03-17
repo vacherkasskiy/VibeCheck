@@ -1,0 +1,37 @@
+.userNavButton {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 12px;
+
+	border: 1px solid var(--color-border-grey, #c8c8cb);
+	border-radius: 30px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.userNavButton:hover {
+	background: var(--color-white, #ffffff);
+	border-color: var(--color-purple, #6c5dd3);
+	transform: translateY(-2px);
+}
+
+.avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid var(--color-white, #ffffff);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nickname {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--color-accent-black, #1c1b28);
+	white-space: nowrap;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

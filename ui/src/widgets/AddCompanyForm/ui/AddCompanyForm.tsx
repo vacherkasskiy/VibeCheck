@@ -45,7 +45,7 @@ export const AddCompanyForm: FC = () => {
 	};
 
 	const handleBack = () => {
-		navigate('/');
+		navigate('/recommendations');
 	};
 
 	return (

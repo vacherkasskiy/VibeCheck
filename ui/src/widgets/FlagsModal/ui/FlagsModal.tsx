@@ -149,9 +149,9 @@ export const FlagsModal = ({
 		<Modal isOpen={isOpen} onClose={handleClose} className={styles.flagsModal}>
 			<div className={styles.container}>
 				<div className={styles.header}>
-					<h2 className={styles.title}>Select Flags for "{companyName}"</h2>
+					<h2 className={styles.title}>Выберите флаги для отзыва о "{companyName}"</h2>
 					<p className={styles.subtitle}>
-						Drag and drop flags to Green or Red columns, or click to add
+						Перетащите флаги в Green или Red колонки, или нажмите на флаг для добавления
 					</p>
 				</div>
 

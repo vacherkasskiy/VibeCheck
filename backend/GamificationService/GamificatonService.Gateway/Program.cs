@@ -39,6 +39,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();
-// await app.Services.EnsureCloudStorageSeededAsync();
+await app.Services.EnsureCloudStorageSeededAsync();
 
 app.Run();

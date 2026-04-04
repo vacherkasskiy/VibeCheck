@@ -8,65 +8,120 @@ public static class CloudStorageInitializationExtensions
 {
     private static readonly CloudIconSeedItem[] SeedItems =
     [
-        new("11111111-1111-1111-1111-111111111111", "company-icons", "yandex.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.11111111-1111-1111-1111-111111111111.base64", "image/png"),
+        // 0001 добро пожаловать в вайб!
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001", "achievement-icons", "welcome_to_vibe.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001.base64",
+            "image/png"),
 
-        new("22222222-2222-2222-2222-222222222222", "company-icons", "ozon.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.22222222-2222-2222-2222-222222222222.base64", "image/png"),
+        // 0002 проба пера
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002", "achievement-icons", "pen_sample.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002.base64",
+            "image/png"),
 
-        new("33333333-3333-3333-3333-333333333333", "company-icons", "avito.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.33333333-3333-3333-3333-333333333333.base64", "image/png"),
+        // 0003 обновил впечатления
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003", "achievement-icons", "updated_memories.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003.base64",
+            "image/png"),
 
-        new("44444444-4444-4444-4444-444444444444", "company-icons", "tbank.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.44444444-4444-4444-4444-444444444444.base64", "image/png"),
+        // 0004 опытный обозреватель
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0004", "achievement-icons", "senior_critic.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0004.base64",
+            "image/png"),
 
-        new("55555555-5555-5555-5555-555555555555", "company-icons", "sber.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.55555555-5555-5555-5555-555555555555.base64", "image/png"),
+        // 0005 голос сообщества
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005", "achievement-icons", "voice_of_crowd.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005.base64",
+            "image/png"),
 
-        new("66666666-6666-6666-6666-666666666666", "company-icons", "alfa.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.66666666-6666-6666-6666-666666666666.base64", "image/png"),
+        // 0006 первое впечатление
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006", "achievement-icons", "first_impression.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006.base64",
+            "image/png"),
 
-        new("77777777-7777-7777-7777-777777777777", "company-icons", "vk.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.77777777-7777-7777-7777-777777777777.base64", "image/png"),
+        // 0007 активный судья
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", "achievement-icons", "active_judge.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007.base64",
+            "image/png"),
 
-        new("88888888-8888-8888-8888-888888888888", "company-icons", "kaspersky.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.88888888-8888-8888-8888-888888888888.base64", "image/png"),
+        // 0008 виброаналитик
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0008", "achievement-icons", "vibe_analysist.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0008.base64",
+            "image/png"),
 
-        new("99999999-9999-9999-9999-999999999999", "company-icons", "headpoint.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.99999999-9999-9999-9999-999999999999.base64", "image/png"),
+        // 0009 настоящий модератор вайба
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0009", "achievement-icons", "true_vibe_moderator.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0009.base64",
+            "image/png"),
 
-        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "company-icons", "t1.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa.base64", "image/png"),
+        // 0010 вайб-следопыт
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0010", "achievement-icons", "vibe_hunter.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0010.base64",
+            "image/png"),
 
-        new("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "company-icons", "lamoda.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb.base64", "image/png"),
+        // 0011 любопытный наблюдатель
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0011", "achievement-icons", "curious_spectator.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0011.base64",
+            "image/png"),
 
-        new("cccccccc-cccc-cccc-cccc-cccccccccccc", "company-icons", "wildberries.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.cccccccc-cccc-cccc-cccc-cccccccccccc.base64", "image/png"),
+        // 0012 коллекционер вайбов
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0012", "achievement-icons", "vibe_collector.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0012.base64",
+            "image/png"),
 
-        new("dddddddd-dddd-dddd-dddd-dddddddddddd", "company-icons", "hh.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.dddddddd-dddd-dddd-dddd-dddddddddddd.base64", "image/png"),
+        // 0013 поддержи вайб
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0013", "achievement-icons", "support_vibe.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0013.base64",
+            "image/png"),
 
-        new("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", "company-icons", "mts.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee.base64", "image/png"),
+        // 0014 верный вайбу
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0014", "achievement-icons", "loyal_to_vibe.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0014.base64",
+            "image/png"),
 
-        new("12121212-1212-1212-1212-121212121212", "company-icons", "2gis.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.12121212-1212-1212-1212-121212121212.base64", "image/png"),
+        // 0015 перестроил вайб-компас
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0015", "achievement-icons", "rerouted_vibe_compas.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0015.base64",
+            "image/png"),
 
-        new("13131313-1313-1313-1313-131313131313", "company-icons", "kontur.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.13131313-1313-1313-1313-131313131313.base64", "image/png"),
+        // 0016 первая реакция
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0016", "achievement-icons", "first_reaction.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0016.base64",
+            "image/png"),
 
-        new("14141414-1414-1414-1414-141414141414", "company-icons", "x5.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.14141414-1414-1414-1414-141414141414.base64", "image/png"),
+        // 0017 популярный автор
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0017", "achievement-icons", "popular_author.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0017.base64",
+            "image/png"),
 
-        new("15151515-1515-1515-1515-151515151515", "company-icons", "rambler.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.15151515-1515-1515-1515-151515151515.base64", "image/png"),
+        // 0018 легенда вайба
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0018", "achievement-icons", "vibe_legend.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0018.base64",
+            "image/png"),
 
-        new("16161616-1616-1616-1616-161616161616", "company-icons", "cian.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.16161616-1616-1616-1616-161616161616.base64", "image/png"),
+        // 0019 первый фанат
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0019", "achievement-icons", "first_fan.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0019.base64",
+            "image/png"),
 
-        new("17171717-1717-1717-1717-171717171717", "company-icons", "surf.png",
-            "ReviewService.CloudStorage.Seed.CompanyIcons.17171717-1717-1717-1717-171717171717.base64", "image/png"),
+        // 0020 вайб-влиятель
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0020", "achievement-icons", "vibe_influencer.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0020.base64",
+            "image/png"),
+
+        // 0021 инфлюенсер вайба
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0021", "achievement-icons", "100_vibe_influencer.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0021.base64",
+            "image/png"),
+
+        // 0022 инициатор
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0022", "achievement-icons", "initiator.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0022.base64",
+            "image/png"),
+
+        // 0023 обратная связь
+        new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0023", "achievement-icons", "feedback.png",
+            "GamificatonService.CloudStorage.Seed.AchievementsIcons.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0023.base64",
+            "image/png"),
     ];
 
     public static async Task EnsureCloudStorageSeededAsync(

@@ -30,6 +30,29 @@ ensure_namespace() {
   kubectl get namespace "$ns" >/dev/null 2>&1 || kubectl create namespace "$ns"
 }
 
+ensure_hosts_entry() {
+  local ip="$1"
+  local host="$2"
+  local hosts_file="/etc/hosts"
+
+  # уже есть запись для этого host -> ничего не делаем
+  if sudo grep -Eq "^[[:space:]]*${ip}[[:space:]]+.*\b${host}\b" "$hosts_file" || sudo grep -Eq "^[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]+.*\b${host}\b" "$hosts_file"; then
+    echo "/etc/hosts already contains '${host}'"
+    return 0
+  fi
+
+  echo "Adding '${ip} ${host}' to /etc/hosts"
+  # добавляем в конец файла
+  printf "%s\t%s\n" "$ip" "$host" | sudo tee -a "$hosts_file" >/dev/null
+}
+
+ensure_hosts_entries() {
+  local ip="${1:-127.0.0.1}"
+
+  ensure_hosts_entry "$ip" "minio.local"
+  ensure_hosts_entry "$ip" "gamification.local"
+}
+
 # 1. проверить brew
 if ! command -v brew >/dev/null 2>&1; then
   echo "Homebrew is not installed. Install it first, then rerun the script."
@@ -44,6 +67,12 @@ ensure_command "kubectl" "brew install kubectl"
 
 # 4. запустить minikube, если не запущен
 ensure_minikube_running
+
+# 4.1 добавить hosts entries (вариант 1: tunnel -> 127.0.0.1)
+ensure_hosts_entries "127.0.0.1"
+
+# если решишь работать без tunnel, замени строку выше на:
+# ensure_hosts_entries "$(minikube ip)"
 
 # 5. namespace
 ensure_namespace "vibecheck"
@@ -69,6 +98,6 @@ helm upgrade --install minio bitnami/minio \
 #  -n vibecheck \
 #  -f ../manifests/kafka_values.yaml
 
-kubectl apply -f ../manifests/ingress.yaml
+kubectl apply -f ../manifests/my
 
 sudo minikube tunnel

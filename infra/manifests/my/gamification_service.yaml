@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gamification-service-config
+  namespace: vibecheck
+data:
+  ASPNETCORE_ENVIRONMENT: "Test"
+  DbOptions__Host: "postgres-postgresql"
+#  DbOptions__Port: "5432"
+#  DbOptions__Database: "gamification_service"
+  MinioOptions__Endpoint: "http://minio.vibecheck.svc.cluster.local:9000"
+#  MinioOptions__Bucket: "gamification-service"
+#  MinioOptions__UseSsl: "false"
+  KafkaOptions__BootstrapServers: "kafka.vibecheck.svc.cluster.local:9092"
+#  KafkaOptions__SecurityProtocol: "SaslPlaintext"
+#  KafkaOptions__SaslMechanism: "Plain"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gamification-service-secrets
+  namespace: vibecheck
+type: Opaque
+stringData:
+  DbOptions__Username: "app_user"
+  DbOptions__Password: "app_password"
+  MinioOptions__AccessKey: "minio_admin"
+  MinioOptions__SecretKey: "minio_admin_password"
+  KafkaOptions__Username: "app_user"
+  KafkaOptions__Password: "app_password"
+#  JwtOptions__SecretKey: "super-very-mega-ultra-strong-secret-key"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamification-service
+  namespace: vibecheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gamification-service
+  template:
+    metadata:
+      labels:
+        app: gamification-service
+    spec:
+      containers:
+        - name: gamification-service
+          image: ikeeo/vibecheck-gamification-serivce:3.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: gamification-service-config
+            - secretRef:
+                name: gamification-service-secrets
+#          readinessProbe:
+#            httpGet:
+#              path: /health
+#              port: http
+#            initialDelaySeconds: 5
+#            periodSeconds: 10
+#            timeoutSeconds: 2
+#            failureThreshold: 6
+#          livenessProbe:
+#            httpGet:
+#              path: /health
+#              port: http
+#            initialDelaySeconds: 20
+#            periodSeconds: 20
+#            timeoutSeconds: 2
+#            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gamification-service
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: gamification-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

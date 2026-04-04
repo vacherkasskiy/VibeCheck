@@ -9,7 +9,8 @@ namespace GamificatonService.CloudStorage.Services;
 
 public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
 {
-    private readonly IMinioClient _client;
+    private readonly IMinioClient _clientInternal;
+    private readonly IMinioClient _clientPublic;
     private readonly MinioOptions _options;
 
     private const int DefaultPresignExpirySeconds = 60 * 60 * 24;
@@ -18,12 +19,24 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
     {
         _options = options.Value;
 
-        var endpoint = NormalizeEndpoint(_options.PublicEndpoint);
-
-        _client = new MinioClient()
-            .WithEndpoint(endpoint.host, endpoint.port)
+        var internalEp = NormalizeEndpoint(_options.Endpoint);
+        _clientInternal = new MinioClient()
+            .WithEndpoint(internalEp.host, internalEp.port)
             .WithCredentials(_options.AccessKey, _options.SecretKey)
             .WithSSL(_options.UseSsl)
+            .Build();
+
+        var publicEndpointRaw = string.IsNullOrWhiteSpace(_options.PublicEndpoint)
+            ? _options.Endpoint
+            : _options.PublicEndpoint!;
+
+        var publicUseSsl = _options.UseSsl;
+
+        var publicEp = NormalizeEndpoint(publicEndpointRaw);
+        _clientPublic = new MinioClient()
+            .WithEndpoint(publicEp.host, publicEp.port)
+            .WithCredentials(_options.AccessKey, _options.SecretKey)
+            .WithSSL(publicUseSsl)
             .Build();
     }
 
@@ -32,23 +45,12 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+        if (iconIds is null) throw new ArgumentNullException(nameof(iconIds));
 
-        if (iconIds is null)
-            throw new ArgumentNullException(nameof(iconIds));
+        var unique = iconIds.Where(x => x != Guid.Empty).Distinct().ToArray();
+        if (unique.Length == 0) return new Dictionary<Guid, string>();
 
-        // чистим мусор + убираем дубликаты
-        var unique = iconIds
-            .Where(x => x != Guid.Empty)
-            .Distinct()
-            .ToArray();
-
-        if (unique.Length == 0)
-            return new Dictionary<Guid, string>();
-
-        // minio клиент не даёт "presign batch" одной командой,
-        // поэтому делаем параллельно, но ограничиваем степень параллелизма.
         const int maxConcurrency = 8;
-
         var results = new Dictionary<Guid, string>(unique.Length);
         using var throttler = new SemaphoreSlim(maxConcurrency, maxConcurrency);
 
@@ -62,7 +64,7 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
                     .WithObject(BuildObjectKey(iconId))
                     .WithExpiry(DefaultPresignExpirySeconds);
 
-                var url = await _client.PresignedGetObjectAsync(args);
+                var url = await _clientPublic.PresignedGetObjectAsync(args);
 
                 lock (results)
                     results[iconId] = url;
@@ -74,27 +76,16 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
         });
 
         await Task.WhenAll(tasks);
-
         return results;
     }
 
-    public async Task PutIconFromBase64Async(
-        Guid iconId,
-        string base64,
-        string contentType,
-        CancellationToken ct)
+    public async Task PutIconFromBase64Async(Guid iconId, string base64, string contentType, CancellationToken ct)
     {
-        if (iconId == Guid.Empty)
-            throw new ArgumentException("iconId is empty", nameof(iconId));
-
-        if (string.IsNullOrWhiteSpace(base64))
-            throw new ArgumentException("base64 is empty", nameof(base64));
-
-        if (string.IsNullOrWhiteSpace(contentType))
-            throw new ArgumentException("contentType is empty", nameof(contentType));
+        if (iconId == Guid.Empty) throw new ArgumentException("iconId is empty", nameof(iconId));
+        if (string.IsNullOrWhiteSpace(base64)) throw new ArgumentException("base64 is empty", nameof(base64));
+        if (string.IsNullOrWhiteSpace(contentType)) throw new ArgumentException("contentType is empty", nameof(contentType));
 
         var bytes = DecodeBase64(base64);
-
         await using var ms = new MemoryStream(bytes);
 
         var putArgs = new PutObjectArgs()
@@ -104,11 +95,10 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
             .WithObjectSize(ms.Length)
             .WithContentType(contentType);
 
-        await _client.PutObjectAsync(putArgs, ct);
+        await _clientInternal.PutObjectAsync(putArgs, ct);
     }
 
-    private static string BuildObjectKey(Guid iconId)
-        => $"achievements-icons/{iconId}.png";
+    private static string BuildObjectKey(Guid iconId) => $"achievement-icons/{iconId}.png";
 
     private static (string host, int port) NormalizeEndpoint(string endpoint)
     {

@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: review-service-config
+  namespace: vibecheck
+data:
+  ASPNETCORE_ENVIRONMENT: "Test"
+  DbOptions__Host: "postgres-postgresql"
+  MinioOptions__Endpoint: "http://minio.vibecheck.svc.cluster.local:9000"
+  MinioOptions__PublicEndpoint: "minio.api.local"
+  KafkaOptions__BootstrapServers: "kafka.vibecheck.svc.cluster.local:9092"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: review-service-secrets
+  namespace: vibecheck
+type: Opaque
+stringData:
+  DbOptions__Username: "app_user"
+  DbOptions__Password: "app_password"
+  MinioOptions__AccessKey: "minio_admin"
+  MinioOptions__SecretKey: "minio_admin_password"
+  KafkaOptions__Username: "app_user"
+  KafkaOptions__Password: "app_password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-service
+  namespace: vibecheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-service
+  template:
+    metadata:
+      labels:
+        app: review-service
+    spec:
+      containers:
+        - name: review-service
+          image: ikeeo/vibecheck-review-service:3.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: review-service-config
+            - secretRef:
+                name: review-service-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-service
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: review-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

@@ -9,7 +9,8 @@ namespace ReviewService.CloudStorage.Services;
 
 public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
 {
-    private readonly IMinioClient _client;
+    private readonly IMinioClient _clientInternal;
+    private readonly IMinioClient _clientPublic;
     private readonly MinioOptions _options;
 
     private const int DefaultPresignExpirySeconds = 60 * 60 * 24;
@@ -18,12 +19,24 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
     {
         _options = options.Value;
 
-        var endpoint = NormalizeEndpoint(_options.PublicEndpoint);
-
-        _client = new MinioClient()
-            .WithEndpoint(endpoint.host, endpoint.port)
+        var internalEp = NormalizeEndpoint(_options.Endpoint);
+        _clientInternal = new MinioClient()
+            .WithEndpoint(internalEp.host, internalEp.port)
             .WithCredentials(_options.AccessKey, _options.SecretKey)
             .WithSSL(_options.UseSsl)
+            .Build();
+
+        var publicEndpointRaw = string.IsNullOrWhiteSpace(_options.PublicEndpoint)
+            ? _options.Endpoint
+            : _options.PublicEndpoint!;
+
+        var publicUseSsl = _options.UseSsl;
+
+        var publicEp = NormalizeEndpoint(publicEndpointRaw);
+        _clientPublic = new MinioClient()
+            .WithEndpoint(publicEp.host, publicEp.port)
+            .WithCredentials(_options.AccessKey, _options.SecretKey)
+            .WithSSL(publicUseSsl)
             .Build();
     }
 
@@ -37,7 +50,7 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
             .WithObject(BuildObjectKey(iconId))
             .WithExpiry(DefaultPresignExpirySeconds);
 
-        return await _client.PresignedGetObjectAsync(args);
+        return await _clientPublic.PresignedGetObjectAsync(args);
     }
 
     public async Task PutIconFromBase64Async(
@@ -56,7 +69,6 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
             throw new ArgumentException("contentType is empty", nameof(contentType));
 
         var bytes = DecodeBase64(base64);
-
         await using var ms = new MemoryStream(bytes);
 
         var putArgs = new PutObjectArgs()
@@ -66,12 +78,10 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
             .WithObjectSize(ms.Length)
             .WithContentType(contentType);
 
-        await _client.PutObjectAsync(putArgs, ct);
+        await _clientInternal.PutObjectAsync(putArgs, ct);
     }
 
-    private static string BuildObjectKey(Guid iconId)
-        // договорённость: все иконки компаний лежат тут
-        => $"company-icons/{iconId}.png";
+    private static string BuildObjectKey(Guid iconId) => $"achievement-icons/{iconId}.png";
 
     private static (string host, int port) NormalizeEndpoint(string endpoint)
     {
@@ -93,8 +103,6 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
 
     private static byte[] DecodeBase64(string base64)
     {
-        // поддержка data-uri
-        // data:image/png;base64,AAAA...
         var match = Regex.Match(base64, @"^data:.*?;base64,(?<data>.+)$", RegexOptions.IgnoreCase);
         if (match.Success)
             base64 = match.Groups["data"].Value;

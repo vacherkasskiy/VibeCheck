@@ -14,6 +14,7 @@ data:
 #  DbOptions__Port: "5432"
 #  DbOptions__Database: "gamification_service"
   MinioOptions__Endpoint: "http://minio.vibecheck.svc.cluster.local:9000"
+  MinioOptions__PublicEndpoint: "minio.api.local"
 #  MinioOptions__Bucket: "gamification-service"
 #  MinioOptions__UseSsl: "false"
   KafkaOptions__BootstrapServers: "kafka.vibecheck.svc.cluster.local:9092"
@@ -52,7 +53,7 @@ spec:
     spec:
       containers:
         - name: gamification-service
-          image: ikeeo/vibecheck-gamification-serivce:3.3
+          image: ikeeo/vibecheck-gamification-serivce:3.4
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

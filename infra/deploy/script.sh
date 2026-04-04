@@ -49,8 +49,10 @@ ensure_hosts_entry() {
 ensure_hosts_entries() {
   local ip="${1:-127.0.0.1}"
 
-  ensure_hosts_entry "$ip" "minio.local"
+  ensure_hosts_entry "$ip" "minio.console.local"
+  ensure_hosts_entry "$ip" "minio.api.local"
   ensure_hosts_entry "$ip" "gamification.local"
+  ensure_hosts_entry "$ip" "review.local"
 }
 
 # 1. проверить brew

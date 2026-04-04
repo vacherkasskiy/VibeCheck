@@ -18,7 +18,7 @@ public sealed class CompanyIconsMinioStorage : ICompanyIconsStorage
     {
         _options = options.Value;
 
-        var endpoint = NormalizeEndpoint(_options.Endpoint);
+        var endpoint = NormalizeEndpoint(_options.PublicEndpoint);
 
         _client = new MinioClient()
             .WithEndpoint(endpoint.host, endpoint.port)

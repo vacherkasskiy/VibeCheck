@@ -6,9 +6,11 @@ namespace GamificatonService.CloudStorage.Abstractions.Services;
 public interface IAchievementsIconsStorage
 {
     /// <summary>
-    /// возвращает presigned url для чтения иконки компании.
+    /// возвращает presigned urls для чтения иконки компании.
     /// </summary>
-    Task<string> GetIconReadUrlAsync(Guid iconId, CancellationToken ct);
+    Task<IReadOnlyDictionary<Guid, string>> GetIconReadUrlsAsync(
+        IReadOnlyCollection<Guid> iconIds,
+        CancellationToken ct);
 
     /// <summary>
     /// загрузка иконки из base64 (пока не используете).

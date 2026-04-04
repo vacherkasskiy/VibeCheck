@@ -1,4 +1,5 @@
 using AutoMapper;
+using GamificatonService.CloudStorage.Abstractions.Services;
 using GamificatonService.Core.Abstractions.Models.GetUserAchievements;
 using GamificatonService.Core.Abstractions.Models.Shared;
 using GamificatonService.Core.Abstractions.Operations.Achievements;
@@ -9,7 +10,8 @@ namespace GamificatonService.Core.Operations.Achievements;
 
 public sealed class GetUserAchievementsOperation(
     IMapper mapper,
-    IAchievementsQueryRepository queryRepository)
+    IAchievementsQueryRepository queryRepository,
+    IAchievementsIconsStorage iconsStorage)
     : IGetUserAchievementsOperation
 {
     public async Task<Result<GetUserAchievementsOperationResultModel>> GetAsync(
@@ -23,6 +25,31 @@ public sealed class GetUserAchievementsOperation(
         if (repoOutput is null)
             return Error.NotFound("user not found");
 
-        return mapper.Map<GetUserAchievementsOperationResultModel>(repoOutput);
+        var result = mapper.Map<GetUserAchievementsOperationResultModel>(repoOutput);
+
+        var iconIdByAchievementId = repoOutput.Achievements
+            .Where(x => x.IconId != Guid.Empty)
+            .GroupBy(x => x.AchievementId)
+            .ToDictionary(g => g.Key, g => g.First().IconId);
+
+        if (iconIdByAchievementId.Count == 0)
+            return result;
+
+        var uniqueIconIds = iconIdByAchievementId.Values.Distinct().ToArray();
+        var urlsByIconId = await iconsStorage.GetIconReadUrlsAsync(uniqueIconIds, ct);
+
+        var patched = result.Achievements
+            .Select(a =>
+            {
+                if (!iconIdByAchievementId.TryGetValue(a.AchievementId, out var iconId))
+                    return a;
+
+                return urlsByIconId.TryGetValue(iconId, out var url)
+                    ? a with { IconUrl = url }
+                    : a;
+            })
+            .ToList();
+
+        return result with { Achievements = patched };
     }
 }

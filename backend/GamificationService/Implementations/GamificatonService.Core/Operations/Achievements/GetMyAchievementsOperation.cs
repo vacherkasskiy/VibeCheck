@@ -1,4 +1,5 @@
 using AutoMapper;
+using GamificatonService.CloudStorage.Abstractions.Services;
 using GamificatonService.Core.Abstractions.Models.GetMyAchievements;
 using GamificatonService.Core.Abstractions.Models.Shared;
 using GamificatonService.Core.Abstractions.Operations.Achievements;
@@ -9,7 +10,8 @@ namespace GamificatonService.Core.Operations.Achievements;
 
 public sealed class GetMyAchievementsOperation(
     IMapper mapper,
-    IAchievementsQueryRepository queryRepository)
+    IAchievementsQueryRepository queryRepository,
+    IAchievementsIconsStorage iconsStorage)
     : IGetMyAchievementsOperation
 {
     public async Task<Result<GetMyAchievementsOperationResultModel>> GetAsync(
@@ -23,6 +25,34 @@ public sealed class GetMyAchievementsOperation(
         if (repoOutput is null)
             return Error.Failure("failed to load achievements");
 
-        return mapper.Map<GetMyAchievementsOperationResultModel>(repoOutput);
+        var result = mapper.Map<GetMyAchievementsOperationResultModel>(repoOutput);
+
+        // achievementId -> iconId (из репозитория)
+        var iconIdByAchievementId = repoOutput.Achievements
+            .Where(x => x.IconId != Guid.Empty)
+            .GroupBy(x => x.AchievementId)
+            .ToDictionary(g => g.Key, g => g.First().IconId);
+
+        if (iconIdByAchievementId.Count == 0)
+            return result;
+
+        // iconId -> url (батч)
+        var uniqueIconIds = iconIdByAchievementId.Values.Distinct().ToArray();
+        var urlsByIconId = await iconsStorage.GetIconReadUrlsAsync(uniqueIconIds, ct);
+
+        // проставляем IconUrl в operation-модели
+        var patched = result.Achievements
+            .Select(a =>
+            {
+                if (!iconIdByAchievementId.TryGetValue(a.AchievementId, out var iconId))
+                    return a;
+
+                return urlsByIconId.TryGetValue(iconId, out var url)
+                    ? a with { IconUrl = url }
+                    : a;
+            })
+            .ToList();
+
+        return result with { Achievements = patched };
     }
 }

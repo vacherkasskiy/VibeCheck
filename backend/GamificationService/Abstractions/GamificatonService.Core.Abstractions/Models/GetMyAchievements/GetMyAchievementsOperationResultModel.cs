@@ -13,7 +13,7 @@ public sealed record MyAchievementItemModel
     public required Guid AchievementId { get; init; }
     public required string Name { get; init; }
     public required string Description { get; init; }
-    public required string IconId { get; init; }
+    public required string IconUrl { get; init; }
     public required AchievementStatusOperationEnum Status { get; init; }
     public required ProgressLongModel Progress { get; init; }
     public DateTimeOffset? ObtainedAt { get; init; }

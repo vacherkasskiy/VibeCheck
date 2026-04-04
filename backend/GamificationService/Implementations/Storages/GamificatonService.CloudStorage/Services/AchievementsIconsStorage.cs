@@ -27,17 +27,55 @@ public sealed class AchievementsIconsStorage : IAchievementsIconsStorage
             .Build();
     }
 
-    public async Task<string> GetIconReadUrlAsync(Guid iconId, CancellationToken ct)
+    public async Task<IReadOnlyDictionary<Guid, string>> GetIconReadUrlsAsync(
+        IReadOnlyCollection<Guid> iconIds,
+        CancellationToken ct)
     {
-        if (iconId == Guid.Empty)
-            throw new ArgumentException("iconId is empty", nameof(iconId));
+        ct.ThrowIfCancellationRequested();
 
-        var args = new PresignedGetObjectArgs()
-            .WithBucket(_options.Bucket)
-            .WithObject(BuildObjectKey(iconId))
-            .WithExpiry(DefaultPresignExpirySeconds);
+        if (iconIds is null)
+            throw new ArgumentNullException(nameof(iconIds));
 
-        return await _client.PresignedGetObjectAsync(args);
+        // чистим мусор + убираем дубликаты
+        var unique = iconIds
+            .Where(x => x != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (unique.Length == 0)
+            return new Dictionary<Guid, string>();
+
+        // minio клиент не даёт "presign batch" одной командой,
+        // поэтому делаем параллельно, но ограничиваем степень параллелизма.
+        const int maxConcurrency = 8;
+
+        var results = new Dictionary<Guid, string>(unique.Length);
+        using var throttler = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+
+        var tasks = unique.Select(async iconId =>
+        {
+            await throttler.WaitAsync(ct);
+            try
+            {
+                var args = new PresignedGetObjectArgs()
+                    .WithBucket(_options.Bucket)
+                    .WithObject(BuildObjectKey(iconId))
+                    .WithExpiry(DefaultPresignExpirySeconds);
+
+                var url = await _client.PresignedGetObjectAsync(args);
+
+                lock (results)
+                    results[iconId] = url;
+            }
+            finally
+            {
+                throttler.Release();
+            }
+        });
+
+        await Task.WhenAll(tasks);
+
+        return results;
     }
 
     public async Task PutIconFromBase64Async(

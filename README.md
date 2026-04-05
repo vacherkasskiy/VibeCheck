@@ -1,5 +1,12 @@
 # VibeCheck
 
+## Запуск
+
+```shell
+cd ./infra/deploy
+bash script.sh
+```
+
 ## Аннотация проекта
 
 ---

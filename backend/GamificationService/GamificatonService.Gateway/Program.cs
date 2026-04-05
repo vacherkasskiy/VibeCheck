@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
+    .AddApplicationCors()
     .AddApplicationOptions(builder.Configuration)
     .AddApplicationHealthChecks()
     .AddMinioServices()
@@ -32,6 +33,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseApplicationCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseApplicationHealthChecks();

@@ -10,6 +10,7 @@ builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
     .AddApplicationOptions(builder.Configuration)
+    .AddApplicationHealthChecks()
     .AddMinioServices()
     .AddCoreServices()
     .AddPersistentStorageMapperProfiles()
@@ -33,6 +34,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseApplicationHealthChecks();
 app.MapControllers();
 
 await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();

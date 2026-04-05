@@ -7,6 +7,13 @@ cd ./infra/deploy
 bash script.sh
 ```
 
+После выполнения команды:
+```shell
+kubcetl get pod -n vibecheck
+```
+
+Дождаться готовности всех подов.
+
 ## Аннотация проекта
 
 ---

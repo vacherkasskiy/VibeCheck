@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# перейти в директорию скрипта, чтобы относительные пути работали стабильно
 cd "$(dirname "$0")"
 
 ensure_command() {
@@ -35,24 +34,56 @@ ensure_hosts_entry() {
   local host="$2"
   local hosts_file="/etc/hosts"
 
-  # уже есть запись для этого host -> ничего не делаем
-  if sudo grep -Eq "^[[:space:]]*${ip}[[:space:]]+.*\b${host}\b" "$hosts_file" || sudo grep -Eq "^[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]+.*\b${host}\b" "$hosts_file"; then
+  if sudo grep -Eq "^[[:space:]]*${ip}[[:space:]]+.*\b${host}\b" "$hosts_file" || \
+     sudo grep -Eq "^[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]+.*\b${host}\b" "$hosts_file"; then
     echo "/etc/hosts already contains '${host}'"
     return 0
   fi
 
   echo "Adding '${ip} ${host}' to /etc/hosts"
-  # добавляем в конец файла
   printf "%s\t%s\n" "$ip" "$host" | sudo tee -a "$hosts_file" >/dev/null
 }
 
 ensure_hosts_entries() {
   local ip="${1:-127.0.0.1}"
-
   ensure_hosts_entry "$ip" "minio.console.local"
   ensure_hosts_entry "$ip" "minio.api.local"
   ensure_hosts_entry "$ip" "gamification.local"
   ensure_hosts_entry "$ip" "review.local"
+}
+
+wait_for_ingress_nginx_ready() {
+  local ns="ingress-nginx"
+
+  echo "waiting for ingress-nginx namespace..."
+  kubectl wait --for=condition=Ready --timeout=180s -n "$ns" pod -l app.kubernetes.io/component=controller >/dev/null
+
+  echo "waiting for ingress-nginx controller rollout..."
+  kubectl rollout status -n "$ns" deployment/ingress-nginx-controller --timeout=180s >/dev/null
+
+  # admission webhook: важно дождаться endpoints у сервиса, иначе будет connect refused
+  echo "waiting for ingress-nginx admission endpoints..."
+  local svc="ingress-nginx-controller-admission"
+  local ok=""
+
+  for i in {1..60}; do
+    # endpointslice есть всегда на новых версиях k8s
+    if kubectl get endpointslice -n "$ns" -l kubernetes.io/service-name="$svc" -o jsonpath='{range .items[*].endpoints[*]}{.conditions.ready}{"\n"}{end}' 2>/dev/null | grep -q "true"; then
+      ok="yes"
+      break
+    fi
+    sleep 2
+  done
+
+  if [[ -z "$ok" ]]; then
+    echo "ingress-nginx admission endpoints did not become ready in time"
+    kubectl get pods -n "$ns" -o wide || true
+    kubectl get svc -n "$ns" || true
+    kubectl get endpointslice -n "$ns" -l kubernetes.io/service-name="$svc" || true
+    exit 1
+  fi
+
+  echo "ingress-nginx is ready"
 }
 
 # 1. проверить brew
@@ -70,17 +101,15 @@ ensure_command "kubectl" "brew install kubectl"
 # 4. запустить minikube, если не запущен
 ensure_minikube_running
 
-# 4.1 добавить hosts entries (вариант 1: tunnel -> 127.0.0.1)
+# 4.1 hosts entries (если tunnel -> 127.0.0.1)
 ensure_hosts_entries "127.0.0.1"
-
-# если решишь работать без tunnel, замени строку выше на:
-# ensure_hosts_entries "$(minikube ip)"
 
 # 5. namespace
 ensure_namespace "vibecheck"
 
-# 6. ingress addon
+# 6. ingress addon + ожидание готовности webhook
 minikube addons enable ingress
+wait_for_ingress_nginx_ready
 
 # 7. helm
 ensure_command "helm" "brew install helm"
@@ -96,10 +125,7 @@ helm upgrade --install minio bitnami/minio \
   -n vibecheck \
   -f ../manifests/minio_values.yaml
 
-#helm upgrade --install kafka bitnami/kafka \
-#  -n vibecheck \
-#  -f ../manifests/kafka_values.yaml
-
-kubectl apply -f ../manifests/my
+kubectl apply -f ../manifests/my/service
+kubectl apply -f ../manifests/my/ingress
 
 sudo minikube tunnel

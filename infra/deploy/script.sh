@@ -50,6 +50,7 @@ ensure_hosts_entries() {
   ensure_hosts_entry "$ip" "minio.api.local"
   ensure_hosts_entry "$ip" "gamification.local"
   ensure_hosts_entry "$ip" "review.local"
+  ensure_hosts_entry "$ip" "kafka-ui.local"
 }
 
 wait_for_ingress_nginx_ready() {

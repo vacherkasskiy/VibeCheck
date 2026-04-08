@@ -34,8 +34,8 @@ ensure_hosts_entry() {
   local host="$2"
   local hosts_file="/etc/hosts"
 
-  if sudo grep -Eq "^[[:space:]]*${ip}[[:space:]]+.*\b${host}\b" "$hosts_file" || \
-     sudo grep -Eq "^[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]+.*\b${host}\b" "$hosts_file"; then
+  if sudo grep -Eq "^[[:space:]]*${ip}[[:space:]]+.*\\b${host}\\b" "$hosts_file" || \
+     sudo grep -Eq "^[[:space:]]*[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+[[:space:]]+.*\\b${host}\\b" "$hosts_file"; then
     echo "/etc/hosts already contains '${host}'"
     return 0
   fi
@@ -61,13 +61,11 @@ wait_for_ingress_nginx_ready() {
   echo "waiting for ingress-nginx controller rollout..."
   kubectl rollout status -n "$ns" deployment/ingress-nginx-controller --timeout=180s >/dev/null
 
-  # admission webhook: важно дождаться endpoints у сервиса, иначе будет connect refused
   echo "waiting for ingress-nginx admission endpoints..."
   local svc="ingress-nginx-controller-admission"
   local ok=""
 
-  for i in {1..60}; do
-    # endpointslice есть всегда на новых версиях k8s
+  for _ in {1..60}; do
     if kubectl get endpointslice -n "$ns" -l kubernetes.io/service-name="$svc" -o jsonpath='{range .items[*].endpoints[*]}{.conditions.ready}{"\n"}{end}' 2>/dev/null | grep -q "true"; then
       ok="yes"
       break
@@ -86,37 +84,119 @@ wait_for_ingress_nginx_ready() {
   echo "ingress-nginx is ready"
 }
 
-# 1. проверить brew
+wait_for_kafka_ready() {
+  echo "waiting for kafka controller..."
+  kubectl rollout status -n vibecheck statefulset/kafka-controller --timeout=600s
+
+  echo "waiting for kafka broker..."
+  kubectl rollout status -n vibecheck statefulset/kafka-broker --timeout=600s
+
+  echo "kafka is ready"
+}
+
+start_background_port_forward() {
+  local namespace="$1"
+  local resource="$2"
+  local local_port="$3"
+  local remote_port="$4"
+  local pid_file="$5"
+  local log_file="$6"
+
+  if [[ -f "$pid_file" ]]; then
+    local old_pid
+    old_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    if [[ -n "${old_pid:-}" ]] && kill -0 "$old_pid" 2>/dev/null; then
+      echo "stopping existing port-forward for $resource (pid=$old_pid)"
+      kill "$old_pid" || true
+      sleep 1
+    fi
+    rm -f "$pid_file"
+  fi
+
+  if lsof -iTCP:"$local_port" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "port $local_port is already busy"
+    lsof -iTCP:"$local_port" -sTCP:LISTEN || true
+    echo "free the port manually or change the local port"
+    exit 1
+  fi
+
+  echo "starting port-forward: $resource $local_port:$remote_port"
+  kubectl port-forward -n "$namespace" "$resource" "$local_port:$remote_port" >"$log_file" 2>&1 &
+  local pf_pid=$!
+  echo "$pf_pid" > "$pid_file"
+
+  sleep 2
+  if ! kill -0 "$pf_pid" 2>/dev/null; then
+    echo "port-forward for $resource exited immediately"
+    echo "log:"
+    cat "$log_file" || true
+    exit 1
+  fi
+
+  echo "port-forward started for $resource (pid=$pf_pid)"
+}
+
+create_kafka_topics() {
+  echo "creating kafka topics..."
+
+  kubectl exec -n vibecheck kafka-controller-0 -- bash -ec '
+    CLIENT_PROPS=/tmp/client.properties
+    CLIENT_PASSWORD="$(cat /opt/bitnami/kafka/config/secrets/client-passwords)"
+
+    cat > "$CLIENT_PROPS" <<EOF
+security.protocol=SASL_PLAINTEXT
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="${CLIENT_PASSWORD}";
+EOF
+
+    for topic in reviews gamification subscriptions users reports; do
+      /opt/bitnami/kafka/bin/kafka-topics.sh \
+        --create \
+        --if-not-exists \
+        --bootstrap-server kafka:9092 \
+        --command-config "$CLIENT_PROPS" \
+        --topic "$topic" \
+        --partitions 1 \
+        --replication-factor 1
+    done
+
+    echo "listing kafka topics..."
+    /opt/bitnami/kafka/bin/kafka-topics.sh \
+      --list \
+      --bootstrap-server kafka:9092 \
+      --command-config "$CLIENT_PROPS"
+  '
+}
+
+# 1. brew
 if ! command -v brew >/dev/null 2>&1; then
   echo "Homebrew is not installed. Install it first, then rerun the script."
   exit 1
 fi
 
-# 2. проверить minikube
+# 2. tools
 ensure_command "minikube" "brew install minikube"
-
-# 3. проверить kubectl
 ensure_command "kubectl" "brew install kubectl"
+ensure_command "helm" "brew install helm"
 
-# 4. запустить minikube, если не запущен
+# 3. minikube
 ensure_minikube_running
 
-# 4.1 hosts entries (если tunnel -> 127.0.0.1)
+# 4. hosts
 ensure_hosts_entries "127.0.0.1"
 
 # 5. namespace
 ensure_namespace "vibecheck"
 
-# 6. ingress addon + ожидание готовности webhook
+# 6. ingress
 minikube addons enable ingress
 wait_for_ingress_nginx_ready
 
-# 7. helm
-ensure_command "helm" "brew install helm"
-
+# 7. helm repo
 helm repo add bitnami https://charts.bitnami.com/bitnami || true
 helm repo update
 
+# 8. infra
 helm upgrade --install postgres bitnami/postgresql \
   -n vibecheck \
   -f ../manifests/pgsql_values.yaml
@@ -125,7 +205,33 @@ helm upgrade --install minio bitnami/minio \
   -n vibecheck \
   -f ../manifests/minio_values.yaml
 
+helm upgrade --install kafka bitnami/kafka \
+  -n vibecheck \
+  -f ../manifests/kafka_values.yaml
+
+# 9. app manifests
 kubectl apply -f ../manifests/my/service
 kubectl apply -f ../manifests/my/ingress
+
+# 10. kafka
+wait_for_kafka_ready
+create_kafka_topics
+
+start_background_port_forward \
+  "vibecheck" \
+  "svc/kafka" \
+  "9092" \
+  "9092" \
+  "/tmp/vibecheck-kafka-port-forward.pid" \
+  "/tmp/vibecheck-kafka-port-forward.log"
+
+echo
+echo "Kafka from macOS: localhost:9092"
+echo "Kafka port-forward log: /tmp/vibecheck-kafka-port-forward.log"
+echo "Kafka port-forward pid file: /tmp/vibecheck-kafka-port-forward.pid"
+echo
+echo "starting minikube tunnel..."
+echo "do not close this terminal while you need ingress/loadbalancer access"
+echo
 
 sudo minikube tunnel

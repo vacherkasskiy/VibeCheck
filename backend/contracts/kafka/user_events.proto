@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package user.profile.v1;
+
+import "google/protobuf/timestamp.proto";
+import "common/event_metadata.proto";
+
+// Event published when user's profile data changes
+message UserProfileUpdatedEvent {
+  // Общие метаданные события
+  common.EventMetadata metadata = 1;
+
+  // Business identity (дублируем aggregate_id для удобства consumer'ов)
+  string user_id = 2;
+
+  // Monotonic version for ordering / idempotency
+  int64 profile_version = 3;
+
+  // Profile snapshot (denormalized for consumers)
+  string name = 4;
+  string icon_id = 5;
+
+  Sex sex = 6;
+  google.protobuf.Timestamp birthday = 7;
+
+  Education education = 8;
+  Specialization specialization = 9;
+
+  repeated WorkExperience work_experience = 10;
+}
+
+message WorkExperience {
+  Specialization specialization = 1;
+  google.protobuf.Timestamp started_at = 2;
+  optional google.protobuf.Timestamp finished_at = 3;
+}
+
+//Examples
+enum Sex {
+  SEX_UNSPECIFIED = 0;
+  SEX_MALE = 1;
+  SEX_FEMALE = 2;
+  SEX_OTHER = 3;
+}
+
+// Examples
+enum Education {
+    EDUCATION_LEVEL_NONE = 0;
+  // Образование отсутствует
+
+    EDUCATION_LEVEL_PRIMARY = 1;
+  // Начальное общее образование (1–4 класс)
+
+    EDUCATION_LEVEL_BASIC = 2;
+  // Основное общее образование (9 классов)
+
+    EDUCATION_LEVEL_SECONDARY = 3;
+  // Среднее общее образование (11 классов = 1; школа)
+
+    EDUCATION_LEVEL_SECONDARY_PROFESSIONAL = 4;
+  // Среднее профессиональное образование (колледж = 1; техникум)
+
+    EDUCATION_LEVEL_INCOMPLETE_HIGHER = 5;
+  // Незаконченное высшее образование (обучение не завершено)
+
+    EDUCATION_LEVEL_BACHELOR = 6;
+  // Высшее образование — бакалавриат
+
+    EDUCATION_LEVEL_SPECIALIST = 7;
+  // Высшее образование — специалитет
+
+    EDUCATION_LEVEL_MASTER = 8;
+  // Высшее образование — магистратура
+
+    EDUCATION_LEVEL_POSTGRADUATE = 9;
+  // Послевузовское образование — аспирантура (кандидат наук)
+
+    EDUCATION_LEVEL_DOCTORATE = 10;
+  // Послевузовское образование — докторантура (доктор наук)
+
+    EDUCATION_LEVEL_RESIDENCY = 11;
+  // Ординатура (медицинское и фармацевтическое образование)
+
+    EDUCATION_LEVEL_ADJUNCTURE = 12;
+}
+
+//Examples
+enum Specialization {
+    SPECIALTY_IT = 0;
+  // IT и программирование (разработка ПО = 1; веб = 1; мобильные приложения = 1; DevOps)
+
+    SPECIALTY_DESIGN = 1;
+  // Дизайн = 1; UX/UI (графический дизайн = 1; продуктовый дизайн = 1; интерфейсы)
+
+    SPECIALTY_MARKETING = 2;
+  // Маркетинг и реклама (digital = 1; SMM = 1; PR = 1; брендинг)
+
+    SPECIALTY_FINANCE = 3;
+  // Финансы и бухгалтерия (учёт = 1; аудит = 1; экономический анализ)
+
+    SPECIALTY_HR = 4;
+  // HR и управление персоналом (подбор = 1; развитие = 1; кадровый менеджмент)
+
+    SPECIALTY_SALES = 5;
+  // Продажи B2B / B2C (активные продажи = 1; аккаунт-менеджмент)
+
+    SPECIALTY_LOGISTICS = 6;
+  // Логистика и склад (цепочки поставок = 1; складской учёт = 1; транспорт)
+
+    SPECIALTY_LAW = 7;
+  // Юриспруденция (право = 1; юридическое сопровождение = 1; комплаенс)
+
+    SPECIALTY_EDUCATION = 8;
+  // Образование и наука (преподавание = 1; исследования = 1; академическая деятельность)
+
+    SPECIALTY_MEDICINE = 9;
+  // Медицина и здравоохранение (врачи = 1; медперсонал = 1; фармация)
+
+    SPECIALTY_CONSTRUCTION = 10;
+  // Строительство и архитектура (проектирование = 1; стройка = 1; надзор)
+
+    SPECIALTY_ENGINEERING = 11;
+  // Производство и инжиниринг (технические специалисты = 1; инженеры)
+
+    SPECIALTY_ART = 12;
+  // Искусство и культура (музыка = 1; театр = 1; кино = 1; визуальные искусства)
+
+    SPECIALTY_TOURISM = 13;
+  // Туризм и гостеприимство (отели = 1; рестораны = 1; туроператоры)
+
+    SPECIALTY_MEDIA = 14;
+  // СМИ и журналистика (журналистика = 1; редактура = 1; медиа-контент)
+
+    SPECIALTY_ANALYTICS = 15;
+  // Аналитика и Data Science (аналитика данных = 1; машинное обучение)
+
+    SPECIALTY_PROJECT_MANAGEMENT = 16;
+  // Управление проектами (PM = 1; delivery = 1; coordination)
+
+    SPECIALTY_SPORT = 17;
+  // Спорт = 1; фитнес и тренерство (тренеры = 1; инструкторы = 1; спорт-менеджмент)
+
+    SPECIALTY_OTHER = 18;
+  // Другое / не указано
+}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package common;
+
+import "google/protobuf/timestamp.proto";
+
+// Общие метаданные для всех доменных событий
+message EventMetadata {
+  // Уникальный идентификатор события (UUID)
+  string event_id = 1;
+
+  // Тип события (стабильный строковый контракт)
+  // Пример: "user.profile.updated"
+  string event_type = 2;
+
+  // Идентификатор агрегата (например, user_id)
+  string aggregate_id = 3;
+
+  // Версия payload-а (для эволюции схем)
+  uint32 payload_version = 4;
+
+  // Время формирования события (на стороне продьюсера)
+  google.protobuf.Timestamp occurred_at = 5;
+
+  // Сервис-источник события
+  SourceType source = 6;
+}
+
+enum SourceType {
+  SOURCE_UNSPECIFIED = 0;
+
+  USER_SERVICE = 1;
+  REVIEW_SERVICE = 2;
+  GAMIFICATION_SERVICE = 3;
+  SUBSCRIPTION_SERVICE = 4;
+}

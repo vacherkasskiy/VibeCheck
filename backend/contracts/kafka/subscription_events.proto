@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package subscriptions;
+
+import "google/protobuf/timestamp.proto";
+import "common/event_metadata.proto";
+
+// Событие "пользователь подписался на другого пользователя"
+message UserSubscribedEvent {
+  // Общие метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные (payload)
+  string subscription_id = 2;   // ID записи подписки
+  string follower_id = 3;       // Кто подписался
+  string target_user_id = 4;    // На кого подписались
+
+  google.protobuf.Timestamp created_at = 5;
+}
+

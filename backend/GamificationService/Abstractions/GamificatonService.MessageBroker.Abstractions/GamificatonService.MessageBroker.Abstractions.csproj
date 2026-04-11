@@ -6,4 +6,34 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+        <PackageReference Include="Grpc.Tools" Version="2.71.0" PrivateAssets="All" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <KafkaContractsDir>../../../../backend/contracts/kafka</KafkaContractsDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Protobuf Include="$(KafkaContractsDir)/common/event_metadata.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+        <Protobuf Include="$(KafkaContractsDir)/review_events.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+        <Protobuf Include="$(KafkaContractsDir)/gamification_events.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+        <Protobuf Include="$(KafkaContractsDir)/subscription_events.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+        <Protobuf Include="$(KafkaContractsDir)/user_events.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+        <Protobuf Include="$(KafkaContractsDir)/report_event.proto"
+                  ProtoRoot="$(KafkaContractsDir)"
+                  GrpcServices="None" />
+    </ItemGroup>
+
 </Project>

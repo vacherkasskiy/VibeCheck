@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using GamificatonService.CloudStorage.Extensions;
 using GamificatonService.Core;
 using GamificatonService.Gateway.Configurations;
+using GamificatonService.MessageBroker;
 using GamificatonService.PersistentStorage.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services
     .AddApplicationHealthChecks()
     .AddMinioServices()
     .AddCoreServices()
+    .AddMessageBrokerServices()
     .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()
     .AddJwtAuth(builder.Configuration)

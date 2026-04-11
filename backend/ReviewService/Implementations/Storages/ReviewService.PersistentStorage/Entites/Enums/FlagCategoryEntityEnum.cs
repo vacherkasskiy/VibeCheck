@@ -1,4 +1,4 @@
-namespace ReviewService.PersistentStorage.Entites;
+namespace ReviewService.PersistentStorage.Entites.Enums;
 
 public enum FlagCategoryEntityEnum
 {

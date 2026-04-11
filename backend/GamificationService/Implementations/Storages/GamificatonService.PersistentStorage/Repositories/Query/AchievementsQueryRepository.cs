@@ -4,7 +4,7 @@ using GamificatonService.PersistentStorage.Abstractions.Models.GetUserCompletedA
 using GamificatonService.PersistentStorage.Abstractions.Repositories.Query;
 using Microsoft.EntityFrameworkCore;
 
-namespace GamificatonService.PersistentStorage.Repositories;
+namespace GamificatonService.PersistentStorage.Repositories.Query;
 
 public sealed class AchievementsQueryRepository(AppDbContext dbContext) : IAchievementsQueryRepository
 {

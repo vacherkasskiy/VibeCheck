@@ -1,15 +1,36 @@
+using GamificatonService.Core.Abstractions.Handlers;
 using MassTransit;
 using Reviews;
 
 namespace GamificatonService.MessageBroker.Consumers;
 
-internal sealed class ReviewLikedEventConsumer : IConsumer<ReviewLikedEvent>
+
+internal sealed class ReviewLikedEventConsumer(
+    IAchievementProgressService achievementProgressService,
+    IXpProgressService xpProgressService)
+    : IConsumer<ReviewLikedEvent>
 {
-    public Task Consume(ConsumeContext<ReviewLikedEvent> context)
+    public async Task Consume(ConsumeContext<ReviewLikedEvent> context)
     {
         var message = context.Message;
-        
 
-        return Task.CompletedTask;
+        var likedByUserId = Guid.Parse(message.LikedByUserId);
+        var reviewAuthorId = Guid.Parse(message.ReviewAuthorId);
+        var eventId = message.Meta.EventId;
+        var aggregateId = message.ReviewId;
+        var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
+
+        await achievementProgressService.HandleReviewLikedAsync(
+            likedByUserId,
+            reviewAuthorId,
+            context.CancellationToken);
+
+        await xpProgressService.HandleReviewLikedAsync(
+            likedByUserId,
+            reviewAuthorId,
+            eventId,
+            aggregateId,
+            occurredAt,
+            context.CancellationToken);
     }
 }

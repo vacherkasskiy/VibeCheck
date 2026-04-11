@@ -4,7 +4,7 @@ using GamificatonService.PersistentStorage.Abstractions.Models.Levels.GetUserLev
 using GamificatonService.PersistentStorage.Abstractions.Repositories.Query;
 using Microsoft.EntityFrameworkCore;
 
-namespace GamificatonService.PersistentStorage.Repositories;
+namespace GamificatonService.PersistentStorage.Repositories.Query;
 
 public sealed class LevelsQueryRepository(AppDbContext dbContext) : ILevelsQueryRepository
 {

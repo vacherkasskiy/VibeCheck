@@ -1,6 +1,8 @@
 using GamificatonService.PersistentStorage.Abstractions.Options;
+using GamificatonService.PersistentStorage.Abstractions.Repositories.Command;
 using GamificatonService.PersistentStorage.Abstractions.Repositories.Query;
-using GamificatonService.PersistentStorage.Repositories;
+using GamificatonService.PersistentStorage.Repositories.Command;
+using GamificatonService.PersistentStorage.Repositories.Query;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,6 +15,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IAchievementsQueryRepository, AchievementsQueryRepository>();
         services.AddScoped<ILevelsQueryRepository, LevelsQueryRepository>();
+
+        services.AddScoped<IAchievementsCommandRepository, AchievementsCommandRepository>();
+        services.AddScoped<ILevelsCommandRepository, LevelsCommandRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {

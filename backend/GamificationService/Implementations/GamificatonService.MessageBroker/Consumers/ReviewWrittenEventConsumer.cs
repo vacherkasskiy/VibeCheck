@@ -1,20 +1,32 @@
+using GamificatonService.Core.Abstractions.Handlers;
 using MassTransit;
 using Reviews;
 
 namespace GamificatonService.MessageBroker.Consumers;
 
-internal sealed class ReviewWrittenEventConsumer : IConsumer<ReviewWrittenEvent>
+internal sealed class ReviewWrittenEventConsumer(
+    IAchievementProgressService achievementProgressService,
+    IXpProgressService xpProgressService)
+    : IConsumer<ReviewWrittenEvent>
 {
-    public Task Consume(ConsumeContext<ReviewWrittenEvent> context)
+    public async Task Consume(ConsumeContext<ReviewWrittenEvent> context)
     {
         var message = context.Message;
 
-        Console.WriteLine(
-            $"[reviews] ReviewWrittenEvent received: " +
-            $"review_id={message.ReviewId}, " +
-            $"user_id={message.UserId}, " +
-            $"created_at={message.CreatedAt}");
+        var userId = Guid.Parse(message.UserId);
+        var eventId = message.Meta.EventId;
+        var aggregateId = message.ReviewId;
+        var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
 
-        return Task.CompletedTask;
+        await achievementProgressService.HandleReviewWrittenAsync(
+            userId,
+            context.CancellationToken);
+
+        await xpProgressService.HandleReviewWrittenAsync(
+            userId,
+            eventId,
+            aggregateId,
+            occurredAt,
+            context.CancellationToken);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 class EmailSender(
     private val mailSender: JavaMailSender
 ) {
-    fun send(email: String, confirmCode: String) {
+    fun send(email: String, confirmCode: Int) {
         val message = SimpleMailMessage().apply {
             setTo(email)
             subject = "Код регистрации на платформе VibeCheck"

@@ -52,9 +52,11 @@ class UserProfileEntity {
     @Column(nullable = false, columnDefinition = "jsonb")
     var workExperience: List<WorkExperienceDto> ? = null
 
+    @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     var createdAt: Instant? = null
 
+    @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     var updatedAt: Instant? = null
 

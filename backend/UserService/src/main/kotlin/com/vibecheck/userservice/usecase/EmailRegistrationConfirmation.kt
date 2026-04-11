@@ -1,33 +1,40 @@
 package com.vibecheck.userservice.usecase
 
-import com.vibecheck.userservice.domain.events.EmailRegistrationIsConfirmedEvent
+import com.vibecheck.userservice.domain.UserRole
 import com.vibecheck.userservice.domain.exception.BadRequestException
-import com.vibecheck.userservice.usecase.generator.JwtTokenGenerator
-import com.vibecheck.userservice.usecase.storage.UserPreregistrationStorage
-import org.springframework.context.ApplicationEventPublisher
+import com.vibecheck.userservice.usecase.generator.TokenGenerator
+import com.vibecheck.userservice.usecase.storage.UserConfirmationStorage
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Clock
 
 @Service
 class EmailRegistrationConfirmation(
-    private val userPreregistrationStorage: UserPreregistrationStorage,
-    private val jwtTokenGenerator: JwtTokenGenerator,
+    private val userConfirmationStorage: UserConfirmationStorage,
+    private val tokenGenerator: TokenGenerator,
     private val transactionTemplate: TransactionTemplate,
     private val clock: Clock,
-    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val userCreation: UserCreation,
 ) {
     fun confirm(confirmCode: Int): JwtTokens {
-        val userPreregistration = userPreregistrationStorage.findById(confirmCode)
+        val userPreregistration = userConfirmationStorage.findById(confirmCode)
 
         if (userPreregistration.isExpired(clock.instant())) {
             transactionTemplate.execute {
-                userPreregistrationStorage.deleteById(confirmCode)
+                userConfirmationStorage.deleteById(confirmCode)
             }
             throw BadRequestException("User preregistration is expired")
         }
 
-        applicationEventPublisher.publishEvent(EmailRegistrationIsConfirmedEvent(userPreregistration.email, userPreregistration.password))
-        return jwtTokenGenerator.generateTokens()
+        val user = userCreation.create(userPreregistration.email, userPreregistration.password, USER_ROLES)
+
+        val accessToken = tokenGenerator.generateAccessToken(user.id, USER_ROLES)
+        val refreshToken = tokenGenerator.generateRefreshToken(user.id)
+
+        return JwtTokens(accessToken.token, refreshToken.token)
+    }
+
+    companion object {
+        private val USER_ROLES = listOf(UserRole.USER)
     }
 }

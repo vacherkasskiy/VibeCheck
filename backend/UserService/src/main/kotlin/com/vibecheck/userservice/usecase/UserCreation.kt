@@ -3,7 +3,7 @@ package com.vibecheck.userservice.usecase
 import com.vibecheck.userservice.domain.User
 import com.vibecheck.userservice.domain.UserOnboardingStep
 import com.vibecheck.userservice.domain.UserRole
-import com.vibecheck.userservice.usecase.generator.UuidGenerator
+import com.vibecheck.userservice.utils.UuidGenerator
 import com.vibecheck.userservice.usecase.storage.OnboardingStepStorage
 import com.vibecheck.userservice.usecase.storage.UserOnboardingStepStorage
 import com.vibecheck.userservice.usecase.storage.UserStorage
@@ -19,12 +19,14 @@ class UserCreation(
     private val uuidGenerator: UuidGenerator,
     private val transactionTemplate: TransactionTemplate
 ) {
-    fun create(email: String, password: String, roles: List<UserRole>) {
+    fun create(email: String, password: String, roles: List<UserRole>): User {
         val user = User.new(uuidGenerator.generate(), email, password, roles)
         val step = initializeUserOnboardingStep(user.id)
-        transactionTemplate.execute {
-            userStorage.create(user)
+        return transactionTemplate.execute {
+            val user = userStorage.create(user)
             userOnboardingStepStorage.create(step)
+
+            user
         }
     }
 

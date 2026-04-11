@@ -202,6 +202,10 @@ helm upgrade --install postgres bitnami/postgresql \
   -n vibecheck \
   -f ../manifests/pgsql_values.yaml
 
+helm upgrade --install redis bitnami/redis \
+  -n vibecheck \
+  -f ../manifests/redis_values.yaml
+
 helm upgrade --install minio bitnami/minio \
   -n vibecheck \
   -f ../manifests/minio_values.yaml

@@ -25,6 +25,11 @@ primary:
           SELECT FROM pg_database WHERE datname = 'subscription_service'
         )\gexec
 
+        SELECT 'CREATE DATABASE user_service_api_db'
+        WHERE NOT EXISTS (
+          SELECT FROM pg_database WHERE datname = 'user_service_api_db'
+        )\gexec
+
   service:
     type: LoadBalancer
     ports:

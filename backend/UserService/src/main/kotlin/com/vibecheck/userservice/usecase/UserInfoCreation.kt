@@ -1,19 +1,23 @@
 package com.vibecheck.userservice.usecase
 
 import com.vibecheck.userservice.domain.UserProfile
+import com.vibecheck.userservice.domain.events.UserInfoCreatedEvent
 import com.vibecheck.userservice.domain.exception.NotFoundException
 import com.vibecheck.userservice.usecase.storage.AvatarStorage
 import com.vibecheck.userservice.usecase.storage.UserProfileStorage
 import org.springframework.cache.annotation.CachePut
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
+import user.profile.v1.UserEvents
 import java.util.*
 
 @Service
 class UserInfoCreation(
     private val userProfileStorage: UserProfileStorage,
     private val avatarStorage: AvatarStorage,
-    private val transactionTemplate: TransactionTemplate
+    private val transactionTemplate: TransactionTemplate,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     @CachePut(value = ["users.profiles"], key = "#userId")
     fun create(userId: UUID, createOrUpdateUserInfo: CreateOrUpdateUserInfo): Unit = with(createOrUpdateUserInfo) {
@@ -32,10 +36,10 @@ class UserInfoCreation(
         )
 
 
-        transactionTemplate.execute {
+        val result = transactionTemplate.execute {
             userProfileStorage.create(profile)
         }
 
-        //TODO add event publication in users topic
+        applicationEventPublisher.publishEvent(UserInfoCreatedEvent(userId, result))
     }
 }

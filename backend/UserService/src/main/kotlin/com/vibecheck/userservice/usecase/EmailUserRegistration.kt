@@ -1,9 +1,9 @@
 package com.vibecheck.userservice.usecase
 
-import com.vibecheck.userservice.domain.UserPreregistration
+import com.vibecheck.userservice.domain.UserConfirmation
 import com.vibecheck.userservice.domain.events.UserPreregistrationIsCreatedEvent
 import com.vibecheck.userservice.usecase.generator.CodeGenerator
-import com.vibecheck.userservice.usecase.storage.UserPreregistrationStorage
+import com.vibecheck.userservice.usecase.storage.UserConfirmationStorage
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ import java.time.Duration
 
 @Service
 class EmailUserRegistration(
-    private val userPreregistrationStorage: UserPreregistrationStorage,
+    private val userConfirmationStorage: UserConfirmationStorage,
     private val passwordEncoder: PasswordEncoder,
     private val transactionTemplate: TransactionTemplate,
     private val codeGenerator: CodeGenerator,
@@ -24,8 +24,8 @@ class EmailUserRegistration(
         val confirmCode = codeGenerator.generate()
 
         transactionTemplate.execute {
-            userPreregistrationStorage.create(
-                UserPreregistration.new(
+            userConfirmationStorage.create(
+                UserConfirmation.new(
                     email,
                     passwordEncoder.encode(password)!!,
                     confirmCode,

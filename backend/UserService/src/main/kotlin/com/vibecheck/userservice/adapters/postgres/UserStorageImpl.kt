@@ -1,10 +1,13 @@
 package com.vibecheck.userservice.adapters.postgres
 
+import com.vibecheck.userservice.adapters.postgres.entity.toEntity
 import com.vibecheck.userservice.adapters.postgres.repository.UserRepository
 import com.vibecheck.userservice.domain.User
 import com.vibecheck.userservice.domain.exception.NotFoundException
 import com.vibecheck.userservice.usecase.storage.UserStorage
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -17,4 +20,12 @@ class UserStorageImpl(
             .getOrNull()
             ?.toDomain()
             ?: throw NotFoundException("User $userId is not found")
+
+    override fun findByEmail(email: String): User? =
+        userRepository.findByEmail(email)
+            ?.toDomain()
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    override fun create(user: User): User =
+        userRepository.save(user.toEntity()).toDomain()
 }

@@ -2,6 +2,7 @@ using Confluent.Kafka;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Reports;
 using Reviews;
 using ReviewService.MessageBroker.Abstractions.Options;
 using ReviewService.MessageBroker.Abstractions.Producers;
@@ -23,6 +24,7 @@ public static class ServiceCollectionExtensions
             x.AddRider(rider =>
             {
                 rider.AddProducer<ReviewWrittenEvent>("reviews");
+                rider.AddProducer<ReviewReportedEvent>("reports");
 
                 rider.UsingKafka((context, k) =>
                 {
@@ -43,6 +45,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddScoped<IReviewEventsProducer, ReviewEventsProducer>();
+        services.AddScoped<IReportEventsProducer, ReportEventsProducer>();
 
         return services;
     }

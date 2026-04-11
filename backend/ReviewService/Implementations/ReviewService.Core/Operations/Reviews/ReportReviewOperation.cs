@@ -2,6 +2,7 @@ using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models.Reviews.ReportReview;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -9,7 +10,8 @@ namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class ReportReviewOperation(
     IReviewsQueryRepository reviewsQueryRepository,
-    IReviewsCommandRepository reviewsCommandRepository)
+    IReviewsCommandRepository reviewsCommandRepository,
+    IReportEventsProducer reportEventsProducer)
     : IReportReviewOperation
 {
     public async Task<Result> ReportAsync(
@@ -61,16 +63,25 @@ internal sealed class ReportReviewOperation(
         if (exists)
             return Error.Conflict("report already exists");
 
-        await reviewsCommandRepository.CreateReportAsync(
-            new CreateReviewReportCommandRepositoryModel
-            {
-                ReportId = Guid.NewGuid(),
-                ReviewId = model.ReviewId,
-                ReporterId = model.UserId,
-                ReasonType = reasonType,
-                ReasonText = model.ReasonText,
-                CreatedAtUtc = DateTime.UtcNow
-            },
+        var newReport = new CreateReviewReportCommandRepositoryModel
+        {
+            ReportId = Guid.NewGuid(),
+            ReviewId = model.ReviewId,
+            ReporterId = model.UserId,
+            ReasonType = reasonType,
+            ReasonText = model.ReasonText,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        await reviewsCommandRepository.CreateReportAsync(newReport, ct);
+
+        await reportEventsProducer.PublishReviewReportedAsync(
+            newReport.ReportId,
+            newReport.ReviewId,
+            newReport.ReporterId,
+            (int)model.ReasonType,
+            newReport.ReasonText,
+            newReport.CreatedAtUtc,
             ct);
 
         return Result.Success();

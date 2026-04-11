@@ -3,6 +3,7 @@ using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models.Reviews.ReportReview;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -12,11 +13,12 @@ public sealed class ReportReviewOperationTests
 {
     private readonly IReviewsQueryRepository _queryRepository = Substitute.For<IReviewsQueryRepository>();
     private readonly IReviewsCommandRepository _commandRepository = Substitute.For<IReviewsCommandRepository>();
+    private readonly IReportEventsProducer _reportEventsProducer = Substitute.For<IReportEventsProducer>();
 
     [Fact]
     public async Task ReportAsync_WhenReviewIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -34,7 +36,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenUserIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -52,7 +54,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenReviewNotFound_ShouldReturnNotFound()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -74,7 +76,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenReviewDeleted_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -100,7 +102,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenUserReportsOwnReview_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var userId = Guid.NewGuid();
         var model = new ReportReviewOperationModel
@@ -127,7 +129,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenReasonTypeIsOtherAndReasonTextMissing_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -154,7 +156,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenReasonTextTooLong_ShouldReturnValidationError()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -181,7 +183,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenSameReportAlreadyExists_ShouldReturnConflict()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {
@@ -217,7 +219,7 @@ public sealed class ReportReviewOperationTests
     [Fact]
     public async Task ReportAsync_WhenInputIsValid_ShouldCreateReportAndReturnSuccess()
     {
-        var operation = new ReportReviewOperation(_queryRepository, _commandRepository);
+        var operation = new ReportReviewOperation(_queryRepository, _commandRepository, _reportEventsProducer);
 
         var model = new ReportReviewOperationModel
         {

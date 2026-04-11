@@ -4,6 +4,11 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reviews;
+using Achievements;
+using GamificatonService.MessageBroker.Abstractions.Producers;
+using GamificatonService.MessageBroker.Producers;
+using Reports;
+using Subscriptions;
 
 namespace GamificatonService.MessageBroker;
 
@@ -21,6 +26,12 @@ public static class ServiceCollectionExtensions
             x.AddRider(rider =>
             {
                 rider.AddConsumer<ReviewWrittenEventConsumer>();
+                rider.AddConsumer<ReviewLikedEventConsumer>();
+                rider.AddConsumer<ReviewReportedEventConsumer>();
+                rider.AddConsumer<UserSubscribedEventConsumer>();
+
+                rider.AddProducer<AchievementGrantedEvent>("gamification-achievement");
+                rider.AddProducer<UserLevelUpEvent>("gamification-level");
 
                 rider.UsingKafka((context, k) =>
                 {
@@ -38,15 +49,46 @@ public static class ServiceCollectionExtensions
                     });
 
                     k.TopicEndpoint<ReviewWrittenEvent>(
-                        "reviews",
-                        "gamification-review-written-consumers",
+                        "reviews-written",
+                        "gamification-reviews-written-consumers",
                         e =>
                         {
                             e.ConfigureConsumer<ReviewWrittenEventConsumer>(context);
-                        });
+                        }
+                    );
+
+                    k.TopicEndpoint<ReviewLikedEvent>(
+                        "reviews-liked",
+                        "gamification-reviews-liked-consumers",
+                        e =>
+                        {
+                            e.ConfigureConsumer<ReviewLikedEventConsumer>(context);
+                        }
+                    );
+
+                    k.TopicEndpoint<ReviewReportedEvent>(
+                        "reports",
+                        "gamification-reports-consumers",
+                        e =>
+                        {
+                            e.ConfigureConsumer<ReviewReportedEventConsumer>(context);
+                        }
+                    );
+
+                    k.TopicEndpoint<UserSubscribedEvent>(
+                        "subscriptions",
+                        "gamification-subscriptions-consumers",
+                        e =>
+                        {
+                            e.ConfigureConsumer<UserSubscribedEventConsumer>(context);
+                        }
+                    );
                 });
             });
         });
+
+        services.AddScoped<IAchievementEventsProducer, AchievementEventsProducer>();
+        services.AddScoped<IUserLevelUpEventsProducer, UserLevelUpEventsProducer>();
 
         return services;
     }

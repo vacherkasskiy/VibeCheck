@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using ReviewService.CloudStorage.Extensions;
 using ReviewService.Core;
 using ReviewService.Gateway.Configurations;
+using ReviewService.MessageBroker;
 using ReviewService.PersistentStorage.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services
     .AddApplicationOptions(builder.Configuration)
     .AddApplicationHealthChecks()
     .AddMinioServices()
+    .AddMessageBrokerServices()
     .AddCoreServices()
     .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()

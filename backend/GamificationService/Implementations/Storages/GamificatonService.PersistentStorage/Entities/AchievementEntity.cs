@@ -6,6 +6,7 @@ public sealed class AchievementEntity
 
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
+    public int XpReward { get; set; }
 
     // FK -> achievement_icons.id (varchar)
     public Guid IconId { get; set; }

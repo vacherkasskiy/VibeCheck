@@ -2,6 +2,7 @@ using NSubstitute;
 using ReviewService.Core.Abstractions.Models.Reviews.CreateCompanyReview;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -11,12 +12,13 @@ public sealed class CreateCompanyReviewOperationTests
 {
     private readonly IReviewsQueryRepository _queryRepository = Substitute.For<IReviewsQueryRepository>();
     private readonly IReviewsCommandRepository _commandRepository = Substitute.For<IReviewsCommandRepository>();
+    private readonly IReviewEventsProducer _reviewEventsProducer = Substitute.For<IReviewEventsProducer>();
 
     [Fact]
     public async Task CreateAsync_WhenUserIdIsEmpty_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -42,7 +44,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenCompanyIdIsEmpty_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -65,7 +67,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenFlagsAreEmpty_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -88,7 +90,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenFlagsCountGreaterThanTen_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -111,7 +113,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenTextTooLong_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -134,7 +136,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenCompanyDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -162,7 +164,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenSomeFlagsDoNotExist_ShouldReturnValidationError()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var model = new CreateCompanyReviewOperationModel
         {
@@ -193,7 +195,7 @@ public sealed class CreateCompanyReviewOperationTests
     public async Task CreateAsync_WhenInputIsValid_ShouldCallRepositoryAndReturnSuccess()
     {
         // Arrange
-        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new CreateCompanyReviewOperation(_queryRepository, _commandRepository, _reviewEventsProducer);
 
         var flag1 = Guid.NewGuid();
         var flag2 = Guid.NewGuid();

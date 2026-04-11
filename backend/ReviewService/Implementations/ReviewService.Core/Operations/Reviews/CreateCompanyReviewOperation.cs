@@ -1,6 +1,7 @@
 using ReviewService.Core.Abstractions.Models.Reviews.CreateCompanyReview;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -8,7 +9,8 @@ namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class CreateCompanyReviewOperation(
     IReviewsQueryRepository reviewsQueryRepository,
-    IReviewsCommandRepository reviewsCommandRepository)
+    IReviewsCommandRepository reviewsCommandRepository,
+    IReviewEventsProducer producer)
     : ICreateCompanyReviewOperation
 {
     public async Task<Result> CreateAsync(
@@ -41,16 +43,22 @@ internal sealed class CreateCompanyReviewOperation(
         if (!allFlagsExist)
             return Error.Validation("one or more flags not found");
 
-        await reviewsCommandRepository.CreateReviewAsync(
-            new CreateReviewCommandRepositoryModel
-            {
-                ReviewId = Guid.NewGuid(),
-                CompanyId = model.CompanyId,
-                AuthorId = model.UserId,
-                Text = model.Text,
-                FlagIds = model.Flags.Distinct().ToArray(),
-                CreatedAtUtc = DateTime.UtcNow
-            },
+        var newReview = new CreateReviewCommandRepositoryModel
+        {
+            ReviewId = Guid.NewGuid(),
+            CompanyId = model.CompanyId,
+            AuthorId = model.UserId,
+            Text = model.Text,
+            FlagIds = model.Flags.Distinct().ToArray(),
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        await reviewsCommandRepository.CreateReviewAsync(newReview, ct);
+
+        await producer.PublishReviewWrittenAsync(
+            newReview.ReviewId,
+            newReview.AuthorId,
+            newReview.CreatedAtUtc,
             ct);
 
         return Result.Success();

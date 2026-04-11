@@ -116,6 +116,10 @@ public sealed class AppDbContext : DbContext
             .HasColumnName("description")
             .HasColumnType("text")
             .IsRequired();
+        
+        entity.Property(x => x.XpReward)
+            .HasColumnName("xp_reward")
+            .IsRequired();
 
         entity.Property(x => x.IconId)
             .HasColumnName("icon_id")

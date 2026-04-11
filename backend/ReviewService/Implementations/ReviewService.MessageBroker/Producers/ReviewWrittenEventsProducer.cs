@@ -6,7 +6,7 @@ using ReviewService.MessageBroker.Abstractions.Producers;
 
 namespace ReviewService.MessageBroker.Producers;
 
-internal sealed class ReviewEventsProducer(
+internal sealed class ReviewWrittenEventsProducer(
     ITopicProducer<ReviewWrittenEvent> producer)
     : IReviewEventsProducer
 {

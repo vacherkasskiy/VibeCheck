@@ -110,7 +110,8 @@ internal sealed class ReviewsCommandRepository(AppDbContext dbContext) : IReview
         await dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task UpsertVoteAsync(
+    /// <returns>True if new vote; false otherwise</returns>
+    public async Task<bool> UpsertVoteAsync(
         UpsertReviewVoteCommandRepositoryModel model,
         CancellationToken ct)
     {
@@ -137,6 +138,8 @@ internal sealed class ReviewsCommandRepository(AppDbContext dbContext) : IReview
         }
 
         await dbContext.SaveChangesAsync(ct);
+
+        return vote == null;
     }
 
     public async Task DeleteVoteAsync(

@@ -35,6 +35,10 @@ public interface IReviewsQueryRepository
         Guid reviewId,
         CancellationToken ct);
 
+    Task<ReviewOwnershipWithCompanyInfoRepositoryModel?> GetReviewOwnershipWithCompanyInfoAsync(
+        Guid reviewId,
+        CancellationToken ct);
+
     Task<ReviewEditInfoRepositoryModel?> GetReviewEditInfoAsync(
         Guid reviewId,
         CancellationToken ct);

@@ -23,7 +23,8 @@ public static class ServiceCollectionExtensions
 
             x.AddRider(rider =>
             {
-                rider.AddProducer<ReviewWrittenEvent>("reviews");
+                rider.AddProducer<ReviewWrittenEvent>("reviews-written");
+                rider.AddProducer<ReviewLikedEvent>("reviews-liked");
                 rider.AddProducer<ReviewReportedEvent>("reports");
 
                 rider.UsingKafka((context, k) =>
@@ -44,7 +45,8 @@ public static class ServiceCollectionExtensions
             });
         });
 
-        services.AddScoped<IReviewEventsProducer, ReviewEventsProducer>();
+        services.AddScoped<IReviewEventsProducer, ReviewWrittenEventsProducer>();
+        services.AddScoped<IReviewLikesEventsProducer, ReviewLikesEventsProducer>();
         services.AddScoped<IReportEventsProducer, ReportEventsProducer>();
 
         return services;

@@ -2,6 +2,7 @@ using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models.Reviews;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -9,7 +10,8 @@ namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class VoteReviewOperation(
     IReviewsQueryRepository reviewsQueryRepository,
-    IReviewsCommandRepository reviewsCommandRepository)
+    IReviewsCommandRepository reviewsCommandRepository,
+    IReviewLikesEventsProducer likesEventsProducer)
     : IVoteReviewOperation
 {
     public async Task<Result> VoteAsync(
@@ -22,7 +24,7 @@ internal sealed class VoteReviewOperation(
         if (model.UserId == Guid.Empty)
             return Error.Validation("userId is required");
 
-        var review = await reviewsQueryRepository.GetReviewOwnershipAsync(model.ReviewId, ct);
+        var review = await reviewsQueryRepository.GetReviewOwnershipWithCompanyInfoAsync(model.ReviewId, ct);
         if (review is null)
             return Error.NotFound("review not found");
 
@@ -47,17 +49,29 @@ internal sealed class VoteReviewOperation(
             _ => throw new ArgumentOutOfRangeException(nameof(model.Mode))
         };
 
-        await reviewsCommandRepository.UpsertVoteAsync(
-            new UpsertReviewVoteCommandRepositoryModel
-            {
-                ReviewId = model.ReviewId,
-                VoterId = model.UserId,
-                Mode = mode,
-                UtcNow = DateTime.UtcNow
-            },
-            ct);
+        var vote = new UpsertReviewVoteCommandRepositoryModel
+        {
+            ReviewId = model.ReviewId,
+            VoterId = model.UserId,
+            Mode = mode,
+            UtcNow = DateTime.UtcNow
+        };
+
+        var isNewVote = await reviewsCommandRepository.UpsertVoteAsync(vote, ct);
 
         await reviewsCommandRepository.RecalculateReviewScoreAsync(model.ReviewId, DateTime.UtcNow, ct);
+
+        if (isNewVote && model.Mode == VoteModeOperationEnum.Like)
+        {
+            await likesEventsProducer.PublishReviewLikedAsync(
+                model.UserId,
+                vote.ReviewId,
+                review.AuthorId,
+                review.CompanyId,
+                review.CompanyName,
+                vote.UtcNow,
+                ct);
+        }
 
         return Result.Success();
     }

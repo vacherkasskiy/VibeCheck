@@ -28,6 +28,7 @@ message ReviewLikedEvent {
   string review_author_id = 3;
   string review_company_id = 4;
   string review_company_name= 5;
+  string liked_by_user_id= 7;
 
   google.protobuf.Timestamp liked_at = 6;
 }

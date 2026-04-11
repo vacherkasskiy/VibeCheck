@@ -26,7 +26,6 @@ class UserLoggingOut(
         }
 
         val accessTokenClaims = jwtParser.parseAccessToken(encodedAccessToken)
-
         accessTokenBlacklistCache.put(accessTokenClaims.tokenId)
     }
 }

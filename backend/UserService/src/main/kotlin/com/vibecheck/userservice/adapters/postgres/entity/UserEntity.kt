@@ -51,6 +51,7 @@ class UserEntity {
         id = user.id
         email = user.email
         password = user.password
+        roles = user.roles
         version = takeIf { user.version != 0 }?.let { user.version }
         isBanned = user.isBanned
     }

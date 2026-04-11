@@ -28,4 +28,13 @@ class UserStorageImpl(
     @Transactional(propagation = Propagation.MANDATORY)
     override fun create(user: User): User =
         userRepository.save(user.toEntity()).toDomain()
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    override fun update(user: User): User {
+        if (userRepository.existsById(user.id)) {
+            throw NotFoundException("User ${user.id} not found")
+        }
+
+        return userRepository.save(user.toEntity()).toDomain()
+    }
 }

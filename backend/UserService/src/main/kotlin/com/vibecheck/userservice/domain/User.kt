@@ -14,6 +14,8 @@ data class User(
 
     fun unban(): User = copy(isBanned = false)
 
+    fun resetPassword(newPassword: String): User = copy(password = newPassword)
+
     companion object {
         fun new(
             id: UUID,

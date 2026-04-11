@@ -11,11 +11,11 @@ class EmailSenderEventListener(
 ) {
     @EventListener(UserPreregistrationIsCreatedEvent::class)
     fun onUserPreregistrationIsCreatedEvent(userPreregistrationIsCreatedEvent: UserPreregistrationIsCreatedEvent) : Unit = with(userPreregistrationIsCreatedEvent) {
-        emailSender.send(email, confirmCode)
+        emailSender.sendRegistrationCode(email, confirmCode)
     }
 
     @EventListener(UserPasswordResetEvent::class)
     fun onUserPasswordResetEvent(userPasswordResetEvent: UserPasswordResetEvent) : Unit = with(userPasswordResetEvent) {
-        emailSender.send(email, confirmCode)
+        emailSender.sendPasswordConfirmationCode(email, confirmCode)
     }
 }

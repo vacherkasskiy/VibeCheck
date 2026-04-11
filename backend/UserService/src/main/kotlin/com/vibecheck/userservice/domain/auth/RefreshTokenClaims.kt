@@ -1,4 +1,4 @@
-package com.vibecheck.userservice.security.jwt
+package com.vibecheck.userservice.domain.auth
 
 import java.time.Instant
 import java.util.UUID

@@ -2,7 +2,7 @@ package com.vibecheck.userservice.usecase
 
 import com.vibecheck.userservice.domain.UserRole
 import com.vibecheck.userservice.domain.exception.BadRequestException
-import com.vibecheck.userservice.usecase.generator.TokenGenerator
+import com.vibecheck.userservice.usecase.generator.TokenIssuer
 import com.vibecheck.userservice.usecase.storage.UserConfirmationStorage
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
@@ -11,7 +11,7 @@ import java.time.Clock
 @Service
 class EmailRegistrationConfirmation(
     private val userConfirmationStorage: UserConfirmationStorage,
-    private val tokenGenerator: TokenGenerator,
+    private val tokenIssuer: TokenIssuer,
     private val transactionTemplate: TransactionTemplate,
     private val clock: Clock,
     private val userCreation: UserCreation,
@@ -27,11 +27,7 @@ class EmailRegistrationConfirmation(
         }
 
         val user = userCreation.create(userPreregistration.email, userPreregistration.password, USER_ROLES)
-
-        val accessToken = tokenGenerator.generateAccessToken(user.id, USER_ROLES)
-        val refreshToken = tokenGenerator.generateRefreshToken(user.id)
-
-        return JwtTokens(accessToken.token, refreshToken.token)
+        return tokenIssuer.issue(user)
     }
 
     companion object {

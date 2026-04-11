@@ -1,12 +1,13 @@
 package com.vibecheck.userservice.security.jwt
 
 import com.vibecheck.userservice.domain.UserRole
+import com.vibecheck.userservice.domain.auth.AccessTokenClaims
+import com.vibecheck.userservice.domain.auth.RefreshTokenClaims
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.oauth2.jwt.BadJwtException
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.util.UUID
 
 @Service

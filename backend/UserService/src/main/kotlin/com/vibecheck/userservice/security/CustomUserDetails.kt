@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.util.UUID
 
 class CustomUserDetails(
-    private val user: User
+    val user: User
 ) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
@@ -19,7 +19,7 @@ class CustomUserDetails(
 
     override fun getUsername(): String = user.email
 
-    override fun isEnabled(): Boolean = user.isBanned
+    override fun isEnabled(): Boolean = !user.isBanned
 
     override fun isAccountNonExpired(): Boolean = true
 

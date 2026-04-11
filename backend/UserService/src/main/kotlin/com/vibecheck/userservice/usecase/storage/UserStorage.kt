@@ -10,4 +10,5 @@ interface UserStorage {
     fun findByEmailOrThrow(email: String): User =
         findByEmail(email) ?: throw NotFoundException("User $email not found")
     fun create(user: User): User
+    fun update(user: User) : User
 }

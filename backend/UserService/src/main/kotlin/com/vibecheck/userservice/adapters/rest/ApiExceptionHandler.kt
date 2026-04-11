@@ -19,7 +19,9 @@ class ApiExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ErrorResponse> =
-        ResponseEntity.internalServerError().body(ErrorResponse(e.message ?: "Unknown error occurred"))
+        ResponseEntity.internalServerError().body(ErrorResponse(e.message ?: "Unknown error occurred")).also {
+            e.printStackTrace()
+        }
 
     data class ErrorResponse(
         val message: String

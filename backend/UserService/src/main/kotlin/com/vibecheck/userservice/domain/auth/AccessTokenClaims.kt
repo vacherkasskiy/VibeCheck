@@ -1,4 +1,4 @@
-package com.vibecheck.userservice.security.jwt
+package com.vibecheck.userservice.domain.auth
 
 import com.vibecheck.userservice.domain.UserRole
 import java.time.Instant

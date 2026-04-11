@@ -16,14 +16,15 @@ class UserOnboardingStepCompleting(
     private val transactionTemplate: TransactionTemplate,
 ) {
     @CachePut(value = ["users.onboarding"], key = "#userId")
-    fun complete(userId: UUID) {
-        val currentUserStep = userOnboardingStepStorage.findByUserIdAndStatus(userId, UserOnboardingStepStatus.ACTIVE).single() ?: return
+    fun complete(userId: UUID): UserOnboardingStep? {
+        val currentUserStep = userOnboardingStepStorage.findByUserIdAndStatus(userId, UserOnboardingStepStatus.ACTIVE).singleOrNull()
+            ?: return null
 
         val step = onboardingStepStorage.findById(currentUserStep.stepId)
 
         val nextStep = step.nextStepId?.let { onboardingStepStorage.findById(it) }
 
-        transactionTemplate.execute {
+        return transactionTemplate.execute {
             userOnboardingStepStorage.update(currentUserStep.complete())
 
             nextStep?.let { userOnboardingStepStorage.create(UserOnboardingStep.new(userId, it.id)) }

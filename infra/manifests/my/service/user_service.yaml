@@ -13,10 +13,14 @@ data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-postgresql:5432/user_service_api_db"
   SPRING_DATA_REDIS_HOST: "redis-master"
   SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_MAIL_HOST: "smtp.yandex.ru"
+  SPRING_MAIL_PORT: "587"
+  SPRING_MAIL_USERNAME: "vvfedotov@edu.hse.ru"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.vibecheck.svc.cluster.local:9092"
   SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
   SPRING_KAFKA_PROPERTIES_SASL_MECHANISM: "PLAIN"
   USER_SERVICE_KAFKA_TOPIC_USERS: "users"
+  APP_JWT_ISSUER: "auth-service"
 ---
 apiVersion: v1
 kind: Secret
@@ -27,7 +31,9 @@ type: Opaque
 stringData:
   SPRING_DATASOURCE_USERNAME: "app_user"
   SPRING_DATASOURCE_PASSWORD: "app_password"
+  SPRING_MAIL_PASSWORD: "kidfsfoduipvzagp"
   SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="app_password";'
+  APP_JWT_SECRET: "change-this-super-long-random-secret-key-change-this-super-long-random-secret-key"
 ---
 apiVersion: apps/v1
 kind: Deployment

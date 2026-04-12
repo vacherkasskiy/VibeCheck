@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAchievementsQueryRepository, AchievementsQueryRepository>();
         services.AddScoped<ILevelsQueryRepository, LevelsQueryRepository>();
         services.AddScoped<IXpRulesQueryRepository, XpRulesQueryRepository>();
+        services.AddScoped<IUserActivityCountersQueryRepository, UserActivityCountersQueryRepository>();
 
         // Command
         services.AddScoped<IAchievementsCommandRepository, AchievementsCommandRepository>();

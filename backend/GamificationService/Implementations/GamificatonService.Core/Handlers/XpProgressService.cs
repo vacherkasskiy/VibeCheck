@@ -2,6 +2,7 @@ using GamificatonService.Core.Abstractions.Handlers;
 using GamificatonService.MessageBroker.Abstractions.Producers;
 using GamificatonService.PersistentStorage.Abstractions.Models.AddUserXpTransaction;
 using GamificatonService.PersistentStorage.Abstractions.Models.AddXp;
+using GamificatonService.PersistentStorage.Abstractions.Models.UserActivity;
 using GamificatonService.PersistentStorage.Abstractions.Models.UserXp;
 using GamificatonService.PersistentStorage.Abstractions.Models.XpRule;
 using GamificatonService.PersistentStorage.Abstractions.Repositories.Command;
@@ -13,6 +14,7 @@ internal sealed class XpProgressService(
     IXpRulesQueryRepository xpRulesQueryRepository,
     IXpTransactionsCommandRepository xpTransactionsCommandRepository,
     ILevelsCommandRepository levelsCommandRepository,
+    IUserActivityCountersQueryRepository userActivityCountersQueryRepository,
     IUserLevelUpEventsProducer userLevelUpEventsProducer)
     : IXpProgressService
 {
@@ -28,7 +30,7 @@ internal sealed class XpProgressService(
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentReviewWrittenCountAsync(userId, ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(userId, "review.created", ct),
             ct);
 
     public async Task HandleReviewLikedAsync(
@@ -45,7 +47,7 @@ internal sealed class XpProgressService(
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentReviewReactionCountAsync(likedByUserId, ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(likedByUserId, "review.reacted", ct),
             ct);
 
         await ProcessAsync(
@@ -54,7 +56,7 @@ internal sealed class XpProgressService(
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentReceivedLikesCountAsync(reviewAuthorId, ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(reviewAuthorId, "review.like.received", ct),
             ct);
     }
 
@@ -72,7 +74,7 @@ internal sealed class XpProgressService(
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentOutgoingSubscriptionsCountAsync(subscriberUserId, ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(subscriberUserId, "subscription.created.outgoing", ct),
             ct);
 
         await ProcessAsync(
@@ -81,7 +83,7 @@ internal sealed class XpProgressService(
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentIncomingSubscriptionsCountAsync(targetUserId, ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(targetUserId, "subscription.created.incoming", ct),
             ct);
     }
 
@@ -104,8 +106,6 @@ internal sealed class XpProgressService(
         if (rules.Count == 0)
             return;
 
-        var currentProgressValue = await currentProgressValueResolver();
-
         foreach (var actionRule in rules.Where(x => x.Type == XpRuleTypeRepositoryEnum.Action))
         {
             await ApplyXpRuleAsync(
@@ -116,6 +116,8 @@ internal sealed class XpProgressService(
                 occurredAt,
                 ct);
         }
+
+        var currentProgressValue = await currentProgressValueResolver();
 
         foreach (var thresholdRule in rules
                      .Where(x => x.Type == XpRuleTypeRepositoryEnum.Threshold && x.ThresholdValue.HasValue)
@@ -186,18 +188,15 @@ internal sealed class XpProgressService(
         }
     }
 
-    private static Task<long> GetCurrentReviewWrittenCountAsync(Guid userId, CancellationToken ct)
-        => Task.FromResult(1L);
-
-    private static Task<long> GetCurrentReviewReactionCountAsync(Guid userId, CancellationToken ct)
-        => Task.FromResult(1L);
-
-    private static Task<long> GetCurrentReceivedLikesCountAsync(Guid userId, CancellationToken ct)
-        => Task.FromResult(1L);
-
-    private static Task<long> GetCurrentOutgoingSubscriptionsCountAsync(Guid userId, CancellationToken ct)
-        => Task.FromResult(1L);
-
-    private static Task<long> GetCurrentIncomingSubscriptionsCountAsync(Guid userId, CancellationToken ct)
-        => Task.FromResult(1L);
+    private Task<long> GetCurrentCountAsync(
+        Guid userId,
+        string actionKey,
+        CancellationToken ct)
+        => userActivityCountersQueryRepository.GetCountByActionKeyAsync(
+            new GetUserActivityCountByActionKeyRepositoryInputModel
+            {
+                UserId = userId,
+                ActionKey = actionKey
+            },
+            ct);
 }

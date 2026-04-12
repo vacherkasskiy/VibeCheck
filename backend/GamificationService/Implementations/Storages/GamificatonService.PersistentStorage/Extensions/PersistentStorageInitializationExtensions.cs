@@ -12,6 +12,7 @@ public static class PersistentStorageInitializationExtensions
         "GamificatonService.PersistentStorage.Seed.003_level_thresholds.sql",
         "GamificatonService.PersistentStorage.Seed.004_user_levels.sql",
         "GamificatonService.PersistentStorage.Seed.005_user_achievements.sql",
+        "GamificatonService.PersistentStorage.Seed.006_user_xp_rewards.sql",
     ];
 
     public static async Task ApplyPersistentStorageMigrationsAndSeedAsync(

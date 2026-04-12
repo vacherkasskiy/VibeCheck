@@ -13,11 +13,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddPersistentStorageServices(this IServiceCollection services)
     {
+        // Query
         services.AddScoped<IAchievementsQueryRepository, AchievementsQueryRepository>();
         services.AddScoped<ILevelsQueryRepository, LevelsQueryRepository>();
+        services.AddScoped<IXpRulesQueryRepository, XpRulesQueryRepository>();
 
+        // Command
         services.AddScoped<IAchievementsCommandRepository, AchievementsCommandRepository>();
         services.AddScoped<ILevelsCommandRepository, LevelsCommandRepository>();
+        services.AddScoped<IXpTransactionsCommandRepository, XpTransactionsCommandRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {

@@ -23,7 +23,7 @@ internal sealed class LevelsCommandRepository(AppDbContext dbContext) : ILevelsC
                 UserId = input.UserId,
                 TotalXp = 0,
                 CurrentLevel = 1,
-                UpdatedAt = input.UtcNow.DateTime
+                UpdatedAt = input.UtcNow.UtcDateTime
             };
 
             dbContext.UserLevels.Add(userLevel);
@@ -32,7 +32,7 @@ internal sealed class LevelsCommandRepository(AppDbContext dbContext) : ILevelsC
         var previousLevel = userLevel.CurrentLevel;
 
         userLevel.TotalXp += input.XpDelta;
-        userLevel.UpdatedAt = input.UtcNow.DateTime;
+        userLevel.UpdatedAt = input.UtcNow.UtcDateTime;
 
         var newLevel = await dbContext.LevelThresholds
             .AsNoTracking()

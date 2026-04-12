@@ -15,6 +15,8 @@ public sealed class AppDbContext : DbContext
     public DbSet<AchievementEntity> Achievements => Set<AchievementEntity>();
     public DbSet<UserAchievementEntity> UserAchievements => Set<UserAchievementEntity>();
     public DbSet<UserLevelEntity> UserLevels => Set<UserLevelEntity>();
+    public DbSet<XpRuleEntity> XpRules => Set<XpRuleEntity>();
+    public DbSet<UserXpTransactionEntity> UserXpTransactions => Set<UserXpTransactionEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Protobuf" Version="3.29.3" />
-        <PackageReference Include="Grpc.Tools" Version="2.71.0" PrivateAssets="All" />
+        <PackageReference Include="Google.Protobuf" Version="3.34.1" />
+        <PackageReference Include="Grpc.Tools" Version="2.68.1" PrivateAssets="All" />
     </ItemGroup>
 
     <PropertyGroup>
-        <KafkaContractsDir>../../../../backend/contracts/kafka</KafkaContractsDir>
+        <KafkaContractsDir Condition="'$(KafkaContractsDir)' == ''">../../../contracts/kafka</KafkaContractsDir>
     </PropertyGroup>
 
     <ItemGroup>

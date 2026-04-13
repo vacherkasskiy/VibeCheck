@@ -5,7 +5,7 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t ikeeo/vibecheck-gamification-service:4.1 \
+  -t ikeeo/vibecheck-gamification-service:5.1 \
   -t ikeeo/vibecheck-gamification-service:latest \
   -f ../../backend/GamificationService/GamificationService.Gateway/Dockerfile \
   ../ \

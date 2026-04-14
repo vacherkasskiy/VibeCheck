@@ -16,6 +16,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddMessageBrokerServices(this IServiceCollection services)
     {
+        services.AddOptions<MassTransitHostOptions>().Configure(options =>
+        {
+            options.WaitUntilStarted = true;
+        });
+
         services.AddMassTransit(x =>
         {
             x.UsingInMemory((context, cfg) =>

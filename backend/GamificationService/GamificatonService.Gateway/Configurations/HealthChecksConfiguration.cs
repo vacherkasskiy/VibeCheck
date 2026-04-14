@@ -18,6 +18,11 @@ public static class HealthChecksConfiguration
 
     public static void UseApplicationHealthChecks(this WebApplication app)
     {
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = _ => false
+        });
+
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("ready"),

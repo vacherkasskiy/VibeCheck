@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
         - name: gamification-service
-          image: ikeeo/vibecheck-gamification-service:latest
+          image: ikeeo/vibecheck-gamification-service:5.4
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

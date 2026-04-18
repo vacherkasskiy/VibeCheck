@@ -58,14 +58,12 @@ class AuthController(
 
     @PostMapping("/internal/login")
     fun internalLogin(
-        request: HttpServletRequest,
         @RequestBody authRequest: InternalEmployeeAuthRequestDto,
     ): InternalEmployeeAuthTokensDto {
         val tokens = internalEmployeeAuthorization.authorize(
             email = authRequest.login,
             password = authRequest.password,
             audiences = authRequest.audiences,
-            loginContext = request.toLoginContext(),
         )
 
         return InternalEmployeeAuthTokensDto(

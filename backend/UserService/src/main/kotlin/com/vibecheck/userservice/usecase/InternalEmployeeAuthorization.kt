@@ -11,7 +11,7 @@ class InternalEmployeeAuthorization(
     private val authenticationProvider: AuthenticationProvider,
     private val tokenGenerator: TokenGenerator,
 ) {
-    fun authorize(email: String, password: String, audiences: List<String>, loginContext: LoginContext): InternalEmployeeTokens {
+    fun authorize(email: String, password: String, audiences: List<String>): InternalEmployeeTokens {
         if (audiences.isEmpty()) {
             throw BadRequestException("Internal token audiences must not be empty")
         }

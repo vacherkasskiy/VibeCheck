@@ -51,6 +51,7 @@ ensure_hosts_entries() {
   ensure_hosts_entry "$ip" "gamification.local"
   ensure_hosts_entry "$ip" "review.local"
   ensure_hosts_entry "$ip" "kafka-ui.local"
+  ensure_hosts_entry "$ip" "grafana.local"
 }
 
 wait_for_ingress_nginx_ready() {
@@ -155,6 +156,8 @@ wait_for_ingress_nginx_ready
 
 # 7. helm repo
 helm repo add bitnami https://charts.bitnami.com/bitnami || true
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+helm repo add grafana https://grafana.github.io/helm-charts || true
 helm repo update
 
 # 8. infra
@@ -171,6 +174,14 @@ helm upgrade --install minio bitnami/minio \
 helm upgrade --install kafka bitnami/kafka \
   -n vibecheck \
   -f ../manifests/kafka_values.yaml
+
+helm upgrade --install prometheus prometheus-community/prometheus \
+  -n vibecheck \
+  -f ../manifests/prometheus_values.yaml
+
+helm upgrade --install grafana grafana/grafana \
+  -n vibecheck \
+  -f ../manifests/grafana_values.yaml
 
 # 9. app manifests
 kubectl apply -f ../manifests/my/service

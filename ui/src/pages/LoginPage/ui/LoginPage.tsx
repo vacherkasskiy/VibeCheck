@@ -81,19 +81,7 @@ export const LoginPage = () => {
 		}
 	};
 
-	const handleGoogleLogin = async () => {
-		try {
-			const response = await fetch('/api/auth/google/url', {
-				method: 'POST',
-			});
-			const data = await response.json();
-			if (data.url) {
-				window.location.href = data.url;
-			}
-		} catch {
-			setGeneralError('Ошибка при подключении Google');
-		}
-	};
+
 
 	const handleBack = () => {
 		navigate('/');
@@ -156,14 +144,6 @@ export const LoginPage = () => {
 						<Link to="/forgot-password" className={styles.forgotLink}>
 							Забыли пароль?
 						</Link>
-
-						<div className={styles.divider}>
-							<span>Или войти с помощью</span>
-						</div>
-
-						<AuthButton variant="google" onClick={handleGoogleLogin} fullWidth>
-							Войти через Google
-						</AuthButton>
 
 						<p className={styles.footerText}>
 							Ещё нет аккаунта?{' '}

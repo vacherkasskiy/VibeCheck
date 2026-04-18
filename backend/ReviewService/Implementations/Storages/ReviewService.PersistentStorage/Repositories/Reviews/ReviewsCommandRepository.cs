@@ -110,10 +110,12 @@ internal sealed class ReviewsCommandRepository(AppDbContext dbContext) : IReview
         await dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task UpsertVoteAsync(
+    /// <returns>True if new vote; false otherwise</returns>
+    public async Task<bool> UpsertVoteAsync(
         UpsertReviewVoteCommandRepositoryModel model,
         CancellationToken ct)
     {
+        var voteIsNew = false;
         var vote = await dbContext.ReviewVotes
             .FirstOrDefaultAsync(
                 x => x.ReviewId == model.ReviewId && x.VoterId == model.VoterId,
@@ -129,6 +131,7 @@ internal sealed class ReviewsCommandRepository(AppDbContext dbContext) : IReview
                 CreatedAt = model.UtcNow,
                 UpdatedAt = model.UtcNow
             });
+            voteIsNew = true;
         }
         else
         {
@@ -137,6 +140,8 @@ internal sealed class ReviewsCommandRepository(AppDbContext dbContext) : IReview
         }
 
         await dbContext.SaveChangesAsync(ct);
+
+        return voteIsNew;
     }
 
     public async Task DeleteVoteAsync(

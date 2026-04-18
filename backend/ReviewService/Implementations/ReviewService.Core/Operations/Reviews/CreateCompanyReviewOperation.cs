@@ -1,48 +1,80 @@
 using ReviewService.Core.Abstractions.Models.Reviews.CreateCompanyReview;
+using ReviewService.Core.Abstractions.Observability;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
+using System.Diagnostics;
 
 namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class CreateCompanyReviewOperation(
     IReviewsQueryRepository reviewsQueryRepository,
-    IReviewsCommandRepository reviewsCommandRepository)
+    IReviewsCommandRepository reviewsCommandRepository,
+    IReviewEventsProducer producer)
     : ICreateCompanyReviewOperation
 {
     public async Task<Result> CreateAsync(
         CreateCompanyReviewOperationModel model,
         CancellationToken ct)
     {
-        if (model.UserId == Guid.Empty)
-            return Error.Validation("userId is required");
+        var stopwatch = Stopwatch.StartNew();
+        var status = "success";
 
-        if (model.CompanyId == Guid.Empty)
-            return Error.Validation("companyId is required");
+        try
+        {
+            if (model.UserId == Guid.Empty)
+            {
+                status = "validation";
+                return Error.Validation("userId is required");
+            }
 
-        if (model.Flags is null || model.Flags.Length == 0)
-            return Error.Validation("flags are required");
+            if (model.CompanyId == Guid.Empty)
+            {
+                status = "validation";
+                return Error.Validation("companyId is required");
+            }
 
-        if (model.Flags.Length > 10)
-            return Error.Validation("too many flags");
+            if (model.Flags is null || model.Flags.Length == 0)
+            {
+                status = "validation";
+                return Error.Validation("flags are required");
+            }
 
-        if (model.Flags.Any(x => x == Guid.Empty))
-            return Error.Validation("flags contain empty id");
+            if (model.Flags.Length > 10)
+            {
+                status = "validation";
+                return Error.Validation("too many flags");
+            }
 
-        if (model.Text?.Length > 1000)
-            return Error.Validation("text is too long");
+            if (model.Flags.Any(x => x == Guid.Empty))
+            {
+                status = "validation";
+                return Error.Validation("flags contain empty id");
+            }
 
-        var companyExists = await reviewsQueryRepository.CompanyExistsAsync(model.CompanyId, ct);
-        if (!companyExists)
-            return Error.NotFound("company not found");
+            if (model.Text?.Length > 1000)
+            {
+                status = "validation";
+                return Error.Validation("text is too long");
+            }
 
-        var allFlagsExist = await reviewsQueryRepository.AllFlagsExistAsync(model.Flags, ct);
-        if (!allFlagsExist)
-            return Error.Validation("one or more flags not found");
+            var companyExists = await reviewsQueryRepository.CompanyExistsAsync(model.CompanyId, ct);
+            if (!companyExists)
+            {
+                status = "not_found";
+                return Error.NotFound("company not found");
+            }
 
-        await reviewsCommandRepository.CreateReviewAsync(
-            new CreateReviewCommandRepositoryModel
+            var allFlagsExist = await reviewsQueryRepository.AllFlagsExistAsync(model.Flags, ct);
+            if (!allFlagsExist)
+            {
+                status = "validation";
+                return Error.Validation("one or more flags not found");
+            }
+
+            var newReview = new CreateReviewCommandRepositoryModel
             {
                 ReviewId = Guid.NewGuid(),
                 CompanyId = model.CompanyId,
@@ -50,9 +82,29 @@ internal sealed class CreateCompanyReviewOperation(
                 Text = model.Text,
                 FlagIds = model.Flags.Distinct().ToArray(),
                 CreatedAtUtc = DateTime.UtcNow
-            },
-            ct);
+            };
 
-        return Result.Success();
+            await reviewsCommandRepository.CreateReviewAsync(newReview, ct);
+
+            await producer.PublishReviewWrittenAsync(
+                newReview.ReviewId,
+                newReview.AuthorId,
+                newReview.CreatedAtUtc,
+                ct);
+
+            ReviewMetrics.RecordReviewCreated("success");
+
+            return Result.Success();
+        }
+        catch
+        {
+            status = "exception";
+            ReviewMetrics.RecordOperationError("create_company_review", "core", "exception");
+            throw;
+        }
+        finally
+        {
+            ReviewMetrics.RecordOperationDuration("create_company_review", "core", status, stopwatch.Elapsed.TotalMilliseconds);
+        }
     }
 }

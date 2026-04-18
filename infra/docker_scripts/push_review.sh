@@ -5,7 +5,7 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t ikeeo/vibecheck-review-service:4.1 \
+  -t ikeeo/vibecheck-review-service:5.1 \
   -t ikeeo/vibecheck-review-service:latest \
   -f ../../backend/ReviewService/ReviewService.Gateway/Dockerfile \
   ../ \

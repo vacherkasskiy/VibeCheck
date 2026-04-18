@@ -19,7 +19,8 @@ primary:
         SELECT 'CREATE DATABASE gamification_service'
         WHERE NOT EXISTS (
           SELECT FROM pg_database WHERE datname = 'gamification_service'
-        )
+        )\gexec
+
         SELECT 'CREATE DATABASE subscription_service'
         WHERE NOT EXISTS (
           SELECT FROM pg_database WHERE datname = 'subscription_service'

@@ -10,6 +10,7 @@ using ReviewService.Core.MapperProfiles;
 using ReviewService.Core.Operations.Companies;
 using ReviewService.Core.Operations.Flags;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Options;
 using ReviewService.PersistentStorage.Abstractions.Options;
 
 namespace ReviewService.Core;
@@ -51,6 +52,9 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DbOptions>(
             configuration.GetSection(nameof(DbOptions)));
+        
+        services.Configure<KafkaOptions>(
+            configuration.GetSection(nameof(KafkaOptions)));
         
         services.Configure<MinioOptions>(
             configuration.GetSection(nameof(MinioOptions)));

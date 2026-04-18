@@ -275,6 +275,23 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             })
             .FirstOrDefaultAsync(ct);
 
+    public Task<ReviewOwnershipWithCompanyInfoRepositoryModel?> GetReviewOwnershipWithCompanyInfoAsync(
+        Guid reviewId,
+        CancellationToken ct) =>
+        dbContext.Reviews
+            .AsNoTracking()
+            .Include(x => x.Company)
+            .Where(x => x.Id == reviewId)
+            .Select(x => new ReviewOwnershipWithCompanyInfoRepositoryModel
+            {
+                ReviewId = x.Id,
+                AuthorId = x.AuthorId,
+                CompanyId = x.CompanyId,
+                CompanyName = x.Company.Name,
+                IsDeleted = x.DeletedAt != null
+            })
+            .FirstOrDefaultAsync(ct);
+
     public Task<ReviewEditInfoRepositoryModel?> GetReviewEditInfoAsync(Guid reviewId, CancellationToken ct) =>
         dbContext.Reviews
             .AsNoTracking()

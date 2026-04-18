@@ -17,6 +17,15 @@ public sealed record ReviewOwnershipRepositoryModel
     public required bool IsDeleted { get; init; }
 }
 
+public sealed record ReviewOwnershipWithCompanyInfoRepositoryModel
+{
+    public required Guid ReviewId { get; init; }
+    public required Guid AuthorId { get; init; }
+    public required Guid CompanyId { get; init; }
+    public required string CompanyName { get; init; }
+    public required bool IsDeleted { get; init; }
+}
+
 public sealed record ReviewEditInfoRepositoryModel
 {
     public required Guid ReviewId { get; init; }

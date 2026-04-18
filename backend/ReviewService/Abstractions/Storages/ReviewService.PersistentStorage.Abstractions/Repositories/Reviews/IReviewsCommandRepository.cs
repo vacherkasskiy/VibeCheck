@@ -19,7 +19,7 @@ public interface IReviewsCommandRepository
         DateTime utcNow,
         CancellationToken ct);
 
-    Task UpsertVoteAsync(
+    Task<bool> UpsertVoteAsync(
         UpsertReviewVoteCommandRepositoryModel model,
         CancellationToken ct);
 

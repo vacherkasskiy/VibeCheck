@@ -7,7 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.Core.Abstractions\GamificatonService.Core.Abstractions.csproj" />
       <ProjectReference Include="..\..\Abstractions\GamificatonService.MessageBroker.Abstractions\GamificatonService.MessageBroker.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.*" />
+        <PackageReference Include="MassTransit.Kafka" Version="8.*" />
     </ItemGroup>
 
 </Project>

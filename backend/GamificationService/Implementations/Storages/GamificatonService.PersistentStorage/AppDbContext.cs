@@ -15,9 +15,13 @@ public sealed class AppDbContext : DbContext
     public DbSet<AchievementEntity> Achievements => Set<AchievementEntity>();
     public DbSet<UserAchievementEntity> UserAchievements => Set<UserAchievementEntity>();
     public DbSet<UserLevelEntity> UserLevels => Set<UserLevelEntity>();
+    public DbSet<XpRuleEntity> XpRules => Set<XpRuleEntity>();
+    public DbSet<UserXpTransactionEntity> UserXpTransactions => Set<UserXpTransactionEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        ConfigureXpRules(modelBuilder);
+        ConfigureUserXpTransactions(modelBuilder);
         ConfigureLevelThresholds(modelBuilder);
         ConfigureAchievementIcons(modelBuilder);
         ConfigureAchievements(modelBuilder);
@@ -27,6 +31,134 @@ public sealed class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
 
+    private static void ConfigureXpRules(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<XpRuleEntity>();
+
+        entity.ToTable("xp_rules");
+
+        entity.HasKey(x => x.Id);
+
+        entity.Property(x => x.Id)
+            .HasColumnName("id")
+            .IsRequired();
+
+        entity.Property(x => x.Code)
+            .HasColumnName("code")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        entity.Property(x => x.Name)
+            .HasColumnName("name")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        entity.Property(x => x.Description)
+            .HasColumnName("description")
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        entity.Property(x => x.Type)
+            .HasColumnName("type")
+            .HasConversion<int>()
+            .IsRequired();
+
+        entity.Property(x => x.ActionKey)
+            .HasColumnName("action_key")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        entity.Property(x => x.XpAmount)
+            .HasColumnName("xp_amount")
+            .IsRequired();
+
+        entity.Property(x => x.ThresholdValue)
+            .HasColumnName("threshold_value");
+
+        entity.Property(x => x.IsActive)
+            .HasColumnName("is_active")
+            .IsRequired();
+
+        entity.Property(x => x.IsRepeatable)
+            .HasColumnName("is_repeatable")
+            .IsRequired();
+
+        entity.Property(x => x.CooldownDays)
+            .HasColumnName("cooldown_days");
+
+        entity.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired()
+            .HasDefaultValueSql("now()");
+
+        entity.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired()
+            .HasDefaultValueSql("now()");
+
+        entity.HasIndex(x => x.Code)
+            .IsUnique();
+
+        entity.HasIndex(x => x.ActionKey);
+
+        entity.HasIndex(x => new { x.ActionKey, x.Type, x.ThresholdValue });
+    }
+    
+    private static void ConfigureUserXpTransactions(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<UserXpTransactionEntity>();
+
+        entity.ToTable("user_xp_transactions");
+
+        entity.HasKey(x => x.Id);
+
+        entity.Property(x => x.Id)
+            .HasColumnName("id")
+            .IsRequired();
+
+        entity.Property(x => x.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        entity.Property(x => x.XpRuleId)
+            .HasColumnName("xp_rule_id")
+            .IsRequired();
+
+        entity.Property(x => x.XpAmount)
+            .HasColumnName("xp_amount")
+            .IsRequired();
+
+        entity.Property(x => x.EventId)
+            .HasColumnName("event_id")
+            .HasMaxLength(100);
+
+        entity.Property(x => x.AggregateId)
+            .HasColumnName("aggregate_id")
+            .HasMaxLength(100);
+
+        entity.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired()
+            .HasDefaultValueSql("now()");
+
+        entity.HasOne(x => x.XpRule)
+            .WithMany()
+            .HasForeignKey(x => x.XpRuleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasIndex(x => x.UserId);
+
+        entity.HasIndex(x => x.XpRuleId);
+
+        entity.HasIndex(x => x.CreatedAt);
+
+        entity.HasIndex(x => new { x.UserId, x.XpRuleId });
+
+        entity.HasIndex(x => new { x.UserId, x.EventId });
+
+        entity.HasIndex(x => new { x.UserId, x.XpRuleId, x.EventId });
+    }
+    
     private static void ConfigureLevelThresholds(ModelBuilder modelBuilder)
     {
         var entity = modelBuilder.Entity<LevelThresholdEntity>();
@@ -115,6 +247,10 @@ public sealed class AppDbContext : DbContext
         entity.Property(x => x.Description)
             .HasColumnName("description")
             .HasColumnType("text")
+            .IsRequired();
+        
+        entity.Property(x => x.XpReward)
+            .HasColumnName("xp_reward")
             .IsRequired();
 
         entity.Property(x => x.IconId)

@@ -95,48 +95,6 @@ wait_for_kafka_ready() {
   echo "kafka is ready"
 }
 
-start_background_port_forward() {
-  local namespace="$1"
-  local resource="$2"
-  local local_port="$3"
-  local remote_port="$4"
-  local pid_file="$5"
-  local log_file="$6"
-
-  if [[ -f "$pid_file" ]]; then
-    local old_pid
-    old_pid="$(cat "$pid_file" 2>/dev/null || true)"
-    if [[ -n "${old_pid:-}" ]] && kill -0 "$old_pid" 2>/dev/null; then
-      echo "stopping existing port-forward for $resource (pid=$old_pid)"
-      kill "$old_pid" || true
-      sleep 1
-    fi
-    rm -f "$pid_file"
-  fi
-
-  if lsof -iTCP:"$local_port" -sTCP:LISTEN >/dev/null 2>&1; then
-    echo "port $local_port is already busy"
-    lsof -iTCP:"$local_port" -sTCP:LISTEN || true
-    echo "free the port manually or change the local port"
-    exit 1
-  fi
-
-  echo "starting port-forward: $resource $local_port:$remote_port"
-  kubectl port-forward -n "$namespace" "$resource" "$local_port:$remote_port" >"$log_file" 2>&1 &
-  local pf_pid=$!
-  echo "$pf_pid" > "$pid_file"
-
-  sleep 2
-  if ! kill -0 "$pf_pid" 2>/dev/null; then
-    echo "port-forward for $resource exited immediately"
-    echo "log:"
-    cat "$log_file" || true
-    exit 1
-  fi
-
-  echo "port-forward started for $resource (pid=$pf_pid)"
-}
-
 create_kafka_topics() {
   echo "creating kafka topics..."
 
@@ -150,7 +108,7 @@ sasl.mechanism=PLAIN
 sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="${CLIENT_PASSWORD}";
 EOF
 
-    for topic in reviews gamification subscriptions users reports; do
+    for topic in reviews-written reviews-liked gamification-achievement gamification-level subscriptions users reports; do
       /opt/bitnami/kafka/bin/kafka-topics.sh \
         --create \
         --if-not-exists \
@@ -191,6 +149,8 @@ ensure_namespace "vibecheck"
 
 # 6. ingress
 minikube addons enable ingress
+minikube addons enable default-storageclass
+minikube addons enable storage-provisioner
 wait_for_ingress_nginx_ready
 
 # 7. helm repo
@@ -198,6 +158,8 @@ helm repo add bitnami https://charts.bitnami.com/bitnami || true
 helm repo update
 
 # 8. infra
+kubectl config set-context --current --namespace=vibecheck
+
 helm upgrade --install postgres bitnami/postgresql \
   -n vibecheck \
   -f ../manifests/pgsql_values.yaml
@@ -222,18 +184,6 @@ kubectl apply -f ../manifests/my/ingress
 wait_for_kafka_ready
 create_kafka_topics
 
-start_background_port_forward \
-  "vibecheck" \
-  "svc/kafka" \
-  "9092" \
-  "9092" \
-  "/tmp/vibecheck-kafka-port-forward.pid" \
-  "/tmp/vibecheck-kafka-port-forward.log"
-
-echo
-echo "Kafka from macOS: localhost:9092"
-echo "Kafka port-forward log: /tmp/vibecheck-kafka-port-forward.log"
-echo "Kafka port-forward pid file: /tmp/vibecheck-kafka-port-forward.pid"
 echo
 echo "starting minikube tunnel..."
 echo "do not close this terminal while you need ingress/loadbalancer access"

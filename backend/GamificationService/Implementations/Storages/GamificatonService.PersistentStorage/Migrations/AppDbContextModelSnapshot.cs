@@ -65,6 +65,10 @@ namespace GamificatonService.PersistentStorage.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
+                    b.Property<int>("XpReward")
+                        .HasColumnType("integer")
+                        .HasColumnName("xp_reward");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
@@ -221,6 +225,137 @@ namespace GamificatonService.PersistentStorage.Migrations
                     b.ToTable("user_levels", (string)null);
                 });
 
+            modelBuilder.Entity("GamificatonService.PersistentStorage.Entities.UserXpTransactionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AggregateId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("aggregate_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("EventId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("event_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<long>("XpAmount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("xp_amount");
+
+                    b.Property<Guid>("XpRuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("xp_rule_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("XpRuleId");
+
+                    b.HasIndex("UserId", "EventId");
+
+                    b.HasIndex("UserId", "XpRuleId");
+
+                    b.HasIndex("UserId", "XpRuleId", "EventId");
+
+                    b.ToTable("user_xp_transactions", (string)null);
+                });
+
+            modelBuilder.Entity("GamificatonService.PersistentStorage.Entities.XpRuleEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActionKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("action_key");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("code");
+
+                    b.Property<int?>("CooldownDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("cooldown_days");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsRepeatable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_repeatable");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<long?>("ThresholdValue")
+                        .HasColumnType("bigint")
+                        .HasColumnName("threshold_value");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("XpAmount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("xp_amount");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionKey");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("ActionKey", "Type", "ThresholdValue");
+
+                    b.ToTable("xp_rules", (string)null);
+                });
+
             modelBuilder.Entity("GamificatonService.PersistentStorage.Entities.AchievementEntity", b =>
                 {
                     b.HasOne("GamificatonService.PersistentStorage.Entities.AchievementIconEntity", "Icon")
@@ -241,6 +376,17 @@ namespace GamificatonService.PersistentStorage.Migrations
                         .IsRequired();
 
                     b.Navigation("Achievement");
+                });
+
+            modelBuilder.Entity("GamificatonService.PersistentStorage.Entities.UserXpTransactionEntity", b =>
+                {
+                    b.HasOne("GamificatonService.PersistentStorage.Entities.XpRuleEntity", "XpRule")
+                        .WithMany()
+                        .HasForeignKey("XpRuleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("XpRule");
                 });
 
             modelBuilder.Entity("GamificatonService.PersistentStorage.Entities.AchievementEntity", b =>

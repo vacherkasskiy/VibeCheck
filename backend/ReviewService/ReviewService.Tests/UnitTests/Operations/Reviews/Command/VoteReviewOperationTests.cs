@@ -3,6 +3,7 @@ using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models.Reviews;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -12,11 +13,12 @@ public sealed class VoteReviewOperationTests
 {
     private readonly IReviewsQueryRepository _queryRepository = Substitute.For<IReviewsQueryRepository>();
     private readonly IReviewsCommandRepository _commandRepository = Substitute.For<IReviewsCommandRepository>();
+    private readonly IReviewLikesEventsProducer _eventsProducer = Substitute.For<IReviewLikesEventsProducer>();
 
     [Fact]
     public async Task VoteAsync_WhenReviewIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {
@@ -34,7 +36,7 @@ public sealed class VoteReviewOperationTests
     [Fact]
     public async Task VoteAsync_WhenUserIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {
@@ -52,7 +54,7 @@ public sealed class VoteReviewOperationTests
     [Fact]
     public async Task VoteAsync_WhenReviewNotFound_ShouldReturnNotFound()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {
@@ -74,7 +76,7 @@ public sealed class VoteReviewOperationTests
     [Fact]
     public async Task VoteAsync_WhenReviewDeleted_ShouldReturnValidationError()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {
@@ -100,7 +102,7 @@ public sealed class VoteReviewOperationTests
     [Fact]
     public async Task VoteAsync_WhenUserVotesOwnReview_ShouldReturnValidationError()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var userId = Guid.NewGuid();
         var model = new VoteReviewOperationModel
@@ -127,7 +129,7 @@ public sealed class VoteReviewOperationTests
     [Fact]
     public async Task VoteAsync_WhenModeIsClear_ShouldDeleteVoteRecalculateAndReturnSuccess()
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {
@@ -160,7 +162,7 @@ public sealed class VoteReviewOperationTests
         VoteModeOperationEnum mode,
         string expectedMode)
     {
-        var operation = new VoteReviewOperation(_queryRepository, _commandRepository);
+        var operation = new VoteReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new VoteReviewOperationModel
         {

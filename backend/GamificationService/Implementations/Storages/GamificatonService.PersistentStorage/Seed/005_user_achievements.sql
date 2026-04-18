@@ -28,8 +28,4 @@ values
  63, null, now() - interval '12 days', now()),
 
 ('e8d44aa8-59f8-47f8-90b8-8e367191c105', '11111111-1111-1111-1111-111111111116',
- 1, now() - interval '3 days', now() - interval '3 days', now()) on conflict (user_id, achievement_id) do
-update
-    set progress_current = excluded.progress_current,
-    obtained_at = excluded.obtained_at,
-    updated_at = excluded.updated_at;
+ 1, now() - interval '3 days', now() - interval '3 days', now()) on conflict (user_id, achievement_id) do nothing;

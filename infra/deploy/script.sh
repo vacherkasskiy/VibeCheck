@@ -158,6 +158,8 @@ helm repo add bitnami https://charts.bitnami.com/bitnami || true
 helm repo update
 
 # 8. infra
+kubectl config set-context --current --namespace=vibecheck
+
 helm upgrade --install postgres bitnami/postgresql \
   -n vibecheck \
   -f ../manifests/pgsql_values.yaml

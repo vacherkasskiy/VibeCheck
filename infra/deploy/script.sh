@@ -149,6 +149,8 @@ ensure_namespace "vibecheck"
 
 # 6. ingress
 minikube addons enable ingress
+minikube addons enable default-storageclass
+minikube addons enable storage-provisioner
 wait_for_ingress_nginx_ready
 
 # 7. helm repo

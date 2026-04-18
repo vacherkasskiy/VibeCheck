@@ -10,7 +10,6 @@ import org.springframework.cache.annotation.CachePut
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
-import user.profile.v1.UserEvents
 import java.util.*
 
 @Service

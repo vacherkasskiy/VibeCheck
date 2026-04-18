@@ -2,6 +2,8 @@ package com.vibecheck.userservice.adapters.rest
 
 import com.vibecheck.userservice.adapters.rest.auth.AuthProvider
 import com.vibecheck.userservice.adapters.rest.dto.EmailAuthRequest
+import com.vibecheck.userservice.adapters.rest.dto.InternalTokenRequestDto
+import com.vibecheck.userservice.adapters.rest.dto.InternalTokenResponseDto
 import com.vibecheck.userservice.adapters.rest.dto.JwtTokensDto
 import com.vibecheck.userservice.adapters.rest.dto.PasswordResetRequestDto
 import com.vibecheck.userservice.adapters.rest.dto.RefreshRequestDto
@@ -9,6 +11,8 @@ import com.vibecheck.userservice.adapters.rest.dto.toDto
 import com.vibecheck.userservice.usecase.EmailRegistrationConfirmation
 import com.vibecheck.userservice.usecase.EmailUserAuthorization
 import com.vibecheck.userservice.usecase.EmailUserRegistration
+import com.vibecheck.userservice.usecase.InternalTokenGeneration
+import com.vibecheck.userservice.usecase.LoginContext
 import com.vibecheck.userservice.usecase.TokenRefreshing
 import com.vibecheck.userservice.usecase.UserLoggingOut
 import com.vibecheck.userservice.usecase.UserPasswordReset
@@ -31,6 +35,7 @@ class AuthController(
     private val userLoggingOut: UserLoggingOut,
     private val userPasswordReset: UserPasswordReset,
     private val userPasswordResetConfirmation: UserPasswordResetConfirmation,
+    private val internalTokenGeneration: InternalTokenGeneration,
     private val authProvider: AuthProvider,
 ) {
     @PostMapping("/email/register")
@@ -39,8 +44,15 @@ class AuthController(
     }
 
     @PostMapping("/email/login")
-    fun login(@RequestBody emailAuthRequest: EmailAuthRequest): JwtTokensDto {
-        return emailUserAuthorization.authorize(emailAuthRequest.login, emailAuthRequest.password).toDto()
+    fun login(request: HttpServletRequest, @RequestBody emailAuthRequest: EmailAuthRequest): JwtTokensDto {
+        return emailUserAuthorization.authorize(
+            email = emailAuthRequest.login,
+            password = emailAuthRequest.password,
+            loginContext = LoginContext(
+                userAgent = request.getHeader(USER_AGENT_HEADER),
+                ipAddress = extractClientIp(request),
+            )
+        ).toDto()
     }
 
     @PostMapping("/email/register/confirm")
@@ -70,5 +82,24 @@ class AuthController(
     @PutMapping("/email/password/reset")
     fun confirmPasswordReset(@RequestParam confirmCode: Int): JwtTokensDto {
         return userPasswordResetConfirmation.confirm(confirmCode).toDto()
+    }
+
+    @PostMapping("/internal")
+    fun generateInternalToken(@RequestBody request: InternalTokenRequestDto): InternalTokenResponseDto =
+        InternalTokenResponseDto(token = internalTokenGeneration.generate(request.audiences).token)
+
+    private fun extractClientIp(request: HttpServletRequest): String? {
+        val forwardedFor = request.getHeader(X_FORWARDED_FOR_HEADER)
+            ?.split(',')
+            ?.firstOrNull()
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+
+        return forwardedFor ?: request.remoteAddr?.takeIf { it.isNotBlank() }
+    }
+
+    companion object {
+        private const val USER_AGENT_HEADER = "User-Agent"
+        private const val X_FORWARDED_FOR_HEADER = "X-Forwarded-For"
     }
 }

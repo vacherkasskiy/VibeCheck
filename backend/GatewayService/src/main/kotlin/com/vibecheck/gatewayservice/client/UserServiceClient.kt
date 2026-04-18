@@ -4,6 +4,8 @@ import com.vibecheck.gatewayservice.config.GatewayProperties
 import com.vibecheck.gatewayservice.dto.InternalAuthorizationRequest
 import com.vibecheck.gatewayservice.dto.InternalAuthorizationResponse
 import com.vibecheck.gatewayservice.dto.ServiceErrorResponse
+import com.vibecheck.gatewayservice.exception.InternalServiceException
+import com.vibecheck.gatewayservice.exception.InvalidTokenException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -19,8 +21,12 @@ class UserServiceClient(
     fun authorizeByAccessToken(accessToken: String): Mono<InternalAuthorizationResponse> {
         return webClient.post()
             .uri("${gatewayProperties.services.userServiceUrl}/api/v1/auth/internal")
-            .header(HttpHeaders.AUTHORIZATION, "OAuth $accessToken")
-            .bodyValue(InternalAuthorizationRequest(accessToken))
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+            .bodyValue(
+                InternalAuthorizationRequest(
+                    audiences = gatewayProperties.internalTokenAudiences
+                )
+            )
             .retrieve()
             .onStatus(HttpStatus.UNAUTHORIZED::equals) { response ->
                 response.bodyToMono(ServiceErrorResponse::class.java)
@@ -45,13 +51,13 @@ class UserServiceClient(
                         )
                     }
             }
-            .onStatus(HttpStatus::is5xxServerError) { response ->
+            .onStatus({ status -> status.is5xxServerError }) { response ->
                 response.bodyToMono(ServiceErrorResponse::class.java)
                     .defaultIfEmpty(ServiceErrorResponse(message = "User service is unavailable"))
                     .flatMap { error ->
                         Mono.error(
                             InternalServiceException(
-                                status = response.statusCode(),
+                                status = HttpStatus.valueOf(response.statusCode().value()),
                                 message = error.message ?: "User service is unavailable"
                             )
                         )

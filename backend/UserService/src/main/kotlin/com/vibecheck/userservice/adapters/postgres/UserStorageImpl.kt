@@ -25,16 +25,27 @@ class UserStorageImpl(
         userRepository.findByEmail(email)
             ?.toDomain()
 
+    override fun existsById(id: UUID): Boolean =
+        userRepository.existsById(id)
+
     @Transactional(propagation = Propagation.MANDATORY)
     override fun create(user: User): User =
         userRepository.save(user.toEntity()).toDomain()
 
     @Transactional(propagation = Propagation.MANDATORY)
     override fun update(user: User): User {
-        if (userRepository.existsById(user.id)) {
+        if (!userRepository.existsById(user.id)) {
             throw NotFoundException("User ${user.id} not found")
         }
 
         return userRepository.save(user.toEntity()).toDomain()
+    }
+
+    override fun findAllByIds(userIds: Set<UUID>): List<User> {
+        if (userIds.isEmpty()) {
+            return emptyList()
+        }
+
+        return userRepository.findAllById(userIds).map { it.toDomain() }
     }
 }

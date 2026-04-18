@@ -1,14 +1,12 @@
 package com.vibecheck.userservice.usecase.generator
 
 import com.vibecheck.userservice.domain.User
-import com.vibecheck.userservice.domain.UserRole
 import com.vibecheck.userservice.domain.auth.RefreshToken
 import com.vibecheck.userservice.usecase.JwtTokens
 import com.vibecheck.userservice.usecase.storage.RefreshTokenStorage
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Clock
-import java.util.*
 
 @Service
 class TokenIssuer(
@@ -18,7 +16,7 @@ class TokenIssuer(
     private val clock: Clock
 ) {
     fun issue(user: User): JwtTokens {
-        val accessToken = tokenGenerator.generateAccessToken(user.id, user.roles)
+        val accessToken = tokenGenerator.generateAccessToken(user.id, user.roles, user.isBanned)
         val refreshToken = tokenGenerator.generateRefreshToken(user.id)
 
         transactionTemplate.execute {

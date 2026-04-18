@@ -1,6 +1,7 @@
 package com.vibecheck.userservice.security.jwt
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret
+import com.vibecheck.userservice.security.validator.AccessTokenAudienceValidator
 import com.vibecheck.userservice.security.validator.AccessTokenTypeValidator
 import com.vibecheck.userservice.security.validator.BlacklistedTokenValidator
 import org.springframework.context.annotation.Bean
@@ -30,6 +31,7 @@ class JwtConfig(
 
     @Bean
     fun accessJwtDecoder(
+        accessTokenAudienceValidator: AccessTokenAudienceValidator,
         accessTokenTypeValidator: AccessTokenTypeValidator,
         blacklistedTokenValidator: BlacklistedTokenValidator
     ): JwtDecoder {
@@ -43,10 +45,11 @@ class JwtConfig(
             .macAlgorithm(MacAlgorithm.HS256)
             .build()
 
-        val defaultValidator = JwtValidators.createDefault()
+        val defaultValidator = JwtValidators.createDefaultWithIssuer(jwtProperties.issuer)
 
         val validator = DelegatingOAuth2TokenValidator(
             defaultValidator,
+            accessTokenAudienceValidator,
             accessTokenTypeValidator,
             blacklistedTokenValidator
         )

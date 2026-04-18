@@ -5,6 +5,7 @@ import com.vibecheck.userservice.security.CustomUserDetails
 import com.vibecheck.userservice.usecase.provider.AuthenticationProvider
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,5 +18,11 @@ class AuthenticationProviderImpl(
         )
 
         return (authentication.principal as CustomUserDetails).user
+    }
+
+    override fun getCurrentUser(): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+
+        return (authentication?.principal as CustomUserDetails).user
     }
 }

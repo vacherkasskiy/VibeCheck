@@ -18,6 +18,10 @@ class AccessTokenBlacklistCacheImpl(
         redisTemplate.opsForValue().set(buildUserIdKey(userId.toString()), "revoked", TTL)
     }
 
+    override fun remove(userId: UUID) {
+        redisTemplate.delete(buildUserIdKey(userId.toString()))
+    }
+
     override fun isExists(tokenId: String): Boolean =
         redisTemplate.hasKey(buildTokenIdKey(tokenId))
 

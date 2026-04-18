@@ -1,11 +1,9 @@
 package com.vibecheck.userservice.security
 
 import com.vibecheck.userservice.domain.User
-import com.vibecheck.userservice.domain.UserRole
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import java.util.UUID
 
 class CustomUserDetails(
     val user: User

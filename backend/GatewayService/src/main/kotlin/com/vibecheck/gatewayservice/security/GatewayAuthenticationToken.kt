@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 class GatewayAuthenticationToken(
     private val user: AuthenticatedUser
 ) : AbstractAuthenticationToken(
-    user.roles.map { SimpleGrantedAuthority(it) }
+    emptyList<SimpleGrantedAuthority>()
 ) {
 
     init {

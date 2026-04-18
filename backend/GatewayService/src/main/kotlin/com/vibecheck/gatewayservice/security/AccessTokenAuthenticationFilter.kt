@@ -2,12 +2,9 @@ package com.vibecheck.gatewayservice.security
 
 import com.vibecheck.gatewayservice.client.UserServiceClient
 import com.vibecheck.gatewayservice.config.GatewayProperties
-
-package com.vibecheck.gateway.security
-
-
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
@@ -19,7 +16,7 @@ import reactor.core.publisher.Mono
 class AccessTokenAuthenticationFilter(
     private val userServiceClient: UserServiceClient,
     private val gatewayProperties: GatewayProperties
-) : AuthenticationWebFilter({ authentication ->
+) : AuthenticationWebFilter(ReactiveAuthenticationManager { authentication ->
     Mono.just(authentication)
 }) {
 
@@ -53,10 +50,7 @@ class AccessTokenAuthenticationFilter(
                 .map { authResponse ->
                     GatewayAuthenticationToken(
                         AuthenticatedUser(
-                            userId = authResponse.userId,
-                            email = authResponse.email,
-                            roles = authResponse.roles,
-                            internalToken = authResponse.internalToken
+                            internalToken = authResponse.token
                         )
                     )
                 }

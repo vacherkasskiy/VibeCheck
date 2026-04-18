@@ -1,12 +1,15 @@
 package com.vibecheck.userservice.adapters.rest
 
 import com.vibecheck.userservice.adapters.rest.auth.AuthProvider
+import com.vibecheck.userservice.adapters.rest.dto.CreateUserReportDto
 import com.vibecheck.userservice.adapters.rest.dto.CreateOrUpdateUserInfoDto
 import com.vibecheck.userservice.adapters.rest.dto.UserInfoDto
 import com.vibecheck.userservice.adapters.rest.dto.toDto
+import com.vibecheck.userservice.usecase.ProfileReportCreation
 import com.vibecheck.userservice.usecase.UserInfoCreation
 import com.vibecheck.userservice.usecase.UserInfoSelection
 import com.vibecheck.userservice.usecase.UserInfoUpdating
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,6 +25,7 @@ class UserController(
     private val userInfoSelection: UserInfoSelection,
     private val userInfoCreation: UserInfoCreation,
     private val userInfoUpdating: UserInfoUpdating,
+    private val profileReportCreation: ProfileReportCreation,
     private val authProvider: AuthProvider,
 ) {
     @GetMapping("/me/info")
@@ -44,5 +48,19 @@ class UserController(
     fun updateUserInfo(@RequestBody createOrUpdateUserInfoDto: CreateOrUpdateUserInfoDto): UserInfoDto {
         val userId = authProvider.getUserId()
         return userInfoUpdating.update(userId, createOrUpdateUserInfoDto.toDomain()).toDto()
+    }
+
+    @PostMapping("/{userId}/reports")
+    fun createReport(
+        @PathVariable userId: UUID,
+        @Valid @RequestBody dto: CreateUserReportDto,
+    ) {
+        profileReportCreation.create(
+            targetUserId = userId,
+            reportId = dto.reportId,
+            reporterUserId = authProvider.getUserId(),
+            reasonType = dto.reasonType,
+            reasonText = dto.reasonText,
+        )
     }
 }

@@ -17,10 +17,17 @@ data:
   SPRING_MAIL_PORT: "587"
   SPRING_MAIL_USERNAME: "vvfedotov@edu.hse.ru"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.vibecheck.svc.cluster.local:9092"
+  SPRING_KAFKA_CONSUMER_GROUP_ID: "user-service-reports"
   SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
   SPRING_KAFKA_PROPERTIES_SASL_MECHANISM: "PLAIN"
   USER_SERVICE_KAFKA_TOPIC_USERS: "users"
+  USER_SERVICE_KAFKA_TOPIC_REPORTS: "reports"
   APP_JWT_ISSUER: "auth-service"
+  APP_JWT_AUDIENCE: "user-service"
+  APP_INTERNAL_JWT_ISSUER: "internal-auth"
+  APP_INTERNAL_JWT_TTL: "PT5M"
+  APP_INTERNAL_JWT_KID: "internal-key-2026-04"
+  APP_INTERNAL_JWT_PRIVATE_KEY_PATH: "/var/run/secrets/internal-jwt/private.pem"
 ---
 apiVersion: v1
 kind: Secret
@@ -34,6 +41,18 @@ stringData:
   SPRING_MAIL_PASSWORD: "kidfsfoduipvzagp"
   SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="app_password";'
   APP_JWT_SECRET: "change-this-super-long-random-secret-key-change-this-super-long-random-secret-key"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-internal-jwt-key
+  namespace: vibecheck
+type: Opaque
+stringData:
+  private.pem: |
+    -----BEGIN PRIVATE KEY-----
+    REPLACE_WITH_PKCS8_RSA_PRIVATE_KEY
+    -----END PRIVATE KEY-----
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,6 +81,10 @@ spec:
                 name: user-service-config
             - secretRef:
                 name: user-service-secrets
+          volumeMounts:
+            - name: internal-jwt-key
+              mountPath: /var/run/secrets/internal-jwt
+              readOnly: true
           startupProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -78,6 +101,10 @@ spec:
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 6
+      volumes:
+        - name: internal-jwt-key
+          secret:
+            secretName: user-service-internal-jwt-key
 ---
 apiVersion: v1
 kind: Service

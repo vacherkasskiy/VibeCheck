@@ -49,7 +49,7 @@ class SecurityConfig {
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/swagger-ui.html", permitAll)
                 authorize("/actuator/health/**", permitAll)
-                authorize("/internal/**", hasAnyRole("ADMIN", "MODERATOR", "MANAGER"))
+                authorize("/internal/**", hasAnyAuthority("ADMIN", "MODERATOR", "MANAGER"))
                 authorize("/api/public/**", permitAll)
                 authorize(anyRequest, authenticated)
             }

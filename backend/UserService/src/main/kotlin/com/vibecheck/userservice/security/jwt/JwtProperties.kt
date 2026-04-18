@@ -8,5 +8,6 @@ data class JwtProperties(
     val secret: String,
     val accessTokenTtl: Duration,
     val refreshTokenTtl: Duration,
-    val issuer: String
+    val issuer: String,
+    val audience: String,
 )

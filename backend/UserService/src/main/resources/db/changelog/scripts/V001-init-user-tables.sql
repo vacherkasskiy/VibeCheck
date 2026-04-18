@@ -33,7 +33,8 @@ create table if not exists user_profile (
 
 create table if not exists onboarding_step (
                                             id varchar(255) primary key,
-                                            next_step_id varchar(255)
+                                            next_step_id varchar(255),
+                                            is_primary boolean NOT NULL
 );
 
 create table if not exists user_onboarding_step (
@@ -46,4 +47,4 @@ create table if not exists user_onboarding_step (
                                             updated_at timestamptz not null
 );
 
-create index ON i_user_onboarding_step_user_id ON user_onboarding_step USING hash(user_id);
+create index i_user_onboarding_step_user_id ON user_onboarding_step USING hash(user_id);

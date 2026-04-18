@@ -39,9 +39,11 @@ class UserEntity {
     @Column(name = "is_banned", nullable = false)
     var isBanned: Boolean? = null
 
+    @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     var createdAt: Instant? = null
 
+    @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     var updatedAt: Instant? = null
 
@@ -49,6 +51,7 @@ class UserEntity {
         id = user.id
         email = user.email
         password = user.password
+        roles = user.roles
         version = takeIf { user.version != 0 }?.let { user.version }
         isBanned = user.isBanned
     }

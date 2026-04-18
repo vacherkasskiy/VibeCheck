@@ -22,7 +22,7 @@ class UserOnboardingStepStorageImpl(
         userOnboardingStepRepository.save(userOnboardingStep.toEntity()).toDomain()
 
     override fun update(userOnboardingStep: UserOnboardingStep): UserOnboardingStep {
-        if (!userOnboardingStepRepository.existsById(userOnboardingStep.id)) {
+        if (!userOnboardingStepRepository.existsById(requireNotNull(userOnboardingStep.id))) {
             throw NotFoundException("User Onboarding step not found")
         }
 

@@ -1,0 +1,94 @@
+package com.vibecheck.userservice.domain.report
+
+import java.time.Instant
+import java.util.UUID
+
+interface UserReport {
+    val reportId: String
+    val version: Int
+    val source: ReportSource
+    val targetUserId: UUID
+    val reporterUserId: UUID
+    val reasonType: ReportReasonType
+    val reasonText: String?
+    val status: ReportStatus
+    val createdAt: Instant
+
+    fun close(): UserReport
+}
+
+data class UserReviewReport(
+    override val reportId: String,
+    override val version: Int,
+    override val targetUserId: UUID,
+    override val reporterUserId: UUID,
+    override val reasonType: ReportReasonType,
+    override val reasonText: String?,
+    override val status: ReportStatus,
+    override val createdAt: Instant,
+    val externalEventId: String,
+    val reviewId: String,
+) : UserReport {
+    override val source: ReportSource = ReportSource.REVIEW
+
+    override fun close(): UserReport = copy(status = ReportStatus.CLOSED)
+
+    companion object {
+        fun new(
+            reportId: String,
+            targetUserId: UUID,
+            reporterUserId: UUID,
+            reviewId: String,
+            reasonType: ReportReasonType,
+            reasonText: String?,
+            createdAt: Instant,
+            externalEventId: String,
+        ): UserReport = UserReviewReport(
+            reportId = reportId,
+            version = 0,
+            targetUserId = targetUserId,
+            reporterUserId = reporterUserId,
+            reviewId = reviewId,
+            reasonType = reasonType,
+            reasonText = reasonText?.trim()?.takeIf { it.isNotBlank() },
+            status = ReportStatus.OPEN,
+            createdAt = createdAt,
+            externalEventId = externalEventId,
+        )
+    }
+}
+
+data class UserProfileReport(
+    override val reportId: String,
+    override val version: Int,
+    override val targetUserId: UUID,
+    override val reporterUserId: UUID,
+    override val reasonType: ReportReasonType,
+    override val reasonText: String?,
+    override val status: ReportStatus,
+    override val createdAt: Instant,
+) : UserReport {
+    override val source: ReportSource = ReportSource.PROFILE
+
+    override fun close(): UserReport = copy(status = ReportStatus.CLOSED)
+
+    companion object {
+        fun new(
+            reportId: String,
+            targetUserId: UUID,
+            reporterUserId: UUID,
+            reasonType: ReportReasonType,
+            reasonText: String?,
+            createdAt: Instant,
+        ): UserReport = UserProfileReport(
+            reportId = reportId,
+            version = 0,
+            targetUserId = targetUserId,
+            reporterUserId = reporterUserId,
+            reasonType = reasonType,
+            reasonText = reasonText?.trim()?.takeIf { it.isNotBlank() },
+            status = ReportStatus.OPEN,
+            createdAt = createdAt,
+        )
+    }
+}

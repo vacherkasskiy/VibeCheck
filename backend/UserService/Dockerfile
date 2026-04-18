@@ -2,14 +2,15 @@ FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
+COPY UserService/pom.xml ./pom.xml
+COPY UserService/.mvn .mvn
+COPY UserService/mvnw .
+COPY contracts ./../contracts
 
 RUN chmod +x mvnw
 RUN ./mvnw -q -DskipTests dependency:go-offline
 
-COPY src ./src
+COPY UserService/src ./src
 
 RUN ./mvnw -q -DskipTests clean package
 

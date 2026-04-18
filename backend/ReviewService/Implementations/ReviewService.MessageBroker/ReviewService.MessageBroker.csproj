@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Abstractions\ReviewService.Core.Abstractions\ReviewService.Core.Abstractions.csproj" />
       <ProjectReference Include="..\..\Abstractions\ReviewService.MessageBroker.Abstractions\ReviewService.MessageBroker.Abstractions.csproj" />
     </ItemGroup>
 

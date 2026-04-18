@@ -2,6 +2,8 @@ package com.vibecheck.userservice.adapters.rest
 
 import com.vibecheck.userservice.adapters.rest.auth.AuthProvider
 import com.vibecheck.userservice.adapters.rest.dto.EmailAuthRequest
+import com.vibecheck.userservice.adapters.rest.dto.InternalEmployeeAuthRequestDto
+import com.vibecheck.userservice.adapters.rest.dto.InternalEmployeeAuthTokensDto
 import com.vibecheck.userservice.adapters.rest.dto.InternalTokenRequestDto
 import com.vibecheck.userservice.adapters.rest.dto.InternalTokenResponseDto
 import com.vibecheck.userservice.adapters.rest.dto.JwtTokensDto
@@ -9,6 +11,7 @@ import com.vibecheck.userservice.adapters.rest.dto.PasswordResetRequestDto
 import com.vibecheck.userservice.adapters.rest.dto.RefreshRequestDto
 import com.vibecheck.userservice.adapters.rest.dto.toDto
 import com.vibecheck.userservice.usecase.EmailRegistrationConfirmation
+import com.vibecheck.userservice.usecase.InternalEmployeeAuthorization
 import com.vibecheck.userservice.usecase.EmailUserAuthorization
 import com.vibecheck.userservice.usecase.EmailUserRegistration
 import com.vibecheck.userservice.usecase.InternalTokenGeneration
@@ -31,6 +34,7 @@ class AuthController(
     private val emailUserRegistration: EmailUserRegistration,
     private val emailRegistrationConfirmation: EmailRegistrationConfirmation,
     private val emailUserAuthorization: EmailUserAuthorization,
+    private val internalEmployeeAuthorization: InternalEmployeeAuthorization,
     private val userRefreshing: TokenRefreshing,
     private val userLoggingOut: UserLoggingOut,
     private val userPasswordReset: UserPasswordReset,
@@ -48,11 +52,26 @@ class AuthController(
         return emailUserAuthorization.authorize(
             email = emailAuthRequest.login,
             password = emailAuthRequest.password,
-            loginContext = LoginContext(
-                userAgent = request.getHeader(USER_AGENT_HEADER),
-                ipAddress = extractClientIp(request),
-            )
+            loginContext = request.toLoginContext(),
         ).toDto()
+    }
+
+    @PostMapping("/internal/login")
+    fun internalLogin(
+        request: HttpServletRequest,
+        @RequestBody authRequest: InternalEmployeeAuthRequestDto,
+    ): InternalEmployeeAuthTokensDto {
+        val tokens = internalEmployeeAuthorization.authorize(
+            email = authRequest.login,
+            password = authRequest.password,
+            audiences = authRequest.audiences,
+            loginContext = request.toLoginContext(),
+        )
+
+        return InternalEmployeeAuthTokensDto(
+            accessToken = tokens.accessToken,
+            internalToken = tokens.internalToken,
+        )
     }
 
     @PostMapping("/email/register/confirm")
@@ -88,14 +107,20 @@ class AuthController(
     fun generateInternalToken(@RequestBody request: InternalTokenRequestDto): InternalTokenResponseDto =
         InternalTokenResponseDto(token = internalTokenGeneration.generate(request.audiences).token)
 
-    private fun extractClientIp(request: HttpServletRequest): String? {
-        val forwardedFor = request.getHeader(X_FORWARDED_FOR_HEADER)
+    private fun HttpServletRequest.toLoginContext(): LoginContext =
+        LoginContext(
+            userAgent = getHeader(USER_AGENT_HEADER),
+            ipAddress = extractClientIp(),
+        )
+
+    private fun HttpServletRequest.extractClientIp(): String? {
+        val forwardedFor = getHeader(X_FORWARDED_FOR_HEADER)
             ?.split(',')
             ?.firstOrNull()
             ?.trim()
             ?.takeIf { it.isNotBlank() }
 
-        return forwardedFor ?: request.remoteAddr?.takeIf { it.isNotBlank() }
+        return forwardedFor ?: remoteAddr?.takeIf { it.isNotBlank() }
     }
 
     companion object {

@@ -45,6 +45,7 @@ class SecurityConfig {
             formLogin { disable() }
             authorizeHttpRequests {
                 authorize("/auth/email/**", permitAll)
+                authorize("/auth/internal/login", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/swagger-ui.html", permitAll)

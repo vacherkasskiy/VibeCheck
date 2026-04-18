@@ -1,13 +1,17 @@
+import type { ReactNode } from 'react';
+import type { Http } from 'shared/api/http';
+
 export interface GamificationAuthState {
-  isAuthenticated: boolean;
-  userId: string | null;
   token: string | null;
+  expiresAt: string | null;
   loading: boolean;
   error: string | null;
 }
 
-export type GamificationAction =
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_AUTH'; payload: { userId: string | null; token: string | null } }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'LOGOUT' };
+export interface UseGamificationAuthResult {
+  state: GamificationAuthState;
+  fetchToken: () => Promise<void>;
+  refreshToken: () => Promise<void>;
+  gamificationHttp: Http | undefined;
+}
+

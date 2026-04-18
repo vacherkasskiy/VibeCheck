@@ -57,6 +57,40 @@ class Http implements IAxios {
       },
       (error) => Promise.reject(error),
     );
+
+    this.http.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry
+        ) {
+          originalRequest._retry = true;
+
+          const refreshToken = localStorage.getItem('refreshToken');
+          if (!refreshToken) {
+            return Promise.reject(error);
+          }
+
+          try {
+            const refreshResponse = await axios.post('/api/auth/refresh', { refreshToken });
+            if (refreshResponse.data && refreshResponse.data.accessToken) {
+              localStorage.setItem('accessToken', refreshResponse.data.accessToken);
+              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+              return this.http(originalRequest);
+            }
+          } catch (refreshError) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/login';
+          }
+        }
+
+        return Promise.reject(error);
+      },
+    );
   }
 
   private async request<T>(requestConfig: TRequestConfig): Promise<AxiosResponse<T>> {
@@ -196,6 +230,9 @@ class Http implements IAxios {
   }
 }
 
-const http = new Http(process.env.BACKEND_URL || '/api');
+const http = new Http(__API_URL__ || '/api');
+
+export { Http };
 
 export default http;
+

@@ -1,124 +1,102 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import type { GamificationAuthState, GamificationAction } from './types';
-import type { MeResponse, IssueTokenResponse } from 'entities/gamification/model/types';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { Http, setAccessTokenProvider } from 'shared/api/http';
+import type { GamificationAuthState, UseGamificationAuthResult } from './types';
 import type { ReactNode } from 'react';
 
 const GAMIFICATION_API_BASE = 'http://gamification.local/api';
-const TOKEN_KEY = 'gamificationToken';
 
-const gamificationAuthReducer = (state: GamificationAuthState, action: GamificationAction): GamificationAuthState => {
-  switch (action.type) {
-    case 'SET_LOADING':
-      return { ...state, loading: action.payload, error: null };
-    case 'SET_AUTH':
-      return {
-        ...state,
-        isAuthenticated: !!action.payload.userId,
-        userId: action.payload.userId,
-        token: action.payload.token,
-        loading: false,
-        error: null,
-      };
-    case 'SET_ERROR':
-      return { ...state, error: action.payload, loading: false };
-    case 'LOGOUT':
-      localStorage.removeItem(TOKEN_KEY);
-      return { isAuthenticated: false, userId: null, token: null, loading: false, error: null };
-    default:
-      return state;
-  }
-};
+let gamificationHttp: Http;
 
-interface GamificationAuthContextType {
-  state: GamificationAuthState;
-  login: () => Promise<void>;
-  logout: () => void;
+interface GamificationAuthProviderProps {
+	children: ReactNode;
 }
 
-const GamificationAuthContext = createContext<GamificationAuthContextType | undefined>(undefined);
+const GamificationAuthContext = createContext<UseGamificationAuthResult | null>(null);
 
-export const GamificationAuthProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(gamificationAuthReducer, {
-    isAuthenticated: false,
-    userId: null,
-    token: null,
-    loading: true,
-    error: null,
-  });
+export const GamificationAuthProvider: React.FC<GamificationAuthProviderProps> = ({ children }) => {
+	const [state, setState] = useState<GamificationAuthState>({
+		token: null,
+		expiresAt: null,
+		loading: true,
+		error: null,
+	});
 
-  const fetchToken = async (): Promise<string | null> => {
-    const savedToken = localStorage.getItem(TOKEN_KEY);
-    if (savedToken) return savedToken;
+	const fetchToken = useCallback(async () => {
+		try {
+			setState((prev) => ({ ...prev, loading: true, error: null }));
+			const expiresMinutes = 60;
+			const response = await fetch(
+				`${GAMIFICATION_API_BASE}/test-auth/token?expiresMinutes=${expiresMinutes}`,
+				{
+					method: 'POST',
+				},
+			);
+			if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
+			const data = await response.json();
+			const token = data.accessToken;
+			if (token) {
+				gamificationHttp = new Http(GAMIFICATION_API_BASE);
+				setState({
+					token,
+					expiresAt: data.expiresAtUtc,
+					loading: false,
+					error: null,
+				});
+			} else {
+				throw new Error('No access token received');
+			}
+		} catch (error) {
+			setState({
+				token: null,
+				expiresAt: null,
+				loading: false,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+		}
+	}, []);
 
-    dispatch({ type: 'SET_LOADING', payload: true });
-    try {
-      const response = await fetch(`${GAMIFICATION_API_BASE}/test-auth/token?expiresMinutes=60`, {
-        method: 'POST',
-      });
-      if (!response.ok) throw new Error('Failed to fetch token');
-      const data: IssueTokenResponse = await response.json();
-      if (data.accessToken) {
-        localStorage.setItem(TOKEN_KEY, data.accessToken);
-        return data.accessToken;
-      }
-      throw new Error('No access token received');
-    } catch (error) {
-      console.error('Token fetch error:', error);
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to obtain gamification token' });
-      return null;
-    }
-  };
+	const refreshToken = useCallback(async () => {
+		await fetchToken();
+	}, [fetchToken]);
 
-  const validateToken = async (token: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`${GAMIFICATION_API_BASE}/test-auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) return false;
-      const data: MeResponse = await response.json();
-      dispatch({
-        type: 'SET_AUTH',
-        payload: { userId: data.userId || null, token },
-      });
-      return data.isAuthenticated;
-    } catch {
-      dispatch({ type: 'SET_ERROR', payload: 'Invalid token' });
-      return false;
-    }
-  };
+	useEffect(() => {
+		fetchToken();
+	}, [fetchToken]);
 
-  const initializeAuth = async () => {
-    const token = await fetchToken();
-    if (token) {
-      await validateToken(token);
-    } else {
-      dispatch({ type: 'SET_AUTH', payload: { userId: null, token: null } });
-    }
-  };
+	useEffect(() => {
+		if (state.token) {
+			setAccessTokenProvider(() => state.token);
+		} else {
+			setAccessTokenProvider(null);
+		}
+	}, [state.token]);
 
-  const login = async () => {
-    await initializeAuth();
-  };
+	useEffect(() => {
+		const interval = setInterval(
+			() => {
+				if (state.token) refreshToken();
+			},
+			50 * 60 * 1000,
+		); // Refresh every 50 min
 
-  const logout = () => {
-    dispatch({ type: 'LOGOUT' });
-  };
+		return () => clearInterval(interval);
+	}, [state.token, refreshToken]);
 
-  useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  return (
-    <GamificationAuthContext.Provider value={{ state, login, logout }}>
-      {children}
-    </GamificationAuthContext.Provider>
-  );
+	return (
+		<GamificationAuthContext.Provider
+			value={{ state, fetchToken, refreshToken, gamificationHttp }}
+		>
+			{children}
+		</GamificationAuthContext.Provider>
+	);
 };
 
-export const useGamificationAuth = () => {
-  const context = useContext(GamificationAuthContext);
-  if (context === undefined) {
-    throw new Error('useGamificationAuth must be used within GamificationAuthProvider');
-  }
-  return context;
+export const useGamificationAuth = (): UseGamificationAuthResult => {
+	const context = useContext(GamificationAuthContext);
+	if (!context) {
+		throw new Error('useGamificationAuth must be used within GamificationAuthProvider');
+	}
+	return context;
 };
+
+export { gamificationHttp };

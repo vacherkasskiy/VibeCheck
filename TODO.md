@@ -1,7 +1,0 @@
-- [ ] Add shared HTTP client (axios wrapper + types + token provider + cancel support) in `ui/src/shared/api`
-- [ ] Add SWR helpers (`swrFetcher`, `withSWRConfig`)
-- [ ] Refactor `entities/company/model/api.ts` to use shared HTTP client
-- [ ] Refactor `entities/user/model/api.ts` to use shared HTTP client
-- [ ] Refactor `entities/gamification/model/api.ts` to use shared HTTP client (remove hook usage inside api module)
-- [ ] Refactor `features/companyPage/model/useCompanyPage.ts` to SWR
-- [ ] Export new api utilities from shared public API

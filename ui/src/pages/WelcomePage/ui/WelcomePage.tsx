@@ -20,6 +20,8 @@ export const WelcomePage = () => {
 						<h1 className={styles.heading}>Определи свой карьерный вайб</h1>
 						<div className={styles.lineWrapper}>
 							<Line />
+
+
 						</div>
 					</div>
 

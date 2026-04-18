@@ -1,4 +1,4 @@
-import VibeCheckTitle from '@shared/assets/images/VibecheckTitle.svg';
+import VibeCheckTitle from '@shared/assets/VibecheckTitle';
 import styles from './styles.module.css';
 
 export const WelcomeLogo = () => {

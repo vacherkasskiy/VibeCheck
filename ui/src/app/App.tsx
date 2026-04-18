@@ -1,3 +1,4 @@
+import { GamificationAuthProvider } from 'features/gamificationAuth';
 import { AddCompanyPage } from 'pages/AddCompanyPage';
 import { CompanyPage } from 'pages/CompanyPage';
 import { EditProfilePage } from 'pages/EditProfilePage';
@@ -18,21 +19,23 @@ import './fonts/fonts.css';
 const App = () => {
 	return (
 		<BrowserRouter>
-			<CenterGlow />
-			<HeaderGlow />
-			<Routes>
-				<Route path="/" element={<WelcomePage />} />
-				<Route path="/login" element={<LoginPage />} />
-				<Route path="/register" element={<RegisterPage />} />
-				<Route path="/flags" element={<FlagsPage />} />
-				<Route path="/recommendations" element={<RecommendationsPage />} />
-				<Route path="/company/:id" element={<CompanyPage />} />
-				<Route path="/add-company" element={<AddCompanyPage />} />
-				<Route path="/profile" element={<ProfilePage />} />
-				<Route path="/profile/edit" element={<EditProfilePage />} />
-				<Route path="/user/:userId" element={<UserProfilePage />} />
-				<Route path="*" element={<WelcomePage />} />
-			</Routes>
+			<GamificationAuthProvider>
+				<CenterGlow />
+				<HeaderGlow />
+				<Routes>
+					<Route path="/" element={<WelcomePage />} />
+					<Route path="/login" element={<LoginPage />} />
+					<Route path="/register" element={<RegisterPage />} />
+					<Route path="/flags" element={<FlagsPage />} />
+					<Route path="/recommendations" element={<RecommendationsPage />} />
+					<Route path="/company/:id" element={<CompanyPage />} />
+					<Route path="/add-company" element={<AddCompanyPage />} />
+					<Route path="/profile" element={<ProfilePage />} />
+					<Route path="/profile/edit" element={<EditProfilePage />} />
+					<Route path="/user/:userId" element={<UserProfilePage />} />
+					<Route path="*" element={<WelcomePage />} />
+				</Routes>
+			</GamificationAuthProvider>
 		</BrowserRouter>
 	);
 };

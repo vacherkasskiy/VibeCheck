@@ -1,5 +1,5 @@
 import styles from './styles.module.css';
-import HeaderGlowSvg from '../../../assets/images/HeaderGlow.svg';
+import HeaderGlowSvg from '../../../assets/HeaderGlow';
 
 export const HeaderGlow = () => {
 	return (

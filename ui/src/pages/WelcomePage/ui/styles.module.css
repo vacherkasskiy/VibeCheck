@@ -1,9 +1,26 @@
+:root {
+	--spacing-xs: 8px;
+	--spacing-sm: 16px;
+	--spacing-md: 24px;
+	--spacing-lg: 32px;
+	--spacing-xl: 48px;
+	--spacing-2xl: 64px;
+
+	--font-size-hero: clamp(2.5rem, 8vw, 5rem);
+	--font-size-subheading: clamp(1rem, 2.5vw, 1.25rem);
+	--font-size-cta: clamp(1.5rem, 5vw, 4rem);
+
+	--container-max: 1200px;
+	--container-padding: clamp(16px, 5vw, 40px);
+}
+
 .page {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
 	width: 100%;
 	overflow-x: hidden;
+	background: var(--color-background, #fff);
 }
 
 .main {
@@ -12,157 +29,172 @@
 	align-items: center;
 	flex: 1;
 	width: 100%;
+	max-width: var(--container-max);
 	margin: 0 auto;
-	gap: 5vh;
-	padding: 40px 20px 20px;
+	gap: var(--spacing-lg);
+	padding: var(--spacing-lg) var(--container-padding) var(--container-padding);
+	position: relative;
+	z-index: 1;
 }
 
 .glowEffects {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	position: fixed;
+	inset: 0;
 	pointer-events: none;
 	z-index: 0;
-	width: 100%;
+	overflow: hidden;
 }
 
 .hero {
 	display: flex;
 	flex-direction: column;
-	text-align: center;
-	margin-top: 10vh;
 	align-items: center;
-	gap: 60px;
-	z-index: 100;
+	text-align: center;
+	width: 100%;
+	gap: var(--spacing-xl);
+	padding-top: var(--spacing-md);
+	z-index: 2;
 }
 
 .headingContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 8px;
+	align-items: center;
+	gap: var(--spacing-xs);
 	width: 100%;
-	justify-content: center;
-	margin-top: 10vh;
+	margin-top: 15vh;
 }
 
 .heading {
 	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 81px;
+	font-size: var(--font-size-hero);
 	font-weight: 700;
 	color: #1f2937;
-	line-height: 1.2;
+	line-height: 1.15;
+	margin: 0;
+	text-align: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: baseline;
+	gap: 0.15em;
+}
+
+.targetWord {
+	position: relative;
+	display: inline-block;
 }
 
 .lineWrapper {
-	position: relative;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	max-width: 600px;
-	margin-left: auto;
-	margin-top: -8px;
+	position: absolute;
+	left: 50%;
+	bottom: -0.18em;
+	top: 1em;
+	width: 120%;
+	transform: translateX(-50%);
+	pointer-events: none;
+	z-index: 1;
+	overflow: visible;
 }
 
 .lineWrapper svg {
 	width: 100%;
 	height: auto;
-	max-height: 50px;
 	display: block;
-	margin-top: -4px;
-}
-
-@media (max-width: 1024px) {
-	.lineWrapper svg {
-		max-height: 40px;
-	}
-}
-
-@media (max-width: 768px) {
-	.lineWrapper {
-		margin-top: -4px;
-	}
-	
-	.lineWrapper svg {
-		max-height: 30px;
-	}
-}
-
-@media (max-width: 480px) {
-	.lineWrapper svg {
-		max-height: 24px;
-	}
 }
 
 .subheading {
 	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 20px;
+	font-size: var(--font-size-subheading);
 	font-weight: 400;
 	color: #1f2937;
 	margin: 0;
 	line-height: 1.5;
 	max-width: 600px;
+	text-align: center;
 }
 
 .cta {
 	text-align: center;
-	margin: 32px 0;
+	width: 100%;
+	padding: 0 var(--spacing-sm);
 }
 
 .ctaText {
 	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 65px;
+	font-size: var(--font-size-cta);
 	font-weight: 600;
 	color: #1f2937;
 	margin: 0;
-	line-height: 1.3;
+	line-height: 1.25;
+	word-wrap: break-word;
+}
+
+@media (max-width: 1024px) {
+	.main {
+		gap: var(--spacing-md);
+	}
+
+	.hero {
+		gap: var(--spacing-lg);
+	}
+
+	.lineWrapper {
+		bottom: -0.16em;
+		width: 115%;
+	}
 }
 
 @media (max-width: 768px) {
 	.main {
-		padding: 60px 40px 40px;
+		padding: var(--spacing-md) var(--container-padding);
+		gap: var(--spacing-md);
 	}
 
 	.hero {
-		display: flex;
-		flex-direction: column;
-		text-align: center;
-		margin-top: 0;
-		align-items: center;
-		gap: 200px;
-		z-index: 100;
-	}
-
-	.heading {
-		font-size: 42px;
+		gap: var(--spacing-md);
+		padding-top: 0;
 	}
 
 	.headingContainer {
-		align-items: center;
+		gap: var(--spacing-xs);
+		margin-top: 3vh;
+	}
+
+	.cta {
+		padding: 0 var(--spacing-xs);
 	}
 
 	.lineWrapper {
-		margin-left: auto;
-		margin-right: 0;
+		bottom: -0.1em;
+		width: 115%;
 	}
 
-	.subheading {
-		font-size: 18px;
-	}
-
-	.ctaText {
-		font-size: 24px;
+	.noWrap {
+		font-size: 0.98em;
 	}
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 480px) {
 	.heading {
-		font-size: 52px;
+		line-height: 1.1;
+	}
+
+	.subheading {
+		font-size: 1rem;
 	}
 
 	.ctaText {
-		font-size: 28px;
+		font-size: clamp(1.25rem, 6vw, 1.75rem);
 	}
+
+	.lineWrapper {
+		bottom: -0.08em;
+		width: 110%;
+	}
+}
+
+.noWrap {
+	white-space: nowrap;
+	display: inline-block;
 }

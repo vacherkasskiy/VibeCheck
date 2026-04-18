@@ -1,5 +1,4 @@
 import { FeatureCard } from '@shared/ui';
-import { PersonalRecIcon, FlagsIcon, ConfidentIcon } from './icons';
 import styles from './styles.module.css';
 
 const FEATURES = [
@@ -9,7 +8,8 @@ const FEATURES = [
 	},
 	{
 		title: 'Расширенная система флагов',
-		description: 'Понимай рабочую атмосферу быстрее благодаря выбранным тобой green/red флагам из характеристик.',
+		description:
+			'Понимай рабочую атмосферу быстрее благодаря выбранным тобой green/red флагам из характеристик.',
 	},
 	{
 		title: 'Осознанный и уверенный выбор',
@@ -21,11 +21,7 @@ export const BenefitsBlock = () => {
 	return (
 		<div className={styles.container}>
 			{FEATURES.map((feature, index) => (
-				<FeatureCard
-					key={index}
-					title={feature.title}
-					description={feature.description}
-				/>
+				<FeatureCard key={index} title={feature.title} description={feature.description} />
 			))}
 		</div>
 	);

@@ -20,7 +20,6 @@
 	cursor: not-allowed;
 }
 
-/* Shimmer effect overlay */
 .button::before {
 	content: '';
 	position: absolute;
@@ -41,7 +40,6 @@
 	left: 100%;
 }
 
-/* Variants */
 .primary {
 	background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-dark) 50%, var(--color-pink) 100%);
 	background-size: 200% 200%;
@@ -130,7 +128,6 @@
 	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* Sizes */
 .large {
 	padding: 18px 36px;
 	font-size: 18px;
@@ -163,7 +160,6 @@
 	z-index: 1;
 }
 
-/* Focus states for accessibility */
 .button:focus-visible {
 	outline: 2px solid var(--color-purple-light);
 	outline-offset: 3px;

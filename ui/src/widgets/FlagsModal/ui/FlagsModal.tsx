@@ -1,11 +1,12 @@
-import { ALL_TAGS, filterTags, groupByCategory, type Tag, type SelectedTag } from 'entities/tag';
 import { useState, useCallback } from 'react';
 import React from 'react';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
 import styles from './FlagsModal.module.css';
-import { FlagsColumns } from '../../FlagsColumns/ui/FlagsColumns';
-import { FlagsLibrary } from '../../FlagsLibrary/ui/FlagsLibrary';
+import { ALL_TAGS, filterTags, groupByCategory, type Tag, type SelectedTag } from '../../../entities/tag';
+import { useGetAllFlags } from '../../../entities/tag';
+import { FlagsColumns } from '../../FlagsColumns';
+import { FlagsLibrary } from '../../FlagsLibrary';
 
 export interface FlagsModalProps {
 	isOpen: boolean;
@@ -51,10 +52,14 @@ export const FlagsModal = ({
 	const [query, setQuery] = useState('');
 	const [draggingId, setDraggingId] = useState<string | null>(null);
 
+  const { flags: realFlags, isLoading } = useGetAllFlags();
+
+  const allTags = isLoading ? [] : (realFlags.length > 0 ? realFlags : ALL_TAGS);
+
 	const filteredTags = (() => {
 		const q = query.trim().toLowerCase();
 		const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
-		return filterTags(ALL_TAGS, q, excludeIds);
+		return filterTags(allTags, q, excludeIds);
 	})();
 
 	const groupedByCategory = groupByCategory(filteredTags);

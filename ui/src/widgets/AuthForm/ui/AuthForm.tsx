@@ -81,16 +81,7 @@ export const AuthForm = () => {
 		}
 	};
 
-	const handleGoogleLogin = async () => {
-		try {
-			const { data } = await mockAuth.googleUrl();
-			if (data.url) {
-				window.location.href = data.url;
-			}
-		} catch {
-			setGeneralError('Ошибка при подключении Google');
-		}
-	};
+
 
 	return (
 		<div className={styles.page}>
@@ -147,17 +138,9 @@ export const AuthForm = () => {
 							</AuthButton>
 						</div>
 
-						<div className={styles.forgotPassword}>
+		<div className={styles.forgotPassword}>
 							<a href="/forgot-password">Забыли пароль?</a>
 						</div>
-
-						<div className={styles.divider}>
-							<span>Или войти с помощью</span>
-						</div>
-
-						<AuthButton variant="google" onClick={handleGoogleLogin} fullWidth>
-							Войти через Google
-						</AuthButton>
 
 						<div className={styles.registerLink}>
 							<span>Ещё нет аккаунта? </span>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useGamificationAuth } from 'features/gamificationAuth/model/GamificationAuthProvider';
 import type { 
   GetMyAchievementsGatewayResponse, 

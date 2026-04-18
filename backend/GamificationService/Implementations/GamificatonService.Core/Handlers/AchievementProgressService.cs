@@ -1,5 +1,6 @@
 using GamificatonService.Core.Abstractions.Enums;
 using GamificatonService.Core.Abstractions.Handlers;
+using GamificatonService.Core.Abstractions.Observability;
 using GamificatonService.MessageBroker.Abstractions.Producers;
 using GamificatonService.PersistentStorage.Abstractions.Models.AchievementProgressUpdate;
 using GamificatonService.PersistentStorage.Abstractions.Models.AddXp;
@@ -82,6 +83,8 @@ internal sealed class AchievementProgressService(
         if (!result.WasJustObtained)
             return;
 
+        GamificationMetrics.RecordAchievementGranted(result.AchievementName);
+
         await achievementEventsProducer.PublishAchievementGrantedAsync(
             userId,
             result.AchievementName,
@@ -90,6 +93,11 @@ internal sealed class AchievementProgressService(
 
         if (result.AchievementXpReward > 0)
         {
+            GamificationMetrics.RecordXpAwarded(
+                result.AchievementXpReward,
+                "achievement",
+                result.AchievementName);
+
             var levelResult = await levelsCommandRepository.AddXpAsync(
                 new AddXpRepositoryInputModel
                 {
@@ -101,6 +109,8 @@ internal sealed class AchievementProgressService(
 
             if (levelResult.WasLevelUp)
             {
+                GamificationMetrics.RecordLevelUp("achievement", result.AchievementName);
+
                 await userLevelUpEventsProducer.PublishUserLevelUpAsync(
                     userId,
                     levelResult.NewLevel,

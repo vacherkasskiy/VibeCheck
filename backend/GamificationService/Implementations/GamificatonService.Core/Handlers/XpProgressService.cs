@@ -1,4 +1,5 @@
 using GamificatonService.Core.Abstractions.Handlers;
+using GamificatonService.Core.Abstractions.Observability;
 using GamificatonService.MessageBroker.Abstractions.Producers;
 using GamificatonService.PersistentStorage.Abstractions.Models.AddUserXpTransaction;
 using GamificatonService.PersistentStorage.Abstractions.Models.AddXp;
@@ -169,6 +170,11 @@ internal sealed class XpProgressService(
             },
             ct);
 
+        GamificationMetrics.RecordXpAwarded(
+            rule.XpAmount,
+            "xp_rule",
+            rule.Code);
+
         var levelResult = await levelsCommandRepository.AddXpAsync(
             new AddXpRepositoryInputModel
             {
@@ -180,6 +186,8 @@ internal sealed class XpProgressService(
 
         if (levelResult.WasLevelUp)
         {
+            GamificationMetrics.RecordLevelUp("xp_rule", rule.Code);
+
             await userLevelUpEventsProducer.PublishUserLevelUpAsync(
                 userId,
                 levelResult.NewLevel,

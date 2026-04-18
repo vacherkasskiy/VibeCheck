@@ -1,6 +1,8 @@
 using GamificatonService.Core.Abstractions.Handlers;
+using GamificatonService.Core.Abstractions.Observability;
 using MassTransit;
 using Reviews;
+using System.Diagnostics;
 
 namespace GamificatonService.MessageBroker.Consumers;
 
@@ -12,25 +14,46 @@ internal sealed class ReviewLikedEventConsumer(
 {
     public async Task Consume(ConsumeContext<ReviewLikedEvent> context)
     {
-        var message = context.Message;
+        var stopwatch = Stopwatch.StartNew();
+        var status = "success";
 
-        var likedByUserId = Guid.Parse(message.LikedByUserId);
-        var reviewAuthorId = Guid.Parse(message.ReviewAuthorId);
-        var eventId = message.Meta.EventId;
-        var aggregateId = message.ReviewId;
-        var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
+        try
+        {
+            var message = context.Message;
 
-        await achievementProgressService.HandleReviewLikedAsync(
-            likedByUserId,
-            reviewAuthorId,
-            context.CancellationToken);
+            var likedByUserId = Guid.Parse(message.LikedByUserId);
+            var reviewAuthorId = Guid.Parse(message.ReviewAuthorId);
+            var eventId = message.Meta.EventId;
+            var aggregateId = message.ReviewId;
+            var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
 
-        await xpProgressService.HandleReviewLikedAsync(
-            likedByUserId,
-            reviewAuthorId,
-            eventId,
-            aggregateId,
-            occurredAt,
-            context.CancellationToken);
+            await achievementProgressService.HandleReviewLikedAsync(
+                likedByUserId,
+                reviewAuthorId,
+                context.CancellationToken);
+
+            await xpProgressService.HandleReviewLikedAsync(
+                likedByUserId,
+                reviewAuthorId,
+                eventId,
+                aggregateId,
+                occurredAt,
+                context.CancellationToken);
+        }
+        catch
+        {
+            status = "failed";
+            GamificationMetrics.RecordOperationError("review_liked_consumer", "message_broker", "exception");
+            throw;
+        }
+        finally
+        {
+            GamificationMetrics.RecordConsumerMessage("ReviewLikedEventConsumer", "reviews-liked", status);
+            GamificationMetrics.RecordOperationDuration(
+                "review_liked_consumer",
+                "message_broker",
+                status,
+                stopwatch.Elapsed.TotalMilliseconds);
+        }
     }
 }

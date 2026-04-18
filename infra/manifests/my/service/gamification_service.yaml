@@ -41,6 +41,10 @@ spec:
       app: gamification-service
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "9464"
       labels:
         app: gamification-service
     spec:
@@ -51,6 +55,8 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: metrics
+              containerPort: 9464
           envFrom:
             - configMapRef:
                 name: gamification-service-config
@@ -88,3 +94,6 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    - name: metrics
+      port: 9464
+      targetPort: metrics

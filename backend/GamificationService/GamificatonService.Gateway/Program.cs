@@ -11,6 +11,7 @@ builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
     .AddApplicationCors()
+    .AddApplicationObservability(builder.Configuration)
     .AddApplicationOptions(builder.Configuration)
     .AddApplicationHealthChecks()
     .AddMinioServices()
@@ -39,6 +40,7 @@ app.UseApplicationCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseApplicationHealthChecks();
+app.UseApplicationObservability();
 app.MapControllers();
 
 await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();

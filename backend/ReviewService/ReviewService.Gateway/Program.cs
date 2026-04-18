@@ -11,7 +11,6 @@ builder.Services
     .AddGatewayMapperProfiles()
     .AddCoreMapperProfiles()
     .AddApplicationCors()
-    .AddApplicationObservability(builder.Configuration)
     .AddApplicationOptions(builder.Configuration)
     .AddApplicationHealthChecks()
     .AddMinioServices()

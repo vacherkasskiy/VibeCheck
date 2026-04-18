@@ -44,19 +44,17 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
-        prometheus.io/port: "9464"
+        prometheus.io/port: "8080"
       labels:
         app: gamification-service
     spec:
       containers:
         - name: gamification-service
-          image: ikeeo/vibecheck-gamification-service:5.4
+          image: ikeeo/vibecheck-gamification-service:6.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
-            - name: metrics
-              containerPort: 9464
           envFrom:
             - configMapRef:
                 name: gamification-service-config
@@ -94,6 +92,3 @@ spec:
     - name: http
       port: 8080
       targetPort: http
-    - name: metrics
-      port: 9464
-      targetPort: metrics

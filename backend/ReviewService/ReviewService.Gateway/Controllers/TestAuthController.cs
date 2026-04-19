@@ -32,6 +32,25 @@ public sealed class TestAuthController(IOptions<JwtOptions> jwtOptions) : Contro
     )]
     public ActionResult<IssueTokenResponse> IssueToken(
         [FromQuery] int expiresMinutes = 60)
+        => IssueTokenForUser(TestUserId, expiresMinutes);
+
+    /// <summary>
+    /// выдаёт тестовый jwt для указанного пользователя.
+    /// </summary>
+    [HttpPost("token/{userId:guid}")]
+    [ProducesResponseType(typeof(IssueTokenResponse), StatusCodes.Status200OK)]
+    [SwaggerOperation(
+        Summary = "выдать тестовый jwt для userId",
+        Description = "генерирует jwt с claim sub=userId для указанного Guid пользователя."
+    )]
+    public ActionResult<IssueTokenResponse> IssueTokenForSpecificUser(
+        Guid userId,
+        [FromQuery] int expiresMinutes = 60)
+        => IssueTokenForUser(userId, expiresMinutes);
+
+    private ActionResult<IssueTokenResponse> IssueTokenForUser(
+        Guid userId,
+        int expiresMinutes)
     {
         var secretKey = jwtOptions.Value.SecretKey;
 
@@ -51,12 +70,12 @@ public sealed class TestAuthController(IOptions<JwtOptions> jwtOptions) : Contro
         var claims = new List<Claim>
         {
             // стандартно: sub = subject (user id)
-            new(JwtRegisteredClaimNames.Sub, TestUserId.ToString()),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, ToUnixTimeSeconds(now).ToString(), ClaimValueTypes.Integer64),
 
             // удобно для дебага
-            new("userId", TestUserId.ToString())
+            new("userId", userId.ToString())
         };
 
         var token = new JwtSecurityToken(

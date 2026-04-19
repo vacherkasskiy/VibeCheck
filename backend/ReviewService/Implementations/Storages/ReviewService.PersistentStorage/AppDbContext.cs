@@ -64,7 +64,7 @@ public sealed class AppDbContext : DbContext
             .IsRequired();
 
         entity.Property(x => x.Weight)
-            .HasColumnName("priority")
+            .HasColumnName("weight")
             .IsRequired();
 
         entity.Property(x => x.CreatedAt)
@@ -75,13 +75,12 @@ public sealed class AppDbContext : DbContext
 
         entity.ToTable(t =>
         {
-            t.HasCheckConstraint("ck_user_profile_flags_priority_positive", "\"priority\" > 0");
             t.HasCheckConstraint("ck_user_profile_flags_weight_range", "\"weight\" >= 1 AND \"weight\" <= 3");
         });
 
         entity.HasIndex(x => x.FlagId);
         entity.HasIndex(x => new { x.UserId, x.Color });
-        entity.HasIndex(x => new { x.UserId, Priority = x.Weight });
+        entity.HasIndex(x => new { x.UserId, Weight = x.Weight });
 
         entity.HasOne(x => x.User)
             .WithMany(x => x.UserFlags)

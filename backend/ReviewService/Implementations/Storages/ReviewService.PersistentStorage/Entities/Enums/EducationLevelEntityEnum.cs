@@ -1,4 +1,4 @@
-namespace ReviewService.PersistentStorage.Entites.Enums;
+namespace ReviewService.PersistentStorage.Entities.Enums;
 
 public enum EducationLevelEntityEnum
 {

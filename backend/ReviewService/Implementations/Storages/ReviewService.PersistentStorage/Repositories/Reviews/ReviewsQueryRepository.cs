@@ -6,7 +6,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage.Repositories.Reviews;
 

@@ -3,7 +3,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanies
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompany;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.GetCompanyFlags;
 using ReviewService.PersistentStorage.Abstractions.Models.Shared;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage.MapperProfiles;
 

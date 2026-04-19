@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         
         // Flags
         services.AddScoped<IGetAllFlagsOperation, GetAllFlagsOperation>();
+        services.AddScoped<ISetUserFlagsOperation, SetUserFlagsOperation>();
         
         // Helpers
         services.AddSingleton<ICurrentUserAccessor, JwtCurrentUserAccessor>();

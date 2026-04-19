@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage.Repositories.Reviews;
 

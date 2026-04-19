@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReviewService.PersistentStorage.Abstractions.Models.Companies.CreateCompany;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Companies;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage.Repositories.Companies;
 

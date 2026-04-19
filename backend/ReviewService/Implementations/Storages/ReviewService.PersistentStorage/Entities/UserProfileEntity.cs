@@ -1,6 +1,6 @@
-using ReviewService.PersistentStorage.Entites.Enums;
+using ReviewService.PersistentStorage.Entities.Enums;
 
-namespace ReviewService.PersistentStorage.Entites;
+namespace ReviewService.PersistentStorage.Entities;
 
 public sealed class UserProfileEntity
 {
@@ -16,6 +16,8 @@ public sealed class UserProfileEntity
     public SpecializationEntityEnum Specialization { get; set; }
 
     public ICollection<UserWorkExperienceEntity> WorkExperience { get; set; } = new List<UserWorkExperienceEntity>();
+
+    public ICollection<UserProfileFlagEntity> UserFlags { get; set; } = new List<UserProfileFlagEntity>();
 
     public ICollection<ReviewEntity> AuthoredReviews { get; set; } = new List<ReviewEntity>();
     public ICollection<ReviewVoteEntity> ReviewVotes { get; set; } = new List<ReviewVoteEntity>();

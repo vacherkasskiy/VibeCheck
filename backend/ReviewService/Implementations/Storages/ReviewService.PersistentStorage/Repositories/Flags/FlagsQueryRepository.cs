@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReviewService.PersistentStorage.Abstractions.Models.Flags;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Flags;
-using ReviewService.PersistentStorage.Entites;
-using ReviewService.PersistentStorage.Entites.Enums;
+using ReviewService.PersistentStorage.Entities.Enums;
 
 namespace ReviewService.PersistentStorage.Repositories.Flags;
 

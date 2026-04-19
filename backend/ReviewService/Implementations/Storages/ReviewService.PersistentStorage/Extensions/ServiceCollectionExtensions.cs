@@ -27,6 +27,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserProfilesQueryRepository, UserProfilesQueryRepository>();
         
         services.AddScoped<IFlagsQueryRepository, FlagsQueryRepository>();
+        services.AddScoped<IFlagsValidationQueryRepository, FlagsValidationQueryRepository>();
+        services.AddScoped<IUserFlagsCommandRepository, UserFlagsCommandRepository>();
         
         services.AddDbContext<AppDbContext>((sp, options) =>
         {

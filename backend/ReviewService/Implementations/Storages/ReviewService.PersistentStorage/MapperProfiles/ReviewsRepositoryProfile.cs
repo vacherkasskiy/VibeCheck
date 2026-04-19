@@ -3,7 +3,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetCompanyRevi
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage.MapperProfiles;
 

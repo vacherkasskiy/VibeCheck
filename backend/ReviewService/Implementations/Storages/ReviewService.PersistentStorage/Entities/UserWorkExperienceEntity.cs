@@ -1,6 +1,6 @@
-using ReviewService.PersistentStorage.Entites.Enums;
+using ReviewService.PersistentStorage.Entities.Enums;
 
-namespace ReviewService.PersistentStorage.Entites;
+namespace ReviewService.PersistentStorage.Entities;
 
 public sealed class UserWorkExperienceEntity
 {

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ReviewService.PersistentStorage.Entites;
+using ReviewService.PersistentStorage.Entities;
 
 namespace ReviewService.PersistentStorage;
 
@@ -21,6 +21,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<ReviewFlagEntity> ReviewFlags => Set<ReviewFlagEntity>();
     public DbSet<ReviewVoteEntity> ReviewVotes => Set<ReviewVoteEntity>();
     public DbSet<ReviewReportEntity> ReviewReports => Set<ReviewReportEntity>();
+    public DbSet<UserProfileFlagEntity> UserProfileFlags => Set<UserProfileFlagEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,8 +36,62 @@ public sealed class AppDbContext : DbContext
         ConfigureReviewFlags(modelBuilder);
         ConfigureReviewVotes(modelBuilder);
         ConfigureReviewReports(modelBuilder);
+        ConfigureUserProfileFlags(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+    }
+    
+    private static void ConfigureUserProfileFlags(ModelBuilder modelBuilder)
+    {
+        var entity = modelBuilder.Entity<UserProfileFlagEntity>();
+
+        entity.ToTable("user_profile_flags");
+
+        entity.HasKey(x => new { x.UserId, x.FlagId });
+
+        entity.Property(x => x.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        entity.Property(x => x.FlagId)
+            .HasColumnName("flag_id")
+            .IsRequired();
+
+        entity.Property(x => x.Color)
+            .HasColumnName("color")
+            .HasMaxLength(16)
+            .HasConversion<string>()
+            .IsRequired();
+
+        entity.Property(x => x.Weight)
+            .HasColumnName("priority")
+            .IsRequired();
+
+        entity.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("timestamp with time zone")
+            .HasDefaultValueSql("now()")
+            .IsRequired();
+
+        entity.ToTable(t =>
+        {
+            t.HasCheckConstraint("ck_user_profile_flags_priority_positive", "\"priority\" > 0");
+            t.HasCheckConstraint("ck_user_profile_flags_weight_range", "\"weight\" >= 1 AND \"weight\" <= 3");
+        });
+
+        entity.HasIndex(x => x.FlagId);
+        entity.HasIndex(x => new { x.UserId, x.Color });
+        entity.HasIndex(x => new { x.UserId, Priority = x.Weight });
+
+        entity.HasOne(x => x.User)
+            .WithMany(x => x.UserFlags)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        entity.HasOne(x => x.Flag)
+            .WithMany(x => x.UserProfileFlags)
+            .HasForeignKey(x => x.FlagId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     private static void ConfigureFlags(ModelBuilder modelBuilder)

@@ -1,10 +1,9 @@
+import { AuthButton } from '@shared/ui/AuthButton';
+import { InputField } from '@shared/ui/InputField';
+import { PasswordInput } from '@shared/ui/PasswordInput';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { mockAuth } from 'shared/model/mockAuth';
-import { AuthButton } from 'shared/ui/AuthButton';
-import { CenterGlow } from 'shared/ui/CenterGlow';
-import { InputField } from 'shared/ui/InputField';
-import { PasswordInput } from 'shared/ui/PasswordInput';
+import { Link, useNavigate } from 'react-router-dom';
+import Logo from 'shared/assets/Logo';
 import styles from './styles.module.css';
 
 export const AuthForm = () => {
@@ -14,6 +13,8 @@ export const AuthForm = () => {
 	const [passwordError, setPasswordError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
+
+	const navigate = useNavigate();
 
 	const validateEmail = (value: string): string => {
 		if (!value) {
@@ -32,29 +33,21 @@ export const AuthForm = () => {
 		setGeneralError('');
 	};
 
-	const validatePassword = (value: string): string => {
-		if (!value) {
-			return 'Обязательное поле';
-		}
-		return '';
-	};
-
 	const handlePasswordChange = (value: string) => {
 		setPassword(value);
-		setPasswordError(validatePassword(value));
+		setPasswordError('');
 		setGeneralError('');
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
+	const handleSubmit = async () => {
 		const emailValidationError = validateEmail(email);
-		const passwordValidationError = validatePassword(password);
+		if (emailValidationError) {
+			setEmailError(emailValidationError);
+			return;
+		}
 
-		setEmailError(emailValidationError);
-		setPasswordError(passwordValidationError);
-
-		if (emailValidationError || passwordValidationError) {
+		if (!password) {
+			setPasswordError('Обязательное поле');
 			return;
 		}
 
@@ -62,17 +55,24 @@ export const AuthForm = () => {
 		setGeneralError('');
 
 		try {
-			const { ok, data } = await mockAuth.login({ email, password });
-			if (ok && data.accessToken && data.refreshToken) {
+			const response = await fetch('/api/auth/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password }),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
 				localStorage.setItem('accessToken', data.accessToken);
 				localStorage.setItem('refreshToken', data.refreshToken);
-				window.location.href = '/';
+				navigate('/flags');
 			} else if (data.code === 'ACCOUNT_BLOCKED') {
 				setGeneralError('Ваш аккаунт был заблокирован');
-			} else if (data.code === 'ACCOUNT_UNVERIFIED') {
-				setGeneralError('Аккаунт не подтвержден');
 			} else {
-				setGeneralError(data.message || 'Не удалось войти. Попробуйте позже.');
+				setGeneralError(data.message || 'Ошибка входа');
 			}
 		} catch {
 			setGeneralError('Ошибка соединения. Проверьте интернет.');
@@ -81,74 +81,78 @@ export const AuthForm = () => {
 		}
 	};
 
-
+	const handleBack = () => {
+		navigate('/');
+	};
 
 	return (
-		<div className={styles.page}>
-			<CenterGlow />
-			<div className={styles.container}>
-				<Link to="/" className={styles.backButton}>
-					<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-						<path
-							d="M12 4L6 10L12 16"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-					<span>Назад</span>
-				</Link>
+		<>
+			<button type="button" className={styles.backButton} onClick={handleBack}>
+				<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+					<path
+						d="M12 4L6 10L12 16"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+				<span>Назад</span>
+			</button>
+
+			<div className={styles.formContainer}>
+				<div className={styles.header}>
+					<div className={styles.logoContainer}>
+						<Logo className={styles.logo} />
+					</div>
+					<h1 className={styles.title}>Войти</h1>
+					<p className={styles.subtitle}>Введите почту и пароль</p>
+				</div>
 
 				<div className={styles.form}>
-					<div className={styles.header}>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<h1 className={styles.title}>Войти</h1>
-						<p className={styles.subtitle}>Введите почту и пароль</p>
-					</div>
+					<InputField
+						label="Email"
+						type="email"
+						value={email}
+						onChange={handleEmailChange}
+						placeholder="example@mail.ru"
+						required
+						error={emailError}
+					/>
 
-					<form onSubmit={handleSubmit}>
-						<InputField
-							label="Email"
-							type="email"
-							value={email}
-							onChange={handleEmailChange}
-							placeholder="example@mail.ru"
-							required
-							error={emailError}
-						/>
+					<PasswordInput
+						label="Пароль"
+						value={password}
+						onChange={handlePasswordChange}
+						required
+						error={passwordError}
+					/>
 
-						<PasswordInput
-							label="Пароль"
-							value={password}
-							onChange={handlePasswordChange}
-							required
-							error={passwordError}
-						/>
+					{generalError && <div className={styles.generalError}>{generalError}</div>}
 
-						{generalError && <div className={styles.generalError}>{generalError}</div>}
+					<AuthButton
+						variant="submit"
+						fullWidth
+						onClick={handleSubmit}
+						disabled={isLoading || !email}
+					>
+						{isLoading ? 'Вход...' : 'Войти'}
+					</AuthButton>
 
-						<div className={styles.submitButton}>
-							<AuthButton variant="submit" fullWidth disabled={isLoading}>
-								{isLoading ? 'Вход...' : 'Войти'}
-							</AuthButton>
-						</div>
+					<Link to="/forgot-password" className={styles.forgotLink}>
+						Забыли пароль?
+					</Link>
 
-		<div className={styles.forgotPassword}>
-							<a href="/forgot-password">Забыли пароль?</a>
-						</div>
-
-						<div className={styles.registerLink}>
-							<span>Ещё нет аккаунта? </span>
-							<Link to="/register">Создать аккаунт</Link>
-						</div>
-					</form>
+					<p className={styles.footerText}>
+						Ещё нет аккаунта?{' '}
+						<Link to="/register" className={styles.footerLink}>
+							Создать аккаунт
+						</Link>
+					</p>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
+
+export default AuthForm;

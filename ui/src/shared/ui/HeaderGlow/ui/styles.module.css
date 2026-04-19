@@ -3,11 +3,12 @@
 	top: 0;
 	left: 0;
 	right: 0;
+	height: 50vh;
+	min-height: 300px;
 	pointer-events: none;
 	overflow: hidden;
-	z-index: -1;
+	z-index: 0;
 	width: 100%;
-	height: 50vh;
 }
 
 .glowImage {
@@ -17,16 +18,12 @@
 	object-fit: cover;
 	top: 0;
 	left: 0;
+	max-width: 100vw;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
 	.headerGlow {
-		height: 50vh;
-	}
-}
-
-@media (min-width: 1024px) {
-	.headerGlow {
-		height: 50vh;
+		height: 40vh;
+		min-height: 200px;
 	}
 }

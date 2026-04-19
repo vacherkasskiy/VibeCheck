@@ -17,10 +17,15 @@ export const WelcomePage = () => {
 				<section className={styles.hero}>
 					<WelcomeLogo />
 					<div className={styles.headingContainer}>
-						<h1 className={styles.heading}>Определи свой карьерный вайб</h1>
-						<div className={styles.lineWrapper}>
-							<Line />
-						</div>
+						<h1 className={styles.heading}>
+							Определи свой <span className={styles.noWrap}>карьерный</span>{' '}
+							<span className={styles.targetWord}>
+								вайб
+								<div className={styles.lineWrapper}>
+									<Line />
+								</div>
+							</span>
+						</h1>
 					</div>
 
 					<p className={styles.subheading}>

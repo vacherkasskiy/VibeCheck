@@ -1,11 +1,12 @@
-import { ALL_TAGS, filterTags, groupByCategory, type Tag, type SelectedTag } from 'entities/tag';
 import { useState, useCallback } from 'react';
 import React from 'react';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
 import styles from './FlagsModal.module.css';
-import { FlagsColumns } from '../../FlagsColumns/ui/FlagsColumns';
-import { FlagsLibrary } from '../../FlagsLibrary/ui/FlagsLibrary';
+import { ALL_TAGS, filterTags, groupByCategory, type Tag, type SelectedTag } from '../../../entities/tag';
+import { useGetAllFlags } from '../../../entities/tag';
+import { FlagsColumns } from '../../FlagsColumns';
+import { FlagsLibrary } from '../../FlagsLibrary';
 
 export interface FlagsModalProps {
 	isOpen: boolean;
@@ -51,10 +52,14 @@ export const FlagsModal = ({
 	const [query, setQuery] = useState('');
 	const [draggingId, setDraggingId] = useState<string | null>(null);
 
+  const { flags: realFlags, isLoading } = useGetAllFlags();
+
+  const allTags = isLoading ? [] : (realFlags.length > 0 ? realFlags : ALL_TAGS);
+
 	const filteredTags = (() => {
 		const q = query.trim().toLowerCase();
 		const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
-		return filterTags(ALL_TAGS, q, excludeIds);
+		return filterTags(allTags, q, excludeIds);
 	})();
 
 	const groupedByCategory = groupByCategory(filteredTags);
@@ -149,9 +154,9 @@ export const FlagsModal = ({
 		<Modal isOpen={isOpen} onClose={handleClose} className={styles.flagsModal}>
 			<div className={styles.container}>
 				<div className={styles.header}>
-					<h2 className={styles.title}>Select Flags for "{companyName}"</h2>
+					<h2 className={styles.title}>Выберите флаги для отзыва о "{companyName}"</h2>
 					<p className={styles.subtitle}>
-						Drag and drop flags to Green or Red columns, or click to add
+						Перетащите флаги в Green или Red колонки, или нажмите на флаг для добавления
 					</p>
 				</div>
 

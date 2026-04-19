@@ -5,7 +5,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(180deg, #F9FAFB 0%, #EEF2FF 50%, #F9FAFB 100%);
+	padding: 20px;
+	background: linear-gradient(180deg, #f9fafb 0%, #eef2ff 50%, #f9fafb 100%);
 }
 
 .container {
@@ -16,132 +17,8 @@
 	padding: 20px;
 }
 
-.backButton {
-	position: absolute;
-	top: 20px;
-	left: 20px;
-	background: none;
-	border: none;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: #6B7280;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	transition: color 0.2s ease;
-}
-
-.backButton:hover {
-	color: var(--color-purple);
-}
-
-.formContainer {
-	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(20px);
-	border-radius: 24px;
-	padding: 40px 32px;
-	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-}
-
-.header {
-	text-align: center;
-	margin-bottom: 32px;
-}
-
-.title {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 28px;
-	font-weight: 700;
-	color: #1F2937;
-	margin: 0 0 8px 0;
-}
-
-.subtitle {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 16px;
-	color: #6B7280;
-	margin: 0;
-}
-
-.form {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-}
-
-.generalError {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: #EF4444;
-	text-align: center;
-}
-
-.forgotLink {
-	display: block;
-	text-align: center;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: var(--color-purple);
-	text-decoration: none;
-	margin-top: 16px;
-	transition: color 0.2s ease;
-}
-
-.forgotLink:hover {
-	color: var(--color-purple-dark);
-}
-
-.divider {
-	display: flex;
-	align-items: center;
-	margin: 28px 0;
-}
-
-.divider::before,
-.divider::after {
-	content: '';
-	flex: 1;
-	height: 1px;
-	background: #E5E7EB;
-}
-
-.divider span {
-	padding: 0 16px;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: #9CA3AF;
-}
-
-.googleIcon {
-	font-weight: 700;
-	margin-right: 8px;
-}
-
-.footerText {
-	text-align: center;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: #6B7280;
-	margin: 24px 0 0 0;
-}
-
-.footerLink {
-	color: var(--color-purple);
-	text-decoration: none;
-	font-weight: 500;
-}
-
-.footerLink:hover {
-	text-decoration: underline;
-}
-
-@media (max-width: 480px) {
-	.formContainer {
-		padding: 32px 24px;
-	}
-
-	.title {
-		font-size: 24px;
+@media (max-width: 768px) {
+	.container {
+		max-width: 480px;
 	}
 }

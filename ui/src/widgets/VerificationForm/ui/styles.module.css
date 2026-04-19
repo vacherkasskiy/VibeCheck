@@ -10,51 +10,61 @@
 	align-items: center;
 	gap: 16px;
 	text-align: center;
-	margin-bottom: 32px;
+	margin-bottom: 24px;
+}
+
+.logo {
+	width: 55px;
+	height: 40px;
+	display: block;
+	object-fit: contain;
 }
 
 .title {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 28px;
 	font-weight: 700;
-	color: var(--color-accent-black);
-	margin: 0 0 8px 0;
+	color: #1f2937;
+	margin: 0;
+	line-height: 1.2;
 }
 
 .subtitle {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 16px;
-	color: var(--color-grey-text);
+	color: #6b7280;
 	margin: 0;
 	line-height: 1.5;
 }
 
 .email {
-	color: var(--color-purple);
+	color: var(--color-purple, #8b5cf6);
 	font-weight: 500;
+	word-break: break-all;
 }
 
 .timer {
 	text-align: center;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
-	color: var(--color-grey-text);
+	color: #6b7280;
 	min-height: 20px;
 }
 
 .resendButton {
 	background: none;
 	border: none;
-	color: var(--color-purple);
+	color: var(--color-purple, #8b5cf6);
 	cursor: pointer;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
 	padding: 0;
 	text-decoration: underline;
+	transition: color 0.2s ease;
 }
 
-.resendButton:hover {
-	color: var(--color-purple-dark);
+.resendButton:hover:not(:disabled) {
+	color: var(--color-purple-dark, #7c3aed);
 }
 
 .resendButton:disabled {
@@ -67,20 +77,21 @@
 }
 
 .generalError {
-	background: var(--color-light-red);
-	color: var(--color-red);
+	background: #fef2f2;
+	color: #ef4444;
 	padding: 12px 16px;
 	border-radius: 12px;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
+	text-align: center;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 480px) {
 	.title {
-		font-size: 36px;
+		font-size: 24px;
 	}
 
 	.subtitle {
-		font-size: 18px;
+		font-size: 14px;
 	}
 }

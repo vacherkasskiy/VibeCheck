@@ -1,11 +1,10 @@
 import React from 'react';
 
-export const Line: React.FC = () => {
-	return (
+export const Line = ({ className, ...props }: React.SVGProps<SVGSVGElement>) =>  (
 		<svg
-			width="257"
-			height="34"
+			className={className}
 			viewBox="0 0 257 34"
+			preserveAspectRatio="xMidYMid meet"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
@@ -31,5 +30,4 @@ export const Line: React.FC = () => {
 				</linearGradient>
 			</defs>
 		</svg>
-	);
-};
+);

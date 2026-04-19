@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from 'shared/assets/Logo';
 import { mockAuth } from 'shared/model/mockAuth';
 import { AuthButton } from 'shared/ui/AuthButton';
 import { InputField } from 'shared/ui/InputField';
@@ -110,17 +111,6 @@ export const RegistrationForm = () => {
 		}
 	};
 
-	const handleGoogleLogin = async () => {
-		try {
-			const { data } = await mockAuth.googleUrl();
-			if (data.url) {
-				window.location.href = data.url;
-			}
-		} catch {
-			setGeneralError('Ошибка при подключении Google');
-		}
-	};
-
 	const handleBack = () => {
 		if (step === 1) {
 			navigate('/');
@@ -132,8 +122,8 @@ export const RegistrationForm = () => {
 	const renderStep1 = () => (
 		<>
 			<div className={styles.header}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<img src="/assets/vibecheck-favicon.png" alt="VibeCheck" style={{ width: 64, height: 50, borderRadius: 6 }} />
+				<div className={styles.logoContainer}>
+					<Logo className={styles.logo} />
 				</div>
 				<h1 className={styles.title}>Создать аккаунт</h1>
 				<p className={styles.subtitle}>Введите почту и пароль для регистрации</p>
@@ -173,14 +163,6 @@ export const RegistrationForm = () => {
 					{isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
 				</AuthButton>
 			</div>
-
-			<div className={styles.divider}>
-				<span>Или продолжить с</span>
-			</div>
-
-			<AuthButton variant="google" onClick={handleGoogleLogin} fullWidth>
-				Войти через Google
-			</AuthButton>
 
 			<div className={styles.registerLink}>
 				<span>Уже есть аккаунт? </span>

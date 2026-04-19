@@ -1,5 +1,5 @@
 import styles from './styles.module.css';
-import CenterGlowSvg from '../../../assets/images/CenterGlow.svg';
+import CenterGlowSvg from '../../../assets/CenterGlow';
 
 export const CenterGlow = () => {
 	return (

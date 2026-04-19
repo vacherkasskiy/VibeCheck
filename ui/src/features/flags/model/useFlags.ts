@@ -1,8 +1,8 @@
-import { ALL_TAGS, PRIORITY_OPTIONS } from 'entities/tag';
+import { useGetAllFlags, PRIORITY_OPTIONS } from 'entities/tag';
 import { filterTags, groupByCategory } from 'entities/tag';
-import { useMemo, useState } from 'react';
+import { ALL_TAGS } from 'entities/tag';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { mockAuth } from 'shared/model';
 import type { Tag, SelectedTag, Category } from 'entities/tag';
 
 export type Side = 'green' | 'red';
@@ -19,11 +19,14 @@ export const useFlags = () => {
   const [modalTag, setModalTag] = useState<Tag | null>(null);
   const [showConflict, setShowConflict] = useState<{ tag: Tag; target: Side } | null>(null);
 
+  const { flags: apiTags, isLoading, error } = useGetAllFlags();
+  const allTags = isLoading || error ? ALL_TAGS : apiTags;
+
   const filteredTags = useMemo(() => {
     const q = query.trim().toLowerCase();
     const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
-    return filterTags(ALL_TAGS, q, excludeIds);
-  }, [query, green, red]);
+    return filterTags(allTags, q, excludeIds);
+  }, [query, green, red, allTags]);
 
   const groupedByCategory = useMemo(() => 
     groupByCategory(filteredTags), 

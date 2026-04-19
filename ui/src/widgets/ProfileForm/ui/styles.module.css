@@ -1,7 +1,7 @@
 .container {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 20px;
 }
 
 .header {
@@ -10,86 +10,132 @@
 	align-items: center;
 	gap: 16px;
 	text-align: center;
-	margin-bottom: 32px;
+	margin-bottom: 24px;
+}
+
+.logo {
+	width: 55px;
+	height: 40px;
+	display: block;
+	object-fit: contain;
 }
 
 .title {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 28px;
 	font-weight: 700;
-	color: var(--color-accent-black);
-	margin: 0 0 8px 0;
+	color: #1f2937;
+	margin: 0;
+	line-height: 1.2;
 }
 
 .subtitle {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 16px;
-	color: var(--color-grey-text);
+	color: #6b7280;
 	margin: 0;
 }
 
+.avatarSection {
+	margin: 8px 0 16px;
+}
+
+.sectionTitle {
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: #374151;
+	margin: 0 0 12px;
+	text-align: center;
+}
+
 .experienceSection {
-	margin-top: 8px;
-	padding-top: 16px;
-	border-top: 1px solid var(--color-border-grey);
+	margin-top: 16px;
+	padding-top: 20px;
+	border-top: 1px solid #e5e7eb;
 }
 
 .experienceTitle {
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
-	color: var(--color-grey-text);
-	margin: 0 0 16px 0;
+	color: #6b7280;
+	margin: 0 0 16px;
+	text-align: center;
 }
 
 .experienceItem {
-	background: var(--color-light-gray);
+	background: #f9fafb;
 	border-radius: 12px;
 	padding: 16px;
 	margin-bottom: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .dateFields {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 12px;
-	margin-top: 12px;
 }
 
 .removeExperience {
 	background: none;
 	border: none;
-	color: var(--color-red);
+	color: #ef4444;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
 	cursor: pointer;
 	padding: 0;
-	margin-top: 12px;
 	text-decoration: underline;
+	text-align: left;
+	transition: color 0.2s ease;
+	align-self: flex-start;
 }
 
 .removeExperience:hover {
-	color: var(--color-red-dark);
+	color: #dc2626;
+}
+
+.actions {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 24px;
 }
 
 .submitButton {
-	margin-top: 8px;
+	margin-top: 16px;
 }
 
 .generalError {
-	background: var(--color-light-red);
-	color: var(--color-red);
+	background: #fef2f2;
+	color: #ef4444;
 	padding: 12px 16px;
 	border-radius: 12px;
 	font-family: 'YS Text', 'Arial', sans-serif;
 	font-size: 14px;
+	text-align: center;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 480px) {
 	.title {
-		font-size: 36px;
+		font-size: 24px;
 	}
 
 	.subtitle {
-		font-size: 18px;
+		font-size: 14px;
+	}
+
+	.dateFields {
+		grid-template-columns: 1fr;
+	}
+
+	.actions {
+		flex-direction: column;
+	}
+
+	.actions button {
+		width: 100%;
 	}
 }

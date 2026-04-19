@@ -1,9 +1,9 @@
-import { Button } from '@shared/ui/Button';
-import { InputField } from '@shared/ui/InputField';
-import { Select } from '@shared/ui/Select';
 import { useState } from 'react';
 import { mockAuth } from 'shared/model/mockAuth';
 import { AvatarSelector } from 'shared/ui/AvatarSelector';
+import { Button } from 'shared/ui/Button';
+import { InputField } from 'shared/ui/InputField';
+import { Select } from 'shared/ui/Select';
 import styles from './styles.module.css';
 import type { Avatar } from 'shared/ui/AvatarSelector';
 
@@ -45,12 +45,12 @@ const INDUSTRY_OPTIONS = [
 	{ value: 'HEALTHCARE', label: 'Здравоохранение' },
 	{ value: 'MANUFACTURING', label: 'Производство' },
 	{ value: 'RETAIL', label: 'Розничная торговля' },
-	{ value: 'HOSPITALITY', label: 'Гостиничный бизнес и рестораны' },
+	{ value: 'HOSPITALITY', label: 'Гостиничный бизнес' },
 	{ value: 'TRANSPORT', label: 'Транспорт и логистика' },
 	{ value: 'CONSTRUCTION', label: 'Строительство' },
 	{ value: 'ENERGY', label: 'Энергетика' },
 	{ value: 'AGRICULTURE', label: 'Сельское хозяйство' },
-	{ value: 'GOVERNMENT', label: 'Государственная служба' },
+	{ value: 'GOVERNMENT', label: 'Госслужба' },
 	{ value: 'NGO', label: 'Некоммерческие организации' },
 	{ value: 'OTHER', label: 'Другое' },
 ];
@@ -84,73 +84,41 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	]);
 
 	const validateNickname = (value: string): string => {
-		if (!value) {
-			return 'Обязательное поле';
-		}
-		if (value.length < 3 || value.length > 30) {
-			return 'Длина должна быть от 3 до 30 символов';
-		}
-		const nicknameRegex = /^[a-z0-9._]+$/;
-		if (!nicknameRegex.test(value)) {
-			return 'Разрешены только a-z, 0-9, _, .';
-		}
-		if (value.startsWith('.') || value.startsWith('_')) {
-			return 'Не должно начинаться с . или _';
-		}
-		if (value.endsWith('.') || value.endsWith('_')) {
-			return 'Не должно заканчиваться на . или _';
-		}
-		if (/[._]{2,}/.test(value)) {
-			return 'Нет двойных спецсимволов';
-		}
+		if (!value) return 'Обязательное поле';
+		if (value.length < 3 || value.length > 30) return 'Длина от 3 до 30 символов';
+		if (!/^[a-z0-9._]+$/.test(value)) return 'Только a-z, 0-9, _, .';
+		if (/^[._]/.test(value) || /[._]$/.test(value))
+			return 'Не должно начинаться/заканчиваться на . или _';
+		if (/[._]{2,}/.test(value)) return 'Нет двойных спецсимволов';
 		return '';
 	};
 
 	const validateBirthDate = (value: string): string => {
-		if (!value) {
-			return 'Обязательное поле';
-		}
-		const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
-		if (!dateRegex.test(value)) {
-			return 'Неверный формат даты';
-		}
+		if (!value) return 'Обязательное поле';
+		if (!/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return 'Формат: ДД.ММ.ГГГГ';
 		const [day, month, year] = value.split('.').map(Number);
 		const birth = new Date(year, month - 1, day);
 		const today = new Date();
-		const age = today.getFullYear() - birth.getFullYear();
-		const monthDiff = today.getMonth() - birth.getMonth();
-		const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate()) ? age - 1 : age;
-
-		if (adjustedAge < 18) {
-			return 'Возраст должен быть от 18 лет';
-		}
-		if (adjustedAge > 120) {
-			return 'Укажите корректную дату рождения';
-		}
+		let age = today.getFullYear() - birth.getFullYear();
+		const m = today.getMonth() - birth.getMonth();
+		if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+		if (age < 18) return 'Возраст от 18 лет';
+		if (age > 120) return 'Некорректная дата';
 		return '';
 	};
 
 	const handleNicknameChange = (value: string) => {
-		setNickname(value.toLowerCase());
-		setNicknameError(validateNickname(value.toLowerCase()));
+		const lower = value.toLowerCase();
+		setNickname(lower);
+		setNicknameError(validateNickname(lower));
 	};
 
 	const handleBirthDateChange = (value: string) => {
-		const numericValue = value.replace(/\D/g, '');
-		let formatted = '';
-		if (numericValue.length >= 2) {
-			formatted += numericValue.slice(0, 2) + '.';
-			if (numericValue.length >= 4) {
-				formatted += numericValue.slice(2, 4) + '.';
-				if (numericValue.length >= 8) {
-					formatted += numericValue.slice(4, 8);
-				}
-			} else {
-				formatted += numericValue.slice(2);
-			}
-		} else {
-			formatted = numericValue;
-		}
+		const numeric = value.replace(/\D/g, '').slice(0, 8);
+		let formatted = numeric;
+		if (numeric.length >= 2) formatted = numeric.slice(0, 2) + '.' + numeric.slice(2);
+		if (numeric.length >= 4)
+			formatted = numeric.slice(0, 2) + '.' + numeric.slice(2, 4) + '.' + numeric.slice(4);
 		setBirthDate(formatted);
 		setBirthDateError(validateBirthDate(formatted));
 	};
@@ -168,25 +136,22 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 
 	const updateExperience = (id: string, field: keyof Experience, value: string) => {
 		setExperiences(
-			experiences.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp))
+			experiences.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)),
 		);
 	};
 
-	const isFormValid = () => {
-		return (
-			avatarId !== null &&
-			!nicknameError &&
-			nickname.length > 0 &&
-			!sexError &&
-			sex.length > 0 &&
-			!birthDateError &&
-			birthDate.length > 0 &&
-			!educationError &&
-			education.length > 0 &&
-			!industryError &&
-			industry.length > 0
-		);
-	};
+	const isFormValid = () =>
+		avatarId &&
+		!nicknameError &&
+		nickname &&
+		!sexError &&
+		sex &&
+		!birthDateError &&
+		birthDate &&
+		!educationError &&
+		education &&
+		!industryError &&
+		industry;
 
 	const handleSubmit = async () => {
 		setAvatarError(avatarId ? '' : 'Обязательное поле');
@@ -218,13 +183,10 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				})),
 			});
 
-			if (res.ok) {
-				onSubmit();
-			} else {
-				setGeneralError(res.data.message || 'Не удалось сохранить профиль. Попробуйте позже.');
-			}
+			if (res.ok) onSubmit();
+			else setGeneralError(res.data.message || 'Ошибка сохранения');
 		} catch {
-			setGeneralError('Ошибка соединения. Проверьте интернет.');
+			setGeneralError('Ошибка соединения');
 		} finally {
 			setIsLoading(false);
 		}
@@ -233,11 +195,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	return (
 		<div className={styles.container}>
 			<div className={styles.header}>
-			
 				<h1 className={styles.title}>Создать аккаунт</h1>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<img src="/assets/vibecheck-favicon.png" alt="VibeCheck" style={{ width: 64, height: 50, borderRadius: 6 }} />
-				</div>
 				<p className={styles.subtitle}>Заполните свой профиль</p>
 			</div>
 
@@ -260,20 +218,18 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				required
 				error={nicknameError}
 			/>
-
 			<Select
 				label="Пол"
 				options={SEX_OPTIONS}
 				value={sex}
-				onChange={(value) => {
-					setSex(value);
+				onChange={(v) => {
+					setSex(v);
 					setSexError('');
 				}}
 				placeholder="Выберите пол"
 				required
 				error={sexError}
 			/>
-
 			<InputField
 				label="Дата рождения"
 				value={birthDate}
@@ -283,26 +239,24 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				error={birthDateError}
 				maxLength={10}
 			/>
-
 			<Select
 				label="Образование"
 				options={EDUCATION_OPTIONS}
 				value={education}
-				onChange={(value) => {
-					setEducation(value);
+				onChange={(v) => {
+					setEducation(v);
 					setEducationError('');
 				}}
 				placeholder="Выберите образование"
 				required
 				error={educationError}
 			/>
-
 			<Select
 				label="Сфера деятельности"
 				options={INDUSTRY_OPTIONS}
 				value={industry}
-				onChange={(value) => {
-					setIndustry(value);
+				onChange={(v) => {
+					setIndustry(v);
 					setIndustryError('');
 				}}
 				placeholder="Выберите сферу"
@@ -312,26 +266,29 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 
 			<div className={styles.experienceSection}>
 				<p className={styles.experienceTitle}>Опыт работы (опционально)</p>
-
 				{experiences.map((exp) => (
 					<div key={exp.id} className={styles.experienceItem}>
 						<Select
 							options={INDUSTRY_OPTIONS}
 							value={exp.industry}
-							onChange={(value) => updateExperience(exp.id, 'industry', value)}
+							onChange={(v) => updateExperience(exp.id, 'industry', v)}
 							placeholder="Сфера деятельности"
 						/>
 						<div className={styles.dateFields}>
 							<InputField
 								value={exp.startDate}
-								onChange={(value) => updateExperience(exp.id, 'startDate', value)}
+								onChange={(v) => updateExperience(exp.id, 'startDate', v)}
 								placeholder="ДД.ММ.ГГГГ"
-								maxLength={10} label={''}							/>
+								maxLength={10}
+								label=""
+							/>
 							<InputField
 								value={exp.endDate}
-								onChange={(value) => updateExperience(exp.id, 'endDate', value)}
-								placeholder="ДД.ММ.ГГГГ (по настоящее время)"
-								maxLength={10} label={''}							/>
+								onChange={(v) => updateExperience(exp.id, 'endDate', v)}
+								placeholder="ДД.ММ.ГГГГ"
+								maxLength={10}
+								label=""
+							/>
 						</div>
 						<button
 							type="button"
@@ -342,7 +299,6 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 						</button>
 					</div>
 				))}
-
 				<Button variant="secondary" onClick={addExperience}>
 					+ Добавить опыт
 				</Button>

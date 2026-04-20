@@ -4,10 +4,12 @@ import Logo from 'shared/assets/Logo';
 import { mockAuth } from 'shared/model/mockAuth';
 import { AuthButton } from 'shared/ui/AuthButton';
 import { InputField } from 'shared/ui/InputField';
+import { Modal } from 'shared/ui/Modal';
 import { PasswordInput } from 'shared/ui/PasswordInput';
 import { ProgressBar } from 'shared/ui/ProgressBar/ui/ProgressBar';
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { ProfileForm } from 'widgets/ProfileForm';
+
 import styles from './styles.module.css';
  
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
@@ -24,6 +26,7 @@ export const RegistrationForm = () => {
 	const [confirmPasswordError, setConfirmPasswordError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
+	const [showErrorModal, setShowErrorModal] = useState(false);
 
 	const STEPS = ['Email', 'Код', 'Профиль'];
 
@@ -55,7 +58,7 @@ export const RegistrationForm = () => {
 	const handlePasswordChange = (value: string) => {
 		setPassword(value);
 		if (value && !validatePassword(value)) {
-			setPasswordError('Пароль не соответствует требованиям');
+			setPasswordError('Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол');
 		} else {
 			setPasswordError('');
 		}
@@ -82,11 +85,19 @@ export const RegistrationForm = () => {
 			return;
 		}
 
+		if (!password) {
+			setPasswordError('Обязательное поле');
+			return;
+		}
 		if (!validatePassword(password)) {
-			setPasswordError('Пароль не соответствует требованиям');
+			setPasswordError('Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол');
 			return;
 		}
 
+		if (!confirmPassword) {
+			setConfirmPasswordError('Обязательное поле');
+			return;
+		}
 		if (password !== confirmPassword) {
 			setConfirmPasswordError('Пароли не совпадают');
 			return;
@@ -94,18 +105,20 @@ export const RegistrationForm = () => {
 
 		setIsLoading(true);
 		setGeneralError('');
+		setEmailError('');
+		setPasswordError('');
+		setConfirmPasswordError('');
 
 		try {
-			const res = await mockAuth.registerInit({ email, password });
-			if (res.ok) {
-				setStep(2);
-			} else if (res.data.code === 'EMAIL_EXISTS') {
-				setEmailError('Пользователь с таким e-mail уже зарегистрирован. Попробуйте войти');
-			} else {
-				setGeneralError(res.data.message || 'Ошибка регистрации');
+			await mockAuth.registerInit({ email, password });
+			setStep(2);
+		} catch (err: any) {
+			let msg = err.response?.data?.message || 'Не удалось зарегистрироваться. Проверьте соединение и попробуйте снова.';
+			if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('email_exists') || msg.toLowerCase().includes('существует')) {
+				msg = 'Пользователь с таким email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
 			}
-		} catch {
-			setGeneralError('Ошибка соединения. Проверьте интернет.');
+			setGeneralError(msg);
+			setShowErrorModal(true);
 		} finally {
 			setIsLoading(false);
 		}
@@ -119,6 +132,11 @@ export const RegistrationForm = () => {
 		}
 	};
 
+	const handleCloseModal = () => {
+		setShowErrorModal(false);
+		setGeneralError('');
+	};
+
 	const renderStep1 = () => (
 		<>
 			<div className={styles.header}>
@@ -126,7 +144,7 @@ export const RegistrationForm = () => {
 					<Logo className={styles.logo} />
 				</div>
 				<h1 className={styles.title}>Создать аккаунт</h1>
-				<p className={styles.subtitle}>Введите почту и пароль для регистрации</p>
+				<p className={styles.subtitle}>Введите почту и пароль для регистрации.</p>
 			</div>
 
 			<InputField
@@ -155,8 +173,6 @@ export const RegistrationForm = () => {
 				required
 				error={confirmPasswordError}
 			/>
-
-			{generalError && <div className={styles.generalError}>{generalError}</div>}
 
 			<div className={styles.submitButton}>
 				<AuthButton variant="submit" fullWidth onClick={handleEmailSubmit} disabled={isLoading}>
@@ -203,13 +219,25 @@ export const RegistrationForm = () => {
 					<span>Назад</span>
 				</button>
 
-			
-
 				<div className={styles.form}>
 					<form>{step === 1 ? renderStep1() : step === 2 ? renderStep2() : renderStep3()}</form>
 				</div>
 				{step < 3 && <ProgressBar currentStep={step} totalSteps={3} steps={STEPS} />}
 			</div>
+
+			<Modal isOpen={showErrorModal} onClose={handleCloseModal}>
+				<div className={styles.errorModal}>
+					<h3>Ошибка регистрации</h3>
+					<p className={styles.generalError}>{generalError}</p>
+					<AuthButton 
+						variant="submit" 
+						fullWidth 
+						onClick={handleCloseModal}
+					>
+						OK
+					</AuthButton>
+				</div>
+			</Modal>
 		</div>
 	);
 };

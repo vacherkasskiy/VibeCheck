@@ -133,6 +133,27 @@
 	color: var(--color-purple-dark, #7c3aed);
 }
 
+.errorModal {
+	padding: 32px 24px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	max-width: 400px;
+}
+
+.errorModal h3 {
+	margin: 0 0 8px 0;
+	font-family: 'YS Text', 'Arial', sans-serif;
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--color-accent-black, #1f2937);
+}
+
+.errorModal p {
+	margin: 0;
+}
+
 @media (max-width: 480px) {
 	.backButton {
 		top: 16px;

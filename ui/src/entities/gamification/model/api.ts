@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useGamificationAuth } from 'features/gamificationAuth/model/GamificationAuthProvider';
+// eslint-disable-next-line @conarti/feature-sliced/layers-slices
+import { useGamificationAuth } from 'features/gamificationAuth';
 import type { 
   GetMyAchievementsGatewayResponse, 
   GetLevelGatewayResponse,
   MyAchievementsFilterStatus 
 } from './types';
 
-const GAMIFICATION_API_BASE = 'http://gamification.local/api';
+const GAMIFICATION_API_BASE = (__API_URL__ || '/api') + '/gamification';
 
 export const gamificationApi = {
   getMyAchievements: async (

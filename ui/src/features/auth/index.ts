@@ -1,3 +1,4 @@
 export { AuthProvider, useAuth } from './model/AuthProvider';
-export type { AuthState, AuthContextType } from './model/types';
+export { useRegister } from './model/useRegister';
+export type { AuthState, AuthContextType, RegisterRequest, RegisterResponse } from './model/types';
 

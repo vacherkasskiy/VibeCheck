@@ -32,8 +32,7 @@ export const useProfile = (): UseProfileReturn => {
     try {
       setLoading(true);
       setError(null);
-      // TODO: Здесь должен быть реальный API вызов
-      // await userApi.updateProfile(data);
+      await userApi.updateProfile(data);
       
       await new Promise(resolve => setTimeout(resolve, 500));
       

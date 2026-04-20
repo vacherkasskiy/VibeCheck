@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { setAccessTokenProvider } from 'shared/api/http';
 import http from 'shared/api/http';
+import { refreshAccessToken } from './api';
 import type { AuthState, AuthAction, AuthContextType } from './types';
 import type { ReactNode } from 'react';
 
@@ -45,10 +46,24 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 				loading: false,
 				error: null,
 			};
+		case 'REGISTER_SUCCESS':
+			if (action.payload.accessToken) {
+				localStorage.setItem('accessToken', action.payload.accessToken);
+			}
+			localStorage.setItem('refreshToken', action.payload.refreshToken);
+			return {
+				...state,
+				isAuthenticated: true,
+				accessToken: action.payload.accessToken,
+				refreshToken: action.payload.refreshToken,
+				loading: false,
+				error: null,
+			};
 		default:
 			return state;
-	}
-};
+		}
+	};
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -70,18 +85,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 		try {
 			dispatch({ type: 'SET_LOADING', payload: true });
-			const response = await http.post<{ accessToken: string }>('/api/auth/refresh', {
-				refreshToken,
+		const response = await refreshAccessToken(refreshToken);
+
+			dispatch({
+				type: 'SET_TOKENS',
+				payload: { accessToken: response.accessToken, refreshToken: response.refreshToken },
 			});
-			if (response.data.accessToken) {
-				dispatch({
-					type: 'SET_TOKENS',
-					payload: { accessToken: response.data.accessToken, refreshToken: null }, // Backend typically returns new refresh too, but assume simple for now
-				});
-				setAccessTokenProvider(() => localStorage.getItem(ACCESS_TOKEN_KEY));
-				return true;
-			}
-			return false;
+
+			setAccessTokenProvider(() => localStorage.getItem(ACCESS_TOKEN_KEY));
+			return true;
 		} catch (error) {
 			console.error('Token refresh failed:', error);
 			dispatch({ type: 'LOGOUT' });
@@ -108,10 +120,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	return (
-		<AuthContext.Provider value={{ state, refreshTokens, logout }}>
+		<AuthContext.Provider value={{ state, dispatch, refreshTokens, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);
+
 };
 
 export const useAuth = () => {

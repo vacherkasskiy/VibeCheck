@@ -1,179 +1,216 @@
+import http from 'shared/api/http';
+import { mockAuth } from 'shared/model/mockAuth';
 import type { 
   User, 
   UserFlags, 
   Achievement, 
   UserReview, 
   ActivityItem, 
-  Subscription,
+  Subscription, 
   UserProfileData 
 } from './types';
 
-// Mock data for development - replace with actual API calls
-const mockUser: User = {
-  id: '1',
-  nickname: 'Алексей Разработчик',
-  email: 'alexey@example.com',
-  avatarUrl: '/assets/avatars/avatar1.png',
-  level: 12,
-  levelLabel: 'Эксперт-рецензент',
-  levelProgress: 75,
-  education: 'Высшее техническое',
-  experience: '5 лет в IT',
-  expertise: 'Frontend разработка, React, TypeScript',
-};
-
-const mockFlags: UserFlags = {
-  green: [
-    { id: 'c1', name: 'Дружелюбная команда', priority: 1 },
-    { id: 'm5', name: 'Помогают', priority: 2 },
-    { id: 'p1', name: 'Всё чётко', priority: 3 },
-    { id: 's1', name: 'Достойная зарплата', priority: 4 },
-    { id: 'b3', name: 'Гибкий режим', priority: 5 },
-  ],
-  red: [
-    { id: 'c2', name: 'Токсичная атмосфера', priority: 1 },
-    { id: 'm9', name: 'Сильное давление', priority: 2 },
-    { id: 'b2', name: 'Переработки', priority: 3 },
-  ],
-};
-
-const mockAchievements: Achievement[] = [
-  { id: '1', name: 'Первый отзыв', description: 'Оставили первый отзыв о компании', iconUrl: '📝', earnedAt: '2024-01-15', unlockedAt: '2024-01-15', type: 'review', color: '#4ADE80' },
-  { id: '2', name: 'Мастер флагов', description: 'Выбрали более 10 флагов', iconUrl: '🚩', earnedAt: '2024-02-20', unlockedAt: '2024-02-20', type: 'flag', color: '#60A5FA' },
-  { id: '3', name: 'Полезный рецензент', description: 'Получили более 50 лайков', iconUrl: '👍', earnedAt: '2024-03-10', unlockedAt: '2024-03-10', type: 'review', color: '#F472B6' },
-  { id: '4', name: 'Активный пользователь', description: 'Входили 30 дней подряд', iconUrl: '🔥', earnedAt: '2024-03-25', unlockedAt: '2024-03-25', type: 'activity', color: '#FB923C' },
-  { id: '5', name: 'Топ-автор', description: 'Вошли в топ-10% рецензентов', iconUrl: '🏆', earnedAt: '2024-04-05', unlockedAt: '2024-04-05', type: 'ranking', color: '#A78BFA' },
-  { id: '6', name: 'Ранний пользователь', description: 'Присоединились в первый месяц', iconUrl: '🚀', earnedAt: '2024-01-01', unlockedAt: '2024-01-01', type: 'special', color: '#34D399' },
-  { id: '7', name: 'Детальный рецензент', description: 'Написали 5+ отзывов по 500+ символов', iconUrl: '✍️', earnedAt: '2024-02-15', unlockedAt: '2024-02-15', type: 'review', color: '#818CF8' },
+const AVATARS = [
+  { id: '1', url: '/assets/avatars/avatar1.png' },
+  { id: '2', url: '/assets/avatars/avatar2.png' },
+  { id: '3', url: '/assets/avatars/avatar3.png' },
+  { id: '4', url: '/assets/avatars/avatar4.png' },
+  { id: '5', url: '/assets/avatars/avatar5.png' },
+  { id: '6', url: '/assets/avatars/avatar6.png' },
 ];
 
-const mockReviews: UserReview[] = [
+const MOCK_ACHIEVEMENTS: Achievement[] = [
   {
     id: '1',
-    companyId: '1',
-    companyName: 'Яндекс',
-    text: 'Отличная компания с хорошими условиями и балансом работы и личной жизни. Команда поддерживает, проекты интересные. Особенно ценю гибкий график и возможность работать удалённо. Рекомендую всем, кто хочет развиваться в IT.',
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-    greenFlags: ['Дружелюбная команда', 'Гибкий режим', 'Всё чётко'],
+    type: 'first_review',
+    name: 'First Review',
+    description: 'Posted your first company review',
+    iconUrl: '/icons/achievement1.png',
+    unlockedAt: new Date().toISOString(),
+    earnedAt: new Date().toISOString(),
+    color: '#4CAF50',
+  },
+];
+
+const MOCK_FLAGS: UserFlags = {
+  green: [{ id: 'g1', name: 'Great Team', priority: 1 }],
+  red: [{ id: 'r1', name: 'Poor Management', priority: 1 }],
+};
+
+const MOCK_REVIEWS: UserReview[] = [
+  {
+    id: 'r1',
+    companyId: 'c1',
+    companyName: 'Tech Corp',
+    text: 'Great place to work!',
+    createdAt: new Date().toISOString(),
+    greenFlags: ['g1'],
     redFlags: [],
-    reactions: { likes: 24, dislikes: 2, complaints: 0 },
-  },
-  {
-    id: '2',
-    companyId: '2',
-    companyName: 'СберТех',
-    text: 'Быстро развивающаяся компания с множеством возможностей для обучения. Однако иногда приходится работать в авральном режиме, и давление со стороны руководства может быть сильным. Но карьерный рост реальный.',
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
-    greenFlags: ['Можно расти', 'Современное оборудование'],
-    redFlags: ['Сильное давление', 'Переработки'],
-    reactions: { likes: 12, dislikes: 5, complaints: 1 },
-  },
-  {
-    id: '3',
-    companyId: '3',
-    companyName: 'Тинькофф',
-    text: 'Классная атмосфера в команде, реально дружелюбные коллеги. Зарплата выше рынка, плюс есть бонусы за результат. Единственный минус — иногда приходится быть на связи в выходные, но это не критично.',
-    createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(), // 45 days ago
-    greenFlags: ['Дружелюбная команда', 'Достойная зарплата', 'Бонусы за результат'],
-    redFlags: ['Выходные не выходные'],
-    reactions: { likes: 31, dislikes: 3, complaints: 0 },
+    reactions: { likes: 5, dislikes: 0, complaints: 0 },
   },
 ];
 
-const mockActivity: ActivityItem[] = [
+const MOCK_ACTIVITY: ActivityItem[] = [
   {
-    id: '1',
+    id: 'a1',
     type: 'achievement_unlocked',
-    userId: '2',
-    userNickname: 'SarahDev',
-    userAvatarUrl: null,
-    description: 'unlocked "First Review" achievement',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-  },
-  {
-    id: '2',
-    type: 'review_posted',
-    userId: '3',
-    userNickname: 'MikeCoder',
-    userAvatarUrl: null,
-    description: 'posted a review for "Google"',
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-  },
-  {
-    id: '3',
-    type: 'flag_updated',
-    userId: '2',
-    userNickname: 'SarahDev',
-    userAvatarUrl: null,
-    description: 'updated their flags',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    userId: 'u1',
+    userNickname: 'Test User',
+    userAvatarUrl: AVATARS[0].url,
+    description: 'Unlocked First Review achievement',
+    timestamp: new Date().toISOString(),
   },
 ];
 
-const mockSubscriptions: Subscription[] = [
-  { id: '1', userId: '2', nickname: 'SarahDev', avatarUrl: null, subscribedAt: '2024-01-15' },
-  { id: '2', userId: '3', nickname: 'MikeCoder', avatarUrl: null, subscribedAt: '2024-02-01' },
-  { id: '3', userId: '4', nickname: 'JanePM', avatarUrl: null, subscribedAt: '2024-02-20' },
-  { id: '4', userId: '5', nickname: 'TomDesigner', avatarUrl: null, subscribedAt: '2024-03-05' },
+const MOCK_SUBSCRIPTIONS: Subscription[] = [
+  {
+    id: 's1',
+    userId: 'u1',
+    nickname: 'Friend User',
+    avatarUrl: AVATARS[1].url,
+    subscribedAt: new Date().toISOString(),
+  },
 ];
+
+export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/avatars'),
+    AVATARS
+  );
+};
+
+export const updateProfile = async (data: any): Promise<any> => {
+  try {
+    const response = await http.post('/api/users/info', data);
+    return response;
+  } catch {
+    // Mock update using mockAuth storage
+    const current = mockAuth.getCurrentUser();
+    if (current) {
+      // Simulate update (in real, would persist to mock users)
+      console.log('Mock profile update:', data);
+    }
+    return { success: true };
+  }
+};
+
+const fetchWithMockFallback = async <T>(
+  apiCall: () => Promise<{ data: T }>,
+  mockData: T
+): Promise<T> => {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch {
+    return mockData;
+  }
+};
+
+export const fetchProfile = async (): Promise<UserProfileData> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/profile'),
+    {
+      user: {
+        id: 'mock1',
+        nickname: 'Mock User',
+        email: 'mock@example.com',
+        avatarUrl: AVATARS[0].url,
+        level: 5,
+        levelLabel: 'Senior',
+        levelProgress: 75,
+        education: 'BACHELOR',
+        experience: '5 years',
+        expertise: 'Fullstack',
+      },
+      flags: MOCK_FLAGS,
+      achievements: MOCK_ACHIEVEMENTS,
+      reviews: MOCK_REVIEWS,
+      activity: MOCK_ACTIVITY,
+      subscriptions: MOCK_SUBSCRIPTIONS,
+    }
+  );
+};
+
+export const fetchUser = async (): Promise<User> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/me'),
+    {
+      id: 'mock1',
+      nickname: 'Mock User',
+      email: 'mock@example.com',
+      avatarUrl: AVATARS[0].url,
+      level: 5,
+      levelLabel: 'Senior',
+      levelProgress: 75,
+      education: 'BACHELOR',
+      experience: '5 years',
+      expertise: 'Fullstack',
+    }
+  );
+};
+
+export const fetchUserFlags = async (): Promise<UserFlags> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/flags'),
+    MOCK_FLAGS
+  );
+};
+
+export const fetchAchievements = async (): Promise<Achievement[]> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/achievements'),
+    MOCK_ACHIEVEMENTS
+  );
+};
+
+export const fetchUserReviews = async (): Promise<UserReview[]> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/reviews'),
+    MOCK_REVIEWS
+  );
+};
+
+export const fetchActivity = async (): Promise<ActivityItem[]> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/activity'),
+    MOCK_ACTIVITY
+  );
+};
+
+export const fetchSubscriptions = async (): Promise<Subscription[]> => {
+  return fetchWithMockFallback(
+    () => http.get('/api/users/subscriptions'),
+    MOCK_SUBSCRIPTIONS
+  );
+};
+
+export const deleteReview = async (reviewId: string): Promise<void> => {
+  try {
+    await http.delete(`/api/users/reviews/${reviewId}`);
+  } catch {
+    console.log('Mock delete review:', reviewId);
+  }
+};
+
+export const unsubscribe = async (subscriptionId: string): Promise<void> => {
+  try {
+    await http.delete(`/api/users/subscriptions/${subscriptionId}`);
+  } catch {
+    console.log('Mock unsubscribe:', subscriptionId);
+  }
+};
 
 export const userApi = {
-  fetchProfile: async (): Promise<UserProfileData> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return {
-      user: mockUser,
-      flags: mockFlags,
-      achievements: mockAchievements,
-      reviews: mockReviews,
-      activity: mockActivity,
-      subscriptions: mockSubscriptions,
-    };
-  },
-
-  fetchUser: async (): Promise<User> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockUser;
-  },
-
-  fetchUserFlags: async (): Promise<UserFlags> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockFlags;
-  },
-
-  fetchAchievements: async (): Promise<Achievement[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockAchievements;
-  },
-
-  fetchUserReviews: async (): Promise<UserReview[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockReviews;
-  },
-
-  fetchActivity: async (): Promise<ActivityItem[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockActivity;
-  },
-
-  fetchSubscriptions: async (): Promise<Subscription[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockSubscriptions;
-  },
-
-  deleteReview: async (reviewId: string): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    console.log('Deleted review:', reviewId);
-  },
-
-  unsubscribe: async (subscriptionId: string): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    console.log('Unsubscribed from:', subscriptionId);
-  },
-
-  updateProfile: async (data: Partial<User>): Promise<User> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { ...mockUser, ...data };
-  },
+  getAvatars,
+  updateProfile,
+  fetchProfile,
+  fetchUser,
+  fetchUserFlags,
+  fetchAchievements,
+  fetchUserReviews,
+  fetchActivity,
+  fetchSubscriptions,
+  deleteReview,
+  unsubscribe,
 };
+

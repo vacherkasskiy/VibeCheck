@@ -59,8 +59,10 @@ export const VerificationForm = ({ email, onSuccess, onBack }: VerificationFormP
 		setGeneralError('');
 
 		try {
-			const res = await mockAuth.registerVerify({ email, code });
+			const res = await mockAuth.registerConfirm(email, code);
 			if (res.ok) {
+				localStorage.setItem('accessToken', res.data.accessToken || '');
+				localStorage.setItem('refreshToken', res.data.refreshToken || '');
 				onSuccess();
 			} else {
 				setGeneralError(res.data.message || 'Неверный код');
@@ -96,8 +98,12 @@ export const VerificationForm = ({ email, onSuccess, onBack }: VerificationFormP
 	return (
 		<div className={styles.container}>
 			<div className={styles.header}>
-			<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<img src="/assets/vibecheck-favicon.png" alt="VibeCheck" style={{ width: 64, height: 50, borderRadius: 6 }} />
+				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+					<img
+						src="/assets/vibecheck-favicon.png"
+						alt="VibeCheck"
+						style={{ width: 64, height: 50, borderRadius: 6 }}
+					/>
 				</div>
 				<h1 className={styles.title}>Создать аккаунт</h1>
 				<p className={styles.subtitle}>

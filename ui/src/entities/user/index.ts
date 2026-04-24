@@ -7,6 +7,7 @@ export type {
   ActivityItem,
   Subscription,
   UserProfileData,
+  SaveUserFlagsRequest,
 } from './model/types';
 
 export { userApi } from './model/api';

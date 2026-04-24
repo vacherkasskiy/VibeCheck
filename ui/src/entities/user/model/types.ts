@@ -22,6 +22,17 @@ export interface UserFlags {
   red: UserFlag[];
 }
 
+export interface SaveUserFlagsRequest {
+  greenFlags: Array<{
+    priority: number;
+    flags: string[];
+  }>;
+  redFlags: Array<{
+    priority: number;
+    flags: string[];
+  }>;
+}
+
 export interface Achievement {
   type: string;
   earnedAt: string | number | Date;
@@ -75,3 +86,4 @@ export interface UserProfileData {
   activity: ActivityItem[];
   subscriptions: Subscription[];
 }
+

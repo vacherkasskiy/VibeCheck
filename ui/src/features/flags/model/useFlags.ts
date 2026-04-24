@@ -1,9 +1,12 @@
 import { useGetAllFlags, PRIORITY_OPTIONS } from 'entities/tag';
 import { filterTags, groupByCategory } from 'entities/tag';
 import { ALL_TAGS } from 'entities/tag';
+import { userApi } from 'entities/user';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from 'shared/ui/Toast';
 import type { Tag, SelectedTag, Category } from 'entities/tag';
+import type { SaveUserFlagsRequest } from 'entities/user';
 
 export type Side = 'green' | 'red';
 
@@ -17,16 +20,16 @@ export const useFlags = () => {
   const [red, setRed] = useState<Record<string, SelectedTag>>({});
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [modalTag, setModalTag] = useState<Tag | null>(null);
-  const [showConflict, setShowConflict] = useState<{ tag: Tag; target: Side } | null>(null);
+  const [showConflict, setShowConflict] = useState<{ tag: Tag; target: Side; type: 'duplicate' | 'move' } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { flags: apiTags, isLoading, error } = useGetAllFlags();
   const allTags = isLoading || error ? ALL_TAGS : apiTags;
 
   const filteredTags = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
-    return filterTags(allTags, q, excludeIds);
-  }, [query, green, red, allTags]);
+    return filterTags(allTags, q, []);
+  }, [query, allTags]);
 
   const groupedByCategory = useMemo(() => 
     groupByCategory(filteredTags), 
@@ -37,12 +40,20 @@ export const useFlags = () => {
   const endDrag = () => setDraggingId(null);
 
   const addToSide = (tag: Tag, side: Side) => {
-    const inGreen = green[tag.id];
-    const inRed = red[tag.id];
-    if ((side === 'green' && inRed) || (side === 'red' && inGreen)) {
-      setShowConflict({ tag, target: side });
+    const targetState = side === 'green' ? green : red;
+    const oppositeState = side === 'green' ? red : green;
+    const opposite = oppositeState[tag.id];
+    const alreadyInTarget = !!targetState[tag.id];
+
+    if (alreadyInTarget) {
+      setShowConflict({ tag, target: side, type: 'duplicate' as const });
       return;
     }
+    if (opposite) {
+      setShowConflict({ tag, target: side, type: 'move' as const });
+      return;
+    }
+
     const selected: SelectedTag = { tag, priority: 3 };
     if (side === 'green') {
       setGreen(prev => ({ ...prev, [tag.id]: selected }));
@@ -51,7 +62,8 @@ export const useFlags = () => {
     }
   };
 
-  const moveAcross = (tagId: string, to: Side) => {
+  const moveAcross = (tagId: string, to: Side, type?: 'duplicate' | 'move') => {
+    if (type === 'duplicate') return;
     const src = to === 'green' ? red : green;
     const item = src[tagId];
     if (!item) return;
@@ -89,10 +101,49 @@ export const useFlags = () => {
     });
   };
 
-  const onSave = () => {
-    // TODO: Integrate with auth context later
-    console.log('Flags saved:', { green: Object.values(green), red: Object.values(red) });
-    navigate('/recommendations', { state: { context } });
+  const { showToast } = useToast();
+
+  const onSave = async () => {
+    const totalFlags = Object.keys(green).length + Object.keys(red).length;
+    if (totalFlags === 0) {
+      showToast('Выберите хотя бы один green или red флаг на странице флагов, чтобы разблокировать рекомендации', 'error');
+      navigate('/flags');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const greenFlags = Object.values(green);
+      const redFlags = Object.values(red);
+
+      const greenGroups = [1, 2, 3].map(p => ({
+        priority: p,
+        flags: greenFlags.filter(f => f.priority === p).map(f => f.tag.id)
+      })).filter(g => g.flags.length > 0);
+
+      const redGroups = [1, 2, 3].map(p => ({
+        priority: p,
+        flags: redFlags.filter(f => f.priority === p).map(f => f.tag.id)
+      })).filter(r => r.flags.length > 0);
+
+      const requestBody: SaveUserFlagsRequest = {
+        greenFlags: greenGroups,
+        redFlags: redGroups,
+      };
+
+      await userApi.saveUserFlags(requestBody);
+      showToast('Флаги сохранены успешно!', 'success');
+      navigate('/recommendations', { state: { context } });
+    } catch (error: any) {
+      const status = error.response?.status || 500;
+      let message = 'Ошибка сохранения флагов';
+      if (status === 400) message = 'Неверные данные флагов';
+      else if (status === 401) message = 'Не авторизован. Войдите в аккаунт';
+      else if (status === 500) message = 'Ошибка сервера. Попробуйте позже';
+      showToast(message, 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const closeModal = () => setModalTag(null);
@@ -109,6 +160,7 @@ export const useFlags = () => {
     showConflict,
     filteredTags,
     groupedByCategory,
+    isSaving,
     startDrag,
     endDrag,
     addToSide,
@@ -120,3 +172,4 @@ export const useFlags = () => {
     closeConflict,
   };
 };
+

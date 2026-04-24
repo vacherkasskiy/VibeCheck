@@ -1,5 +1,5 @@
 import type { Side } from '../model/useFlags';
-import type { Tag } from 'entities/tag/model/types';
+import type { Tag } from 'entities/tag';
 
 export interface TagModalProps {
   tag: Tag | null;
@@ -10,8 +10,8 @@ export interface TagModalProps {
 }
 
 export interface ConflictDialogProps {
-  conflict: { tag: Tag; target: Side } | null;
+  conflict: { tag: Tag; target: Side; type: 'duplicate' | 'move' } | null;
   isOpen: boolean;
   onClose: () => void;
-  onMove: (tagId: string, target: Side) => void;
+  onMove: (tagId: string, target: Side, type?: 'duplicate' | 'move') => void;
 }

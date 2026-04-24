@@ -1,37 +1,123 @@
-.container {
+.pageWrapper {
 	position: relative;
-	min-height: 100vh;
-	background: linear-gradient(135deg, #d8d8ff, #f8d8f8);
-	font-family:
-		'Inter',
-		-apple-system,
-		BlinkMacSystemFont,
-		sans-serif;
-	color: #333;
 	display: flex;
 	flex-direction: column;
-}
-
-:global(body) {
-	margin: 0;
-	background: transparent;
-}
-
-.mainGrid {
-	display: grid;
-	grid-template-columns: minmax(300px, 1fr) minmax(500px, 2fr);
-	gap: 24px;
-	padding: 24px;
-	max-width: 1400px;
-	margin: 0 auto;
-	flex: 1;
-	min-height: 0;
+	height: 100dvh;
+	background: linear-gradient(135deg, #f0f0ff 0%, #fff0ff 100%);
 	overflow: hidden;
 }
 
+.main {
+	flex: 1;
+	overflow: hidden;
+	position: relative;
+}
+
+.desktopGrid {
+	display: grid;
+	grid-template-columns: minmax(340px, 420px) minmax(550px, 1fr);
+	gap: 24px;
+	padding: 24px 40px 40px;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.mobileTabs {
+	display: none;
+	position: sticky;
+	top: 0;
+	z-index: 50;
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(12px);
+	padding: 10px 16px 12px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+
+.tab {
+	background: transparent;
+	border: none;
+	padding: 10px 0;
+	font-size: clamp(12px, 3vw, 14px);
+	font-weight: 600;
+	color: #888;
+	border-radius: 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+}
+
+.tab.active {
+	background: #fff;
+	color: #8b5cf6;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.count {
+	background: #f3f4f6;
+	color: #6b7280;
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 8px;
+	font-weight: 700;
+}
+
+.tab.active .count {
+	background: rgba(139, 92, 246, 0.15);
+	color: #7c3aed;
+}
+
+.mobileContent {
+	display: none;
+	height: 100%;
+	overflow-y: auto;
+	padding: 16px;
+	padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.singleColumnWrapper {
+	height: 100%;
+}
+
+.singleColumnWrapper :global(.library) {
+	flex: 1;
+	height: 100%;
+}
+
+.singleColumnWrapper :global(.flagsContainer) {
+	grid-template-columns: 1fr !important;
+	height: 100%;
+}
+
+.singleColumnWrapper :global(.column:has(.emptyMessage)) {
+	display: none;
+}
+
 @media (max-width: 1024px) {
-	.mainGrid {
-		grid-template-columns: 1fr;
-		overflow: visible;
+	.desktopGrid {
+		display: none;
+	}
+
+	.mobileTabs {
+		display: grid;
+	}
+
+	.mobileContent {
+		display: block;
+	}
+}
+
+@media (max-width: 480px) {
+	.mobileTabs {
+		padding: 8px 12px 10px;
+		gap: 6px;
+	}
+
+	.mobileContent {
+		padding: 12px;
 	}
 }

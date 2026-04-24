@@ -3,6 +3,7 @@ import { mockAuth } from 'shared/model/mockAuth';
 import type { 
   User, 
   UserFlags, 
+  SaveUserFlagsRequest,
   Achievement, 
   UserReview, 
   ActivityItem, 
@@ -91,6 +92,22 @@ export const updateProfile = async (data: any): Promise<any> => {
       console.log('Mock profile update:', data);
     }
     return { success: true };
+  }
+};
+
+export const saveUserFlags = async (data: SaveUserFlagsRequest): Promise<void> => {
+  try {
+    await http.post('/api/users/flags', data);
+  } catch (error: any) {
+    // Mock fallback
+    const flatPrefs = {
+      green: data.greenFlags.flatMap(g => g.flags.map(flagId => ({ id: flagId, priority: g.priority }))),
+      red: data.redFlags.flatMap(r => r.flags.map(flagId => ({ id: flagId, priority: r.priority }))),
+    };
+    const result = mockAuth.saveFlags(flatPrefs as any);
+    if (!result.ok) {
+      throw new Error(result.data?.message || 'Mock save failed');
+    }
   }
 };
 
@@ -203,6 +220,7 @@ export const unsubscribe = async (subscriptionId: string): Promise<void> => {
 export const userApi = {
   getAvatars,
   updateProfile,
+  saveUserFlags,
   fetchProfile,
   fetchUser,
   fetchUserFlags,

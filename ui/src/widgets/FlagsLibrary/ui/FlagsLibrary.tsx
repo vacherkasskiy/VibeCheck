@@ -1,5 +1,6 @@
+import { filterTags, groupByCategory } from 'entities/tag';
 import { TagInfoModal } from 'features/flags';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './FlagsLibrary.module.css';
 import type { Tag } from 'entities/tag';
 
@@ -27,6 +28,16 @@ export const FlagsLibrary = ({
 	const [query, setQuery] = useState('');
 	const [infoTag, setInfoTag] = useState<Tag | null>(null);
 
+	const allTags = useMemo(
+		() => groupedByCategory.flatMap(([, tags]) => tags),
+		[groupedByCategory],
+	);
+
+	const filteredGrouped = useMemo(() => {
+		const filteredTags = filterTags(allTags, query, []);
+		return groupByCategory(filteredTags);
+	}, [allTags, query]);
+
 	const handleTagClick = (tag: Tag) => {
 		setInfoTag(tag);
 	};
@@ -44,39 +55,41 @@ export const FlagsLibrary = ({
 	};
 
 	return (
-		<section className={styles.library}>
-			<input
-				type="text"
-				placeholder="Поиск тегов"
-				value={query}
-				onChange={(e) => setQuery(e.target.value)}
-				className={styles.searchInput}
-			/>
+		<>
+			<section className={styles.library}>
+				<input
+					type="text"
+					placeholder="Поиск тегов"
+					value={query}
+					onChange={(e) => setQuery(e.target.value)}
+					className={styles.searchInput}
+				/>
 
-			<div className={styles.tagsGrid}>
-				{groupedByCategory.map(([category, tags]) => (
-					<div key={category} className={styles.category}>
-						<h3 className={styles.categoryTitle}>{category}</h3>
-						<div className={styles.tagsContainer}>
-							{tags.map((tag) => (
-								<button
-									key={tag.id}
-									onMouseDown={() => onTagDragStart(tag.id)}
-									onMouseUp={onTagDragEnd}
-									onClick={() => handleTagClick(tag)}
-									className={styles.tagButton}
-								>
-									{tag.name}
-								</button>
-							))}
+				<div className={styles.tagsGrid}>
+					{filteredGrouped.map(([category, tags]) => (
+						<div key={category} className={styles.category}>
+							<h3 className={styles.categoryTitle}>{category}</h3>
+							<div className={styles.tagsContainer}>
+								{tags.map((tag) => (
+									<button
+										key={tag.id}
+										onMouseDown={() => onTagDragStart(tag.id)}
+										onMouseUp={onTagDragEnd}
+										onClick={() => handleTagClick(tag)}
+										className={styles.tagButton}
+									>
+										{tag.name}
+									</button>
+								))}
+							</div>
 						</div>
-					</div>
-				))}
+					))}
 
-				{groupedByCategory.length === 0 && (
-					<p className={styles.emptyMessage}>Нет доступных тегов по вашему запросу</p>
-				)}
-			</div>
+					{filteredGrouped.length === 0 && (
+						<p className={styles.emptyMessage}>Нет доступных тегов по вашему запросу</p>
+					)}
+				</div>
+			</section>
 
 			<TagInfoModal
 				tag={infoTag}
@@ -84,9 +97,9 @@ export const FlagsLibrary = ({
 				onClose={handleCloseInfo}
 				onAddToGreen={handleAddToGreen}
 				onAddToRed={handleAddToRed}
-				isInGreen={infoTag ? infoTag.id in greenTags : false}
-				isInRed={infoTag ? infoTag.id in redTags : false}
+				isInGreen={false}
+				isInRed={false}
 			/>
-		</section>
+		</>
 	);
 };

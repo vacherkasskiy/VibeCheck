@@ -14,6 +14,7 @@ import { WelcomePage } from 'pages/WelcomePage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CenterGlow } from 'shared/ui/CenterGlow';
 import { HeaderGlow } from 'shared/ui/HeaderGlow';
+import { ToastProvider } from 'shared/ui/Toast';
 
 import './styles/global.css';
 import './fonts/fonts.css';
@@ -23,22 +24,24 @@ const App = () => {
 		<BrowserRouter>
 			<AuthProvider>
 				<ReviewAuthProvider>
-					<GamificationAuthProvider>
+				<GamificationAuthProvider>
 						<CenterGlow />
 						<HeaderGlow />
-						<Routes>
-							<Route path="/" element={<WelcomePage />} />
-							<Route path="/login" element={<LoginPage />} />
-							<Route path="/register" element={<RegisterPage />} />
-							<Route path="/flags" element={<FlagsPage />} />
-							<Route path="/recommendations" element={<RecommendationsPage />} />
-							<Route path="/company/:id" element={<CompanyPage />} />
-							<Route path="/add-company" element={<AddCompanyPage />} />
-							<Route path="/profile" element={<ProfilePage />} />
-							<Route path="/profile/edit" element={<EditProfilePage />} />
-							<Route path="/user/:userId" element={<UserProfilePage />} />
-							<Route path="*" element={<WelcomePage />} />
-						</Routes>
+						<ToastProvider>
+							<Routes>
+								<Route path="/" element={<WelcomePage />} />
+								<Route path="/login" element={<LoginPage />} />
+								<Route path="/register" element={<RegisterPage />} />
+								<Route path="/flags" element={<FlagsPage />} />
+								<Route path="/recommendations" element={<RecommendationsPage />} />
+								<Route path="/company/:id" element={<CompanyPage />} />
+								<Route path="/add-company" element={<AddCompanyPage />} />
+								<Route path="/profile" element={<ProfilePage />} />
+								<Route path="/profile/edit" element={<EditProfilePage />} />
+								<Route path="/user/:userId" element={<UserProfilePage />} />
+								<Route path="*" element={<WelcomePage />} />
+							</Routes>
+						</ToastProvider>
 					</GamificationAuthProvider>
 				</ReviewAuthProvider>
 			</AuthProvider>

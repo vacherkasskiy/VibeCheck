@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
+import { useToast } from 'shared/ui/Toast';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { Achievements } from 'widgets/Achievements';
 import { ActivityPanel } from 'widgets/ActivityPanel';
@@ -15,6 +16,7 @@ import styles from './ProfilePage.module.css';
 
 export const ProfilePage = () => {
 	const navigate = useNavigate();
+	const { showToast } = useToast();
 	const { profile, loading, error } = useProfile();
 	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
@@ -26,6 +28,15 @@ export const ProfilePage = () => {
 
 	const handleEditProfile = () => {
 		navigate('/profile/edit');
+	};
+
+	const handleNavToRecommendations = () => {
+		if (!profile?.flags || (profile.flags.green.length + profile.flags.red.length === 0)) {
+			showToast('Выберите хотя бы один green или red флаг на странице флагов, чтобы разблокировать рекомендации', 'error');
+			navigate('/flags');
+			return;
+		}
+		navigate('/recommendations');
 	};
 
 	const handleEditFlags = () => {
@@ -69,7 +80,7 @@ export const ProfilePage = () => {
 		return now - created <= fiveMinutes;
 	};
 
-	if (loading) {
+		if (loading) {
 		return (
 			<div className={styles.page}>
 				<HeaderGlow />
@@ -77,7 +88,7 @@ export const ProfilePage = () => {
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
-						onClick={() => navigate('/recommendations')}
+						onClick={handleNavToRecommendations}
 					>
 						<img
 							src="/assets/vibecheck-favicon.png"
@@ -94,7 +105,7 @@ export const ProfilePage = () => {
 		);
 	}
 
-	if (error || !profile) {
+		if (error || !profile) {
 		return (
 			<div className={styles.page}>
 				<HeaderGlow />
@@ -102,7 +113,7 @@ export const ProfilePage = () => {
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
-						onClick={() => navigate('/recommendations')}
+						onClick={handleNavToRecommendations}
 					>
 						<img
 							src="/assets/vibecheck-favicon.png"
@@ -115,7 +126,7 @@ export const ProfilePage = () => {
 				<div className={styles.errorMessage}>
 					<h2>Ошибка загрузки</h2>
 					<p>{error || 'Не удалось загрузить профиль'}</p>
-					<Button onClick={() => navigate('/recommendations')} variant="primary">
+					<Button onClick={handleNavToRecommendations} variant="primary">
 						Вернуться к списку
 					</Button>
 				</div>
@@ -126,25 +137,25 @@ export const ProfilePage = () => {
 	const { user, flags, achievements, reviews, subscriptions } = profile;
 
 	return (
-		<div className={styles.page}>
-			<HeaderGlow />
-			<CenterGlow />
-			<header className={styles.header}>
-				<div className={styles.logoContainer} onClick={() => navigate('/recommendations')}>
-					<img
-						src="/assets/vibecheck-favicon.png"
-						alt="VibeCheck"
-						className={styles.logo}
-					/>
-					<span className={styles.logoText}>VibeCheck</span>
-				</div>
-				<div className={styles.headerActions}>
-					<UserNavButton
-						avatarUrl={profile?.user?.avatarUrl}
-						nickname={profile?.user?.nickname}
-					/>
-				</div>
-			</header>
+			<div className={styles.page}>
+				<HeaderGlow />
+				<CenterGlow />
+				<header className={styles.header}>
+					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
+						<img
+							src="/assets/vibecheck-favicon.png"
+							alt="VibeCheck"
+							className={styles.logo}
+						/>
+						<span className={styles.logoText}>VibeCheck</span>
+					</div>
+					<div className={styles.headerActions}>
+						<UserNavButton
+							avatarUrl={profile?.user?.avatarUrl}
+							nickname={profile?.user?.nickname}
+						/>
+					</div>
+				</header>
 
 			<main className={styles.main}>
 				<ProfileHeader user={user} onEditProfile={handleEditProfile} />

@@ -6,7 +6,7 @@ export const ConflictDialog = ({ conflict, isOpen, onClose, onMove }: ConflictDi
 	if (!isOpen || !conflict) return null;
 
 	const handleMove = () => {
-		onMove(conflict.tag.id, conflict.target);
+		onMove(conflict.tag.id, conflict.target, conflict.type);
 		onClose();
 	};
 
@@ -15,8 +15,9 @@ export const ConflictDialog = ({ conflict, isOpen, onClose, onMove }: ConflictDi
 			<div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
 				<h3 className={styles.title}>Конфликт выбора</h3>
 				<p className={styles.message}>
-					Флаг "{conflict.tag.name}" был уже отнесён в другую категорию. Хотите
-					переместить его?
+					{conflict.type === 'duplicate'
+						? `Флаг "${conflict.tag.name}" уже добавлен в ${conflict.target === 'green' ? 'зеленые' : 'красные'}. Хотите обновить?`
+						: `Флаг "${conflict.tag.name}" уже в противоположной категории. Переместить в ${conflict.target === 'green' ? 'зеленые' : 'красные'}?`}
 				</p>
 				<div className={styles.buttons}>
 					<Button variant="secondary" size="medium" onClick={onClose}>

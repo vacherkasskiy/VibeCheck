@@ -15,10 +15,14 @@ export const RecommendationsPage: FC = () => {
 	};
 
 	return (
-		<div className={styles.container}>
+		<div className={styles.page}>
 			<HeaderGlow />
 			<CenterGlow />
-			<RecommendationsHeader searchValue={query} onSearchChange={setQuery} />
+			
+			<RecommendationsHeader 
+				searchValue={query} 
+				onSearchChange={setQuery} 
+			/>
 
 			<main className={styles.main}>
 				<CompanyList

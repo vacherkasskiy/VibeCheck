@@ -17,7 +17,11 @@ interface ReviewModalProps {
 	setText: (text: string) => void;
 	canSubmit: boolean;
 	canDelete: boolean;
+	loading: boolean;
+	error: string | null;
 	resetForm: () => void;
+	submitReview: () => Promise<void>;
+	deleteReview: () => Promise<void>;
 }
 
 const MAX_CHARS = 500;
@@ -37,7 +41,11 @@ export const ReviewModal = ({
 	setText,
 	canSubmit,
 	canDelete,
+	loading,
+	error,
 	resetForm,
+	submitReview,
+	deleteReview,
 }: ReviewModalProps) => {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -188,28 +196,37 @@ export const ReviewModal = ({
 		}
 	}, [canSubmit]);
 
-	const handleConfirmSubmit = useCallback(() => {
-		console.log('Submitting review:', formData);
-		setShowConfirmModal(false);
-		resetForm();
-		onClose();
-	}, [formData, resetForm, onClose]);
+	const handleConfirmSubmit = useCallback(async () => {
+		try {
+			await submitReview();
+			setShowConfirmModal(false);
+		} catch (err) {
+			console.error('Submit error:', err);
+		}
+	}, [submitReview]);
 
 	const handleDelete = useCallback(() => {
 		setShowDeleteModal(true);
 	}, []);
 
-	const handleConfirmDelete = useCallback(() => {
-		console.log('Deleting review');
-		setShowDeleteModal(false);
-		resetForm();
-		onClose();
-	}, [resetForm, onClose]);
+	const handleConfirmDelete = useCallback(async () => {
+		try {
+			await deleteReview();
+			setShowDeleteModal(false);
+		} catch (err) {
+			console.error('Delete error:', err);
+		}
+	}, [deleteReview]);
 
 	const handleClose = useCallback(() => {
 		resetForm();
 		onClose();
 	}, [resetForm, onClose]);
+
+	if (error) {
+		// Error toast or inline message
+		console.error('Review modal error:', error);
+	}
 
 	const getCharCountColor = () => {
 		const count = formData.text?.length || 0;
@@ -321,10 +338,14 @@ export const ReviewModal = ({
 							variant="primary"
 							size="small"
 							onClick={handleSubmit}
-							disabled={!canSubmit}
+							disabled={!canSubmit || loading}
 							className={styles.submitBtn}
 						>
-							{isEditMode ? 'Отправить отзыв' : 'Отправить отзыв'}
+							{loading
+								? 'Отправка...'
+								: isEditMode
+									? 'Сохранить изменения'
+									: 'Опубликовать отзыв'}
 						</Button>
 					</div>
 				</div>

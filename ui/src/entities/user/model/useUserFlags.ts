@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchUserFlags } from './api';
 import type { UserFlags } from './types';
 
@@ -6,6 +6,7 @@ export const useUserFlags = () => {
   const [flags, setFlags] = useState<UserFlags>({ green: [], red: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trigger, setTrigger] = useState(0);
 
   useEffect(() => {
     const loadFlags = async () => {
@@ -22,8 +23,12 @@ export const useUserFlags = () => {
     };
 
     loadFlags();
+  }, [trigger]);
+
+  const refetch = useCallback(() => {
+    setTrigger(t => t + 1);
   }, []);
 
-  return { flags, loading, error, refetch: () => {/* implement refetch logic  */} };
+  return { flags, loading, error, refetch };
 };
 

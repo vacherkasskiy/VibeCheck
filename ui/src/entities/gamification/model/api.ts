@@ -1,13 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-// eslint-disable-next-line @conarti/feature-sliced/layers-slices
-import { useGamificationAuth } from 'features/gamificationAuth';
+import http from 'shared/api/http';
 import type { 
   GetMyAchievementsGatewayResponse, 
   GetLevelGatewayResponse,
+  GetUserAchievementsGatewayResponse,
   MyAchievementsFilterStatus 
 } from './types';
-
-const GAMIFICATION_API_BASE = (__API_URL__ || '/api') + '/gamification';
 
 export const gamificationApi = {
   getMyAchievements: async (
@@ -15,59 +12,28 @@ export const gamificationApi = {
     pageNum = 1, 
     status?: MyAchievementsFilterStatus
   ): Promise<GetMyAchievementsGatewayResponse> => {
-    const { state } = useGamificationAuth();
-    if (!state.token) throw new Error('No gamification token available');
-
-    const params = new URLSearchParams({ take: take.toString(), pageNum: pageNum.toString() });
-    if (status) params.append('status', status);
-
-    const response = await fetch(`${GAMIFICATION_API_BASE}/users/me/achievements?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${state.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch achievements: ${response.status}`);
-    }
-
-    return response.json();
+    const params = { take, pageNum, ...(status && { status }) };
+const { data } = await http.get<GetMyAchievementsGatewayResponse>('http://gateway.local/api/users/me/achievements', params);
+    return data;
   },
 
   getMyLevel: async (): Promise<GetLevelGatewayResponse> => {
-    const { state } = useGamificationAuth();
-    if (!state.token) throw new Error('No gamification token available');
-
-    const response = await fetch(`${GAMIFICATION_API_BASE}/users/me/level`, {
-      headers: {
-        'Authorization': `Bearer ${state.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch level: ${response.status}`);
-    }
-
-    return response.json();
+const { data } = await http.get<GetLevelGatewayResponse>('http://gateway.local/api/users/me/level');
+    return data;
   },
 
   getUserLevel: async (userId: string): Promise<GetLevelGatewayResponse> => {
-    const { state } = useGamificationAuth();
-    if (!state.token) throw new Error('No gamification token available');
+    const { data } = await http.get<GetLevelGatewayResponse>(`http://gateway.local/api/users/${userId}/level`);
+    return data;
+  },
 
-    const response = await fetch(`${GAMIFICATION_API_BASE}/users/${userId}/level`, {
-      headers: {
-        'Authorization': `Bearer ${state.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user level: ${response.status}`);
-    }
-
-    return response.json();
+  getUserAchievements: async (
+    userId: string, 
+    take = 20, 
+    pageNum = 1
+  ): Promise<GetUserAchievementsGatewayResponse> => {
+    const params = { take, pageNum };
+    const { data } = await http.get<GetUserAchievementsGatewayResponse>(`http://gateway.local/api/users/${userId}/achievements`, params);
+    return data;
   },
 };

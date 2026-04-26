@@ -27,8 +27,8 @@ export const useCompanySearch = (): UseCompanySearchResult => {
       try {
         const response = await companyApi.fetchCompanies({
           q: query,
-          offset: reset ? 0 : offset,
-          limit: 10,
+          take: 10,
+          pageNum: 1,
         });
         
         setTotal(response.total);
@@ -51,13 +51,11 @@ export const useCompanySearch = (): UseCompanySearchResult => {
     [query, offset]
   );
 
-  // Initial load
   useEffect(() => {
     load(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Search with debounce
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {

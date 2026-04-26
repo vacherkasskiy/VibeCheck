@@ -1,5 +1,6 @@
 import { CompanyInfo } from 'entities/company';
 import { useCompanyPage } from 'features/companyPage';
+import { useCompanyFlags } from 'features/companyPage';
 import { useProfile } from 'features/profile';
 import { ReviewModal, useReviewModal } from 'features/reviewModal';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,14 +8,15 @@ import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
-import { ReviewsSection } from 'widgets/ReviewsSection';
-import { Top20FlagsSection } from 'widgets/Top20FlagsSection';
 import styles from './CompanyPage.module.css';
+import { ReviewsSection } from './ReviewsSection';
+import { Top20FlagsSection } from './Top20FlagsSection';
 
 export const CompanyPage = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { company, loading, error } = useCompanyPage(id);
+	const { loading: companyFlagsLoading } = useCompanyFlags(id);
 	const { profile } = useProfile();
 	const {
 		isOpen,
@@ -28,9 +30,13 @@ export const CompanyPage = () => {
 		canDelete,
 		isEditMode,
 		resetForm,
-	} = useReviewModal();
+		loading: modalLoading,
+		error: modalError,
+		submitReview,
+		deleteReview,
+	} = useReviewModal(company?.id || 'test-company-001');
 
-	if (loading) {
+	if (loading || companyFlagsLoading) {
 		return (
 			<div className={styles.page}>
 				<HeaderGlow />
@@ -110,8 +116,8 @@ export const CompanyPage = () => {
 			<main className={styles.main}>
 				<CompanyInfo company={company} />
 				<div className={styles.sections}>
-					<ReviewsSection reviews={company.reviews || []} />
-					<Top20FlagsSection flags={company.topFlags || []} />
+				<ReviewsSection />
+					<Top20FlagsSection />
 				</div>
 			</main>
 			<ReviewModal
@@ -127,7 +133,12 @@ export const CompanyPage = () => {
 				canSubmit={canSubmit}
 				canDelete={canDelete}
 				resetForm={resetForm}
+				loading={modalLoading}
+				error={modalError}
+				submitReview={submitReview}
+				deleteReview={deleteReview}
 			/>
+
 		</div>
 	);
 };

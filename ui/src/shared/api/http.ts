@@ -50,7 +50,7 @@ class Http implements IAxios {
       (config) => {
         const token = accessTokenProvider ? accessTokenProvider() : localStorage.getItem('accessToken');
         if (token && !config.url?.match(/(auth\/email\/login|auth\/email\/register|auth\/email\/register\/confirm|auth\/refresh|auth\/logout|avatars)/)) {
-          config.headers.Authorization = `${token}`;
+          config.headers.Authorization = `Bearer ${token}`;
         }
 
         return config;
@@ -75,7 +75,7 @@ class Http implements IAxios {
           }
 
           try {
-            const refreshResponse = await axios.post(`${__API_URL__ || '/api'}/auth/refresh`, { refreshToken });
+            const refreshResponse = await axios.post(`${__API_URL__ || '/api'}auth/refresh`, { refreshToken });
             if (refreshResponse.data && refreshResponse.data.accessToken) {
               localStorage.setItem('accessToken', refreshResponse.data.accessToken);
               originalRequest.headers.Authorization = `${refreshResponse.data.accessToken}`;

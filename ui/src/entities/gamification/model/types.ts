@@ -1,5 +1,17 @@
 export type AchievementStatus = 'Completed' | 'InProgress' | 'NotStarted';
 
+export interface UserAchievementItemDto {
+  achievementId: string;
+  name: string;
+  iconUrl: string;
+  obtainedAt: string;
+}
+
+export interface GetUserAchievementsGatewayResponse {
+  totalCount: number;
+  achievements: UserAchievementItemDto[];
+}
+
 export interface ProgressDto {
   current: number;
   target: number;

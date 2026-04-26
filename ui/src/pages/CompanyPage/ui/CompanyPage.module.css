@@ -42,7 +42,7 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,6 +86,7 @@
 
 .main {
   max-width: 1400px;
+  z-index: 1000;
   margin: 0 auto;
   padding: clamp(24px, 5vw, 40px) clamp(16px, 4vw, 32px);
   display: grid;

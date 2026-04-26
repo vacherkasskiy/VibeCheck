@@ -6,7 +6,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from 'shared/ui/Toast';
 import type { Tag, SelectedTag, Category } from 'entities/tag';
-import type { SaveUserFlagsRequest } from 'entities/user';
+import type { SetUserFlagsRequest } from 'entities/user';
 
 export type Side = 'green' | 'red';
 
@@ -54,7 +54,7 @@ export const useFlags = () => {
       return;
     }
 
-    const selected: SelectedTag = { tag, priority: 3 };
+  const selected: SelectedTag = { tag, priority: 3 };
     if (side === 'green') {
       setGreen(prev => ({ ...prev, [tag.id]: selected }));
     } else {
@@ -117,21 +117,21 @@ export const useFlags = () => {
       const redFlags = Object.values(red);
 
       const greenGroups = [1, 2, 3].map(p => ({
-        priority: p,
+        weight: p,
         flags: greenFlags.filter(f => f.priority === p).map(f => f.tag.id)
-      })).filter(g => g.flags.length > 0);
+      })).filter((g): g is {weight: 1|2|3, flags: string[]} => g.flags.length > 0);
 
       const redGroups = [1, 2, 3].map(p => ({
-        priority: p,
+        weight: p,
         flags: redFlags.filter(f => f.priority === p).map(f => f.tag.id)
-      })).filter(r => r.flags.length > 0);
+      })).filter((r): r is {weight: 1|2|3, flags: string[]} => r.flags.length > 0);
 
-      const requestBody: SaveUserFlagsRequest = {
+      const requestBody: SetUserFlagsRequest = {
         greenFlags: greenGroups,
         redFlags: redGroups,
       };
 
-      await userApi.saveUserFlags(requestBody);
+      await userApi.setUserFlags(requestBody);
       showToast('Флаги сохранены успешно!', 'success');
       navigate('/recommendations', { state: { context } });
     } catch (error: any) {

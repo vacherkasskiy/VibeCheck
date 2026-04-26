@@ -46,14 +46,14 @@ spec:
               containerPort: 9300
           env:
             - name: ES_JAVA_OPTS
-              value: "-Xms1g -Xmx1g"
+              value: "-Xms512m -Xmx512m"
           resources:
             requests:
-              cpu: 500m
-              memory: 2Gi
+              cpu: 200m
+              memory: 1Gi
             limits:
-              cpu: "1"
-              memory: 2Gi
+              cpu: 750m
+              memory: 1Gi
           readinessProbe:
             httpGet:
               path: /_cluster/health?wait_for_status=yellow&timeout=1s
@@ -141,6 +141,9 @@ spec:
           ports:
             - name: http
               containerPort: 5601
+          env:
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=384"
           readinessProbe:
             httpGet:
               path: /api/status
@@ -159,11 +162,11 @@ spec:
             failureThreshold: 6
           resources:
             requests:
-              cpu: 200m
-              memory: 1Gi
+              cpu: 100m
+              memory: 384Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 300m
+              memory: 768Mi
           volumeMounts:
             - name: kibana-config
               mountPath: /usr/share/kibana/config/kibana.yml

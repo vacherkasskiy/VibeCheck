@@ -1,5 +1,5 @@
 import http from 'shared/api/http';
-import { mockAuth } from 'shared/model/mockAuth';
+
 import type { 
   User, 
   UserFlags, 
@@ -10,6 +10,7 @@ import type {
   Subscription, 
   UserProfileData 
 } from './types';
+
 
 const AVATARS = [
   { id: '1', url: '/assets/avatars/avatar1.png' },
@@ -73,6 +74,24 @@ const MOCK_SUBSCRIPTIONS: Subscription[] = [
   },
 ];
 
+interface UserInfo {
+  name: string;
+  iconId: string;
+  email: string;
+  education: string;
+  specialization: string;
+  workExperience: Array<{
+    specialization: string;
+    startedAt: string;
+    finishedAt: string | null;
+  }>;
+}
+
+const getMyUserInfo = async (): Promise<UserInfo> => {
+  const res = await http.get<UserInfo>('/users/me/info');
+  return res.data;
+};
+
 export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
   return fetchWithMockFallback(
     () => http.get('/api/users/avatars'),
@@ -82,15 +101,10 @@ export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
 
 export const updateProfile = async (data: any): Promise<any> => {
   try {
-    const response = await http.post('/api/users/info', data);
+    const response = await http.post('/users/info', data);
     return response;
-  } catch {
-    // Mock update using mockAuth storage
-    const current = mockAuth.getCurrentUser();
-    if (current) {
-      // Simulate update (in real, would persist to mock users)
-      console.log('Mock profile update:', data);
-    }
+  } catch (err) {
+    console.log('Profile update error:', err);
     return { success: true };
   }
 };
@@ -99,15 +113,7 @@ export const saveUserFlags = async (data: SaveUserFlagsRequest): Promise<void> =
   try {
     await http.post('/api/users/flags', data);
   } catch (error: any) {
-    // Mock fallback
-    const flatPrefs = {
-      green: data.greenFlags.flatMap(g => g.flags.map(flagId => ({ id: flagId, priority: g.priority }))),
-      red: data.redFlags.flatMap(r => r.flags.map(flagId => ({ id: flagId, priority: r.priority }))),
-    };
-    const result = mockAuth.saveFlags(flatPrefs as any);
-    if (!result.ok) {
-      throw new Error(result.data?.message || 'Mock save failed');
-    }
+    console.log('Save flags error:', error);
   }
 };
 
@@ -124,9 +130,45 @@ const fetchWithMockFallback = async <T>(
 };
 
 export const fetchProfile = async (): Promise<UserProfileData> => {
-  return fetchWithMockFallback(
-    () => http.get('/api/users/profile'),
-    {
+  try {
+    const [userInfo, avatarList, flags, achievements, reviews, activity, subscriptions] = await Promise.all([
+      getMyUserInfo(),
+      getAvatars(),
+      fetchUserFlags(),
+      fetchAchievements(),
+      fetchUserReviews(),
+      fetchActivity(),
+      fetchSubscriptions()
+    ]);
+
+    const avatarUrl = avatarList.find((a: any) => a.id === userInfo.iconId)?.url || null;
+
+    const user: User = {
+      id: 'current-user-id', 
+      nickname: userInfo.name,
+      email: userInfo.email,
+      avatarUrl,
+      level: 5, // mock
+      levelLabel: 'Senior',
+      levelProgress: 75,
+      education: userInfo.education,
+      experience: userInfo.workExperience?.length > 0 
+        ? `${userInfo.workExperience[0].specialization} с ${new Date(userInfo.workExperience[0].startedAt).getFullYear()}`
+        : 'Без опыта',
+      expertise: userInfo.specialization,
+    };
+
+    return {
+      user,
+      flags,
+      achievements,
+      reviews,
+      activity,
+      subscriptions
+    };
+  } catch (error) {
+    console.error('Failed to fetch profile:', error);
+    return {
       user: {
         id: 'mock1',
         nickname: 'Mock User',
@@ -144,8 +186,8 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
       reviews: MOCK_REVIEWS,
       activity: MOCK_ACTIVITY,
       subscriptions: MOCK_SUBSCRIPTIONS,
-    }
-  );
+    };
+  }
 };
 
 export const fetchUser = async (): Promise<User> => {

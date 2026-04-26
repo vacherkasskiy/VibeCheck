@@ -10,4 +10,4 @@ export type {
   SaveUserFlagsRequest,
 } from './model/types';
 
-export { userApi } from './model/api';
+export { userApi, useUserFlags } from './model';

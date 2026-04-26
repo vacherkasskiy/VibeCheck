@@ -1,3 +1,4 @@
+/* eslint-disable @conarti/feature-sliced/absolute-relative */
 import { AuthButton } from '@shared/ui/AuthButton';
 import { InputField } from '@shared/ui/InputField';
 import { PasswordInput } from '@shared/ui/PasswordInput';
@@ -5,16 +6,20 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from 'shared/assets/Logo';
 import styles from './styles.module.css';
+import { login } from '../../../features/auth';
+import { useAuth } from '../../../features/auth';
+
+
 
 export const AuthForm = () => {
+	const { dispatch } = useAuth();
+	const navigate = useNavigate();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [emailError, setEmailError] = useState('');
 	const [passwordError, setPasswordError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
-
-	const navigate = useNavigate();
 
 	const validateEmail = (value: string): string => {
 		if (!value) {
@@ -55,27 +60,18 @@ export const AuthForm = () => {
 		setGeneralError('');
 
 		try {
-			const response = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, password }),
-			});
-
-			const data = await response.json();
-
-			if (response.ok) {
-				localStorage.setItem('accessToken', data.accessToken);
-				localStorage.setItem('refreshToken', data.refreshToken);
-				navigate('/flags');
-			} else if (data.code === 'ACCOUNT_BLOCKED') {
+			const data = await login({ login: email, password });
+			localStorage.setItem('accessToken', data.accessToken);
+			localStorage.setItem('refreshToken', data.refreshToken);
+			dispatch({ type: 'SET_TOKENS', payload: data });
+			navigate('/recommendations');
+		} catch (err: any) {
+			const data = err.response?.data || err;
+			if (data.code === 'ACCOUNT_BLOCKED') {
 				setGeneralError('Ваш аккаунт был заблокирован');
 			} else {
 				setGeneralError(data.message || 'Ошибка входа');
 			}
-		} catch {
-			setGeneralError('Ошибка соединения. Проверьте интернет.');
 		} finally {
 			setIsLoading(false);
 		}

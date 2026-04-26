@@ -1,5 +1,4 @@
 /* Mock companies service: returns companies sorted/relevant to user preferences. */
-import { mockAuth } from './mockAuth';
 import type { 
 	CompanyFlag, 
 	CompanyContact, 
@@ -7,6 +6,13 @@ import type {
 	CompanyReview, 
 	CompanyDTO 
 } from 'entities/company';
+
+type MockUserPrefs = {
+  preferences: {
+    green: Array<{id: string; priority: number}>;
+    red: Array<{id: string; priority: number}>;
+  };
+};
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -325,9 +331,8 @@ const AUTO_GENERATED_COMPANIES: CompanyDTO[] = Array.from({ length: 100 }).map((
 const SEED_COMPANIES: CompanyDTO[] = [...REALISTIC_COMPANIES, ...AUTO_GENERATED_COMPANIES];
 
 function relevanceScore(company: CompanyDTO): number {
-	// Basic scoring against user prefs: +priority weight for green flags, -priority for red
-	const user = mockAuth.getCurrentUser();
-	if (!user || !user.preferences) return 0;
+	// Stub no user prefs
+  const user: MockUserPrefs = { preferences: { green: [], red: [] } };
 	const { green = [], red = [] } = user.preferences;
 	let score = 0;
 	for (const f of company.topFlags) {

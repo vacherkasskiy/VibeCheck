@@ -1,4 +1,3 @@
-import axios from 'axios'; // raw axios for manual refresh
 import http from 'shared/api/http';
 import type { 
   RegisterRequest, RegisterResponse,
@@ -6,9 +5,17 @@ import type {
   PasswordResetRequest, PasswordConfirmRequest, RefreshResponse 
 } from './types';
 
-export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
-  const response = await http.post<RegisterResponse>('/auth/email/register', data);
-  return response.data;
+export const register = async (data: RegisterRequest): Promise<void> => {
+  await http.post('/auth/email/register', data);
+};
+
+export const registerConfirm = async (code: string): Promise<{accessToken: string; refreshToken: string}> => {
+  const res = await http.post<{accessToken: string; refreshToken: string}>('/auth/email/register/confirm?confirmCode=' + parseInt(code), undefined);
+  return res.data;
+};
+
+export const registerResend = async (data: RegisterRequest): Promise<void> => {
+  await http.post('/auth/email/register', data);
 };
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
@@ -21,11 +28,7 @@ export const logout = async (): Promise<void> => {
 };
 
 export const refreshAccessToken = async (refreshToken: string): Promise<RefreshResponse> => {
-  const response = await axios.post<RefreshResponse>('/auth/refresh', {}, {
-    headers: {
-      Authorization: `Bearer ${refreshToken}`
-    }
-  });
+  const response = await http.post<RefreshResponse>('/auth/refresh', { refreshToken });
   return response.data;
 };
 
@@ -33,7 +36,12 @@ export const passwordReset = async (data: PasswordResetRequest): Promise<void> =
   await http.post('/auth/email/password/reset', data);
 };
 
+export const passwordResetResend = async (data: PasswordResetRequest): Promise<void> => {
+  await http.post('/auth/email/password/reset', data);
+};
+
 export const passwordConfirm = async (code: string, data: PasswordConfirmRequest): Promise<void> => {
-  const url = `/auth/email/password/confirm?confirmCode=${code}`;
+  const url = `/auth/email/password/reset?confirmCode=${code}`;
   await http.put(url, data);
 };
+

@@ -1,26 +1,21 @@
-/* eslint-disable @conarti/feature-sliced/absolute-relative */
+/* eslint-disable @conarti/feature-sliced/public-api */
+/* eslint-disable @conarti/feature-sliced/layers-slices */
+import { passwordReset } from 'features/auth/model/api';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Logo from 'shared/assets/Logo';
 import { AuthButton } from 'shared/ui/AuthButton';
 import { InputField } from 'shared/ui/InputField';
 import { Modal } from 'shared/ui/Modal';
 import { PasswordInput } from 'shared/ui/PasswordInput';
-import { ProgressBar } from 'shared/ui/ProgressBar/ui/ProgressBar';
-// eslint-disable-next-line @conarti/feature-sliced/layers-slices
-import { ProfileForm } from 'widgets/ProfileForm';
-
+import { VerificationForm } from 'widgets/VerificationForm';
 import styles from './styles.module.css';
-import { register } from '../../../features/auth';
 
-// eslint-disable-next-line @conarti/feature-sliced/layers-slices
-import { VerificationForm } from '../../VerificationForm';
-
-export const RegistrationForm = () => {
+export const ForgotPasswordForm = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState(1);
 	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [emailError, setEmailError] = useState('');
 	const [passwordError, setPasswordError] = useState('');
@@ -28,8 +23,6 @@ export const RegistrationForm = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
 	const [showErrorModal, setShowErrorModal] = useState(false);
-
-	const STEPS = ['Email', 'Код', 'Профиль'];
 
 	const validateEmail = (value: string): string => {
 		if (!value) {
@@ -57,7 +50,7 @@ export const RegistrationForm = () => {
 	};
 
 	const handlePasswordChange = (value: string) => {
-		setPassword(value);
+		setNewPassword(value);
 		if (value && !validatePassword(value)) {
 			setPasswordError(
 				'Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол',
@@ -74,25 +67,25 @@ export const RegistrationForm = () => {
 
 	const handleConfirmPasswordChange = (value: string) => {
 		setConfirmPassword(value);
-		if (value !== password) {
+		if (value !== newPassword) {
 			setConfirmPasswordError('Пароли не совпадают');
 		} else {
 			setConfirmPasswordError('');
 		}
 	};
 
-	const handleEmailSubmit = async () => {
+	const handleSubmit = async () => {
 		const emailValidationError = validateEmail(email);
 		if (emailValidationError) {
 			setEmailError(emailValidationError);
 			return;
 		}
 
-		if (!password) {
+		if (!newPassword) {
 			setPasswordError('Обязательное поле');
 			return;
 		}
-		if (!validatePassword(password)) {
+		if (!validatePassword(newPassword)) {
 			setPasswordError(
 				'Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол',
 			);
@@ -103,7 +96,7 @@ export const RegistrationForm = () => {
 			setConfirmPasswordError('Обязательное поле');
 			return;
 		}
-		if (password !== confirmPassword) {
+		if (newPassword !== confirmPassword) {
 			setConfirmPasswordError('Пароли не совпадают');
 			return;
 		}
@@ -115,20 +108,12 @@ export const RegistrationForm = () => {
 		setConfirmPasswordError('');
 
 		try {
-			await register({ login: email, password });
+			await passwordReset({ email });
 			setStep(2);
 		} catch (err: any) {
 			let msg =
 				err.response?.data?.message ||
-				'Не удалось зарегистрироваться. Проверьте соединение и попробуйте снова.';
-			if (
-				msg.toLowerCase().includes('already exists') ||
-				msg.toLowerCase().includes('email_exists') ||
-				msg.toLowerCase().includes('существует')
-			) {
-				msg =
-					'Пользователь с таким email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
-			}
+				'Не удалось отправить код сброса. Проверьте соединение и попробуйте снова.';
 			setGeneralError(msg);
 			setShowErrorModal(true);
 		} finally {
@@ -138,7 +123,7 @@ export const RegistrationForm = () => {
 
 	const handleBack = () => {
 		if (step === 1) {
-			navigate('/');
+			navigate('/login');
 		} else {
 			setStep(step - 1);
 		}
@@ -155,8 +140,10 @@ export const RegistrationForm = () => {
 				<div className={styles.logoContainer}>
 					<Logo className={styles.logo} />
 				</div>
-				<h1 className={styles.title}>Создать аккаунт</h1>
-				<p className={styles.subtitle}>Введите почту и пароль для регистрации.</p>
+				<h1 className={styles.title}>Сбросить пароль</h1>
+				<p className={styles.subtitle}>
+					Введите почту и новый пароль. Код будет отправлен на email.
+				</p>
 			</div>
 
 			<InputField
@@ -170,8 +157,8 @@ export const RegistrationForm = () => {
 			/>
 
 			<PasswordInput
-				label="Пароль"
-				value={password}
+				label="Новый пароль"
+				value={newPassword}
 				onChange={handlePasswordChange}
 				required
 				error={passwordError}
@@ -186,20 +173,19 @@ export const RegistrationForm = () => {
 				error={confirmPasswordError}
 			/>
 
+			{generalError && <div className={styles.generalError}>{generalError}</div>}
+
 			<div className={styles.submitButton}>
-				<AuthButton
-					variant="submit"
-					fullWidth
-					onClick={handleEmailSubmit}
-					disabled={isLoading}
-				>
-					{isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+				<AuthButton variant="submit" fullWidth onClick={handleSubmit} disabled={isLoading}>
+					{isLoading ? 'Отправка...' : 'Отправить код'}
 				</AuthButton>
 			</div>
 
-			<div className={styles.registerLink}>
-				<span>Уже есть аккаунт? </span>
-				<Link to="/login">Войти</Link>
+			<div className={styles.loginLink}>
+				<span>Вспомнили пароль? </span>
+				<button type="button" onClick={() => navigate('/login')} className={styles.link}>
+					Войти
+				</button>
 			</div>
 		</>
 	);
@@ -207,17 +193,10 @@ export const RegistrationForm = () => {
 	const renderStep2 = () => (
 		<VerificationForm
 			email={email}
-			password={password}
-			onSuccess={() => setStep(3)}
+			password={newPassword}
+			mode="reset"
 			onBack={() => setStep(1)}
-		/>
-	);
-
-	const renderStep3 = () => (
-		<ProfileForm
-			email={email}
-			onSubmit={() => navigate('/recommendations')}
-			onBack={() => setStep(2)}
+			onSuccess={() => navigate('/login')}
 		/>
 	);
 
@@ -237,17 +216,12 @@ export const RegistrationForm = () => {
 					<span>Назад</span>
 				</button>
 
-				<div className={styles.form}>
-					<form>
-						{step === 1 ? renderStep1() : step === 2 ? renderStep2() : renderStep3()}
-					</form>
-				</div>
-				{step < 3 && <ProgressBar currentStep={step} totalSteps={3} steps={STEPS} />}
+				<div className={styles.form}>{step === 1 ? renderStep1() : renderStep2()}</div>
 			</div>
 
 			<Modal isOpen={showErrorModal} onClose={handleCloseModal}>
 				<div className={styles.errorModal}>
-					<h3>Ошибка регистрации</h3>
+					<h3>Ошибка</h3>
 					<p className={styles.generalError}>{generalError}</p>
 					<AuthButton variant="submit" fullWidth onClick={handleCloseModal}>
 						OK
@@ -257,3 +231,5 @@ export const RegistrationForm = () => {
 		</div>
 	);
 };
+
+export default ForgotPasswordForm;

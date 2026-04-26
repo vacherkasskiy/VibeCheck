@@ -1,5 +1,5 @@
+import { createUserInfoDto, updateMyInfo } from 'features/auth';
 import { useState } from 'react';
-import { mockAuth } from 'shared/model/mockAuth';
 import { AvatarSelector } from 'shared/ui/AvatarSelector';
 import { Button } from 'shared/ui/Button';
 import { InputField } from 'shared/ui/InputField';
@@ -54,6 +54,11 @@ const INDUSTRY_OPTIONS = [
 	{ value: 'NGO', label: 'Некоммерческие организации' },
 	{ value: 'OTHER', label: 'Другое' },
 ];
+
+const dateToISO = (dateStr: string): string => {
+	const [day, month, year] = dateStr.split('.').map(Number);
+	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00Z`;
+};
 
 export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	const [avatarId, setAvatarId] = useState<string | null>(null);
@@ -167,26 +172,26 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 		setGeneralError('');
 
 		try {
-			const [day, month, year] = birthDate.split('.');
-			const res = await mockAuth.registerComplete({
+			const birthDateISO = dateToISO(birthDate);
+			const expWithISO = experiences.map((exp) => ({
+				industry: exp.industry,
+				startDate: dateToISO(exp.startDate),
+				endDate: exp.endDate ? dateToISO(exp.endDate) : null,
+			}));
+			const dto = createUserInfoDto({
 				email,
 				avatarId: avatarId!,
 				nickname,
 				sex: sex as any,
-				birthDate: `${year}-${month}-${day}`,
-				education: education as any,
-				industry: industry as any,
-				experiences: experiences.map((exp) => ({
-					industry: exp.industry as any,
-					startDate: exp.startDate.split('.').reverse().join('-'),
-					endDate: exp.endDate ? exp.endDate.split('.').reverse().join('-') : null,
-				})),
+				birthDate: birthDateISO,
+				education,
+				industry,
+				experiences: expWithISO,
 			});
-
-			if (res.ok) onSubmit();
-			else setGeneralError(res.data.message || 'Ошибка сохранения');
-		} catch {
-			setGeneralError('Ошибка соединения');
+			await updateMyInfo(dto);
+			onSubmit();
+		} catch (err: any) {
+			setGeneralError(err.response?.data?.message || 'Ошибка сохранения профиля');
 		} finally {
 			setIsLoading(false);
 		}

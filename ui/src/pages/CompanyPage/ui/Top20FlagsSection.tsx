@@ -1,24 +1,30 @@
 import { useUserFlags } from 'entities/user';
-import { useCurrentUser } from 'features/auth/model/useCurrentUser';
+import { useCompanyFlags } from 'features/companyPage';
 import { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Input } from 'shared/ui/Input';
 import styles from './Top20FlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
 import type { UserFlag } from 'entities/user';
 
 interface Top20FlagsSectionProps {
-	flags: CompanyFlag[];
+	companyId?: string;
 }
 
-export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
-	const [searchQuery, setSearchQuery] = useState('');
+export const Top20FlagsSection = ({ companyId }: Top20FlagsSectionProps = {}) => {
+	const { id } = useParams<{ id: string }>();
+	const finalCompanyId = companyId || id;
 
-	const { flags: { green: userGreenFlags, red: userRedFlags } } = useUserFlags();
+	const { flags, loading, error, searchQuery, setSearchQuery } = useCompanyFlags(companyId);
+
+	const {
+		flags: { green: userGreenFlags, red: userRedFlags },
+	} = useUserFlags();
 
 	const filteredFlags = useMemo(() => {
 		if (!searchQuery.trim()) return flags;
 		const query = searchQuery.toLowerCase();
-		return flags.filter((flag) => flag.name.toLowerCase().includes(query));
+		return flags.filter((flag: CompanyFlag) => flag.name.toLowerCase().includes(query));
 	}, [flags, searchQuery]);
 
 	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
@@ -29,6 +35,28 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 		if (isRed) return 'red';
 		return 'gray';
 	};
+
+	if (loading) {
+		return (
+			<section className={styles.section}>
+				<div className={styles.header}>
+					<h2 className={styles.title}>Топ-20 флагов</h2>
+				</div>
+				<div className={styles.loading}>Загрузка флагов...</div>
+			</section>
+		);
+	}
+
+	if (error) {
+		return (
+			<section className={styles.section}>
+				<div className={styles.header}>
+					<h2 className={styles.title}>Топ-20 флагов</h2>
+				</div>
+				<div className={styles.error}>Ошибка загрузки флагов</div>
+			</section>
+		);
+	}
 
 	return (
 		<section className={styles.section}>
@@ -46,7 +74,7 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 
 			<div className={styles.flagsGrid}>
 				{filteredFlags.length > 0 ? (
-					filteredFlags.map((flag) => {
+					filteredFlags.map((flag: CompanyFlag) => {
 						const color = getFlagColor(flag.id);
 						return (
 							<div key={flag.id} className={`${styles.flag} ${styles[color]}`}>

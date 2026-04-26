@@ -3,7 +3,7 @@ import http from 'shared/api/http';
 import type { 
   User, 
   UserFlags, 
-  SaveUserFlagsRequest,
+  SetUserFlagsRequest,
   Achievement, 
   UserReview, 
   ActivityItem, 
@@ -21,18 +21,7 @@ const AVATARS = [
   { id: '6', url: '/assets/avatars/avatar6.png' },
 ];
 
-const MOCK_ACHIEVEMENTS: Achievement[] = [
-  {
-    id: '1',
-    type: 'first_review',
-    name: 'First Review',
-    description: 'Posted your first company review',
-    iconUrl: '/icons/achievement1.png',
-    unlockedAt: new Date().toISOString(),
-    earnedAt: new Date().toISOString(),
-    color: '#4CAF50',
-  },
-];
+const MOCK_ACHIEVEMENTS: Achievement[] = [];
 
 const MOCK_FLAGS: UserFlags = {
   green: [{ id: 'g1', name: 'Great Team', priority: 1 }],
@@ -109,12 +98,19 @@ export const updateProfile = async (data: any): Promise<any> => {
   }
 };
 
-export const saveUserFlags = async (data: SaveUserFlagsRequest): Promise<void> => {
+export const setUserFlags = async (data: SetUserFlagsRequest): Promise<void> => {
   try {
-    await http.post('/api/users/flags', data);
+    await http.put('/api/users/flags', data);
   } catch (error: any) {
-    console.log('Save flags error:', error);
+    console.log('Set flags error:', error);
   }
+};
+
+export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => {
+  return fetchWithMockFallback(
+    () => http.get(`/api/users/${userId}/flags`),
+    MOCK_FLAGS
+  );
 };
 
 const fetchWithMockFallback = async <T>(
@@ -148,9 +144,9 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
       nickname: userInfo.name,
       email: userInfo.email,
       avatarUrl,
-      level: 5, // mock
-      levelLabel: 'Senior',
-      levelProgress: 75,
+      level: 1,
+      levelLabel: 'Beginner',
+      levelProgress: 0,
       education: userInfo.education,
       experience: userInfo.workExperience?.length > 0 
         ? `${userInfo.workExperience[0].specialization} с ${new Date(userInfo.workExperience[0].startedAt).getFullYear()}`
@@ -174,9 +170,9 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
         nickname: 'Mock User',
         email: 'mock@example.com',
         avatarUrl: AVATARS[0].url,
-        level: 5,
-        levelLabel: 'Senior',
-        levelProgress: 75,
+        level: 1,
+        levelLabel: 'Beginner',
+        levelProgress: 0,
         education: 'BACHELOR',
         experience: '5 years',
         expertise: 'Fullstack',
@@ -210,17 +206,15 @@ export const fetchUser = async (): Promise<User> => {
 
 export const fetchUserFlags = async (): Promise<UserFlags> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/flags'),
+() => http.get('/api/users/me/flags'),
     MOCK_FLAGS
   );
 };
 
-export const fetchAchievements = async (): Promise<Achievement[]> => {
-  return fetchWithMockFallback(
-    () => http.get('/api/users/achievements'),
-    MOCK_ACHIEVEMENTS
-  );
-};
+// import { gamificationApi } from 'entities/gamification';
+
+// TODO: Enable gamification after fixing feature-sliced import rules
+export const fetchAchievements = async (): Promise<Achievement[]> => [] as Achievement[];
 
 export const fetchUserReviews = async (): Promise<UserReview[]> => {
   return fetchWithMockFallback(
@@ -262,7 +256,8 @@ export const unsubscribe = async (subscriptionId: string): Promise<void> => {
 export const userApi = {
   getAvatars,
   updateProfile,
-  saveUserFlags,
+  setUserFlags,
+  fetchUserFlagsById,
   fetchProfile,
   fetchUser,
   fetchUserFlags,

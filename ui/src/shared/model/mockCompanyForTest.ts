@@ -1,27 +1,9 @@
-import http from 'shared/api/http';
-import type { 
-  CreateCompanyRequest, 
-  FetchCompaniesResponse, 
-  FetchCompanyFlagsResponse 
-} from './companyApiTypes';
-import type { CompanyDTO, CompanyFlag } from './types';
-import type { AxiosResponse } from 'axios';
+import type { CompanyDTO, CompanyFlag } from 'entities/company';
 
-interface FetchCompaniesParams {
-  query?: string;
-  take?: number;
-  pageNum?: number;
-  q?: string;
-}
+// Test company mock data for development/testing
+// Use: navigate to `/company/test-company-001`
 
-interface FetchCompanyFlagsParams {
-  q?: string;
-  take?: number;
-  pageNum?: number;
-}
-
-// TEMP: Mock test company for demo - remove when backend ready
-const TEST_COMPANY_MOCK: CompanyDTO = {
+export const TEST_COMPANY_MOCK: CompanyDTO = {
   id: 'test-company-001',
   name: 'Тестовая Компания LLC',
   site: 'https://test-company.ru',
@@ -81,8 +63,8 @@ const TEST_COMPANY_MOCK: CompanyDTO = {
   ],
 };
 
-// Test flags for full list
-const TEST_COMPANY_FLAGS_MOCK: CompanyFlag[] = [
+// Additional test flags for /flags endpoint (full list)
+export const TEST_COMPANY_FLAGS_MOCK: CompanyFlag[] = [
   { id: 't1', name: 'Гибкий график', count: 42 },
   { id: 't2', name: 'Удаленная работа', count: 38 },
   { id: 't3', name: 'Дружелюбная атмосфера', count: 35 },
@@ -92,65 +74,7 @@ const TEST_COMPANY_FLAGS_MOCK: CompanyFlag[] = [
   { id: 't7', name: 'Переработки', count: 12 },
   { id: 'c1', name: 'Дружелюбная команда', count: 32 },
   { id: 'm1', name: 'Честное руководство', count: 25 },
-  { id: 's1', name: 'Достойная зарплата', count: 20 },
+  // ... add more for testing search/pagination
   { id: 't25', name: 'Опционы', count: 5 },
 ];
-
-export const companyApi = {
-  async fetchCompanies(params: FetchCompaniesParams): Promise<FetchCompaniesResponse> {
-    const { query = '', take = 20, pageNum = 1, q = '' } = params;
-    const searchQuery = query || q;
-    
-    if (!searchQuery.trim()) {
-      return {
-        items: Array.from({ length: Math.min(take, 5) }, () => ({ ...TEST_COMPANY_MOCK, id: `test-${Math.random().toString(36).slice(2)}` })),
-        total: 100,
-      };
-    }
-    
-    const response: AxiosResponse<FetchCompaniesResponse> = await http.get('/api/companies', {
-      params: {
-        query: searchQuery,
-        take,
-        pageNum,
-      },
-    });
-    return response.data;
-  },
-
-  async fetchCompanyById(id: string): Promise<CompanyDTO> {
-    if (id.startsWith('test-')) {
-      return { ...TEST_COMPANY_MOCK, id };
-    }
-    
-    const response: AxiosResponse<CompanyDTO> = await http.get(`/api/companies/${id}`);
-    return response.data;
-  },
-
-  async fetchCompanyFlags(companyId: string, params: FetchCompanyFlagsParams): Promise<FetchCompanyFlagsResponse> {
-    if (companyId.startsWith('test-')) {
-      const { q = '', take = 50, pageNum = 1 } = params;
-      const filtered = TEST_COMPANY_FLAGS_MOCK.filter(f => !q || f.name.toLowerCase().includes(q.toLowerCase()));
-      return {
-        items: filtered.slice(0, take),
-        total: filtered.length,
-      };
-    }
-    
-    const { q = '', take = 50, pageNum = 1 } = params;
-    const response: AxiosResponse<FetchCompanyFlagsResponse> = await http.get(`/api/companies/${companyId}/flags`, {
-      params: {
-        q,
-        take,
-        pageNum,
-      },
-    });
-    return response.data;
-  },
-
-  async createCompany(params: CreateCompanyRequest): Promise<CompanyDTO> {
-    const response: AxiosResponse<CompanyDTO> = await http.post('/api/companies', params);
-    return response.data;
-  },
-};
 

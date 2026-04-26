@@ -17,6 +17,8 @@ export interface UseReviewModalReturn {
   reviewId?: string;
   createdAt?: string;
   formData: ReviewFormData;
+  loading: boolean;
+  error: string | null;
   openModal: (existingReview?: { id: string; text: string; greenFlags: string[]; redFlags: string[]; createdAt: string }) => void;
   closeModal: () => void;
   setGreenFlags: (flags: string[]) => void;
@@ -25,4 +27,6 @@ export interface UseReviewModalReturn {
   canSubmit: boolean;
   canDelete: boolean;
   resetForm: () => void;
+  submitReview: () => Promise<void>;
+  deleteReview: () => Promise<void>;
 }

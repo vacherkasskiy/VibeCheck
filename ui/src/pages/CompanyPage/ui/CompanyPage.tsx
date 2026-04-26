@@ -116,7 +116,7 @@ export const CompanyPage = () => {
 			<main className={styles.main}>
 				<CompanyInfo company={company} />
 				<div className={styles.sections}>
-				<ReviewsSection />
+					<ReviewsSection />
 					<Top20FlagsSection />
 				</div>
 			</main>
@@ -138,7 +138,6 @@ export const CompanyPage = () => {
 				submitReview={submitReview}
 				deleteReview={deleteReview}
 			/>
-
 		</div>
 	);
 };

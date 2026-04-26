@@ -1,0 +1,166 @@
+.page {
+	min-height: 100vh;
+	background: var(--color-bg-primary);
+	color: var(--color-text-primary);
+	position: relative;
+	overflow-x: hidden;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px 40px;
+	position: relative;
+	z-index: 10;
+}
+
+.headerActions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.logoContainer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+}
+
+.logoContainer:hover {
+	opacity: 0.8;
+}
+
+.logo {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+}
+
+.logoText {
+	font-weight: 700;
+	font-size: 18px;
+	color: #2d2d2d;
+}
+
+.main {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 40px 20px 80px;
+	position: relative;
+	z-index: 5;
+}
+
+.container {
+	background-color: white;
+	backdrop-filter: blur(10px);
+	border-radius: 24px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	padding: 40px;
+}
+
+.title {
+	font-size: 32px;
+	font-weight: 700;
+	margin-bottom: 32px;
+	text-align: center;
+	background: black;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.sectionTitle {
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--color-text-secondary);
+	margin: 0;
+}
+
+.buttons {
+	display: flex;
+	gap: 16px;
+	justify-content: center;
+	margin-top: 16px;
+}
+
+.buttons button {
+	min-width: 200px;
+}
+
+.error {
+	color: var(--color-error);
+	font-size: 14px;
+	text-align: center;
+	padding: 12px;
+	background: rgba(239, 68, 68, 0.1);
+	border-radius: 12px;
+	border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.spinnerWrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 60vh;
+}
+
+.errorMessage {
+	text-align: center;
+	padding: 60px 20px;
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+.errorMessage h2 {
+	font-size: 24px;
+	margin-bottom: 16px;
+	color: var(--color-text-primary);
+}
+
+.errorMessage p {
+	color: var(--color-text-secondary);
+	margin-bottom: 24px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+	.header {
+		padding: 16px 20px;
+	}
+
+	.main {
+		padding: 20px 16px 40px;
+	}
+
+	.container {
+		padding: 24px;
+	}
+
+	.title {
+		font-size: 24px;
+		margin-bottom: 24px;
+	}
+
+	.buttons {
+		flex-direction: column;
+	}
+
+	.buttons button {
+		width: 100%;
+	}
+}

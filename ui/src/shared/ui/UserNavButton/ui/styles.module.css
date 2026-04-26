@@ -1,0 +1,53 @@
+.button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background: var(--color-bg-card);
+  border-color: var(--color-purple);
+  transform: translateY(-1px);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.nickname {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: clamp(80px, 20vw, 120px);
+}
+
+@media (max-width: 480px) {
+  .button {
+    padding: 4px 10px;
+  }
+  
+  .avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .nickname {
+    font-size: 13px;
+    max-width: 80px;
+  }
+}

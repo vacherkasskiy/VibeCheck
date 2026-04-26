@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package achievements;
+
+import "google/protobuf/timestamp.proto";
+import "common/event_metadata.proto";
+
+// Событие "пользователю выдана ачивка"
+message AchievementGrantedEvent {
+  // Общие метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные (payload)
+  string achievement_id = 2;
+  string achievement_name = 3;
+  string user_id = 4;
+
+  // Время выдачи ачивки
+  google.protobuf.Timestamp granted_at = 5;
+}
+
+// Повышение уровня пользователя
+message UserLevelUpEvent {
+  // Метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные
+  string user_id = 2;         // чей уровень повысился
+  uint32 new_level = 3;       // новый уровень
+
+  google.protobuf.Timestamp leveled_at = 4;
+}
+

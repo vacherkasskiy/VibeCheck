@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="14.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.Core.Abstractions\GamificatonService.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\GamificatonService.MessageBroker.Abstractions\GamificatonService.MessageBroker.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.CacheStorage.Abstractions\GamificatonService.CacheStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.CloudStorage.Abstractions\GamificatonService.CloudStorage.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Abstractions\Storages\GamificatonService.PersistentStorage.Abstractions\GamificatonService.PersistentStorage.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>

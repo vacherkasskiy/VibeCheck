@@ -1,0 +1,169 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: filebeat
+  namespace: vibecheck
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: filebeat
+rules:
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: filebeat
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: filebeat
+subjects:
+  - kind: ServiceAccount
+    name: filebeat
+    namespace: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: vibecheck
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: container
+        id: vibecheck-kubernetes-logs
+        enabled: true
+        paths:
+          - /var/log/containers/*.log
+        symlinks: true
+        stream: all
+        format: auto
+        parsers:
+          - ndjson:
+              target: ""
+              add_error_key: true
+              overwrite_keys: true
+        processors:
+          - add_kubernetes_metadata:
+              host: ${NODE_NAME}
+              matchers:
+                - logs_path:
+                    logs_path: "/var/log/containers/"
+          - drop_event:
+              when:
+                not:
+                  and:
+                    - equals:
+                        kubernetes.namespace: vibecheck
+                    - or:
+                        - equals:
+                            kubernetes.container.name: review-service
+                        - equals:
+                            kubernetes.container.name: gamification-service
+          - add_fields:
+              target: ""
+              fields:
+                cluster: vibecheck
+                log_pipeline: filebeat-daemonset
+
+    setup.template.name: "vibecheck-logs"
+    setup.template.pattern: "vibecheck-logs-*"
+    setup.ilm.enabled: false
+
+    output.elasticsearch:
+      hosts: ["http://elasticsearch.vibecheck.svc.cluster.local:9200"]
+      index: "vibecheck-logs-%{+yyyy.MM.dd}"
+
+    logging.level: info
+    logging.to_files: false
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: vibecheck
+spec:
+  selector:
+    matchLabels:
+      app: filebeat
+  template:
+    metadata:
+      labels:
+        app: filebeat
+    spec:
+      serviceAccountName: filebeat
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: filebeat
+          image: docker.elastic.co/beats/filebeat:8.14.3
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-c"
+            - "/etc/filebeat.yml"
+            - "-e"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            runAsUser: 0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/filebeat.yml
+              subPath: filebeat.yml
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: varlogcontainers
+              mountPath: /var/log/containers
+              readOnly: true
+            - name: varlogpods
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: data
+              mountPath: /usr/share/filebeat/data
+      volumes:
+        - name: config
+          configMap:
+            name: filebeat-config
+            defaultMode: 0640
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+        - name: data
+          hostPath:
+            path: /var/lib/filebeat-data
+            type: DirectoryOrCreate

@@ -1,0 +1,234 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: vibecheck
+data:
+  elasticsearch.yml: |
+    cluster.name: vibecheck-logs
+    node.name: elasticsearch-0
+    discovery.type: single-node
+    network.host: 0.0.0.0
+    node.store.allow_mmap: false
+    xpack.security.enabled: false
+    action.auto_create_index: true
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: vibecheck
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9200
+            - name: transport
+              containerPort: 9300
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xms1g -Xmx1g"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?wait_for_status=yellow&timeout=1s
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          volumeMounts:
+            - name: elasticsearch-data
+              mountPath: /usr/share/elasticsearch/data
+            - name: elasticsearch-config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+      volumes:
+        - name: elasticsearch-config
+          configMap:
+            name: elasticsearch-config
+  volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: elasticsearch
+  ports:
+    - name: http
+      port: 9200
+      targetPort: http
+    - name: transport
+      port: 9300
+      targetPort: transport
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-config
+  namespace: vibecheck
+data:
+  kibana.yml: |
+    server.host: 0.0.0.0
+    server.publicBaseUrl: http://kibana.local
+    elasticsearch.hosts: ["http://elasticsearch.vibecheck.svc.cluster.local:9200"]
+    monitoring.ui.container.elasticsearch.enabled: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: vibecheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:8.14.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5601
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 200m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - name: kibana-config
+              mountPath: /usr/share/kibana/config/kibana.yml
+              subPath: kibana.yml
+      volumes:
+        - name: kibana-config
+          configMap:
+            name: kibana-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: kibana
+  ports:
+    - name: http
+      port: 5601
+      targetPort: http
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kibana-init-data-view
+  namespace: vibecheck
+spec:
+  backoffLimit: 12
+  template:
+    metadata:
+      labels:
+        app: kibana-init-data-view
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kibana-init
+          image: curlimages/curl:8.7.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until curl -sSf http://kibana.vibecheck.svc.cluster.local:5601/api/status >/dev/null; do
+                echo "waiting for kibana"
+                sleep 10
+              done
+
+              curl -sS -X POST "http://kibana.vibecheck.svc.cluster.local:5601/api/data_views/data_view" \
+                -H "kbn-xsrf: true" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "data_view": {
+                    "id": "vibecheck-logs",
+                    "name": "vibecheck-logs",
+                    "title": "vibecheck-logs-*",
+                    "timeFieldName": "@timestamp"
+                  }
+                }' || true
+
+              curl -sS -X POST "http://kibana.vibecheck.svc.cluster.local:5601/api/data_views/default" \
+                -H "kbn-xsrf: true" \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "data_view_id": "vibecheck-logs",
+                  "force": true
+                }'

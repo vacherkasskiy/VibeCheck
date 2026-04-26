@@ -1,0 +1,86 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+  padding: 20px;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.message {
+  color: #4a4a6a;
+  font-size: 16px;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .dialog {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .message {
+    font-size: 15px;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+  
+  .buttons button {
+    width: 100%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

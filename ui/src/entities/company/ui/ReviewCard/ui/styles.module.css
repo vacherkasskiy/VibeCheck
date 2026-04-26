@@ -1,0 +1,262 @@
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 28px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.avatarPlaceholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-purple) 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.position {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: var(--color-purple-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.text {
+  font-size: clamp(14px, 2vw, 15px);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-md);
+  white-space: pre-wrap;
+}
+
+.flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  border: 2px solid;
+  transition: all 0.2s ease;
+}
+
+.flag.green {
+  background: var(--color-green-light);
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.flag.red {
+  background: var(--color-red-light);
+  border-color: var(--color-red);
+  color: var(--color-red);
+}
+
+.flag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reactions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.reaction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-card-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.reaction:hover {
+  background: white;
+  border-color: var(--color-purple);
+  transform: translateY(-1px);
+}
+
+.reactionIcon {
+  font-size: 16px;
+}
+
+.reactionCount {
+  font-weight: 600;
+  min-width: 20px;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+  }
+  
+  .header {
+    flex-direction: column;
+  }
+  
+  .date {
+    align-self: flex-start;
+  }
+  
+  .avatar,
+  .avatarPlaceholder {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .authorName {
+    font-size: 14px;
+  }
+  
+  .position {
+    font-size: 12px;
+  }
+  
+  .date {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+  
+  .text {
+    font-size: 14px;
+  }
+  
+  .flag {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .reaction {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+  }
+  
+  .avatar,
+  .avatarPlaceholder {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .authorName {
+    font-size: 13px;
+  }
+  
+  .text {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  
+  .flag {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .reaction {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}

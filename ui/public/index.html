@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="theme-color" content="#8B5CF6"/>
+    <meta name="description" content="Отзывы о работодателях с эмоциональными вайб-тегами"/>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="assets/vibecheck-favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>VibeCheck</title>
+    <style>
+        .no-js-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            font-family: system-ui, sans-serif;
+            z-index: 999999;
+        }
+    </style>
+    <noscript>
+        <div class="no-js-message">
+            Для работы приложения необходимо включить JavaScript в настройках браузера
+        </div>
+    </noscript>
+</head>
+<body>
+<div id="root"></div>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            var isDev = window.location.port === '3000' || window.location.port === '8080';
+            if (isDev) {
+                console.log('Service Worker disabled in development');
+                return;
+            }
+            navigator.serviceWorker.register('/sw.js')
+                .then(function (registration) {
+                    console.log('SW registered:', registration);
+                })
+                .catch(function (error) {
+                    console.error('SW registration failed:', error);
+                });
+        });
+    }
+</script>
+</body>
+</html>

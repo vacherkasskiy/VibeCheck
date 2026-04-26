@@ -1,0 +1,29 @@
+alertmanager:
+  enabled: false
+
+server:
+  enabled: true
+  persistentVolume:
+    enabled: true
+    size: 5Gi
+  service:
+    type: ClusterIP
+    servicePort: 9090
+  extraFlags:
+    - web.enable-lifecycle
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+kube-state-metrics:
+  enabled: false
+
+prometheus-node-exporter:
+  enabled: false
+
+prometheus-pushgateway:
+  enabled: false

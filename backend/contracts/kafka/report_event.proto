@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package reports;
+
+import "google/protobuf/timestamp.proto";
+import "common/event_metadata.proto";
+
+// Событие: пользователь отправил жалобу на отзыв
+// Публикуется ReviewService в топик "reports"
+// Потребляется UserService для создания moderation case
+message ReviewReportedEvent {
+  // Общие метаданные события
+  common.EventMetadata meta = 1;
+
+  // Уникальный идентификатор жалобы
+  string report_id = 2;
+
+  // ID пользователя — автора отзыва (на кого жалуются)
+  string target_user_id = 3;
+
+  // ID пользователя — отправителя жалобы
+  string reporter_user_id = 4;
+
+  // Тип причины жалобы
+  ReportReasonType reason_type = 5;
+
+  // ID отзыва, на который подана жалоба
+  optional string review_id = 6;
+
+  // Дополнительный комментарий пользователя (может быть пустым)
+  optional string reason_text = 7;
+
+  // Время создания жалобы
+  google.protobuf.Timestamp created_at = 11;
+}
+
+// Причины жалобы на отзыв
+enum ReportReasonType {
+  REPORT_REASON_UNSPECIFIED = 0;
+
+  // Спам, реклама, массовое продвижение
+  SPAM_OR_ADVERTISEMENT = 1;
+
+  // Мошенничество, вымогательство, попытки обмана
+  FRAUD_OR_EXTORTION = 2;
+
+  // Оскорбления, грубость, травля (без угроз и hate speech)
+  HARASSMENT_OR_INSULT = 3;
+
+  // Разжигание ненависти или дискриминация
+  HATE_SPEECH = 4;
+
+  // Угрозы или призывы к насилию
+  THREAT_OR_VIOLENCE = 5;
+
+  // Публикация персональных данных (doxxing, утечки)
+  PERSONAL_DATA = 6;
+
+  // Ложная, вводящая в заблуждение или клеветническая информация
+  MISLEADING_INFORMATION = 7;
+
+  // Нерелевантный или бессмысленный контент
+  OFF_TOPIC_OR_LOW_QUALITY = 8;
+
+  // Другая причина (требует reason_text)
+  OTHER = 9;
+}

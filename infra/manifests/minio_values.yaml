@@ -1,0 +1,51 @@
+global:
+  security:
+    allowInsecureImages: true
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/minio
+  tag: "2025.7.23-debian-12-r3"
+  pullPolicy: IfNotPresent
+
+auth:
+  rootUser: "minio_admin"
+  rootPassword: "minio_admin_password"
+
+mode: standalone
+
+defaultBuckets: "review-service,gamification-service"
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+service:
+  type: LoadBalancer
+  ports:
+    api: 9000
+
+consoleService:
+  type: ClusterIP
+
+console:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/minio-object-browser
+    tag: "2.0.2-debian-12-r3"
+    pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+volumePermissions:
+  enabled: true
+
+ingress:
+  enabled: false

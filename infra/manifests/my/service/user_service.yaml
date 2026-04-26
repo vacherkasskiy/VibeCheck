@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+  namespace: vibecheck
+data:
+  SERVER_PORT: "8080"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-postgresql:5432/user_service_api_db"
+  SPRING_DATA_REDIS_HOST: "redis-master"
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_MAIL_HOST: "smtp.yandex.ru"
+  SPRING_MAIL_PORT: "587"
+  SPRING_MAIL_USERNAME: "vvfedotov@edu.hse.ru"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.vibecheck.svc.cluster.local:9092"
+  SPRING_KAFKA_CONSUMER_GROUP_ID: "user-service-reports"
+  SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
+  SPRING_KAFKA_PROPERTIES_SASL_MECHANISM: "PLAIN"
+  USER_SERVICE_KAFKA_TOPIC_USERS: "users"
+  USER_SERVICE_KAFKA_TOPIC_REPORTS: "reports"
+  APP_JWT_ISSUER: "auth-service"
+  APP_JWT_AUDIENCE: "user-service"
+  APP_INTERNAL_JWT_ISSUER: "user-service"
+  APP_INTERNAL_JWT_TTL: "PT5M"
+  APP_INTERNAL_JWT_KID: "internal-key-2026-04"
+  APP_INTERNAL_JWT_PRIVATE_KEY_PATH: "/var/run/secrets/internal-jwt/private.pem"
+  APP_MINIO_ENDPOINT: "http://minio.vibecheck.svc.cluster.local:9000"
+  APP_MINIO_PUBLIC_ENDPOINT: "http://minio.api.local"
+  APP_MINIO_BUCKET: "user-service"
+  APP_MINIO_USE_SSL: "false"
+  USER_SERVICE_AVATAR_SEED_ENABLED: "true"
+  USER_SERVICE_AVATAR_SEED_OBJECT_PREFIX: "avatars"
+  USER_SERVICE_TEST_USERS_SEED_ENABLED: "true"
+  USER_SERVICE_TEST_USERS_SEED_DEFAULT_PASSWORD: "Test123!"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-secrets
+  namespace: vibecheck
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_USERNAME: "app_user"
+  SPRING_DATASOURCE_PASSWORD: "app_password"
+  SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="app_password";'
+  APP_JWT_SECRET: "change-this-super-long-random-secret-key-change-this-super-long-random-secret-key"
+  APP_MINIO_ACCESS_KEY: "minio_admin"
+  APP_MINIO_SECRET_KEY: "minio_admin_password"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-internal-jwt-key
+  namespace: vibecheck
+type: Opaque
+stringData:
+  private.pem: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCWUvcKbMTkPN2i
+    NaoF/r7/meMsTJ+zo42JeKX3z+2kLQTAHcCGT/OZFqSXye++wc390MSKdhcnJjUd
+    S1k9RzqqwmIQo3KyHnLd4tgte786AceANQmRAwMZTYQVHyFPVnBVXkFwag4O4dlG
+    ZOUMINgkHTQlnKB6IFSMhO69+Zwv60/W3Rz2vDKkyA6L/Zwj4r6Nv5hta5uX35G5
+    /nL00Chpvdw8XDB/Tg6Mac5TMerTDTptEr3iKaXhS0Yy1hmoMsP1HjLWvu62VN+v
+    1XyjJkaHlrJvfUMxZPVG2i48DyPk4x5ro0r1biGQHxSifALH1YLb0mny/S5m86/T
+    Rqn8jgtnAgMBAAECggEAKlG8/pBUdbS06H+XGAz5lFesXsJLi3UV2Ye/oZ5F1pxd
+    4//8PVOwzn5TY/ATsG47IaNuUVShfAIDnfWib9/noj8LAIgjOAXebJz6IwPdd+Uc
+    VvmXcd2ZN7xc3N1gsUcyZLYeUhlpT8NBOdIZsWplrvURwyzu+LK1WsHpvE3TLKHx
+    6G8NlSMcadag/ClZpgTApK7DKNTLntGHhIlzqa7wwn3Tc28lnZJ85ResMkcSQVK8
+    CX+bivTU4OYi7EUJe7jNL73ra1NYI7MM4JTEGGhKY1i72uTgYiLt+rfPNdw8fzqo
+    TX2Ga8F1CAWMCOkD+KRf+JzhxnVCpU+6IWnrXqLKMQKBgQDGMfL6eXYZ5AeJuCPa
+    nx9UWhjFKWvnEace3xWa7kn8qHYdMYI94HVV0Fx3zeDX1HzjaFSwv7ux4ueI8fz+
+    ROKsIWX6Y163LUAgECmTOxp5nYBSmX+D+mbb6lRWMV8JDhmEhkI6rGFd+EVxxrpw
+    iXi6dUGy4sMIW662vFKRagLTowKBgQDCKsVA/BW0q7r1EWy55VuePfuwY38aLi3t
+    Ld7g6u56xOE1U3dyLi1pA0Chjy2oLTLwpJ504u5GRziW5XAaEriP0DxFFnS7a4KT
+    5M2syF0EASkPx8XPxJYITLU3HsJjOF7g6G8iaqE/OstJzNbmOM639WLdlyoQzou3
+    nCfzfWVFbQKBgQCtPJOpo+k7EDoWgsG0Ikn8LRRhoacTPjbZoRz9YzOAiK9VLSUu
+    eLeW3p00itvxS2YuT89W/wBMqIzBAuOkTQnkcvz0M09ixUa7v+TXMF4f1y+HA2yW
+    K5UkvFojTNxIye48DC5voqUowg3ROWdVXpQMRtm6RsM61wiL6WgyensmCQKBgQCG
+    dmodw7UgZiDVoBiEcBJPdqs7DtwxfDNv4elMJ0W5nWg8rq20U8g8xfTXLTk4Ev0I
+    62eUmKbb4myNCxzj4X0Qkut6CMAUHrLRyoyokCTiJg+Sjw0tAf3Ih56jKlkBr0L9
+    S9nSordB+2xWklVsH4EAoh2ySQHnm7HkGG8OTxN3zQKBgQCu0Z13Xuk68cPTvRfX
+    l1xOejbk2J/OmgAr7izCy2l5sczkmqYE7h8UY6XRQ00LXY2T1wqtvjymhPOGBYUk
+    R7U6mhjDcG2cxREF3OySLKzxXyVlyCrJLCVR8FkgAsj2kdzBxyjj2DG1QZCzvI34
+    iujJ5xBCHsQFrmHS3ccOZz5PzA==
+    -----END PRIVATE KEY-----
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: vibecheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: gonefladvedotov/vibecheck-user-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: user-service-config
+            - secretRef:
+                name: user-service-secrets
+            - secretRef:
+                name: user-service-mail-secrets
+          volumeMounts:
+            - name: internal-jwt-key
+              mountPath: /var/run/secrets/internal-jwt
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 6
+      volumes:
+        - name: internal-jwt-key
+          secret:
+            secretName: user-service-internal-jwt-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: user-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

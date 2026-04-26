@@ -1,0 +1,55 @@
+services:
+  user-service-postgres:
+    image: postgres:16-alpine
+    container_name: user_service_api_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: user_service_api_db
+      POSTGRES_USER: vitalik
+      POSTGRES_PASSWORD: huy_sosi
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    shm_size: 128mb
+    command:
+      [
+        "postgres",
+        "-c", "max_connections=30",
+        "-c", "shared_buffers=128MB",
+        "-c", "work_mem=4MB",
+        "-c", "maintenance_work_mem=64MB",
+        "-c", "effective_cache_size=256MB",
+        "-c", "wal_buffers=4MB"
+      ]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vitalik -d user_service_api_db"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  user-service-redis:
+    image: redis:7-alpine
+    container_name: user_service_api_redis
+    restart: unless-stopped
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis_data:/data
+    command:
+      [
+        "redis-server",
+        "--appendonly", "no",
+        "--save", "900", "1",
+        "--maxmemory", "128mb",
+        "--maxmemory-policy", "allkeys-lru"
+      ]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:

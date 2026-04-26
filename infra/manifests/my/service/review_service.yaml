@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vibecheck
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: review-service-config
+  namespace: vibecheck
+data:
+  ASPNETCORE_ENVIRONMENT: "Test"
+  DbOptions__Host: "postgres-postgresql"
+  MinioOptions__Endpoint: "http://minio.vibecheck.svc.cluster.local:9000"
+  MinioOptions__PublicEndpoint: "minio.api.local"
+  KafkaOptions__BootstrapServers: "kafka.vibecheck.svc.cluster.local:9092"
+  JwtOptions__Issuer: "user-service"
+  JwtOptions__Audience: "review-service"
+  JwtOptions__PublicKeyPath: "/var/run/secrets/internal-jwt/public.pem"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: review-service-secrets
+  namespace: vibecheck
+type: Opaque
+stringData:
+  DbOptions__Username: "app_user"
+  DbOptions__Password: "app_password"
+  MinioOptions__AccessKey: "minio_admin"
+  MinioOptions__SecretKey: "minio_admin_password"
+  KafkaOptions__Username: "app_user"
+  KafkaOptions__Password: "app_password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-service
+  namespace: vibecheck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-service
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+      labels:
+        app: review-service
+    spec:
+      containers:
+        - name: review-service
+          image: ikeeo/vibecheck-review-service:8.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: review-service-config
+            - secretRef:
+                name: review-service-secrets
+          volumeMounts:
+            - name: internal-jwt-key
+              mountPath: /var/run/secrets/internal-jwt
+              readOnly: true
+
+          startupProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 6
+      volumes:
+        - name: internal-jwt-key
+          secret:
+            secretName: internal-jwt-public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-service
+  namespace: vibecheck
+spec:
+  type: ClusterIP
+  selector:
+    app: review-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

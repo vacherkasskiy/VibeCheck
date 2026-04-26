@@ -1,0 +1,138 @@
+.container {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: clamp(24px, 4vw, 32px);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+.header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.logoSection {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.logo {
+  width: clamp(56px, 8vw, 72px);
+  height: clamp(56px, 8vw, 72px);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-purple-light);
+}
+
+.logoPlaceholder {
+  width: clamp(56px, 8vw, 72px);
+  height: clamp(56px, 8vw, 72px);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-purple) 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.nameSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.contacts {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.contact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-bg-card-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.contact:hover {
+  background: var(--color-purple-light);
+  border-color: var(--color-purple);
+  color: var(--color-purple);
+  transform: translateY(-2px);
+}
+
+.contactIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.description {
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.description p {
+  font-size: clamp(14px, 2vw, 16px);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px;
+  }
+  
+  .logoSection {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .nameSection {
+    width: 100%;
+  }
+  
+  .name {
+    text-align: center;
+  }
+  
+  .contacts {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+    border-radius: var(--radius-lg);
+  }
+  
+  .contact {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,156 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.emptyStateTitle {
+  margin: 0 0 var(--spacing-sm);
+  font-size: clamp(var(--font-size-lg), 4vw, var(--font-size-xl));
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.emptyStateText {
+  margin: 0 0 var(--spacing-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+}
+
+.cardSkeleton {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  min-height: 180px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.skeletonHeader {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.skeletonLogo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.skeletonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: 6px;
+}
+
+.skeletonName {
+  width: 60%;
+  height: 20px;
+}
+
+.skeletonTags {
+  width: 40%;
+  height: 10px;
+}
+
+.skeletonFlags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.skeletonFlagsTitle {
+  width: 30%;
+  height: 14px;
+}
+
+.skeletonBadges {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.skeletonBadge {
+  width: 80px;
+  height: 24px;
+  border-radius: var(--radius-full);
+}
+
+@media (max-width: 768px) {
+  .list {
+    gap: var(--spacing-md);
+  }
+  
+  .cardSkeleton {
+    padding: var(--spacing-md);
+    min-height: 160px;
+  }
+  
+  .skeletonLogo {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .emptyState {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .cardSkeleton {
+    padding: var(--spacing-sm);
+    min-height: 140px;
+  }
+  
+  .skeletonLogo {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .skeletonBadge {
+    width: 70px;
+    height: 22px;
+  }
+}

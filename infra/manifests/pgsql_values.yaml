@@ -1,0 +1,51 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "postgres"
+      username: "app_user"
+      password: "app_password"
+      database: "review_service"
+
+architecture: standalone
+
+primary:
+  persistence:
+    enabled: true
+    size: 2Gi
+
+  initdb:
+    scripts:
+      01-create-extra-dbs.sql: |
+        SELECT 'CREATE DATABASE gamification_service'
+        WHERE NOT EXISTS (
+          SELECT FROM pg_database WHERE datname = 'gamification_service'
+        )\gexec
+
+        SELECT 'CREATE DATABASE subscription_service'
+        WHERE NOT EXISTS (
+          SELECT FROM pg_database WHERE datname = 'subscription_service'
+        )\gexec
+
+        SELECT 'CREATE DATABASE user_service_api_db'
+        WHERE NOT EXISTS (
+          SELECT FROM pg_database WHERE datname = 'user_service_api_db'
+        )\gexec
+
+  service:
+    type: LoadBalancer
+    ports:
+      postgresql: 5432
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+volumePermissions:
+  enabled: true
+
+metrics:
+  enabled: false

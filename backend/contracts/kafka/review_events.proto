@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package reviews;
+
+import "google/protobuf/timestamp.proto";
+import "common/event_metadata.proto";
+
+// Событие "пользователь написал отзыв"
+message ReviewWrittenEvent {
+  // Общие метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные (payload)
+  string review_id = 2;       // Уникальный ID отзыва
+  string user_id = 3;       // ID пользователя, который написал отзыв
+
+  // Время создания отзыва
+  google.protobuf.Timestamp created_at = 4;
+}
+
+// Лайк отзыва (пользователь поставил лайк конкретному review)
+message ReviewLikedEvent {
+  // Метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные
+  string review_id = 2;
+  string review_author_id = 3;
+  string review_company_id = 4;
+  string review_company_name= 5;
+  string liked_by_user_id= 7;
+
+  google.protobuf.Timestamp liked_at = 6;
+}
+

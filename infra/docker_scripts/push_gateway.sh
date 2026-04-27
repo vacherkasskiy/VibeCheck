@@ -5,7 +5,7 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t gonefladvedotov/vibecheck-gateway-service:2.0 \
+  -t gonefladvedotov/vibecheck-gateway-service:5.0 \
   -t gonefladvedotov/vibecheck-gateway-service:latest \
   -f ../../backend/GatewayService/Dockerfile \
   ../../backend/GatewayService \

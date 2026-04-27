@@ -1,9 +1,12 @@
 package com.vibecheck.userservice.usecase
 
 import com.vibecheck.userservice.domain.UserConfirmation
+import com.vibecheck.userservice.domain.exception.BadRequestException
 import com.vibecheck.userservice.domain.events.UserPreregistrationIsCreatedEvent
 import com.vibecheck.userservice.usecase.generator.CodeGenerator
 import com.vibecheck.userservice.usecase.storage.UserConfirmationStorage
+import com.vibecheck.userservice.usecase.storage.UserStorage
+import com.vibecheck.userservice.usecase.validator.PasswordPolicyValidator
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -14,13 +17,21 @@ import java.time.Duration
 @Service
 class EmailUserRegistration(
     private val userConfirmationStorage: UserConfirmationStorage,
+    private val userStorage: UserStorage,
     private val passwordEncoder: PasswordEncoder,
+    private val passwordPolicyValidator: PasswordPolicyValidator,
     private val transactionTemplate: TransactionTemplate,
     private val codeGenerator: CodeGenerator,
     private val clock: Clock,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     fun register(email: String, password: String) {
+        if (userStorage.findByEmail(email) != null) {
+            throw BadRequestException("User with email $email already exists")
+        }
+
+        passwordPolicyValidator.validate(password)
+
         val confirmCode = codeGenerator.generate()
 
         transactionTemplate.execute {

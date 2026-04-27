@@ -27,7 +27,7 @@ class RefreshTokenEntity {
     @JoinColumn(name = "user_id", nullable = false)
     var user: UserEntity? = null
 
-    @Column(name = "token_hash", nullable = false, length = 255)
+    @Column(name = "token_hash", nullable = false, length = 2048)
     var tokenHash: String? = null
 
     @Column(name = "issued_at", nullable = false)
@@ -45,6 +45,7 @@ class RefreshTokenEntity {
     fun toEntity(domain: RefreshToken): RefreshTokenEntity = apply {
         tokenId = domain.tokenId
         version = takeIf { domain.version != 0 }?.let { domain.version }
+        user = UserEntity().apply { id = domain.user.id }
         tokenHash = domain.tokenHash
         issuedAt = domain.issuedAt
         expiresAt = domain.expiredAt

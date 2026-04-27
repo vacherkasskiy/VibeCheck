@@ -7,7 +7,7 @@ data class AvatarDto(
     val link: String
 )
 
-fun Avatar.toDto(): AvatarDto = AvatarDto(
+fun Avatar.toDto(link: String = url): AvatarDto = AvatarDto(
     iconId = id,
-    link = url
+    link = link
 )

@@ -25,6 +25,17 @@ class GatewayRoutesConfig(
                     .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
                     .uri(gatewayProperties.services.userServiceUrl)
             }
+            .route("user-service-password-confirm-alias") { route ->
+                route.path("/auth/email/password/confirm")
+                    .filters { filters ->
+                        filters.rewritePath(
+                            "/auth/email/password/confirm",
+                            "/auth/email/password/reset"
+                        )
+                    }
+                    .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
+                    .uri(gatewayProperties.services.userServiceUrl)
+            }
             .route("user-service-authorized") { route ->
                 route.path(
                     "/auth/internal",

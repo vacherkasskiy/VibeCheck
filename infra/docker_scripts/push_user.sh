@@ -5,7 +5,7 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t gonefladvedotov/vibecheck-user-service:6.1 \
+  -t gonefladvedotov/vibecheck-user-service:9.1 \
   -t gonefladvedotov/vibecheck-user-service:latest \
   -f ../../backend/UserService/Dockerfile \
   ../../backend \

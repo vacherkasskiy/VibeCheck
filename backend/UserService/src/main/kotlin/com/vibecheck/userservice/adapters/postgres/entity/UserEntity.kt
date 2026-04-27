@@ -31,7 +31,7 @@ class UserEntity {
     @Column(nullable = false)
     var password: String? = null
 
-    @JdbcTypeCode(SqlTypes.ARRAY)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     @Enumerated(EnumType.STRING)
     var roles: List<UserRole>? = null

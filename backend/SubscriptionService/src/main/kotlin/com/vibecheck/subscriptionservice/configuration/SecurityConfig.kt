@@ -15,6 +15,7 @@ class SecurityConfig {
         internalJwtDecoder: JwtDecoder,
     ): SecurityFilterChain {
         http {
+            cors { }
             csrf { disable() }
             httpBasic { disable() }
             formLogin { disable() }

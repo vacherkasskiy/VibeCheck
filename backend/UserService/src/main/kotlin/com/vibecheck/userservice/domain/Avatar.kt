@@ -5,6 +5,8 @@ data class Avatar(
     val version: Int,
     val url: String,
 ) {
+    fun withPresignedUrl(url: String) = copy(url = url)
+
     companion object {
         fun new(id: String, url: String): Avatar = Avatar(id = id, version = 0, url = url)
     }

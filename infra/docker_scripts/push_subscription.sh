@@ -5,7 +5,7 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t gonefladvedotov/vibecheck-subscription-service:1.0 \
+  -t gonefladvedotov/vibecheck-subscription-service:4.0 \
   -t gonefladvedotov/vibecheck-subscription-service:latest \
   -f ../../backend/SubscriptionService/Dockerfile \
   ../../backend \

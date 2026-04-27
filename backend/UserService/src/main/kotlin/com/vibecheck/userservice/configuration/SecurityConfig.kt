@@ -40,12 +40,14 @@ class SecurityConfig {
         accessJwtDecoder: JwtDecoder,
     ): SecurityFilterChain {
         http {
+            cors { }
             csrf { disable() }
             httpBasic { disable() }
             formLogin { disable() }
             authorizeHttpRequests {
                 authorize("/auth/email/**", permitAll)
                 authorize("/auth/internal/login", permitAll)
+                authorize("/avatars/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/swagger-ui.html", permitAll)

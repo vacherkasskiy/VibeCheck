@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/avatars")
 class AvatarController(
-    private val avatarSelection: AvatarSelection
+    private val avatarSelection: AvatarSelection,
 ) {
     @GetMapping
     fun getAllAvatars(): List<AvatarDto> = avatarSelection.selectAll().map { it.toDto() }

@@ -2,8 +2,8 @@ package com.vibecheck.userservice.adapters.postgres
 
 import com.vibecheck.userservice.adapters.postgres.entity.toEntity
 import com.vibecheck.userservice.adapters.postgres.repository.RefreshTokenRepository
+import com.vibecheck.userservice.adapters.postgres.repository.UserRepository
 import com.vibecheck.userservice.domain.auth.RefreshToken
-import com.vibecheck.userservice.domain.exception.BadRequestException
 import com.vibecheck.userservice.domain.exception.NotFoundException
 import com.vibecheck.userservice.usecase.storage.RefreshTokenStorage
 import org.springframework.stereotype.Repository
@@ -14,7 +14,8 @@ import kotlin.jvm.optionals.getOrNull
 
 @Repository
 class RefreshTokenStorageImpl(
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val userRepository: UserRepository,
 ) : RefreshTokenStorage {
     override fun findById(tokenId: String): RefreshToken =
         refreshTokenRepository.findById(tokenId)
@@ -28,12 +29,17 @@ class RefreshTokenStorageImpl(
 
     @Transactional(propagation = Propagation.MANDATORY)
     override fun create(refreshToken: RefreshToken): RefreshToken =
-        refreshTokenRepository.saveAndFlush(refreshToken.toEntity()).toDomain()
+        refreshTokenRepository.saveAndFlush(refreshToken.toManagedEntity()).toDomain()
 
     @Transactional(propagation = Propagation.MANDATORY)
     override fun updateAll(refreshTokens: Collection<RefreshToken>): List<RefreshToken> {
         return refreshTokenRepository.saveAllAndFlush(
-            refreshTokens.map { it.toEntity() }
+            refreshTokens.map { it.toManagedEntity() }
         ).map { it.toDomain() }
     }
+
+    private fun RefreshToken.toManagedEntity() =
+        toEntity().apply {
+            user = userRepository.getReferenceById(this@toManagedEntity.user.id)
+        }
 }

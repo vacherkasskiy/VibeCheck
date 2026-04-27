@@ -14,8 +14,6 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.stereotype.Component
 import org.springframework.transaction.support.TransactionTemplate
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Component
 @ConditionalOnProperty(
@@ -45,7 +43,7 @@ class AvatarStartupSeeder(
             val objectKey = buildObjectKey(fileName)
 
             uploadAvatarIfMissing(resource, objectKey)
-            upsertAvatar(fileName, buildPublicUrl(objectKey))
+            upsertAvatar(fileName, objectKey)
         }
 
         logger.info("Seeded {} avatar records for bucket '{}'", resources.size, minioProperties.bucket)
@@ -104,8 +102,13 @@ class AvatarStartupSeeder(
         }
     }
 
-    fun upsertAvatar(id: String, url: String) {
-        val avatar = avatarStorage.findById(id) ?: Avatar(id = id, version = 1, url = url)
+    fun upsertAvatar(id: String, objectKey: String) {
+        val existingAvatar = avatarStorage.findById(id)
+        if (existingAvatar != null) {
+            return
+        }
+
+        val avatar = Avatar.new(id, objectKey)
         transactionTemplate.execute {
             avatarStorage.create(avatar)
         }
@@ -119,24 +122,6 @@ class AvatarStartupSeeder(
             "$normalizedPrefix/$fileName"
         }
     }
-
-    private fun buildPublicUrl(objectKey: String): String {
-        val publicEndpoint = minioProperties.requiredPublicEndpoint().trim().removeSuffix("/")
-        val schemePrefix = if (publicEndpoint.startsWith("http://") || publicEndpoint.startsWith("https://")) {
-            publicEndpoint
-        } else {
-            val scheme = if (minioProperties.useSsl) "https" else "http"
-            "$scheme://$publicEndpoint"
-        }
-
-        return "$schemePrefix/${minioProperties.bucket}/${encodePath(objectKey)}"
-    }
-
-    private fun encodePath(path: String): String =
-        path.split("/")
-            .joinToString("/") { segment ->
-                URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20")
-            }
 
     private fun detectContentType(resource: Resource): String {
         val fileName = resource.filename.orEmpty().lowercase()

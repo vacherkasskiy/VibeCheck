@@ -19,7 +19,8 @@ class GatewayRoutesConfig(
                     "/auth/email/login",
                     "/auth/email/register/confirm",
                     "/auth/refresh",
-                    "/auth/email/password/reset"
+                    "/auth/email/password/reset",
+                    "/avatars/**"
                 )
                     .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
                     .uri(gatewayProperties.services.userServiceUrl)
@@ -27,8 +28,8 @@ class GatewayRoutesConfig(
             .route("user-service-authorized") { route ->
                 route.path(
                     "/auth/internal",
+                    "/auth/internal/login",
                     "/auth/logout",
-                    "/avatars/**",
                     "/onboarding/**",
                     "/users/me/info",
                     "/users/*/info",

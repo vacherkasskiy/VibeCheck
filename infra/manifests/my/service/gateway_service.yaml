@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: gateway-service
-          image: gonefladvedotov/vibecheck-gateway-service:latest
+          image: gonefladvedotov/vibecheck-gateway-service:8.0
           imagePullPolicy: Always
           ports:
             - name: http

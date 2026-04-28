@@ -15,7 +15,7 @@ data:
   SPRING_DATA_REDIS_PORT: "6379"
   SPRING_MAIL_HOST: "smtp.yandex.ru"
   SPRING_MAIL_PORT: "587"
-  SPRING_MAIL_USERNAME: "vibecheck-official@yandex.com"
+  SPRING_MAIL_USERNAME: "vvfedotov@edu.hse.ru"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.vibecheck.svc.cluster.local:9092"
   SPRING_KAFKA_CONSUMER_GROUP_ID: "user-service-reports"
   SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: gonefladvedotov/vibecheck-user-service:latest
+          image: gonefladvedotov/vibecheck-user-service:10.1
           imagePullPolicy: Always
           ports:
             - name: http

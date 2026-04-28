@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ReviewService.PersistentStorage.Abstractions.Models.UserProfiles;
 using ReviewService.PersistentStorage.Abstractions.Models.UserProfiles.Enums;
 using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
+using ReviewService.PersistentStorage.Entities.Enums;
 
 namespace ReviewService.PersistentStorage.Repositories.UserProfiles;
 
@@ -137,7 +138,7 @@ public sealed class UserProfilesQueryRepository(AppDbContext dbContext) : IUserP
             .Select(x => new UserProfileFlagForSimilarityRepositoryModel
             {
                 FlagId = x.FlagId,
-                Color = (UserProfileFlagColorRepositoryEnum)x.Color,
+                Color = MapFlagColour(x.Color),
                 Weight = x.Weight
             })
             .ToListAsync(ct);
@@ -159,4 +160,11 @@ public sealed class UserProfilesQueryRepository(AppDbContext dbContext) : IUserP
         if (set.Count > 0)
             yield return set;
     }
+    
+    private static UserProfileFlagColorRepositoryEnum MapFlagColour(UserFlagColorEntityEnum category) => category switch
+    {
+        UserFlagColorEntityEnum.Green => UserProfileFlagColorRepositoryEnum.Green,
+        UserFlagColorEntityEnum.Red => UserProfileFlagColorRepositoryEnum.Red,
+        _ => throw new ArgumentOutOfRangeException(nameof(category), category, "unknown flag colour")
+    };
 }

@@ -124,7 +124,7 @@ internal sealed class XpProgressService(
                      .Where(x => x.Type == XpRuleTypeRepositoryEnum.Threshold && x.ThresholdValue.HasValue)
                      .OrderBy(x => x.ThresholdValue))
         {
-            if (currentProgressValue < thresholdRule.ThresholdValue!.Value)
+            if (!ShouldApplyThresholdRule(currentProgressValue, thresholdRule.ThresholdValue!.Value))
                 continue;
 
             await ApplyXpRuleAsync(
@@ -135,6 +135,16 @@ internal sealed class XpProgressService(
                 occurredAt,
                 ct);
         }
+    }
+
+    private static bool ShouldApplyThresholdRule(long currentProgressValue, long thresholdValue)
+    {
+        if (thresholdValue <= 0 || currentProgressValue < thresholdValue)
+            return false;
+
+        return thresholdValue == 1
+            ? currentProgressValue == thresholdValue
+            : currentProgressValue % thresholdValue == 0;
     }
 
     private async Task ApplyXpRuleAsync(

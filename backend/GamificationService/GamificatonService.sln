@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.Gateway", "GamificatonService.Gateway\GamificatonService.Gateway.csproj", "{DFC865A7-1A46-4E82-8144-CE1B115CAB81}"
 EndProject
@@ -29,6 +28,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storages", "Storages", "{94398973-11D7-41F9-8E88-AEC667C5D179}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storages", "Storages", "{0A89F532-656B-4113-B934-E02A4D01A1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamificatonService.Tests", "GamificatonService.Tests\GamificatonService.Tests.csproj", "{59633A93-AD4A-475F-B1B6-E28CE4D76CBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +81,10 @@ Global
 		{EC4157C9-62D7-42C4-8D09-95C78DD113F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC4157C9-62D7-42C4-8D09-95C78DD113F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC4157C9-62D7-42C4-8D09-95C78DD113F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59633A93-AD4A-475F-B1B6-E28CE4D76CBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59633A93-AD4A-475F-B1B6-E28CE4D76CBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59633A93-AD4A-475F-B1B6-E28CE4D76CBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59633A93-AD4A-475F-B1B6-E28CE4D76CBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{31A59785-0F51-4F31-B2C1-621F31263535} = {956167AC-5B25-4677-912A-DD5E6D75DE22}

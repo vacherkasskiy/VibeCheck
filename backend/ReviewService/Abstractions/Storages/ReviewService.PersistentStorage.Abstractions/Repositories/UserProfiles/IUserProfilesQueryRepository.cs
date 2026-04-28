@@ -23,4 +23,8 @@ public interface IUserProfilesQueryRepository
     Task<IReadOnlyDictionary<Guid, UserProfileForSimilarityRepositoryModel>> GetProfilesForSimilarityByUserIdsAsync(
         IReadOnlyCollection<Guid> userIds,
         CancellationToken ct);
+
+    Task<IReadOnlyList<UserProfileFlagForSimilarityRepositoryModel>> GetUserFlagsForWeightAsync(
+        Guid userId,
+        CancellationToken ct);
 }

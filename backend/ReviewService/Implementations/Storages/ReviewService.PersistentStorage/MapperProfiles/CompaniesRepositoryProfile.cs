@@ -16,6 +16,9 @@ public sealed class CompaniesRepositoryProfile : Profile
                 dest => dest.CompanyId,
                 opt => opt.MapFrom(src => src.Id))
             .ForMember(
+                dest => dest.Weight,
+                opt => opt.MapFrom(_ => 0))
+            .ForMember(
                 dest => dest.TopFlags,
                 opt => opt.Ignore());
 

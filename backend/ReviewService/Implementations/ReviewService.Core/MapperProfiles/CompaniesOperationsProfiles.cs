@@ -25,8 +25,7 @@ internal sealed class CompaniesOperationsProfiles : Profile
 
         // repository output -> operation result
         CreateMap<GetCompaniesRepositoryOutputModel, GetCompaniesOperationResultModel>();
-        CreateMap<CompanyListItemRepositoryModel, CompanyListItemOperationModel>()
-            .ForMember(x => x.Weight, opt => opt.Ignore());
+        CreateMap<CompanyListItemRepositoryModel, CompanyListItemOperationModel>();
         CreateMap<FlagCountRepositoryModel, CompanyFlagOperationModel>();
 
         // -------------------------

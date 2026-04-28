@@ -124,6 +124,25 @@ public sealed class UserProfilesQueryRepository(AppDbContext dbContext) : IUserP
         return result;
     }
 
+    public async Task<IReadOnlyList<UserProfileFlagForSimilarityRepositoryModel>> GetUserFlagsForWeightAsync(
+        Guid userId,
+        CancellationToken ct)
+    {
+        if (userId == Guid.Empty)
+            return [];
+
+        return await dbContext.UserProfileFlags
+            .AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .Select(x => new UserProfileFlagForSimilarityRepositoryModel
+            {
+                FlagId = x.FlagId,
+                Color = (UserProfileFlagColorRepositoryEnum)x.Color,
+                Weight = x.Weight
+            })
+            .ToListAsync(ct);
+    }
+
     private static IEnumerable<HashSet<Guid>> Batch(IReadOnlyCollection<Guid> source, int size)
     {
         var set = new HashSet<Guid>();

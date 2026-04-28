@@ -119,6 +119,91 @@ internal sealed class CompaniesQueryRepository(
                 CompanyId = x.Id,
                 Name = x.Name,
                 IconId = x.IconId ?? Guid.Empty,
+                Weight = 0,
+                TopFlags = topFlagsByCompanyId.GetValueOrDefault(x.Id, Array.Empty<FlagCountRepositoryModel>())
+            })
+            .ToList();
+
+        return new GetCompaniesRepositoryOutputModel
+        {
+            TotalCount = totalCount,
+            Companies = resultCompanies
+        };
+    }
+
+    public async Task<GetCompaniesRepositoryOutputModel?> GetCompaniesForWeightAsync(
+        GetCompaniesRepositoryInputModel input,
+        CancellationToken ct)
+    {
+        var query = dbContext.Companies
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(input.Query))
+        {
+            var search = input.Query.Trim();
+
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Name, $"%{search}%") ||
+                (x.Description != null && EF.Functions.ILike(x.Description, $"%{search}%")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(input.Q))
+        {
+            var search = input.Q.Trim();
+
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Name, $"%{search}%"));
+        }
+
+        var totalCount = await query.LongCountAsync(ct);
+
+        var companies = await query
+            .OrderBy(x => x.Name)
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.IconId
+            })
+            .ToListAsync(ct);
+
+        var companyIds = companies
+            .Select(x => x.Id)
+            .ToArray();
+
+        var topFlagsRaw = await dbContext.CompanyFlags
+            .AsNoTracking()
+            .Where(x => companyIds.Contains(x.CompanyId))
+            .OrderByDescending(x => x.ReviewsCount)
+            .ThenBy(x => x.Flag.Name)
+            .Select(x => new
+            {
+                x.CompanyId,
+                Flag = new FlagCountRepositoryModel
+                {
+                    Id = x.FlagId,
+                    Name = x.Flag.Name,
+                    Count = x.ReviewsCount
+                }
+            })
+            .ToListAsync(ct);
+
+        var topFlagsByCompanyId = topFlagsRaw
+            .GroupBy(x => x.CompanyId)
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<FlagCountRepositoryModel>)g
+                    .Take(5)
+                    .Select(x => x.Flag)
+                    .ToList());
+
+        var resultCompanies = companies
+            .Select(x => new CompanyListItemRepositoryModel
+            {
+                CompanyId = x.Id,
+                Name = x.Name,
+                IconId = x.IconId ?? Guid.Empty,
+                Weight = 0,
                 TopFlags = topFlagsByCompanyId.GetValueOrDefault(x.Id, Array.Empty<FlagCountRepositoryModel>())
             })
             .ToList();

@@ -25,13 +25,18 @@ public static class JwtAuthConfiguration
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                if (string.IsNullOrWhiteSpace(jwtOptions.PublicKeyPath))
+                if (string.IsNullOrWhiteSpace(jwtOptions.PublicKeyPath) 
+                    && string.IsNullOrWhiteSpace(jwtOptions.PublicKey))
                 {
                     throw new ApplicationException("JWTOptions:PublicKeyPath not found in configuration");
                 }
 
                 using var rsa = RSA.Create();
-                rsa.ImportFromPem(File.ReadAllText(jwtOptions.PublicKeyPath));
+                
+                if (!string.IsNullOrEmpty(jwtOptions.PublicKeyPath))
+                    rsa.ImportFromPem(File.ReadAllText(jwtOptions.PublicKeyPath));
+                else
+                    rsa.ImportFromPem(jwtOptions.PublicKey);
 
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters

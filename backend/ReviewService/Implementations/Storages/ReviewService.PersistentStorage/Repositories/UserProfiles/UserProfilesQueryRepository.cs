@@ -114,7 +114,7 @@ public sealed class UserProfilesQueryRepository(AppDbContext dbContext) : IUserP
                         .Select(f => new UserProfileFlagForSimilarityRepositoryModel
                         {
                             FlagId = f.FlagId,
-                            Color = (UserProfileFlagColorRepositoryEnum)f.Color,
+                            Color = MapFlagColour(f.Color),
                             Weight = f.Weight
                         })
                         .ToList()

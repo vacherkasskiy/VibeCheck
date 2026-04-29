@@ -1,7 +1,7 @@
+/* eslint-disable @conarti/feature-sliced/absolute-relative */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from 'shared/assets/Logo';
-import { mockAuth } from 'shared/model/mockAuth';
 import { AuthButton } from 'shared/ui/AuthButton';
 import { InputField } from 'shared/ui/InputField';
 import { Modal } from 'shared/ui/Modal';
@@ -11,7 +11,8 @@ import { ProgressBar } from 'shared/ui/ProgressBar/ui/ProgressBar';
 import { ProfileForm } from 'widgets/ProfileForm';
 
 import styles from './styles.module.css';
- 
+import { register } from '../../../features/auth';
+
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { VerificationForm } from '../../VerificationForm';
 
@@ -58,7 +59,9 @@ export const RegistrationForm = () => {
 	const handlePasswordChange = (value: string) => {
 		setPassword(value);
 		if (value && !validatePassword(value)) {
-			setPasswordError('Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол');
+			setPasswordError(
+				'Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол',
+			);
 		} else {
 			setPasswordError('');
 		}
@@ -90,7 +93,9 @@ export const RegistrationForm = () => {
 			return;
 		}
 		if (!validatePassword(password)) {
-			setPasswordError('Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол');
+			setPasswordError(
+				'Пароль должен содержать минимум 8 символов, заглавную букву, цифру и спецсимвол',
+			);
 			return;
 		}
 
@@ -110,12 +115,19 @@ export const RegistrationForm = () => {
 		setConfirmPasswordError('');
 
 		try {
-			await mockAuth.registerInit({ email, password });
+			await register({ login: email, password });
 			setStep(2);
 		} catch (err: any) {
-			let msg = err.response?.data?.message || 'Не удалось зарегистрироваться. Проверьте соединение и попробуйте снова.';
-			if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('email_exists') || msg.toLowerCase().includes('существует')) {
-				msg = 'Пользователь с таким email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
+			let msg =
+				err.response?.data?.message ||
+				'Не удалось зарегистрироваться. Проверьте соединение и попробуйте снова.';
+			if (
+				msg.toLowerCase().includes('already exists') ||
+				msg.toLowerCase().includes('email_exists') ||
+				msg.toLowerCase().includes('существует')
+			) {
+				msg =
+					'Пользователь с таким email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
 			}
 			setGeneralError(msg);
 			setShowErrorModal(true);
@@ -175,7 +187,12 @@ export const RegistrationForm = () => {
 			/>
 
 			<div className={styles.submitButton}>
-				<AuthButton variant="submit" fullWidth onClick={handleEmailSubmit} disabled={isLoading}>
+				<AuthButton
+					variant="submit"
+					fullWidth
+					onClick={handleEmailSubmit}
+					disabled={isLoading}
+				>
 					{isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
 				</AuthButton>
 			</div>
@@ -190,6 +207,7 @@ export const RegistrationForm = () => {
 	const renderStep2 = () => (
 		<VerificationForm
 			email={email}
+			password={password}
 			onSuccess={() => setStep(3)}
 			onBack={() => setStep(1)}
 		/>
@@ -198,7 +216,7 @@ export const RegistrationForm = () => {
 	const renderStep3 = () => (
 		<ProfileForm
 			email={email}
-			onSubmit={() => navigate('/flags')}
+			onSubmit={() => navigate('/recommendations')}
 			onBack={() => setStep(2)}
 		/>
 	);
@@ -220,7 +238,9 @@ export const RegistrationForm = () => {
 				</button>
 
 				<div className={styles.form}>
-					<form>{step === 1 ? renderStep1() : step === 2 ? renderStep2() : renderStep3()}</form>
+					<form>
+						{step === 1 ? renderStep1() : step === 2 ? renderStep2() : renderStep3()}
+					</form>
 				</div>
 				{step < 3 && <ProgressBar currentStep={step} totalSteps={3} steps={STEPS} />}
 			</div>
@@ -229,11 +249,7 @@ export const RegistrationForm = () => {
 				<div className={styles.errorModal}>
 					<h3>Ошибка регистрации</h3>
 					<p className={styles.generalError}>{generalError}</p>
-					<AuthButton 
-						variant="submit" 
-						fullWidth 
-						onClick={handleCloseModal}
-					>
+					<AuthButton variant="submit" fullWidth onClick={handleCloseModal}>
 						OK
 					</AuthButton>
 				</div>

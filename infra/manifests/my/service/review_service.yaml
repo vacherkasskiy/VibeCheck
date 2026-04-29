@@ -53,8 +53,8 @@ spec:
     spec:
       containers:
         - name: review-service
-          image: ikeeo/vibecheck-review-service:8.0
-          imagePullPolicy: IfNotPresent
+          image: ikeeo/vibecheck-review-service:latest
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080

@@ -1,8 +1,9 @@
+import { useUserFlags } from 'entities/user';
 import { useState, useMemo } from 'react';
-import { mockAuth } from 'shared/model';
 import { Input } from 'shared/ui/Input';
 import styles from './Top20FlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
+import type { UserFlag } from 'entities/user';
 
 interface Top20FlagsSectionProps {
 	flags: CompanyFlag[];
@@ -10,10 +11,9 @@ interface Top20FlagsSectionProps {
 
 export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 	const [searchQuery, setSearchQuery] = useState('');
-
-	const user = mockAuth.getCurrentUser();
-	const userGreenFlags = user?.preferences?.green || [];
-	const userRedFlags = user?.preferences?.red || [];
+	const {
+		flags: { green: userGreenFlags, red: userRedFlags },
+	} = useUserFlags();
 
 	const filteredFlags = useMemo(() => {
 		if (!searchQuery.trim()) return flags;
@@ -22,8 +22,8 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 	}, [flags, searchQuery]);
 
 	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
-		const isGreen = userGreenFlags.some((f) => f.id === flagId);
-		const isRed = userRedFlags.some((f) => f.id === flagId);
+		const isGreen = userGreenFlags.some((f: UserFlag) => f.id === flagId);
+		const isRed = userRedFlags.some((f: UserFlag) => f.id === flagId);
 
 		if (isGreen) return 'green';
 		if (isRed) return 'red';

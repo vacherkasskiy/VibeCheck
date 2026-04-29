@@ -5,6 +5,7 @@ import { AddCompanyPage } from 'pages/AddCompanyPage';
 import { CompanyPage } from 'pages/CompanyPage';
 import { EditProfilePage } from 'pages/EditProfilePage';
 import { FlagsPage } from 'pages/FlagsPage';
+import { ForgotPasswordPage } from 'pages/ForgotPasswordPage';
 import { LoginPage } from 'pages/LoginPage';
 import { ProfilePage } from 'pages/ProfilePage';
 import { RecommendationsPage } from 'pages/RecommendationsPage';
@@ -23,8 +24,7 @@ const App = () => {
 	return (
 		<BrowserRouter>
 			<AuthProvider>
-				<ReviewAuthProvider>
-				<GamificationAuthProvider>
+				
 						<CenterGlow />
 						<HeaderGlow />
 						<ToastProvider>
@@ -32,6 +32,7 @@ const App = () => {
 								<Route path="/" element={<WelcomePage />} />
 								<Route path="/login" element={<LoginPage />} />
 								<Route path="/register" element={<RegisterPage />} />
+								<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 								<Route path="/flags" element={<FlagsPage />} />
 								<Route path="/recommendations" element={<RecommendationsPage />} />
 								<Route path="/company/:id" element={<CompanyPage />} />
@@ -42,8 +43,7 @@ const App = () => {
 								<Route path="*" element={<WelcomePage />} />
 							</Routes>
 						</ToastProvider>
-					</GamificationAuthProvider>
-				</ReviewAuthProvider>
+					
 			</AuthProvider>
 		</BrowserRouter>
 	);

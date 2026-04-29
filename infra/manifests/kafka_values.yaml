@@ -26,11 +26,11 @@ controller:
     size: 5Gi
   resources:
     requests:
-      cpu: 200m
-      memory: 512Mi
+      cpu: 150m
+      memory: 384Mi
     limits:
-      cpu: 1000m
-      memory: 1Gi
+      cpu: 750m
+      memory: 768Mi
 
 broker:
   replicaCount: 1
@@ -40,11 +40,11 @@ broker:
     size: 5Gi
   resources:
     requests:
-      cpu: 200m
-      memory: 512Mi
+      cpu: 150m
+      memory: 384Mi
     limits:
-      cpu: 1000m
-      memory: 1Gi
+      cpu: 750m
+      memory: 768Mi
 
 listeners:
   client:

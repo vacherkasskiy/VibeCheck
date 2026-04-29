@@ -31,6 +31,7 @@ export interface CompanyReview {
 export interface CompanyDTO {
   id: string;
   name: string;
+  site?: string;
   logoUrl?: string | null;
   description?: string;
   topFlags: CompanyFlag[];

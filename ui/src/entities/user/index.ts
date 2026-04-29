@@ -7,7 +7,10 @@ export type {
   ActivityItem,
   Subscription,
   UserProfileData,
-  SaveUserFlagsRequest,
+  SetUserFlagsRequest,
+  FlagsResponse,
+  Flag,
+  FlagGroup,
 } from './model/types';
 
-export { userApi } from './model/api';
+export { userApi, useUserFlags } from './model';

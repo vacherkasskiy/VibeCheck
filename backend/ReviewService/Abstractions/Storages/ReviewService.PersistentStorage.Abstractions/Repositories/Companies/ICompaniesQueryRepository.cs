@@ -14,6 +14,10 @@ public interface ICompaniesQueryRepository
         GetCompaniesRepositoryInputModel input,
         CancellationToken ct);
 
+    Task<GetCompaniesRepositoryOutputModel?> GetCompaniesForWeightAsync(
+        GetCompaniesRepositoryInputModel input,
+        CancellationToken ct);
+
     Task<GetCompanyRepositoryOutputModel?> GetCompanyAsync(
         GetCompanyRepositoryInputModel input,
         CancellationToken ct);

@@ -5,7 +5,7 @@ export interface User {
   avatarUrl?: string | null;
   level: number;
   levelLabel: string;
-  levelProgress: number; // 0-100
+  levelProgress: number;
   education: string;
   experience: string;
   expertise: string;
@@ -22,16 +22,33 @@ export interface UserFlags {
   red: UserFlag[];
 }
 
-export interface SaveUserFlagsRequest {
+export interface SetUserFlagsRequest {
   greenFlags: Array<{
-    priority: number;
+    weight: 1 | 2 | 3;
     flags: string[];
   }>;
   redFlags: Array<{
-    priority: number;
+    weight: 1 | 2 | 3;
     flags: string[];
   }>;
 }
+
+export interface Flag {
+  id: string;
+  name: string;
+  category?: string;
+  description?: string;
+}
+
+export interface FlagGroup {
+  weight: 1 | 2 | 3;
+  flags: Flag[];
+}
+
+export type FlagsResponse = {
+  greenFlags: FlagGroup[];
+  redFlags: FlagGroup[];
+};
 
 export interface Achievement {
   type: string;

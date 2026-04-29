@@ -43,13 +43,17 @@ public sealed class CompaniesController(IMapper mapper) : ControllerBase
     )]
     public async Task<ActionResult<GetCompaniesResponse>> GetCompanies(
         [FromServices] IGetCompaniesOperation operation,
+        [FromServices] ICurrentUserAccessor currentUserAccessor,
         [FromQuery] string? query = null,
         [FromQuery] long take = 20,
         [FromQuery] long pageNum = 1,
         [FromQuery] string? q = null,
         CancellationToken ct = default)
     {
+        var currentUserId = currentUserAccessor.GetRequiredUserId(User);
+
         var model = new GetCompaniesOperationModel(
+            CurrentUserId: currentUserId,
             Query: query,
             Take: take,
             PageNum: pageNum,

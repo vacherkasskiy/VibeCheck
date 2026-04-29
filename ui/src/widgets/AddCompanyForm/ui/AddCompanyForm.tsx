@@ -10,7 +10,7 @@ import type { FC } from 'react';
 export const AddCompanyForm: FC = () => {
 	const navigate = useNavigate();
 	const [name, setName] = useState('');
-	const [description, setDescription] = useState('');
+	const [site, setSite] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -22,18 +22,13 @@ export const AddCompanyForm: FC = () => {
 			return;
 		}
 
-		if (description.length > 500) {
-			setError('Описание не должно превышать 500 символов');
-			return;
-		}
-
 		setIsSubmitting(true);
 		setError(null);
 
 		try {
 			await companyApi.createCompany({
 				name: name.trim(),
-				description: description.trim(),
+				site: site.trim() || undefined,
 			});
 
 			navigate('/recommendations');
@@ -88,12 +83,12 @@ export const AddCompanyForm: FC = () => {
 					maxLength={100}
 				/>
 
-				<TextAreaField
-					label="Название и тд."
-					value={description}
-					onChange={setDescription}
-					placeholder="Поделись своим опытом, мыслями и инсайтами о работе в этой компании"
-					maxLength={500}
+				<InputField
+					label="Сайт компании (опционально)"
+					value={site}
+					onChange={setSite}
+					placeholder="https://example.com"
+					maxLength={200}
 				/>
 			</div>
 

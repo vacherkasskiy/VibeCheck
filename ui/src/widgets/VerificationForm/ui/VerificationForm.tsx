@@ -1,16 +1,34 @@
+/* eslint-disable @conarti/feature-sliced/absolute-relative */
+import {
+	registerConfirm,
+	registerResend,
+	passwordConfirm,
+	passwordResetResend,
+} from 'features/auth';
 import { useState, useEffect } from 'react';
-import { mockAuth } from 'shared/model/mockAuth';
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button/';
 import { InputField } from 'shared/ui/InputField';
 import styles from './styles.module.css';
+import { useAuth } from '../../../features/auth';
 
 interface VerificationFormProps {
 	email: string;
+	password: string;
+	mode?: 'register' | 'reset';
 	onSuccess: () => void;
 	onBack: () => void;
 }
 
-export const VerificationForm = ({ email, onSuccess, onBack }: VerificationFormProps) => {
+export const VerificationForm = ({
+	email,
+	password,
+	mode,
+	onSuccess,
+	onBack,
+}: VerificationFormProps) => {
+	const { dispatch } = useAuth();
+	const navigate = useNavigate();
 	const [code, setCode] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -59,16 +77,18 @@ export const VerificationForm = ({ email, onSuccess, onBack }: VerificationFormP
 		setGeneralError('');
 
 		try {
-			const res = await mockAuth.registerConfirm(email, code);
-			if (res.ok) {
-				localStorage.setItem('accessToken', res.data.accessToken || '');
-				localStorage.setItem('refreshToken', res.data.refreshToken || '');
-				onSuccess();
+			if (mode === 'reset') {
+				await passwordConfirm(code, { newPassword: password });
+				navigate('/login');
 			} else {
-				setGeneralError(res.data.message || 'Неверный код');
+				const data = await registerConfirm(code);
+				localStorage.setItem('accessToken', data.accessToken);
+				localStorage.setItem('refreshToken', data.refreshToken);
+				dispatch({ type: 'SET_TOKENS', payload: data });
+				onSuccess();
 			}
-		} catch {
-			setGeneralError('Ошибка соединения');
+		} catch (err: any) {
+			setGeneralError(err.response?.data?.message || 'Неверный код');
 		} finally {
 			setIsLoading(false);
 		}
@@ -79,17 +99,17 @@ export const VerificationForm = ({ email, onSuccess, onBack }: VerificationFormP
 		setGeneralError('');
 
 		try {
-			const res = await mockAuth.registerResend({ email });
-			if (res.ok) {
-				setTimer(60);
-				setCanResend(false);
-				setCode('');
-				setError('');
+			if (mode === 'reset') {
+				await passwordResetResend({ email });
 			} else {
-				setGeneralError('Не удалось отправить код');
+				await registerResend({ login: email, password });
 			}
-		} catch {
-			setGeneralError('Ошибка соединения');
+			setTimer(60);
+			setCanResend(false);
+			setCode('');
+			setError('');
+		} catch (err: any) {
+			setGeneralError('Не удалось отправить код');
 		} finally {
 			setResendLoading(false);
 		}

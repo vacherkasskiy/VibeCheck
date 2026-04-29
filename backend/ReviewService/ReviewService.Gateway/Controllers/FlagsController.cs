@@ -14,7 +14,6 @@ namespace ReviewService.Gateway.Controllers;
 [Route("api/flags")]
 [Produces("application/json")]
 [SwaggerTag("флаги: справочник")]
-[Authorize]
 public sealed class FlagsController(IMapper mapper) : ControllerBase
 {
     /// <summary>
@@ -45,6 +44,7 @@ public sealed class FlagsController(IMapper mapper) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(Summary = "получить флаги текущего пользователя")]
+    [Authorize]
     public async Task<ActionResult<GetMyUserFlagsResponse>> GetMyUserFlags(
         [FromServices] IGetMyUserFlagsOperation operation,
         [FromServices] ICurrentUserAccessor currentUserAccessor,
@@ -74,6 +74,7 @@ public sealed class FlagsController(IMapper mapper) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(Summary = "получить флаги пользователя")]
+    [Authorize]
     public async Task<ActionResult<GetUserFlagsResponse>> GetUserFlags(
         [FromServices] IGetUserFlagsOperation operation,
         Guid userId,
@@ -111,6 +112,7 @@ public sealed class FlagsController(IMapper mapper) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(Summary = "заполнить гринфлаги/редфлаги пользователя")]
+    [Authorize]
     public async Task<IActionResult> SetUserFlags(
         [FromBody] SetUserFlagsRequest request,
         [FromServices] ISetUserFlagsOperation operation,

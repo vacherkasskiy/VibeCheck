@@ -11,6 +11,10 @@ public interface IReviewsQueryRepository
         GetCompanyReviewsRepositoryInputModel input,
         CancellationToken ct);
 
+    Task<GetCompanyReviewsRepositoryOutputModel?> GetCompanyReviewsForWeightAsync(
+        Guid companyId,
+        CancellationToken ct);
+
     Task<GetMyReviewsRepositoryOutputModel?> GetMyReviewsAsync(
         GetMyReviewsRepositoryInputModel input,
         CancellationToken ct);

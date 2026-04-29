@@ -1,15 +1,16 @@
 import http from 'shared/api/http';
-import { mockAuth } from 'shared/model/mockAuth';
+
 import type { 
   User, 
   UserFlags, 
-  SaveUserFlagsRequest,
+  SetUserFlagsRequest,
   Achievement, 
   UserReview, 
   ActivityItem, 
   Subscription, 
   UserProfileData 
 } from './types';
+
 
 const AVATARS = [
   { id: '1', url: '/assets/avatars/avatar1.png' },
@@ -20,18 +21,7 @@ const AVATARS = [
   { id: '6', url: '/assets/avatars/avatar6.png' },
 ];
 
-const MOCK_ACHIEVEMENTS: Achievement[] = [
-  {
-    id: '1',
-    type: 'first_review',
-    name: 'First Review',
-    description: 'Posted your first company review',
-    iconUrl: '/icons/achievement1.png',
-    unlockedAt: new Date().toISOString(),
-    earnedAt: new Date().toISOString(),
-    color: '#4CAF50',
-  },
-];
+const MOCK_ACHIEVEMENTS: Achievement[] = [];
 
 const MOCK_FLAGS: UserFlags = {
   green: [{ id: 'g1', name: 'Great Team', priority: 1 }],
@@ -73,6 +63,24 @@ const MOCK_SUBSCRIPTIONS: Subscription[] = [
   },
 ];
 
+interface UserInfo {
+  name: string;
+  iconId: string;
+  email: string;
+  education: string;
+  specialization: string;
+  workExperience: Array<{
+    specialization: string;
+    startedAt: string;
+    finishedAt: string | null;
+  }>;
+}
+
+const getMyUserInfo = async (): Promise<UserInfo> => {
+  const res = await http.get<UserInfo>('/users/me/info');
+  return res.data;
+};
+
 export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
   return fetchWithMockFallback(
     () => http.get('/api/users/avatars'),
@@ -82,33 +90,27 @@ export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
 
 export const updateProfile = async (data: any): Promise<any> => {
   try {
-    const response = await http.post('/api/users/info', data);
+    const response = await http.post('/users/info', data);
     return response;
-  } catch {
-    // Mock update using mockAuth storage
-    const current = mockAuth.getCurrentUser();
-    if (current) {
-      // Simulate update (in real, would persist to mock users)
-      console.log('Mock profile update:', data);
-    }
+  } catch (err) {
+    console.log('Profile update error:', err);
     return { success: true };
   }
 };
 
-export const saveUserFlags = async (data: SaveUserFlagsRequest): Promise<void> => {
+export const setUserFlags = async (data: SetUserFlagsRequest): Promise<void> => {
   try {
-    await http.post('/api/users/flags', data);
+    await http.put('/api/users/flags', data);
   } catch (error: any) {
-    // Mock fallback
-    const flatPrefs = {
-      green: data.greenFlags.flatMap(g => g.flags.map(flagId => ({ id: flagId, priority: g.priority }))),
-      red: data.redFlags.flatMap(r => r.flags.map(flagId => ({ id: flagId, priority: r.priority }))),
-    };
-    const result = mockAuth.saveFlags(flatPrefs as any);
-    if (!result.ok) {
-      throw new Error(result.data?.message || 'Mock save failed');
-    }
+    console.log('Set flags error:', error);
   }
+};
+
+export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => {
+  return fetchWithMockFallback(
+    () => http.get(`/api/users/${userId}/flags`),
+    MOCK_FLAGS
+  );
 };
 
 const fetchWithMockFallback = async <T>(
@@ -124,17 +126,53 @@ const fetchWithMockFallback = async <T>(
 };
 
 export const fetchProfile = async (): Promise<UserProfileData> => {
-  return fetchWithMockFallback(
-    () => http.get('/api/users/profile'),
-    {
+  try {
+    const [userInfo, avatarList, flags, achievements, reviews, activity, subscriptions] = await Promise.all([
+      getMyUserInfo(),
+      getAvatars(),
+      fetchUserFlags(),
+      fetchAchievements(),
+      fetchUserReviews(),
+      fetchActivity(),
+      fetchSubscriptions()
+    ]);
+
+    const avatarUrl = avatarList.find((a: any) => a.id === userInfo.iconId)?.url || null;
+
+    const user: User = {
+      id: 'current-user-id', 
+      nickname: userInfo.name,
+      email: userInfo.email,
+      avatarUrl,
+      level: 1,
+      levelLabel: 'Beginner',
+      levelProgress: 0,
+      education: userInfo.education,
+      experience: userInfo.workExperience?.length > 0 
+        ? `${userInfo.workExperience[0].specialization} с ${new Date(userInfo.workExperience[0].startedAt).getFullYear()}`
+        : 'Без опыта',
+      expertise: userInfo.specialization,
+    };
+
+    return {
+      user,
+      flags,
+      achievements,
+      reviews,
+      activity,
+      subscriptions
+    };
+  } catch (error) {
+    console.error('Failed to fetch profile:', error);
+    return {
       user: {
         id: 'mock1',
         nickname: 'Mock User',
         email: 'mock@example.com',
         avatarUrl: AVATARS[0].url,
-        level: 5,
-        levelLabel: 'Senior',
-        levelProgress: 75,
+        level: 1,
+        levelLabel: 'Beginner',
+        levelProgress: 0,
         education: 'BACHELOR',
         experience: '5 years',
         expertise: 'Fullstack',
@@ -144,8 +182,8 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
       reviews: MOCK_REVIEWS,
       activity: MOCK_ACTIVITY,
       subscriptions: MOCK_SUBSCRIPTIONS,
-    }
-  );
+    };
+  }
 };
 
 export const fetchUser = async (): Promise<User> => {
@@ -168,17 +206,15 @@ export const fetchUser = async (): Promise<User> => {
 
 export const fetchUserFlags = async (): Promise<UserFlags> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/flags'),
+() => http.get('/api/users/me/flags'),
     MOCK_FLAGS
   );
 };
 
-export const fetchAchievements = async (): Promise<Achievement[]> => {
-  return fetchWithMockFallback(
-    () => http.get('/api/users/achievements'),
-    MOCK_ACHIEVEMENTS
-  );
-};
+// import { gamificationApi } from 'entities/gamification';
+
+// TODO: Enable gamification after fixing feature-sliced import rules
+export const fetchAchievements = async (): Promise<Achievement[]> => [] as Achievement[];
 
 export const fetchUserReviews = async (): Promise<UserReview[]> => {
   return fetchWithMockFallback(
@@ -220,7 +256,8 @@ export const unsubscribe = async (subscriptionId: string): Promise<void> => {
 export const userApi = {
   getAvatars,
   updateProfile,
-  saveUserFlags,
+  setUserFlags,
+  fetchUserFlagsById,
   fetchProfile,
   fetchUser,
   fetchUserFlags,

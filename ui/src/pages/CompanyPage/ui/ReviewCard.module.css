@@ -1,0 +1,38 @@
+.card {
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+}
+
+.header {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-weight: 600;
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.position {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.content {
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+}

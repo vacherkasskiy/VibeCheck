@@ -48,8 +48,8 @@ class Http implements IAxios {
 
     this.http.interceptors.request.use(
       (config) => {
-        const token = accessTokenProvider?.();
-        if (token) {
+        const token = accessTokenProvider ? accessTokenProvider() : localStorage.getItem('accessToken');
+        if (token && !config.url?.match(/(auth\/email\/login|auth\/email\/register|auth\/email\/register\/confirm|auth\/refresh|auth\/logout|avatars)/)) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
@@ -75,16 +75,15 @@ class Http implements IAxios {
           }
 
           try {
-            const refreshResponse = await axios.post('/api/auth/refresh', { refreshToken });
+            const refreshResponse = await axios.post(`${__API_URL__ || '/api'}auth/refresh`, { refreshToken });
             if (refreshResponse.data && refreshResponse.data.accessToken) {
               localStorage.setItem('accessToken', refreshResponse.data.accessToken);
-              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+              originalRequest.headers.Authorization = `${refreshResponse.data.accessToken}`;
               return this.http(originalRequest);
             }
           } catch (refreshError) {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            window.location.href = '/login';
+            // Auto-redirect removed to prevent login loop; let components handle unauth state
+            return Promise.reject(refreshError);
           }
         }
 

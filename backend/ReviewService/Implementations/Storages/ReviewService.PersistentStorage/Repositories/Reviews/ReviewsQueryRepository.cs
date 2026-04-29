@@ -89,6 +89,77 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
         };
     }
 
+    public async Task<GetCompanyReviewsRepositoryOutputModel?> GetCompanyReviewsForWeightAsync(
+        Guid companyId,
+        CancellationToken ct)
+    {
+        var companyExists = await CompanyExistsAsync(companyId, ct);
+        if (!companyExists)
+            return null;
+
+        var query = dbContext.Reviews
+            .AsNoTracking()
+            .Where(x => x.CompanyId == companyId && x.DeletedAt == null)
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id);
+
+        var totalCount = await query.LongCountAsync(ct);
+
+        var reviews = await query
+            .Select(x => new
+            {
+                x.Id,
+                x.AuthorId,
+                AuthorIconId = x.Author.IconId,
+                x.Text,
+                x.Score,
+                x.CreatedAt
+            })
+            .ToListAsync(ct);
+
+        var reviewIds = reviews.Select(x => x.Id).ToArray();
+
+        var flagsRaw = await dbContext.ReviewFlags
+            .AsNoTracking()
+            .Where(x => reviewIds.Contains(x.ReviewId))
+            .OrderBy(x => x.Flag.Name)
+            .Select(x => new
+            {
+                x.ReviewId,
+                Flag = new FlagRepositoryModel
+                {
+                    Id = x.FlagId,
+                    Name = x.Flag.Name
+                }
+            })
+            .ToListAsync(ct);
+
+        var flagsByReviewId = flagsRaw
+            .GroupBy(x => x.ReviewId)
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<FlagRepositoryModel>)g.Select(x => x.Flag).ToList());
+
+        var items = reviews
+            .Select(x => new CompanyReviewRepositoryItemOutputModel
+            {
+                ReviewId = x.Id,
+                AuthorId = x.AuthorId,
+                AuthorIconId = x.AuthorIconId,
+                Text = x.Text,
+                Score = x.Score,
+                CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
+                Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
+            })
+            .ToList();
+
+        return new GetCompanyReviewsRepositoryOutputModel
+        {
+            TotalCount = totalCount,
+            Reviews = items
+        };
+    }
+
     public async Task<GetMyReviewsRepositoryOutputModel?> GetMyReviewsAsync(
         GetMyReviewsRepositoryInputModel input,
         CancellationToken ct)

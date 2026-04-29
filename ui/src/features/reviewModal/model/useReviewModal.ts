@@ -1,5 +1,8 @@
+import { reviewApi } from 'entities/company';
 import { useState, useCallback, useMemo } from 'react';
 import type { ReviewFormData, UseReviewModalReturn } from './types';
+import type { CreateCompanyReviewRequest } from 'entities/company/model/reviewTypes';
+
 
 const MIN_FLAGS_REQUIRED = 2;
 const MAX_FLAGS_ALLOWED = 8;
@@ -11,12 +14,14 @@ const initialFormData: ReviewFormData = {
   text: '',
 };
 
-export const useReviewModal = (): UseReviewModalReturn => {
+export const useReviewModal = (companyId: string): UseReviewModalReturn => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [reviewId, setReviewId] = useState<string | undefined>(undefined);
   const [createdAt, setCreatedAt] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState<ReviewFormData>({ ...initialFormData });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const openModal = useCallback((existingReview?: { 
     id: string; 
@@ -41,6 +46,7 @@ export const useReviewModal = (): UseReviewModalReturn => {
       setFormData(initialFormData);
     }
     setIsOpen(true);
+    setError(null);
   }, []);
 
   const closeModal = useCallback(() => {
@@ -52,6 +58,7 @@ export const useReviewModal = (): UseReviewModalReturn => {
     setIsEditMode(false);
     setReviewId(undefined);
     setCreatedAt(undefined);
+    setError(null);
   }, []);
 
   const setGreenFlags = useCallback((flags: string[]) => {
@@ -81,12 +88,60 @@ export const useReviewModal = (): UseReviewModalReturn => {
     return diffMinutes <= EDIT_TIME_LIMIT_MINUTES;
   }, [isEditMode, createdAt]);
 
+  const submitReview = useCallback(async () => {
+    if (!canSubmit) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const request: CreateCompanyReviewRequest = {
+        flags: [...formData.greenFlags, ...formData.redFlags],
+        text: formData.text || undefined,
+      };
+
+      if (isEditMode && reviewId) {
+        // Edit
+        await reviewApi.updateCompanyReview(reviewId, { text: formData.text });
+      } else {
+        // Create
+        await reviewApi.createCompanyReview(companyId, request);
+      }
+
+      closeModal();
+      resetForm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка отправки отзыва');
+    } finally {
+      setLoading(false);
+    }
+  }, [canSubmit, formData, isEditMode, reviewId, companyId, closeModal, resetForm]);
+
+  const deleteReview = useCallback(async () => {
+    if (!reviewId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await reviewApi.deleteCompanyReview(reviewId);
+      closeModal();
+      resetForm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка удаления отзыва');
+    } finally {
+      setLoading(false);
+    }
+  }, [reviewId, closeModal, resetForm]);
+
   return {
     isOpen,
     isEditMode,
     reviewId,
     createdAt,
     formData,
+    loading,
+    error,
     openModal,
     closeModal,
     setGreenFlags,
@@ -95,5 +150,8 @@ export const useReviewModal = (): UseReviewModalReturn => {
     canSubmit,
     canDelete,
     resetForm,
+    submitReview,
+    deleteReview,
   };
 };
+

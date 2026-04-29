@@ -20,6 +20,7 @@ public sealed record UserReviewItemDto
     
     [SwaggerSchema(Nullable = true)]
     public Guid? CompanyId { get; init; }
+    public string? CompanyName { get; init; }
 
     public required string Text { get; init; }
     public required long Score { get; init; }

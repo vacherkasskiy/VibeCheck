@@ -10,6 +10,9 @@ values
 ('4d3f9d74-c4cb-4e6f-8d31-4ef4c2eaa101', '11111111-1111-1111-1111-111111111104',
  4, null, now() - interval '9 days', now()),
 
+('4d3f9d74-c4cb-4e6f-8d31-4ef4c2eaa101', '11111111-1111-1111-1111-111111111105',
+ 4, null, now() - interval '9 days', now()),
+
 -- user 3
 ('69b7f1de-3a0d-43bd-a6ef-3ecbfe6b7103', '11111111-1111-1111-1111-111111111106',
  1, now() - interval '2 days', now() - interval '2 days', now()),

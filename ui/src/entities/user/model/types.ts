@@ -6,6 +6,8 @@ export interface User {
   level: number;
   levelLabel: string;
   levelProgress: number;
+  levelProgressCurrent?: number;
+  levelProgressTarget?: number;
   education: string;
   experience: string;
   expertise: string;
@@ -83,6 +85,9 @@ export interface Achievement {
   iconUrl: string;
   unlockedAt: string;
   color: string;
+  status?: 'Completed' | 'InProgress' | 'NotStarted';
+  progressCurrent?: number;
+  progressTarget?: number;
 }
 
 export interface UserReview {

@@ -1,40 +1,37 @@
 export interface CompanyFlag {
   id: string;
-  name: string;
+  name: string | null;
   count: number;
 }
 
-export interface CompanyContact {
-  id: string;
-  type: 'email' | 'linkedin' | 'telegram' | 'website';
-  value: string;
-  url: string;
+export interface CompanyLinksDto {
+  site?: string | null;
+  linkedin?: string | null;
+  hh?: string | null;
 }
 
-export interface ReviewReaction {
-  likes: number;
-  dislikes: number;
+export interface ReviewFlagDto {
+  id: string;
+  name: string | null;
 }
 
 export interface CompanyReview {
-  id: string;
+  weight: number;
+  reviewId: string;
   authorId: string;
-  authorName: string;
-  authorAvatarUrl?: string | null;
+  iconId: string | null;
+  text: string | null;
+  score: number;
   createdAt: string;
-  position?: string;
-  text: string;
-  flags: CompanyFlag[];
-  reactions: ReviewReaction;
+  flags: ReviewFlagDto[] | null;
 }
 
 export interface CompanyDTO {
-  id: string;
-  name: string;
-  site?: string;
-  logoUrl?: string | null;
-  description?: string;
-  topFlags: CompanyFlag[];
-  contacts?: CompanyContact[];
-  reviews?: CompanyReview[];
+  companyId: string;
+  name: string | null;
+  iconUrl: string | null;
+  weight?: number;
+  description?: string | null;
+  links?: CompanyLinksDto | null;
+  topFlags: CompanyFlag[] | null;
 }

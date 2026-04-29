@@ -8,11 +8,6 @@ interface FetchCompanyFlagsParams {
   pageNum?: number;
 }
 
-interface FetchCompanyFlagsResponse {
-  items: CompanyFlag[];
-  total: number;
-}
-
 interface UseCompanyFlagsResult {
   flags: CompanyFlag[];
   total: number;
@@ -47,8 +42,8 @@ export const useCompanyFlags = (companyId: string | undefined, initialTake = 50)
         pageNum: 1,
       };
       const response = await companyApi.fetchCompanyFlags(companyId, params);
-      setFlags(response.items);
-      setTotal(response.total);
+      setFlags(response.flags ?? []);
+      setTotal(response.totalCount);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load flags');
     } finally {
@@ -69,4 +64,3 @@ export const useCompanyFlags = (companyId: string | undefined, initialTake = 50)
     setSearchQuery,
   };
 };
-

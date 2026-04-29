@@ -1,4 +1,19 @@
+export type FlagCategoryDtoEnum = 'Culture' | 'Management' | 'Processes' | 'Communications' | 'Image' | 'Compensation' | 'Career' | 'Balance' | 'Conditions' | 'Values';
+
 export type Category = 'Культура' | 'Менеджмент' | 'Процессы' | 'Коммуникации' | 'Имидж' | 'Компенсации' | 'Карьера' | 'Баланс' | 'Условия' | 'Ценности';
+
+export const FLAG_CATEGORY_LABELS: Record<FlagCategoryDtoEnum, Category> = {
+  Culture: 'Культура',
+  Management: 'Менеджмент',
+  Processes: 'Процессы',
+  Communications: 'Коммуникации',
+  Image: 'Имидж',
+  Compensation: 'Компенсации',
+  Career: 'Карьера',
+  Balance: 'Баланс',
+  Conditions: 'Условия',
+  Values: 'Ценности',
+};
 
 export interface Tag {
   id: string;

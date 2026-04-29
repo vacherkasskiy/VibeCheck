@@ -1,12 +1,17 @@
 import React from 'react';
 import styles from './ReviewCard.module.css';
-import type { CompanyReview, CompanyFlag } from 'entities/company';
+import type { CompanyReview, ReviewFlagDto } from 'entities/company';
 
 interface ReviewCardProps {
 	review: CompanyReview;
 }
 
 export const ReviewCard = ({ review }: ReviewCardProps) => {
+	const authorName = `User ${review.authorId.slice(0, 8)}`;
+	const flags = review.flags ?? [];
+	const likes = Math.max(review.score, 0);
+	const dislikes = Math.max(-review.score, 0);
+
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('ru-RU', {
@@ -20,34 +25,31 @@ export const ReviewCard = ({ review }: ReviewCardProps) => {
 		<div className={styles.card}>
 			<div className={styles.header}>
 				<div className={styles.author}>
-					{review.authorAvatarUrl ? (
+					{review.iconId ? (
 						<img
-							src={review.authorAvatarUrl}
-							alt={review.authorName}
+							src={review.iconId}
+							alt={authorName}
 							className={styles.avatar}
 						/>
 					) : (
 						<div className={styles.avatarPlaceholder}>
-							{review.authorName.charAt(0).toUpperCase()}
+							{authorName.charAt(0).toUpperCase()}
 						</div>
 					)}
 					<div className={styles.authorInfo}>
-						<span className={styles.authorName}>{review.authorName}</span>
-						{review.position && (
-							<span className={styles.position}>{review.position}</span>
-						)}
+						<span className={styles.authorName}>{authorName}</span>
 					</div>
 				</div>
 				<span className={styles.date}>{formatDate(review.createdAt)}</span>
 			</div>
 
-			<p className={styles.text}>{review.text}</p>
+			{review.text && <p className={styles.text}>{review.text}</p>}
 
-			{review.flags.length > 0 && (
+			{flags.length > 0 && (
 				<div className={styles.flags}>
-					{review.flags.map((flag: CompanyFlag) => (
+					{flags.map((flag: ReviewFlagDto) => (
 						<span key={flag.id} className={styles.flag}>
-							{flag.name}
+							{flag.name ?? 'Флаг'}
 						</span>
 					))}
 				</div>
@@ -56,11 +58,11 @@ export const ReviewCard = ({ review }: ReviewCardProps) => {
 			<div className={styles.reactions}>
 				<button className={styles.reaction} type="button">
 					<span className={styles.reactionIcon}>👍</span>
-					<span className={styles.reactionCount}>{review.reactions.likes}</span>
+					<span className={styles.reactionCount}>{likes}</span>
 				</button>
 				<button className={styles.reaction} type="button">
 					<span className={styles.reactionIcon}>👎</span>
-					<span className={styles.reactionCount}>{review.reactions.dislikes}</span>
+					<span className={styles.reactionCount}>{dislikes}</span>
 				</button>
 			</div>
 		</div>

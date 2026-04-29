@@ -23,6 +23,11 @@ export const setAccessTokenProvider = (
   accessTokenProvider = provider;
 };
 
+const buildApiUrl = (path: string): string => {
+  const baseUrl = __API_URL__ || '/';
+  return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+};
+
 class Http implements IAxios {
   private readonly http: AxiosInstance;
 
@@ -75,10 +80,10 @@ class Http implements IAxios {
           }
 
           try {
-            const refreshResponse = await axios.post(`${__API_URL__ || '/api'}auth/refresh`, { refreshToken });
+            const refreshResponse = await axios.post(buildApiUrl('/auth/refresh'), { refreshToken });
             if (refreshResponse.data && refreshResponse.data.accessToken) {
               localStorage.setItem('accessToken', refreshResponse.data.accessToken);
-              originalRequest.headers.Authorization = `${refreshResponse.data.accessToken}`;
+              originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
               return this.http(originalRequest);
             }
           } catch (refreshError) {
@@ -234,4 +239,3 @@ const http = new Http(__API_URL__ || '/api');
 export { Http };
 
 export default http;
-

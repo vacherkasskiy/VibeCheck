@@ -2,10 +2,14 @@ import http from 'shared/api/http';
 
 import type { 
   User, 
+  AvatarDto,
   UserFlags, 
+  FlagsResponse,
   SetUserFlagsRequest,
   Achievement, 
   UserReview, 
+  GetUserReviewsResponse,
+  UserReviewItemDto,
   ActivityItem, 
   Subscription, 
   UserProfileData 
@@ -81,9 +85,46 @@ const getMyUserInfo = async (): Promise<UserInfo> => {
   return res.data;
 };
 
+const mapAvatarDto = (avatar: AvatarDto): { id: string; url: string } => ({
+  id: avatar.iconId,
+  url: avatar.link,
+});
+
+const mapFlagGroups = (groups: FlagsResponse['greenFlags']): UserFlags['green'] =>
+  (groups ?? []).flatMap((group) =>
+    (group.flags ?? []).map((flagId) => ({
+      id: flagId,
+      name: flagId,
+      priority: group.weight,
+    })),
+  );
+
+const mapFlagsResponse = (data: FlagsResponse): UserFlags => ({
+  green: mapFlagGroups(data.greenFlags),
+  red: mapFlagGroups(data.redFlags),
+});
+
+const mapUserReview = (review: UserReviewItemDto): UserReview => ({
+  id: review.reviewId,
+  companyId: review.companyId ?? '',
+  companyName: review.companyId ?? 'Компания',
+  text: review.text ?? '',
+  createdAt: review.createdAt,
+  greenFlags: (review.flags ?? []).map((flag) => flag.id),
+  redFlags: [],
+  reactions: {
+    likes: Math.max(review.score, 0),
+    dislikes: Math.max(-review.score, 0),
+    complaints: 0,
+  },
+});
+
 export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/avatars'),
+    async () => {
+      const response = await http.get<AvatarDto[]>('/avatars');
+      return { data: response.data.map(mapAvatarDto) };
+    },
     AVATARS
   );
 };
@@ -108,7 +149,10 @@ export const setUserFlags = async (data: SetUserFlagsRequest): Promise<void> => 
 
 export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => {
   return fetchWithMockFallback(
-    () => http.get(`/api/users/${userId}/flags`),
+    async () => {
+      const response = await http.get<FlagsResponse>(`/api/users/${userId}/flags`);
+      return { data: mapFlagsResponse(response.data) };
+    },
     MOCK_FLAGS
   );
 };
@@ -187,9 +231,25 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
 };
 
 export const fetchUser = async (): Promise<User> => {
-  return fetchWithMockFallback(
-    () => http.get('/api/users/me'),
-    {
+  try {
+    const [userInfo, avatarList] = await Promise.all([getMyUserInfo(), getAvatars()]);
+    const avatarUrl = avatarList.find((a) => a.id === userInfo.iconId)?.url || null;
+    return {
+      id: 'current-user-id',
+      nickname: userInfo.name,
+      email: userInfo.email,
+      avatarUrl,
+      level: 1,
+      levelLabel: 'Beginner',
+      levelProgress: 0,
+      education: userInfo.education,
+      experience: userInfo.workExperience?.length > 0
+        ? `${userInfo.workExperience[0].specialization} с ${new Date(userInfo.workExperience[0].startedAt).getFullYear()}`
+        : 'Без опыта',
+      expertise: userInfo.specialization,
+    };
+  } catch {
+    return {
       id: 'mock1',
       nickname: 'Mock User',
       email: 'mock@example.com',
@@ -200,13 +260,16 @@ export const fetchUser = async (): Promise<User> => {
       education: 'BACHELOR',
       experience: '5 years',
       expertise: 'Fullstack',
-    }
-  );
+    };
+  }
 };
 
 export const fetchUserFlags = async (): Promise<UserFlags> => {
   return fetchWithMockFallback(
-() => http.get('/api/users/me/flags'),
+    async () => {
+      const response = await http.get<FlagsResponse>('/api/users/me/flags');
+      return { data: mapFlagsResponse(response.data) };
+    },
     MOCK_FLAGS
   );
 };
@@ -218,28 +281,33 @@ export const fetchAchievements = async (): Promise<Achievement[]> => [] as Achie
 
 export const fetchUserReviews = async (): Promise<UserReview[]> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/reviews'),
+    async () => {
+      const response = await http.get<GetUserReviewsResponse>('/api/users/me/reviews');
+      return { data: (response.data.reviews ?? []).map(mapUserReview) };
+    },
     MOCK_REVIEWS
   );
 };
 
 export const fetchActivity = async (): Promise<ActivityItem[]> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/activity'),
+    () => http.get('/activity'),
     MOCK_ACTIVITY
   );
 };
 
 export const fetchSubscriptions = async (): Promise<Subscription[]> => {
   return fetchWithMockFallback(
-    () => http.get('/api/users/subscriptions'),
+    () => http.get('/users/me/subscriptions'),
     MOCK_SUBSCRIPTIONS
   );
 };
 
 export const deleteReview = async (reviewId: string): Promise<void> => {
   try {
-    await http.delete(`/api/users/reviews/${reviewId}`);
+    await http.delete(`/api/companies/reviews/${reviewId}`, {
+      config: { data: { reviewId } },
+    });
   } catch {
     console.log('Mock delete review:', reviewId);
   }
@@ -247,7 +315,7 @@ export const deleteReview = async (reviewId: string): Promise<void> => {
 
 export const unsubscribe = async (subscriptionId: string): Promise<void> => {
   try {
-    await http.delete(`/api/users/subscriptions/${subscriptionId}`);
+    await http.delete(`/users/${subscriptionId}/subscriptions`);
   } catch {
     console.log('Mock unsubscribe:', subscriptionId);
   }
@@ -268,4 +336,3 @@ export const userApi = {
   deleteReview,
   unsubscribe,
 };
-

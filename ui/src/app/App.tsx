@@ -1,6 +1,4 @@
 import { AuthProvider } from 'features/auth';
-import { GamificationAuthProvider } from 'features/gamificationAuth';
-import { ReviewAuthProvider } from 'features/reviewAuth';
 import { AddCompanyPage } from 'pages/AddCompanyPage';
 import { CompanyPage } from 'pages/CompanyPage';
 import { EditProfilePage } from 'pages/EditProfilePage';

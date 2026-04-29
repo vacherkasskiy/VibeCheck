@@ -22,6 +22,11 @@ export interface UserFlags {
   red: UserFlag[];
 }
 
+export interface AvatarDto {
+  iconId: string;
+  link: string;
+}
+
 export interface SetUserFlagsRequest {
   greenFlags: Array<{
     weight: 1 | 2 | 3;
@@ -42,13 +47,32 @@ export interface Flag {
 
 export interface FlagGroup {
   weight: 1 | 2 | 3;
-  flags: Flag[];
+  flags: string[] | null;
 }
 
 export type FlagsResponse = {
-  greenFlags: FlagGroup[];
-  redFlags: FlagGroup[];
+  greenFlags: FlagGroup[] | null;
+  redFlags: FlagGroup[] | null;
 };
+
+export interface UserReviewItemDto {
+  reviewId: string;
+  authorId?: string | null;
+  iconId: string | null;
+  companyId?: string | null;
+  text: string | null;
+  score: number;
+  createdAt: string;
+  flags: Array<{
+    id: string;
+    name: string | null;
+  }> | null;
+}
+
+export interface GetUserReviewsResponse {
+  totalCount: number;
+  reviews: UserReviewItemDto[] | null;
+}
 
 export interface Achievement {
   type: string;
@@ -103,4 +127,3 @@ export interface UserProfileData {
   activity: ActivityItem[];
   subscriptions: Subscription[];
 }
-

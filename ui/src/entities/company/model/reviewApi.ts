@@ -6,7 +6,6 @@ import type {
   CompanyReviewListResponse,
   ReviewsSortGatewayEnum
 } from './reviewTypes';
-import type { CompanyReview } from './types';
 
 interface FetchCompanyReviewsParams {
   take?: number;
@@ -16,27 +15,26 @@ interface FetchCompanyReviewsParams {
 
 export const reviewApi = {
   async fetchCompanyReviews(companyId: string, params: FetchCompanyReviewsParams = {}): Promise<CompanyReviewListResponse> {
-    const { take = 20, pageNum = 1, sort = 'CREATED_AT_DESC' } = params;
+    const { take = 20, pageNum = 1, sort = 'Newest' } = params;
     const response = await http.get<CompanyReviewListResponse>(`/api/companies/${companyId}/reviews`, {
-      params: { take, pageNum, sort },
+      take,
+      pageNum,
+      sort,
     });
     return response.data;
   },
 
-  async createCompanyReview(companyId: string, data: CreateCompanyReviewRequest): Promise<CompanyReview> {
-    const response = await http.post<CompanyReview>(`/api/companies/${companyId}/reviews`, data);
-    return response.data;
+  async createCompanyReview(companyId: string, data: CreateCompanyReviewRequest): Promise<void> {
+    await http.post(`/api/companies/${companyId}/reviews`, data);
   },
 
-  async updateCompanyReview(reviewId: string, data: UpdateCompanyReviewRequest): Promise<CompanyReview> {
-    const response = await http.patch<CompanyReview>(`/api/companies/reviews/${reviewId}`, data);
-    return response.data;
+  async updateCompanyReview(reviewId: string, data: UpdateCompanyReviewRequest): Promise<void> {
+    await http.patch(`/api/companies/reviews/${reviewId}`, data);
   },
 
   async deleteCompanyReview(reviewId: string): Promise<void> {
-    await http.delete(`/api/companies/reviews/${reviewId}`);
+    await http.delete(`/api/companies/reviews/${reviewId}`, {
+      config: { data: { reviewId } satisfies DeleteCompanyReviewRequest },
+    });
   },
 };
-
-
-

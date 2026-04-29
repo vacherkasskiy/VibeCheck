@@ -34,7 +34,7 @@ export const CompanyPage = () => {
 		error: modalError,
 		submitReview,
 		deleteReview,
-	} = useReviewModal(company?.id || 'test-company-001');
+	} = useReviewModal(company?.companyId || 'test-company-001');
 
 	if (loading || companyFlagsLoading) {
 		return (
@@ -123,8 +123,8 @@ export const CompanyPage = () => {
 			<ReviewModal
 				isOpen={isOpen}
 				onClose={closeModal}
-				companyName={company.name}
-				companyId={company.id}
+				companyName={company.name ?? 'Компания'}
+				companyId={company.companyId}
 				isEditMode={isEditMode}
 				formData={formData}
 				setGreenFlags={setGreenFlags}

@@ -1,13 +1,13 @@
-// eslint-disable-next-line @conarti/feature-sliced/layers-slices
-import { reviewHttp } from 'features/reviewAuth';
+import http from 'shared/api/http';
 import useSWR from 'swr';
 import { ALL_TAGS } from './mock';
-import type { Tag } from './types';
+import { FLAG_CATEGORY_LABELS } from './types';
+import type { FlagCategoryDtoEnum, Tag } from './types';
 
 interface GetAllFlagsItemDto {
   id: string;
   name: string | null;
-  category: string;
+  category: FlagCategoryDtoEnum;
   description: string | null;
 }
 
@@ -15,25 +15,21 @@ interface GetAllFlagsResponse {
   flags: GetAllFlagsItemDto[] | null;
 }
 
-const reviewFetcher = async (_key: string, url: string[]) => {
-  const path = url[0] as string;
-  if (!reviewHttp) {
-    throw new Error('Review HTTP not ready');
-  }
-  const response = await reviewHttp.get<GetAllFlagsResponse>(path);
+const flagsFetcher = async (path: string) => {
+  const response = await http.get<GetAllFlagsResponse>(path);
   return response.data;
 };
 
 export const useGetAllFlags = () => {
-  const { data, error, isLoading, mutate } = useSWR<GetAllFlagsResponse>(['/api/flags'], reviewFetcher);
+  const { data, error, isLoading, mutate } = useSWR<GetAllFlagsResponse>('/api/flags', flagsFetcher);
 
   const apiFlags = data?.flags ?? [];
   const flags: Tag[] = error ? ALL_TAGS : apiFlags.map(f => ({
     id: f.id,
     name: f.name ?? '',
     description: f.description ?? '',
-    category: f.category as any,
-  }));
+    category: FLAG_CATEGORY_LABELS[f.category] ?? 'Культура',
+  })); 
 
   return {
     flags,
@@ -42,4 +38,3 @@ export const useGetAllFlags = () => {
     mutate,
   };
 };
-

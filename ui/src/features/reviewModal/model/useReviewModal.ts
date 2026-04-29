@@ -97,6 +97,7 @@ export const useReviewModal = (companyId: string): UseReviewModalReturn => {
     try {
       const request: CreateCompanyReviewRequest = {
         flags: [...formData.greenFlags, ...formData.redFlags],
+        companyId,
         text: formData.text || undefined,
       };
 
@@ -154,4 +155,3 @@ export const useReviewModal = (companyId: string): UseReviewModalReturn => {
     deleteReview,
   };
 };
-

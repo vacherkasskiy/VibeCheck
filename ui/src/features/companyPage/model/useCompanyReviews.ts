@@ -1,6 +1,6 @@
 import { reviewApi } from 'entities/company';
 import { useCallback, useEffect, useState } from 'react';
-import type { CompanyReviewListResponse, ReviewsSortGatewayEnum, CompanyReview } from 'entities/company';
+import type { ReviewsSortGatewayEnum, CompanyReview } from 'entities/company';
 
 interface UseCompanyReviewsProps {
   companyId: string | undefined;
@@ -24,7 +24,7 @@ export const useCompanyReviews = ({ companyId }: UseCompanyReviewsProps): UseCom
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sort, setSort] = useState<ReviewsSortGatewayEnum>('CREATED_AT_DESC');
+  const [sort, setSort] = useState<ReviewsSortGatewayEnum>('Newest');
   const [pageNum, setPageNum] = useState(1);
   const take = 20;
   const hasMore = reviews.length < total;
@@ -42,8 +42,9 @@ export const useCompanyReviews = ({ companyId }: UseCompanyReviewsProps): UseCom
         sort: newSort || sort,
       });
       
-      setReviews(append ? [...reviews, ...response.items] : response.items);
-      setTotal(response.total);
+      const nextReviews = response.reviews ?? [];
+      setReviews(append ? [...reviews, ...nextReviews] : nextReviews);
+      setTotal(response.totalCount);
       if (!append) setPageNum(1);
       else setPageNum(pageNum + 1);
     } catch (err) {
@@ -81,6 +82,4 @@ export const useCompanyReviews = ({ companyId }: UseCompanyReviewsProps): UseCom
     loadMore,
   };
 };
-
-
 

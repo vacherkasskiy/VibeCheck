@@ -40,10 +40,6 @@ export type LoginResponse = RegisterResponse;
 
 export interface PasswordResetRequest {
   email: string;
-  newPassword?: string;
-}
-
-export interface PasswordConfirmRequest {
   newPassword: string;
 }
 
@@ -51,4 +47,3 @@ export interface RefreshResponse {
   accessToken: string;
   refreshToken: string;
 }
-

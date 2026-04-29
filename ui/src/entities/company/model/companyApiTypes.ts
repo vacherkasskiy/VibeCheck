@@ -6,12 +6,18 @@ export interface CreateCompanyRequest {
 }
 
 export interface FetchCompaniesResponse {
-  items: CompanyDTO[];
-  total: number;
+  companies: CompanyDTO[] | null;
+  totalCount: number;
 }
 
 export interface FetchCompanyFlagsResponse {
-  items: CompanyFlag[];
-  total: number;
+  companyId: string;
+  flags: CompanyFlag[] | null;
+  totalCount: number;
 }
 
+export interface CreateCompanyResponse {
+  requestId: string | null;
+  status: string | null;
+  createdAt: string;
+}

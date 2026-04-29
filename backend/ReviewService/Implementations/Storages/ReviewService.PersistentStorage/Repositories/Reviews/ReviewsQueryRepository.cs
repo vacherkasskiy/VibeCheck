@@ -369,6 +369,16 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             })
             .FirstOrDefaultAsync(ct);
 
+    public Task<string?> GetReviewVoteModeAsync(
+        Guid reviewId,
+        Guid voterId,
+        CancellationToken ct) =>
+        dbContext.ReviewVotes
+            .AsNoTracking()
+            .Where(x => x.ReviewId == reviewId && x.VoterId == voterId)
+            .Select(x => (string?)x.Mode)
+            .FirstOrDefaultAsync(ct);
+
     public Task<ReviewEditInfoRepositoryModel?> GetReviewEditInfoAsync(Guid reviewId, CancellationToken ct) =>
         dbContext.Reviews
             .AsNoTracking()

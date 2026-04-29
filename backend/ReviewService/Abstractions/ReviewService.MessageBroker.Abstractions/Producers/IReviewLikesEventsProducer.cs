@@ -8,6 +8,7 @@ public interface IReviewLikesEventsProducer
         Guid reviewAuthorId,
         Guid reviewCompanyId,
         string reviewCompanyName,
+        string voteMode,
         DateTimeOffset createdAt,
         CancellationToken ct);
 }

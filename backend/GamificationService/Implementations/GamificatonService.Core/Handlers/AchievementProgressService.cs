@@ -24,15 +24,22 @@ internal sealed class AchievementProgressService(
         await ProcessAchievementAsync(userId, AchievementIds.FiftyReviews, 1, 50, now, ct);
     }
 
-    public async Task HandleReviewLikedAsync(Guid likedByUserId, Guid reviewAuthorId, CancellationToken ct)
+    public async Task HandleReviewReactedAsync(
+        Guid reactedByUserId,
+        Guid reviewAuthorId,
+        string voteMode,
+        CancellationToken ct)
     {
         var now = DateTimeOffset.UtcNow;
 
-        // лайкнувшему
-        await ProcessAchievementAsync(likedByUserId, AchievementIds.FirstReactionGiven, 1, 1, now, ct);
-        await ProcessAchievementAsync(likedByUserId, AchievementIds.TenReactionsGiven, 1, 10, now, ct);
-        await ProcessAchievementAsync(likedByUserId, AchievementIds.FiftyReactionsGiven, 1, 50, now, ct);
-        await ProcessAchievementAsync(likedByUserId, AchievementIds.HundredReactionsGiven, 1, 100, now, ct);
+        // поставившему оценку
+        await ProcessAchievementAsync(reactedByUserId, AchievementIds.FirstReactionGiven, 1, 1, now, ct);
+        await ProcessAchievementAsync(reactedByUserId, AchievementIds.TenReactionsGiven, 1, 10, now, ct);
+        await ProcessAchievementAsync(reactedByUserId, AchievementIds.FiftyReactionsGiven, 1, 50, now, ct);
+        await ProcessAchievementAsync(reactedByUserId, AchievementIds.HundredReactionsGiven, 1, 100, now, ct);
+
+        if (!IsLike(voteMode))
+            return;
 
         // автору отзыва
         await ProcessAchievementAsync(reviewAuthorId, AchievementIds.TenLikesReceived, 1, 10, now, ct);
@@ -60,6 +67,10 @@ internal sealed class AchievementProgressService(
         // пока нет ачивок за жалобы
         return Task.CompletedTask;
     }
+
+    private static bool IsLike(string voteMode) =>
+        string.IsNullOrWhiteSpace(voteMode) ||
+        string.Equals(voteMode, "like", StringComparison.OrdinalIgnoreCase);
 
     private async Task ProcessAchievementAsync(
         Guid userId,

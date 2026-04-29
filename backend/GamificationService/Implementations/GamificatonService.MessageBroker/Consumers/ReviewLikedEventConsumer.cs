@@ -28,24 +28,30 @@ internal sealed class ReviewLikedEventConsumer(
             var eventId = message.Meta.EventId;
             var aggregateId = message.ReviewId;
             var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
+            var voteMode = string.IsNullOrWhiteSpace(message.VoteMode)
+                ? "like"
+                : message.VoteMode;
 
             logger.LogInformation(
-                "Consuming {MessageType} likedByUserId {LikedByUserId} reviewAuthorId {ReviewAuthorId} reviewId {ReviewId} messageId {MessageId} correlationId {CorrelationId}",
+                "Consuming {MessageType} likedByUserId {LikedByUserId} reviewAuthorId {ReviewAuthorId} reviewId {ReviewId} voteMode {VoteMode} messageId {MessageId} correlationId {CorrelationId}",
                 nameof(ReviewLikedEvent),
                 likedByUserId,
                 reviewAuthorId,
                 aggregateId,
+                voteMode,
                 context.MessageId,
                 context.CorrelationId);
 
-            await achievementProgressService.HandleReviewLikedAsync(
+            await achievementProgressService.HandleReviewReactedAsync(
                 likedByUserId,
                 reviewAuthorId,
+                voteMode,
                 context.CancellationToken);
 
-            await xpProgressService.HandleReviewLikedAsync(
+            await xpProgressService.HandleReviewReactedAsync(
                 likedByUserId,
                 reviewAuthorId,
+                voteMode,
                 eventId,
                 aggregateId,
                 occurredAt,

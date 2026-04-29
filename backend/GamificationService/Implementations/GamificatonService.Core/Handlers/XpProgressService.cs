@@ -34,22 +34,26 @@ internal sealed class XpProgressService(
             currentProgressValueResolver: () => GetCurrentCountAsync(userId, "review.created", ct),
             ct);
 
-    public async Task HandleReviewLikedAsync(
-        Guid likedByUserId,
+    public async Task HandleReviewReactedAsync(
+        Guid reactedByUserId,
         Guid reviewAuthorId,
+        string voteMode,
         string eventId,
         string aggregateId,
         DateTimeOffset occurredAt,
         CancellationToken ct)
     {
         await ProcessAsync(
-            likedByUserId,
+            reactedByUserId,
             actionKey: "review.reacted",
             eventId,
             aggregateId,
             occurredAt,
-            currentProgressValueResolver: () => GetCurrentCountAsync(likedByUserId, "review.reacted", ct),
+            currentProgressValueResolver: () => GetCurrentCountAsync(reactedByUserId, "review.reacted", ct),
             ct);
+
+        if (!IsLike(voteMode))
+            return;
 
         await ProcessAsync(
             reviewAuthorId,
@@ -146,6 +150,10 @@ internal sealed class XpProgressService(
             ? currentProgressValue == thresholdValue
             : currentProgressValue % thresholdValue == 0;
     }
+
+    private static bool IsLike(string voteMode) =>
+        string.IsNullOrWhiteSpace(voteMode) ||
+        string.Equals(voteMode, "like", StringComparison.OrdinalIgnoreCase);
 
     private async Task ApplyXpRuleAsync(
         Guid userId,

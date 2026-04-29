@@ -9,9 +9,10 @@ public interface IXpProgressService
         DateTimeOffset occurredAt,
         CancellationToken ct);
 
-    Task HandleReviewLikedAsync(
-        Guid likedByUserId,
+    Task HandleReviewReactedAsync(
+        Guid reactedByUserId,
         Guid reviewAuthorId,
+        string voteMode,
         string eventId,
         string aggregateId,
         DateTimeOffset occurredAt,

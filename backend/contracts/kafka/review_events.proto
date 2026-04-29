@@ -18,7 +18,7 @@ message ReviewWrittenEvent {
   google.protobuf.Timestamp created_at = 4;
 }
 
-// Лайк отзыва (пользователь поставил лайк конкретному review)
+// Реакция на отзыв (пользователь поставил лайк или дизлайк конкретному review)
 message ReviewLikedEvent {
   // Метаданные события
   common.EventMetadata meta = 1;
@@ -29,7 +29,7 @@ message ReviewLikedEvent {
   string review_company_id = 4;
   string review_company_name= 5;
   string liked_by_user_id= 7;
+  string vote_mode = 8; // "like" или "dislike"
 
   google.protobuf.Timestamp liked_at = 6;
 }
-

@@ -82,10 +82,22 @@ internal sealed class VoteReviewOperation(
                 UtcNow = DateTime.UtcNow
             };
 
+            var currentVoteMode = await reviewsQueryRepository.GetReviewVoteModeAsync(
+                model.ReviewId,
+                model.UserId,
+                ct);
+
+            if (string.Equals(currentVoteMode, mode, StringComparison.OrdinalIgnoreCase))
+            {
+                status = "validation";
+                ReviewMetrics.RecordVote(modeLabel, "validation");
+                return Error.Validation("review already voted");
+            }
+
             var isNewVote = await reviewsCommandRepository.UpsertVoteAsync(vote, ct);
             await reviewsCommandRepository.RecalculateReviewScoreAsync(model.ReviewId, DateTime.UtcNow, ct);
 
-            if (isNewVote && model.Mode == VoteModeOperationEnum.Like)
+            if (isNewVote)
             {
                 await likesEventsProducer.PublishReviewLikedAsync(
                     model.UserId,
@@ -93,6 +105,7 @@ internal sealed class VoteReviewOperation(
                     review.AuthorId,
                     review.CompanyId,
                     review.CompanyName,
+                    mode,
                     vote.UtcNow,
                     ct);
             }

@@ -3,7 +3,7 @@ import { Http, setAccessTokenProvider } from 'shared/api/http';
 import type { ReviewAuthState, UseReviewAuthResult } from './types';
 import type { ReactNode } from 'react';
 
-const REVIEW_API_BASE = 'http://review.local';
+const GATEWAY_API_BASE = __API_URL__ || 'http://gateway.local/';
 
 let reviewHttp: Http;
 
@@ -24,18 +24,12 @@ export const ReviewAuthProvider: React.FC<ReviewAuthProviderProps> = ({ children
   const fetchToken = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
-      const expiresMinutes = 60;
-      const response = await fetch(`${REVIEW_API_BASE}/api/test-auth/token?expiresMinutes=${expiresMinutes}`, {
-        method: 'POST',
-      });
-      if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
-      const data = await response.json();
-      const token = data.accessToken;
+      const token = localStorage.getItem('accessToken');
       if (token) {
-        reviewHttp = new Http(REVIEW_API_BASE);
+        reviewHttp = new Http(GATEWAY_API_BASE);
         setState({
           token,
-          expiresAt: data.expiresAtUtc,
+          expiresAt: null,
           loading: false,
           error: null,
         });

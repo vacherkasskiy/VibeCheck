@@ -2,7 +2,7 @@ import http from 'shared/api/http';
 import type { 
   RegisterRequest, RegisterResponse,
   LoginRequest, LoginResponse,
-  PasswordResetRequest, PasswordConfirmRequest, RefreshResponse 
+  PasswordResetRequest, RefreshResponse 
 } from './types';
 
 export const register = async (data: RegisterRequest): Promise<void> => {
@@ -28,7 +28,7 @@ export const logout = async (): Promise<void> => {
 };
 
 export const refreshAccessToken = async (refreshToken: string): Promise<RefreshResponse> => {
-  const response = await http.post<RefreshResponse>('auth/refresh', { refreshToken });
+  const response = await http.post<RefreshResponse>('/auth/refresh', { refreshToken });
   return response.data;
 };
 
@@ -40,8 +40,8 @@ export const passwordResetResend = async (data: PasswordResetRequest): Promise<v
   await http.post('/auth/email/password/reset', data);
 };
 
-export const passwordConfirm = async (code: string, data: PasswordConfirmRequest): Promise<void> => {
+export const passwordConfirm = async (code: string): Promise<RefreshResponse> => {
   const url = `/auth/email/password/reset?confirmCode=${code}`;
-  await http.put(url, data);
+  const response = await http.put<RefreshResponse>(url);
+  return response.data;
 };
-

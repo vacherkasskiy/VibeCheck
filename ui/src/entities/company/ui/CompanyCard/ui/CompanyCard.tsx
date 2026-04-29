@@ -10,18 +10,21 @@ interface CompanyCardProps {
 }
 
 export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className = '' }) => {
+	const companyName = company.name ?? 'Компания';
+	const topFlags = company.topFlags ?? [];
+
 	const handleClick = () => {
 		if (onClick) {
-			onClick(company.id);
+			onClick(company.companyId);
 		}
 	};
 
 	return (
 		<div className={`${styles.companyCard} ${className}`} onClick={handleClick}>
 			<div className={styles.companyHeader}>
-				<div className={styles.companyLogo}>{company.name.charAt(0)}</div>
+				<div className={styles.companyLogo}>{companyName.charAt(0)}</div>
 				<div className={styles.companyInfo}>
-					<div className={styles.companyName}>{company.name}</div>
+					<div className={styles.companyName}>{companyName}</div>
 					<div className={styles.companyTags}>
 						<svg
 							className={styles.companyTagsIcon}
@@ -58,13 +61,13 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 				</div>
 
 				<div className={styles.flagsContainer}>
-					{company.topFlags.slice(0, 5).map((flag, index) => (
+					{topFlags.slice(0, 5).map((flag, index) => (
 						<Badge
 							key={flag.id}
 							variant={index < 3 ? 'success' : 'danger'}
 							size="small"
 						>
-							{flag.name}
+							{flag.name ?? 'Флаг'}
 						</Badge>
 					))}
 				</div>

@@ -170,6 +170,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
 
         var query = dbContext.Reviews
             .AsNoTracking()
+            .Include(x => x.Company)
             .Where(x => x.AuthorId == input.CurrentUserId && x.DeletedAt == null);
 
         query = ApplySort(query, input.Sort);
@@ -183,6 +184,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 x.Id,
                 x.CompanyId,
+                CompanyName = x.Company.Name,
                 x.AuthorId,
                 x.Text,
                 x.Score,
@@ -218,6 +220,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
+                CompanyName = x.CompanyName,
                 AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,
@@ -250,6 +253,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
 
         var query = dbContext.Reviews
             .AsNoTracking()
+            .Include(x => x.Company)
             .Where(x => x.AuthorId == input.UserId && x.DeletedAt == null);
 
         query = ApplySort(query, input.Sort);
@@ -263,6 +267,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 x.Id,
                 x.CompanyId,
+                CompanyName = x.Company.Name,
                 x.AuthorId,
                 x.Text,
                 x.Score,
@@ -298,6 +303,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             {
                 ReviewId = x.Id,
                 CompanyId = x.CompanyId,
+                CompanyName = x.CompanyName,
                 AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,

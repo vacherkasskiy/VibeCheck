@@ -18,7 +18,7 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 	const filteredFlags = useMemo(() => {
 		if (!searchQuery.trim()) return flags;
 		const query = searchQuery.toLowerCase();
-		return flags.filter((flag) => flag.name.toLowerCase().includes(query));
+		return flags.filter((flag) => (flag.name ?? '').toLowerCase().includes(query));
 	}, [flags, searchQuery]);
 
 	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
@@ -50,7 +50,7 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 						const color = getFlagColor(flag.id);
 						return (
 							<div key={flag.id} className={`${styles.flag} ${styles[color]}`}>
-								<span className={styles.flagName}>{flag.name}</span>
+								<span className={styles.flagName}>{flag.name ?? 'Флаг'}</span>
 								<span className={styles.flagCount}>{flag.count}</span>
 							</div>
 						);

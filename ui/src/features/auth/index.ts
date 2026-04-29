@@ -12,4 +12,4 @@ export {
 } from './model/api';
 
 
-export { updateMyInfo, createUserInfoDto } from './model/userApi';
+export { getMyInfo, updateMyInfo, createUserInfoDto } from './model/userApi';

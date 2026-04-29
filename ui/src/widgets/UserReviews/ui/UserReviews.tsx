@@ -1,4 +1,4 @@
-import { FileText, Circle, ThumbsUp, ThumbsDown, Pencil, Trash2 } from 'lucide-react';
+import { FileText, ThumbsUp, ThumbsDown, Pencil, Trash2 } from 'lucide-react';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
 import type { UserReview } from 'entities/user';
@@ -55,28 +55,15 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 
 							<p className={styles.reviewText}>{review.text}</p>
 
-							<div className={styles.reviewFlags}>
-								{review.greenFlags.map((flag, idx) => (
-									<span key={`green-${idx}`} className={styles.greenFlag}>
-										<Circle
-											size={12}
-											fill="var(--color-green-badge)"
-											stroke="var(--color-green-badge)"
-										/>
-										{flag}
-									</span>
-								))}
-								{review.redFlags.map((flag, idx) => (
-									<span key={`red-${idx}`} className={styles.redFlag}>
-										<Circle
-											size={12}
-											fill="var(--color-red-badge)"
-											stroke="var(--color-red-badge)"
-										/>
-										{flag}
-									</span>
-								))}
-							</div>
+							{review.flags.length > 0 && (
+								<div className={styles.reviewFlags}>
+									{review.flags.map((flag, idx) => (
+										<span key={`${flag}-${idx}`} className={styles.reviewFlag}>
+											{flag}
+										</span>
+									))}
+								</div>
+							)}
 
 							<div className={styles.reviewFooter}>
 								<div className={styles.reactions}>

@@ -17,7 +17,7 @@ export default (): webpack.Configuration => {
 	};
 
 	const MODE: BuildMode = (process.env.MODE as BuildMode) || 'development';
-	const API_URL = process.env.API_URL || 'http://localhost:8000/api';
+	const API_URL = process.env.API_URL || 'http://localhost:8000';
 	const IS_DEV = MODE === 'development';
 
 	const env: BuildEnv = {

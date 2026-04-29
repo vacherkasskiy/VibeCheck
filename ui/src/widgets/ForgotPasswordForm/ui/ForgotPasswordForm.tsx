@@ -108,7 +108,7 @@ export const ForgotPasswordForm = () => {
 		setConfirmPasswordError('');
 
 		try {
-			await passwordReset({ email });
+			await passwordReset({ email, newPassword });
 			setStep(2);
 		} catch (err: any) {
 			let msg =

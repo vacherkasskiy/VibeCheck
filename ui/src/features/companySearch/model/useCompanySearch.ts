@@ -31,16 +31,17 @@ export const useCompanySearch = (): UseCompanySearchResult => {
           pageNum: 1,
         });
         
-        setTotal(response.total);
+        const nextItems = response.companies ?? [];
+        setTotal(response.totalCount);
         
         if (reset) {
-          setItems(response.items);
-          setOffset(10);
-          setHasMore(response.items.length < response.total);
+          setItems(nextItems);
+          setOffset(nextItems.length);
+          setHasMore(nextItems.length < response.totalCount);
         } else {
-          setItems((prev) => [...prev, ...response.items]);
-          setOffset((prev) => prev + response.items.length);
-          setHasMore(offset + response.items.length < response.total);
+          setItems((prev) => [...prev, ...nextItems]);
+          setOffset((prev) => prev + nextItems.length);
+          setHasMore(offset + nextItems.length < response.totalCount);
         }
       } catch (error) {
         console.error('Failed to fetch companies:', error);

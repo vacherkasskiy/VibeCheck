@@ -1,5 +1,6 @@
 import { useCompanyReviews } from 'features/companyPage';
 import { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
 import { Select } from 'shared/ui/Select';
 import { ReviewCard } from './ReviewCard';
@@ -12,30 +13,36 @@ type SortOption = {
 };
 
 export const ReviewsSection = () => {
+	const { id } = useParams<{ id: string }>();
 	const { reviews, total, loading, error, sort, setSort, hasMore, loadMore } = useCompanyReviews({
-		companyId: 'test-company-001',
+		companyId: id,
 	});
 
-	const [localSort, setLocalSort] = useState<ReviewsSortGatewayEnum>('CREATED_AT_DESC');
+	const [localSort, setLocalSort] = useState<ReviewsSortGatewayEnum>('Newest');
 
 	const sortOptions: SortOption[] = [
-		{ value: 'CREATED_AT_DESC', label: 'Сначала новые' },
-		{ value: 'CREATED_AT_ASC', label: 'Сначала старые' },
-		{ value: 'LIKES_DESC', label: 'По лайкам' },
-		{ value: 'DISLIKES_DESC', label: 'По дизлайкам' },
+		{ value: 'Newest', label: 'Сначала новые' },
+		{ value: 'Oldest', label: 'Сначала старые' },
+		{ value: 'BestScore', label: 'По рейтингу' },
+		{ value: 'WorstScore', label: 'С низким рейтингом' },
+		{ value: 'WeightDesc', label: 'По весу' },
 	];
 
 	const sortedReviews = useMemo(() => {
-		return reviews.sort((a, b) => {
+		return [...reviews].sort((a, b) => {
 			switch (localSort) {
-				case 'CREATED_AT_DESC':
+				case 'Newest':
 					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-				case 'CREATED_AT_ASC':
+				case 'Oldest':
 					return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-				case 'LIKES_DESC':
-					return b.reactions.likes - a.reactions.likes;
-				case 'DISLIKES_DESC':
-					return b.reactions.dislikes - a.reactions.dislikes;
+				case 'BestScore':
+					return b.score - a.score;
+				case 'WorstScore':
+					return a.score - b.score;
+				case 'WeightDesc':
+					return b.weight - a.weight;
+				case 'WeightAsc':
+					return a.weight - b.weight;
 				default:
 					return 0;
 			}
@@ -78,7 +85,7 @@ export const ReviewsSection = () => {
 
 			<div className={styles.reviewsList}>
 				{sortedReviews.length > 0 ? (
-					sortedReviews.map((review) => <ReviewCard key={review.id} review={review} />)
+					sortedReviews.map((review) => <ReviewCard key={review.reviewId} review={review} />)
 				) : (
 					<p className={styles.empty}>Пока нет отзывов</p>
 				)}

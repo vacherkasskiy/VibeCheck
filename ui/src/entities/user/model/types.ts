@@ -6,6 +6,8 @@ export interface User {
   level: number;
   levelLabel: string;
   levelProgress: number;
+  levelProgressCurrent?: number;
+  levelProgressTarget?: number;
   education: string;
   experience: string;
   expertise: string;
@@ -20,6 +22,11 @@ export interface UserFlag {
 export interface UserFlags {
   green: UserFlag[];
   red: UserFlag[];
+}
+
+export interface AvatarDto {
+  iconId: string;
+  link: string;
 }
 
 export interface SetUserFlagsRequest {
@@ -42,13 +49,33 @@ export interface Flag {
 
 export interface FlagGroup {
   weight: 1 | 2 | 3;
-  flags: Flag[];
+  flags: string[] | null;
 }
 
 export type FlagsResponse = {
-  greenFlags: FlagGroup[];
-  redFlags: FlagGroup[];
+  greenFlags: FlagGroup[] | null;
+  redFlags: FlagGroup[] | null;
 };
+
+export interface UserReviewItemDto {
+  reviewId: string;
+  authorId?: string | null;
+  iconId: string | null;
+  companyId?: string | null;
+  companyName?: string | null;
+  text: string | null;
+  score: number;
+  createdAt: string;
+  flags: Array<{
+    id: string;
+    name: string | null;
+  }> | null;
+}
+
+export interface GetUserReviewsResponse {
+  totalCount: number;
+  reviews: UserReviewItemDto[] | null;
+}
 
 export interface Achievement {
   type: string;
@@ -59,6 +86,9 @@ export interface Achievement {
   iconUrl: string;
   unlockedAt: string;
   color: string;
+  status?: 'Completed' | 'InProgress' | 'NotStarted';
+  progressCurrent?: number;
+  progressTarget?: number;
 }
 
 export interface UserReview {
@@ -67,6 +97,7 @@ export interface UserReview {
   companyName: string;
   text: string;
   createdAt: string;
+  flags: string[];
   greenFlags: string[];
   redFlags: string[];
   reactions: {
@@ -103,4 +134,3 @@ export interface UserProfileData {
   activity: ActivityItem[];
   subscriptions: Subscription[];
 }
-

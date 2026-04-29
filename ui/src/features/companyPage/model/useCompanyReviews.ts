@@ -1,6 +1,6 @@
 import { reviewApi } from 'entities/company';
 import { useCallback, useEffect, useState } from 'react';
-import type { CompanyReviewListResponse, ReviewsSortGatewayEnum, CompanyReview } from 'entities/company';
+import type { ReviewsSortGatewayEnum, CompanyReview } from 'entities/company';
 
 interface UseCompanyReviewsProps {
   companyId: string | undefined;
@@ -24,48 +24,78 @@ export const useCompanyReviews = ({ companyId }: UseCompanyReviewsProps): UseCom
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sort, setSort] = useState<ReviewsSortGatewayEnum>('CREATED_AT_DESC');
+  const [sort, setSort] = useState<ReviewsSortGatewayEnum>('Newest');
   const [pageNum, setPageNum] = useState(1);
   const take = 20;
   const hasMore = reviews.length < total;
 
-  const loadReviews = useCallback(async (append = false, newSort?: ReviewsSortGatewayEnum) => {
+  useEffect(() => {
     if (!companyId) return;
+
+    let ignore = false;
+
+    const loadFirstPage = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await reviewApi.fetchCompanyReviews(companyId, {
+          take,
+          pageNum: 1,
+          sort,
+        });
+
+        if (ignore) return;
+
+        setReviews(response.reviews ?? []);
+        setTotal(response.totalCount);
+        setPageNum(1);
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : 'Failed to load reviews');
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadFirstPage();
+
+    return () => {
+      ignore = true;
+    };
+  }, [companyId, sort, take]);
+
+  const loadMore = useCallback(async () => {
+    if (!companyId || !hasMore || loading) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
+      const nextPage = pageNum + 1;
       const response = await reviewApi.fetchCompanyReviews(companyId, {
         take,
-        pageNum: append ? pageNum + 1 : 1,
-        sort: newSort || sort,
+        pageNum: nextPage,
+        sort,
       });
-      
-      setReviews(append ? [...reviews, ...response.items] : response.items);
-      setTotal(response.total);
-      if (!append) setPageNum(1);
-      else setPageNum(pageNum + 1);
+
+      setReviews((prev) => [...prev, ...(response.reviews ?? [])]);
+      setTotal(response.totalCount);
+      setPageNum(nextPage);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reviews');
     } finally {
       setLoading(false);
     }
-  }, [companyId, sort, pageNum, reviews, total, take]);
-
-  useEffect(() => {
-    loadReviews(false);
-  }, [companyId, sort, loadReviews]);
-
-  const loadMore = useCallback(async () => {
-    if (hasMore && !loading) {
-      await loadReviews(true);
-    }
-  }, [hasMore, loading, loadReviews]);
+  }, [companyId, hasMore, loading, pageNum, sort, take]);
 
   const setNewSort = async (newSort: ReviewsSortGatewayEnum): Promise<void> => {
     setSort(newSort);
-    await loadReviews(false, newSort);
   };
 
   return {
@@ -81,6 +111,3 @@ export const useCompanyReviews = ({ companyId }: UseCompanyReviewsProps): UseCom
     loadMore,
   };
 };
-
-
-

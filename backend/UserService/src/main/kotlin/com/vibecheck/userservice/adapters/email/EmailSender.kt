@@ -1,5 +1,6 @@
 package com.vibecheck.userservice.adapters.email
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
@@ -7,14 +8,15 @@ import java.time.Instant
 
 @Service
 class EmailSender(
-    private val mailSender: JavaMailSender
+    private val mailSender: JavaMailSender,
+    @Value("\${spring.mail.username}") private val fromAddress: String,
 ) {
     fun sendRegistrationCode(email: String, confirmCode: Int) {
         val message = SimpleMailMessage().apply {
             setTo(email)
             subject = "Код регистрации на платформе VibeCheck"
             text = "Ваш код регистрации: $confirmCode"
-            from = "vvfedotov@edu.hse.ru"
+            from = fromAddress
         }
 
         mailSender.send(message)
@@ -25,7 +27,7 @@ class EmailSender(
             setTo(email)
             subject = "Сброс пароля на платформе VibeCheck"
             text = "Ваш код подтверждения сброса пароля: $confirmCode"
-            from = "vvfedotov@edu.hse.ru"
+            from = fromAddress
         }
 
         mailSender.send(message)
@@ -41,7 +43,7 @@ class EmailSender(
                     "Время: $loggedAt\n" +
                     "Устройство/браузер: $userAgent$ipLine\n\n" +
                     "Если это были не вы, рекомендуем сменить пароль."
-            from = "vvfedotov@edu.hse.ru"
+            from = fromAddress
         }
 
         mailSender.send(message)

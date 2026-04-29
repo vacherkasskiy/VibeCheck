@@ -13,6 +13,7 @@ import org.springframework.cloud.gateway.route.Route
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR
 import org.springframework.core.Ordered
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -22,9 +23,13 @@ import reactor.core.publisher.Mono
 @Component
 class InternalTokenRelayFilter(
     private val userServiceClient: UserServiceClient
-) : GlobalFilter, Ordered {
+    ) : GlobalFilter, Ordered {
 
     override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
+        if (exchange.request.method == HttpMethod.OPTIONS) {
+            return chain.filter(exchange)
+        }
+
         val route = exchange.getAttribute<Route>(GATEWAY_ROUTE_ATTR)
         val authMode = route.requiredMetadata(GatewayRoutesConfig.AUTH_MODE_METADATA_KEY)
             .let { ProxyAuthMode.valueOf(it) }
@@ -130,7 +135,11 @@ class InternalTokenRelayFilter(
         val response = exchange.response
         exchange.attributes[ErrorResponseMetadata.ERROR_SOURCE_ATTRIBUTE] = ErrorSource.UPSTREAM.value
         response.statusCode = HttpStatus.valueOf(exception.statusCode)
+        val preservedHeaders = HttpHeaders().apply {
+            putAll(response.headers)
+        }
         response.headers.clear()
+        response.headers.addAll(preservedHeaders)
         response.headers.addAll(exception.headers.filteredForClient())
         response.headers.set(ErrorResponseMetadata.ERROR_SOURCE_HEADER, ErrorSource.UPSTREAM.value)
 

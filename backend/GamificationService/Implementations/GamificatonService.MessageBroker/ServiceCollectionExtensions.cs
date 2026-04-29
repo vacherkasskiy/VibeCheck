@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
             x.AddRider(rider =>
             {
                 rider.AddConsumer<ReviewWrittenEventConsumer>();
+                rider.AddConsumer<ReviewUpdatedEventConsumer>();
                 rider.AddConsumer<ReviewLikedEventConsumer>();
                 rider.AddConsumer<ReviewReportedEventConsumer>();
                 rider.AddConsumer<UserSubscribedEventConsumer>();
@@ -59,6 +60,15 @@ public static class ServiceCollectionExtensions
                         e =>
                         {
                             e.ConfigureConsumer<ReviewWrittenEventConsumer>(context);
+                        }
+                    );
+
+                    k.TopicEndpoint<ReviewUpdatedEvent>(
+                        "reviews-updated",
+                        "gamification-reviews-updated-consumers",
+                        e =>
+                        {
+                            e.ConfigureConsumer<ReviewUpdatedEventConsumer>(context);
                         }
                     );
 

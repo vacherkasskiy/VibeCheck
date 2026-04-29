@@ -9,7 +9,8 @@ using System.Diagnostics;
 namespace ReviewService.MessageBroker.Producers;
 
 internal sealed class ReviewWrittenEventsProducer(
-    ITopicProducer<ReviewWrittenEvent> producer)
+    ITopicProducer<ReviewWrittenEvent> writtenProducer,
+    ITopicProducer<ReviewUpdatedEvent> updatedProducer)
     : IReviewEventsProducer
 {
     public async Task PublishReviewWrittenAsync(
@@ -39,7 +40,7 @@ internal sealed class ReviewWrittenEventsProducer(
                 CreatedAt = Timestamp.FromDateTime(createdAt.UtcDateTime)
             };
 
-            await producer.Produce(message, ct);
+            await writtenProducer.Produce(message, ct);
         }
         catch
         {
@@ -51,6 +52,48 @@ internal sealed class ReviewWrittenEventsProducer(
         {
             ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", "reviews-written", "review.written", status);
             ReviewMetrics.RecordOperationDuration("publish_review_written", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
+        }
+    }
+
+    public async Task PublishReviewUpdatedAsync(
+        Guid reviewId,
+        Guid userId,
+        DateTimeOffset updatedAt,
+        CancellationToken ct)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var status = "success";
+
+        try
+        {
+            var message = new ReviewUpdatedEvent
+            {
+                Meta = new EventMetadata
+                {
+                    EventId = Guid.NewGuid().ToString(),
+                    EventType = "review.updated",
+                    AggregateId = reviewId.ToString(),
+                    PayloadVersion = 1,
+                    OccurredAt = Timestamp.FromDateTime(updatedAt.UtcDateTime),
+                    Source = SourceType.ReviewService
+                },
+                ReviewId = reviewId.ToString(),
+                UserId = userId.ToString(),
+                UpdatedAt = Timestamp.FromDateTime(updatedAt.UtcDateTime)
+            };
+
+            await updatedProducer.Produce(message, ct);
+        }
+        catch
+        {
+            status = "failed";
+            ReviewMetrics.RecordOperationError("publish_review_updated", "message_broker", "exception");
+            throw;
+        }
+        finally
+        {
+            ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", "reviews-updated", "review.updated", status);
+            ReviewMetrics.RecordOperationDuration("publish_review_updated", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
         }
     }
 }

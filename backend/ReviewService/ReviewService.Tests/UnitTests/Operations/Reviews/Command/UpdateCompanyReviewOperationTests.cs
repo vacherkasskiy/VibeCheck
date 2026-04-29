@@ -2,6 +2,7 @@ using NSubstitute;
 using ReviewService.Core.Abstractions.Models.Reviews.UpdateCompanyReview;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 
@@ -11,11 +12,12 @@ public sealed class UpdateCompanyReviewOperationTests
 {
     private readonly IReviewsQueryRepository _queryRepository = Substitute.For<IReviewsQueryRepository>();
     private readonly IReviewsCommandRepository _commandRepository = Substitute.For<IReviewsCommandRepository>();
+    private readonly IReviewEventsProducer _eventsProducer = Substitute.For<IReviewEventsProducer>();
 
     [Fact]
     public async Task UpdateAsync_WhenReviewIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -34,7 +36,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenUserIdIsEmpty_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -52,7 +54,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenTextTooLong_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -70,7 +72,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenReviewNotFound_ShouldReturnNotFound()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -92,7 +94,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenReviewDeleted_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -119,7 +121,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenUserIsNotAuthor_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -146,7 +148,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenEditWindowExpired_ShouldReturnValidationError()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -160,7 +162,7 @@ public sealed class UpdateCompanyReviewOperationTests
             {
                 ReviewId = model.ReviewId,
                 AuthorId = model.UserId,
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-6),
+                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-31),
                 IsDeleted = false
             });
 
@@ -173,7 +175,7 @@ public sealed class UpdateCompanyReviewOperationTests
     [Fact]
     public async Task UpdateAsync_WhenInputIsValid_ShouldCallRepositoryAndReturnSuccess()
     {
-        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository);
+        var operation = new UpdateCompanyReviewOperation(_queryRepository, _commandRepository, _eventsProducer);
 
         var model = new UpdateCompanyReviewOperationModel
         {
@@ -187,7 +189,7 @@ public sealed class UpdateCompanyReviewOperationTests
             {
                 ReviewId = model.ReviewId,
                 AuthorId = model.UserId,
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-2),
+                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-29),
                 IsDeleted = false
             });
 
@@ -199,6 +201,12 @@ public sealed class UpdateCompanyReviewOperationTests
             model.ReviewId,
             model.Text,
             Arg.Any<DateTime>(),
+            Arg.Any<CancellationToken>());
+
+        await _eventsProducer.Received(1).PublishReviewUpdatedAsync(
+            model.ReviewId,
+            model.UserId,
+            Arg.Any<DateTimeOffset>(),
             Arg.Any<CancellationToken>());
     }
 }

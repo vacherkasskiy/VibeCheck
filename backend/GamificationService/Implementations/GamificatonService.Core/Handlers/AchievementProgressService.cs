@@ -24,6 +24,13 @@ internal sealed class AchievementProgressService(
         await ProcessAchievementAsync(userId, AchievementIds.FiftyReviews, 1, 50, now, ct);
     }
 
+    public async Task HandleReviewUpdatedAsync(Guid userId, CancellationToken ct)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        await ProcessAchievementAsync(userId, AchievementIds.FirstReviewUpdate, 1, 1, now, ct);
+    }
+
     public async Task HandleReviewReactedAsync(
         Guid reactedByUserId,
         Guid reviewAuthorId,

@@ -9,6 +9,29 @@ namespace GamificatonService.Tests.Handlers;
 
 public sealed class AchievementProgressServiceTests
 {
+    [Fact]
+    public async Task HandleReviewUpdatedAsync_ShouldIncrementFirstReviewUpdateAchievement()
+    {
+        var userId = Guid.NewGuid();
+        var progressUpdates = new List<AchievementProgressUpdateRepositoryInputModel>();
+
+        var achievementsCommandRepository = CreateAchievementsCommandRepository(progressUpdates);
+
+        var service = new AchievementProgressService(
+            achievementsCommandRepository,
+            Substitute.For<ILevelsCommandRepository>(),
+            Substitute.For<IAchievementEventsProducer>(),
+            Substitute.For<IUserLevelUpEventsProducer>());
+
+        await service.HandleReviewUpdatedAsync(userId, CancellationToken.None);
+
+        var update = Assert.Single(progressUpdates);
+        Assert.Equal(userId, update.UserId);
+        Assert.Equal(AchievementIds.FirstReviewUpdate, update.AchievementId);
+        Assert.Equal(1, update.Delta);
+        Assert.Equal(1, update.TargetValue);
+    }
+
     [Theory]
     [InlineData("like", true)]
     [InlineData("dislike", false)]
@@ -20,25 +43,7 @@ public sealed class AchievementProgressServiceTests
         var reviewAuthorId = Guid.NewGuid();
         var progressUpdates = new List<AchievementProgressUpdateRepositoryInputModel>();
 
-        var achievementsCommandRepository = Substitute.For<IAchievementsCommandRepository>();
-        achievementsCommandRepository
-            .IncrementProgressAsync(
-                Arg.Do<AchievementProgressUpdateRepositoryInputModel>(progressUpdates.Add),
-                Arg.Any<CancellationToken>())
-            .Returns(callInfo =>
-            {
-                var input = callInfo.Arg<AchievementProgressUpdateRepositoryInputModel>();
-
-                return new AchievementProgressUpdateRepositoryOutputModel
-                {
-                    UserId = input.UserId,
-                    AchievementId = input.AchievementId,
-                    AchievementName = input.AchievementId.ToString(),
-                    ProgressCurrent = input.Delta,
-                    WasJustObtained = false,
-                    AchievementXpReward = 0
-                };
-            });
+        var achievementsCommandRepository = CreateAchievementsCommandRepository(progressUpdates);
 
         var service = new AchievementProgressService(
             achievementsCommandRepository,
@@ -82,5 +87,31 @@ public sealed class AchievementProgressServiceTests
         {
             Assert.Empty(authorLikeAchievementIds);
         }
+    }
+
+    private static IAchievementsCommandRepository CreateAchievementsCommandRepository(
+        List<AchievementProgressUpdateRepositoryInputModel> progressUpdates)
+    {
+        var achievementsCommandRepository = Substitute.For<IAchievementsCommandRepository>();
+        achievementsCommandRepository
+            .IncrementProgressAsync(
+                Arg.Do<AchievementProgressUpdateRepositoryInputModel>(progressUpdates.Add),
+                Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                var input = callInfo.Arg<AchievementProgressUpdateRepositoryInputModel>();
+
+                return new AchievementProgressUpdateRepositoryOutputModel
+                {
+                    UserId = input.UserId,
+                    AchievementId = input.AchievementId,
+                    AchievementName = input.AchievementId.ToString(),
+                    ProgressCurrent = input.Delta,
+                    WasJustObtained = false,
+                    AchievementXpReward = 0
+                };
+            });
+
+        return achievementsCommandRepository;
     }
 }

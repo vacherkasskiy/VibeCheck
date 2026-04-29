@@ -19,6 +19,8 @@ public sealed class XpProgressServiceTests
     private static readonly Guid FiftyReviewsRuleId = Guid.Parse("22222222-2222-2222-2222-222222222103");
     private static readonly Guid ReviewReactedRuleId = Guid.Parse("22222222-2222-2222-2222-222222222003");
     private static readonly Guid ReviewLikeReceivedRuleId = Guid.Parse("22222222-2222-2222-2222-222222222008");
+    private static readonly Guid ReviewUpdatedRuleId = Guid.Parse("22222222-2222-2222-2222-222222222002");
+    private static readonly Guid FirstReviewUpdatedRuleId = Guid.Parse("22222222-2222-2222-2222-222222222104");
 
     [Theory]
     [InlineData(37, new[] { "xp.review.created" })]
@@ -85,6 +87,71 @@ public sealed class XpProgressServiceTests
             eventId,
             reviewId,
             occurredAt,
+            CancellationToken.None);
+
+        Assert.Equal(expectedRuleCodes, addedTransactions.Select(x => RuleCodeById(x.XpRuleId)));
+    }
+
+    [Theory]
+    [InlineData(1, new[] { "xp.review.updated", "xp.review.updated.threshold.1" })]
+    [InlineData(2, new[] { "xp.review.updated" })]
+    public async Task HandleReviewUpdatedAsync_AppliesFirstUpdateThresholdOnlyOnce(
+        long currentUpdatesCount,
+        string[] expectedRuleCodes)
+    {
+        var userId = Guid.NewGuid();
+        var addedTransactions = new List<AddUserXpTransactionRepositoryInputModel>();
+
+        var xpRulesQueryRepository = Substitute.For<IXpRulesQueryRepository>();
+        xpRulesQueryRepository
+            .GetActiveByActionKeyAsync(
+                Arg.Is<GetXpRulesByActionKeyRepositoryInputModel>(x => x.ActionKey == "review.updated"),
+                Arg.Any<CancellationToken>())
+            .Returns([
+                Rule(ReviewUpdatedRuleId, "xp.review.updated", XpRuleTypeRepositoryEnum.Action, 15, actionKey: "review.updated"),
+                Rule(FirstReviewUpdatedRuleId, "xp.review.updated.threshold.1", XpRuleTypeRepositoryEnum.Threshold, 20, 1, "review.updated")
+            ]);
+
+        var xpTransactionsCommandRepository = Substitute.For<IXpTransactionsCommandRepository>();
+        xpTransactionsCommandRepository
+            .ExistsAsync(Arg.Any<ExistsUserXpTransactionRepositoryInputModel>(), Arg.Any<CancellationToken>())
+            .Returns(false);
+        xpTransactionsCommandRepository
+            .AddAsync(
+                Arg.Do<AddUserXpTransactionRepositoryInputModel>(addedTransactions.Add),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+
+        var levelsCommandRepository = Substitute.For<ILevelsCommandRepository>();
+        levelsCommandRepository
+            .AddXpAsync(Arg.Any<AddXpRepositoryInputModel>(), Arg.Any<CancellationToken>())
+            .Returns(new AddXpRepositoryOutputModel
+            {
+                NewTotalXp = 100,
+                PreviousLevel = 1,
+                NewLevel = 1
+            });
+
+        var userActivityCountersQueryRepository = Substitute.For<IUserActivityCountersQueryRepository>();
+        userActivityCountersQueryRepository
+            .GetCountByActionKeyAsync(
+                Arg.Is<GetUserActivityCountByActionKeyRepositoryInputModel>(x =>
+                    x.UserId == userId && x.ActionKey == "review.updated"),
+                Arg.Any<CancellationToken>())
+            .Returns(currentUpdatesCount);
+
+        var service = new XpProgressService(
+            xpRulesQueryRepository,
+            xpTransactionsCommandRepository,
+            levelsCommandRepository,
+            userActivityCountersQueryRepository,
+            Substitute.For<IUserLevelUpEventsProducer>());
+
+        await service.HandleReviewUpdatedAsync(
+            userId,
+            Guid.NewGuid().ToString(),
+            Guid.NewGuid().ToString(),
+            DateTimeOffset.UtcNow,
             CancellationToken.None);
 
         Assert.Equal(expectedRuleCodes, addedTransactions.Select(x => RuleCodeById(x.XpRuleId)));
@@ -249,5 +316,7 @@ public sealed class XpProgressServiceTests
             : ruleId == FiftyReviewsRuleId ? "xp.review.created.threshold.50"
             : ruleId == ReviewReactedRuleId ? "xp.review.reacted"
             : ruleId == ReviewLikeReceivedRuleId ? "xp.review.like.received"
+            : ruleId == ReviewUpdatedRuleId ? "xp.review.updated"
+            : ruleId == FirstReviewUpdatedRuleId ? "xp.review.updated.threshold.1"
             : throw new ArgumentOutOfRangeException(nameof(ruleId), ruleId, "Unknown rule id");
 }

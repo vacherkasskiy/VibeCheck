@@ -34,6 +34,21 @@ internal sealed class XpProgressService(
             currentProgressValueResolver: () => GetCurrentCountAsync(userId, "review.created", ct),
             ct);
 
+    public Task HandleReviewUpdatedAsync(
+        Guid userId,
+        string eventId,
+        string aggregateId,
+        DateTimeOffset occurredAt,
+        CancellationToken ct)
+        => ProcessAsync(
+            userId,
+            actionKey: "review.updated",
+            eventId,
+            aggregateId,
+            occurredAt,
+            currentProgressValueResolver: () => GetCurrentCountAsync(userId, "review.updated", ct),
+            ct);
+
     public async Task HandleReviewReactedAsync(
         Guid reactedByUserId,
         Guid reviewAuthorId,

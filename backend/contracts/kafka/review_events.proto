@@ -18,6 +18,19 @@ message ReviewWrittenEvent {
   google.protobuf.Timestamp created_at = 4;
 }
 
+// Событие "пользователь обновил отзыв"
+message ReviewUpdatedEvent {
+  // Общие метаданные события
+  common.EventMetadata meta = 1;
+
+  // Бизнес-данные (payload)
+  string review_id = 2;       // Уникальный ID отзыва
+  string user_id = 3;       // ID пользователя, который обновил отзыв
+
+  // Время обновления отзыва
+  google.protobuf.Timestamp updated_at = 4;
+}
+
 // Реакция на отзыв (пользователь поставил лайк или дизлайк конкретному review)
 message ReviewLikedEvent {
   // Метаданные события

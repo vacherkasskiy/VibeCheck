@@ -126,7 +126,7 @@ sasl.mechanism=PLAIN
 sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="${CLIENT_PASSWORD}";
 EOF
 
-    for topic in reviews-written reviews-liked gamification-achievement gamification-level subscriptions users reports; do
+    for topic in reviews-written reviews-updated reviews-liked gamification-achievement gamification-level subscriptions users reports; do
       /opt/bitnami/kafka/bin/kafka-topics.sh \
         --create \
         --if-not-exists \

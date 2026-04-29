@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
             {
                 rider.AddConsumer<UserProfileUpdatedEventConsumer>();
                 rider.AddProducer<ReviewWrittenEvent>("reviews-written");
+                rider.AddProducer<ReviewUpdatedEvent>("reviews-updated");
                 rider.AddProducer<ReviewLikedEvent>("reviews-liked");
                 rider.AddProducer<ReviewReportedEvent>("reports");
 

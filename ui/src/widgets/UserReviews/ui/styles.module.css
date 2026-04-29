@@ -64,8 +64,7 @@
 	margin-bottom: 12px;
 }
 
-.greenFlag,
-.redFlag {
+.reviewFlag {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -75,20 +74,9 @@
 	font-size: 12px;
 	font-weight: 500;
 	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	border: 3px solid;
-	box-shadow: 0 2px 2px var(--color-shadow);
-}
-
-.greenFlag {
-	background: var(--color-lightgreen-badge);
-	border-color: var(--color-green-badge);
-	color: var(--color-green-badge);
-}
-
-.redFlag {
-	background: var(--color-lightred-badge);
-	border-color: var(--color-red-badge);
-	color: var(--color-red-badge);
+	background: var(--background-secondary);
+	border: 1px solid var(--border-color);
+	color: var(--text-primary);
 }
 
 .reviewFooter {

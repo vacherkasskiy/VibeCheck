@@ -62,6 +62,7 @@ export interface UserReviewItemDto {
   authorId?: string | null;
   iconId: string | null;
   companyId?: string | null;
+  companyName?: string | null;
   text: string | null;
   score: number;
   createdAt: string;
@@ -96,6 +97,7 @@ export interface UserReview {
   companyName: string;
   text: string;
   createdAt: string;
+  flags: string[];
   greenFlags: string[];
   redFlags: string[];
   reactions: {

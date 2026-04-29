@@ -49,7 +49,8 @@ const MOCK_REVIEWS: UserReview[] = [
     companyName: 'Tech Corp',
     text: 'Great place to work!',
     createdAt: new Date().toISOString(),
-    greenFlags: ['g1'],
+    flags: ['Great Team'],
+    greenFlags: ['Great Team'],
     redFlags: [],
     reactions: { likes: 5, dislikes: 0, complaints: 0 },
   },
@@ -90,6 +91,13 @@ interface UserInfo {
   }>;
 }
 
+interface FlagCatalogResponse {
+  flags: Array<{
+    id: string;
+    name: string | null;
+  }> | null;
+}
+
 const MOCK_USER_INFO: UserInfo = {
   name: 'Пользователь',
   iconId: '1',
@@ -109,34 +117,71 @@ const mapAvatarDto = (avatar: AvatarDto): { id: string; url: string } => ({
   url: avatar.link,
 });
 
-const mapFlagGroups = (groups: FlagsResponse['greenFlags']): UserFlags['green'] =>
+let flagNameMapPromise: Promise<Map<string, string>> | null = null;
+
+const fetchFlagNameMap = async (): Promise<Map<string, string>> => {
+  if (!flagNameMapPromise) {
+    flagNameMapPromise = http
+      .get<FlagCatalogResponse>('/api/flags')
+      .then((response) =>
+        new Map(
+          (response.data.flags ?? []).map((flag) => [
+            flag.id,
+            flag.name?.trim() || flag.id,
+          ]),
+        ),
+      )
+      .catch(() => new Map());
+  }
+
+  return flagNameMapPromise;
+};
+
+const getFlagName = (flagId: string, flagNames: Map<string, string>): string =>
+  flagNames.get(flagId) ?? flagId;
+
+const mapFlagGroups = (
+  groups: FlagsResponse['greenFlags'],
+  flagNames: Map<string, string>,
+): UserFlags['green'] =>
   (groups ?? []).flatMap((group) =>
     (group.flags ?? []).map((flagId) => ({
       id: flagId,
-      name: flagId,
+      name: getFlagName(flagId, flagNames),
       priority: group.weight,
     })),
   );
 
-const mapFlagsResponse = (data: FlagsResponse): UserFlags => ({
-  green: mapFlagGroups(data.greenFlags),
-  red: mapFlagGroups(data.redFlags),
+const mapFlagsResponse = (
+  data: FlagsResponse,
+  flagNames: Map<string, string>,
+): UserFlags => ({
+  green: mapFlagGroups(data.greenFlags, flagNames),
+  red: mapFlagGroups(data.redFlags, flagNames),
 });
 
-const mapUserReview = (review: UserReviewItemDto): UserReview => ({
-  id: review.reviewId,
-  companyId: review.companyId ?? '',
-  companyName: review.companyId ?? 'Компания',
-  text: review.text ?? '',
-  createdAt: review.createdAt,
-  greenFlags: (review.flags ?? []).map((flag) => flag.id),
-  redFlags: [],
-  reactions: {
-    likes: Math.max(review.score, 0),
-    dislikes: Math.max(-review.score, 0),
-    complaints: 0,
-  },
-});
+const mapReviewFlagName = (flag: { id: string; name: string | null }): string =>
+  flag.name?.trim() || flag.id;
+
+const mapUserReview = (review: UserReviewItemDto): UserReview => {
+  const flags = (review.flags ?? []).map(mapReviewFlagName);
+
+  return {
+    id: review.reviewId,
+    companyId: review.companyId ?? '',
+    companyName: review.companyName?.trim() || review.companyId || 'Компания',
+    text: review.text ?? '',
+    createdAt: review.createdAt,
+    flags,
+    greenFlags: flags,
+    redFlags: [],
+    reactions: {
+      likes: Math.max(review.score, 0),
+      dislikes: Math.max(-review.score, 0),
+      complaints: 0,
+    },
+  };
+};
 
 const getLevelProgressPercent = (level: GetLevelGatewayResponse): number => {
   const { current, target } = level.progress;
@@ -231,8 +276,11 @@ export const setUserFlags = async (data: SetUserFlagsRequest): Promise<void> => 
 export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => {
   return fetchWithMockFallback(
     async () => {
-      const response = await http.get<FlagsResponse>(`/api/users/${userId}/flags`);
-      return { data: mapFlagsResponse(response.data) };
+      const [response, flagNames] = await Promise.all([
+        http.get<FlagsResponse>(`/api/users/${userId}/flags`),
+        fetchFlagNameMap(),
+      ]);
+      return { data: mapFlagsResponse(response.data, flagNames) };
     },
     MOCK_FLAGS
   );
@@ -285,8 +333,11 @@ export const fetchUser = async (): Promise<User> => {
 export const fetchUserFlags = async (): Promise<UserFlags> => {
   return fetchWithMockFallback(
     async () => {
-      const response = await http.get<FlagsResponse>('/api/users/me/flags');
-      return { data: mapFlagsResponse(response.data) };
+      const [response, flagNames] = await Promise.all([
+        http.get<FlagsResponse>('/api/users/me/flags'),
+        fetchFlagNameMap(),
+      ]);
+      return { data: mapFlagsResponse(response.data, flagNames) };
     },
     MOCK_FLAGS
   );

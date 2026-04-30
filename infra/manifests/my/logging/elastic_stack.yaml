@@ -46,14 +46,14 @@ spec:
               containerPort: 9300
           env:
             - name: ES_JAVA_OPTS
-              value: "-Xms512m -Xmx512m"
+              value: "-Xms384m -Xmx384m"
           resources:
             requests:
-              cpu: 200m
-              memory: 1Gi
+              cpu: 150m
+              memory: 512Mi
             limits:
-              cpu: 750m
-              memory: 1Gi
+              cpu: 500m
+              memory: 768Mi
           readinessProbe:
             httpGet:
               path: /_cluster/health?wait_for_status=yellow&timeout=1s
@@ -88,7 +88,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 20Gi
+            storage: 9Gi
 ---
 apiVersion: v1
 kind: Service
@@ -143,7 +143,7 @@ spec:
               containerPort: 5601
           env:
             - name: NODE_OPTIONS
-              value: "--max-old-space-size=384"
+              value: "--max-old-space-size=224"
           readinessProbe:
             httpGet:
               path: /api/status
@@ -162,11 +162,11 @@ spec:
             failureThreshold: 6
           resources:
             requests:
-              cpu: 100m
-              memory: 384Mi
+              cpu: 75m
+              memory: 192Mi
             limits:
-              cpu: 300m
-              memory: 768Mi
+              cpu: 250m
+              memory: 384Mi
           volumeMounts:
             - name: kibana-config
               mountPath: /usr/share/kibana/config/kibana.yml
@@ -207,6 +207,13 @@ spec:
         - name: kibana-init
           image: curlimages/curl:8.7.1
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           command:
             - /bin/sh
             - -ec

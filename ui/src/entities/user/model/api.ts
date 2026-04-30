@@ -1,5 +1,6 @@
 import { gamificationApi } from 'entities/gamification';
 import http from 'shared/api/http';
+import type { FeedPageDto } from 'entities/activity/model/types';
 
 import type { 
   User, 
@@ -11,7 +12,6 @@ import type {
   UserReview, 
   GetUserReviewsResponse,
   UserReviewItemDto,
-  ActivityItem, 
   Subscription, 
   CreateOrUpdateUserInfoDto,
   CreateUserReportDto,
@@ -42,46 +42,10 @@ const MOCK_LEVEL: GetLevelGatewayResponse = {
   },
 };
 
-const MOCK_FLAGS: UserFlags = {
-  green: [{ id: 'g1', name: 'Great Team', priority: 1 }],
-  red: [{ id: 'r1', name: 'Poor Management', priority: 1 }],
+const EMPTY_FLAGS: UserFlags = {
+  green: [],
+  red: [],
 };
-
-const MOCK_REVIEWS: UserReview[] = [
-  {
-    id: 'r1',
-    companyId: 'c1',
-    companyName: 'Tech Corp',
-    text: 'Great place to work!',
-    createdAt: new Date().toISOString(),
-    flags: ['Great Team'],
-    greenFlags: ['Great Team'],
-    redFlags: [],
-    reactions: { likes: 5, dislikes: 0, complaints: 0 },
-  },
-];
-
-const MOCK_ACTIVITY: ActivityItem[] = [
-  {
-    id: 'a1',
-    type: 'achievement_unlocked',
-    userId: 'u1',
-    userNickname: 'Test User',
-    userAvatarUrl: AVATARS[0].url,
-    description: 'Unlocked First Review achievement',
-    timestamp: new Date().toISOString(),
-  },
-];
-
-const MOCK_SUBSCRIPTIONS: Subscription[] = [
-  {
-    id: 's1',
-    userId: 'u1',
-    nickname: 'Friend User',
-    avatarUrl: AVATARS[1].url,
-    subscribedAt: new Date().toISOString(),
-  },
-];
 
 interface UserInfo {
   name: string;
@@ -103,18 +67,36 @@ interface FlagCatalogResponse {
   }> | null;
 }
 
-const MOCK_USER_INFO: UserInfo = {
-  name: 'Пользователь',
-  iconId: '1',
-  email: '',
-  education: '',
-  specialization: '',
-  workExperience: [],
-};
+interface ActivityFeedParams {
+  limit: number;
+  cursorCreatedAt?: string;
+  cursorActivityId?: string;
+}
 
 const getMyUserInfo = async (): Promise<UserInfo> => {
   const res = await http.get<UserInfo>('/users/me/info');
   return res.data;
+};
+
+const getCurrentUserId = (): string => {
+  const fallbackId = 'current-user-id';
+  const accessToken = localStorage.getItem('accessToken');
+  if (!accessToken) return fallbackId;
+
+  const payload = accessToken.split('.')[1];
+  if (!payload) return fallbackId;
+
+  try {
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = normalizedPayload.padEnd(
+      Math.ceil(normalizedPayload.length / 4) * 4,
+      '=',
+    );
+    const decoded = JSON.parse(atob(paddedPayload)) as { sub?: unknown };
+    return typeof decoded.sub === 'string' ? decoded.sub : fallbackId;
+  } catch {
+    return fallbackId;
+  }
 };
 
 const mapAvatarDto = (avatar: AvatarDto): { id: string; url: string } => ({
@@ -331,7 +313,7 @@ export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => 
       ]);
       return { data: mapFlagsResponse(response.data, flagNames) };
     },
-    MOCK_FLAGS
+    EMPTY_FLAGS
   );
 };
 
@@ -348,19 +330,18 @@ const fetchWithMockFallback = async <T>(
 };
 
 export const fetchProfile = async (): Promise<UserProfileData> => {
-  const [userInfo, avatarList, flags, achievements, levelInfo, reviews, activity, subscriptions] = await Promise.all([
-    fetchWithMockFallback(async () => ({ data: await getMyUserInfo() }), MOCK_USER_INFO),
+  const [userInfo, avatarList, flags, achievements, levelInfo, reviews, subscriptions] = await Promise.all([
+    getMyUserInfo(),
     getAvatars(),
     fetchUserFlags(),
     fetchAchievements(),
     fetchMyLevel(),
     fetchUserReviews(),
-    fetchActivity(),
     fetchSubscriptions(),
   ]);
 
   return {
-    user: mapUser('current-user-id', userInfo, avatarList, levelInfo),
+    user: mapUser(getCurrentUserId(), userInfo, avatarList, levelInfo),
     flags,
     achievements,
     reviews: reviews.map((review) => ({
@@ -368,19 +349,19 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
       authorName: review.authorName ?? userInfo.name,
       authorAvatarUrl: review.authorAvatarUrl ?? avatarList.find((avatar) => avatar.id === userInfo.iconId)?.url ?? null,
     })),
-    activity,
+    activity: [],
     subscriptions,
   };
 };
 
 export const fetchUser = async (): Promise<User> => {
   const [userInfo, avatarList, levelInfo] = await Promise.all([
-    fetchWithMockFallback(async () => ({ data: await getMyUserInfo() }), MOCK_USER_INFO),
+    getMyUserInfo(),
     getAvatars(),
     fetchMyLevel(),
   ]);
 
-  return mapUser('current-user-id', userInfo, avatarList, levelInfo);
+  return mapUser(getCurrentUserId(), userInfo, avatarList, levelInfo);
 };
 
 export const fetchUserInfoById = async (userId: string): Promise<UserInfo> => {
@@ -397,7 +378,7 @@ export const fetchUserFlags = async (): Promise<UserFlags> => {
       ]);
       return { data: mapFlagsResponse(response.data, flagNames) };
     },
-    MOCK_FLAGS
+    EMPTY_FLAGS
   );
 };
 
@@ -427,7 +408,7 @@ export const fetchUserReviews = async (): Promise<UserReview[]> => {
       const response = await http.get<GetUserReviewsResponse>('/api/users/me/reviews');
       return { data: (response.data.reviews ?? []).map(mapUserReview) };
     },
-    MOCK_REVIEWS
+    []
   );
 };
 
@@ -437,14 +418,16 @@ export const fetchUserReviewsById = async (userId: string): Promise<UserReview[]
       const response = await http.get<GetUserReviewsResponse>(`/api/users/${userId}/reviews`);
       return { data: (response.data.reviews ?? []).map(mapUserReview) };
     },
-    MOCK_REVIEWS.map((review) => ({ ...review, authorId: userId }))
+    []
   );
 };
 
-export const fetchActivity = async (params?: { limit: number; cursorCreatedAt?: string; cursorActivityId?: string }): Promise<any> => {
+export const fetchActivity = async (
+  params: ActivityFeedParams = { limit: 10 },
+): Promise<FeedPageDto> => {
   return fetchWithMockFallback(
-    () => http.get('/activity', { params }),
-    { activities: MOCK_ACTIVITY }
+    () => http.get<FeedPageDto>('/activity', params),
+    { totalCount: 0, activities: [] }
   );
 };
 
@@ -457,7 +440,7 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> => {
       ]);
       return { data: (response.data ?? []).map((item) => mapSubscriptionDto(item, avatarList)) };
     },
-    MOCK_SUBSCRIPTIONS
+    []
   );
 };
 
@@ -475,13 +458,8 @@ export const fetchUserSubscriptions = async (userId: string): Promise<Subscripti
 };
 
 export const fetchSubscriptionStatus = async (authorId: string): Promise<boolean> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<SubscriptionStatusDto>(`/users/${authorId}/subscriptions/status`);
-      return { data: response.data.status === 'ACTIVE' };
-    },
-    false
-  );
+  const response = await http.get<SubscriptionStatusDto>(`/users/${authorId}/subscriptions/status`);
+  return response.data.status === 'ACTIVE';
 };
 
 export const subscribeToUser = async (authorId: string): Promise<void> => {
@@ -494,7 +472,7 @@ export const unsubscribeFromUser = async (authorId: string): Promise<void> => {
 
 export const fetchUserProfileById = async (userId: string): Promise<UserProfileData> => {
   const [userInfo, avatarList, flags, achievements, levelInfo, reviews, subscriptions] = await Promise.all([
-    fetchWithMockFallback(async () => ({ data: await fetchUserInfoById(userId) }), MOCK_USER_INFO),
+    fetchUserInfoById(userId),
     getAvatars(),
     fetchUserFlagsById(userId),
     fetchWithMockFallback(
@@ -527,6 +505,19 @@ export const fetchUserProfileById = async (userId: string): Promise<UserProfileD
   };
 };
 
+export const fetchUserPublicProfileById = async (userId: string): Promise<User> => {
+  const [userInfo, avatarList, levelInfo] = await Promise.all([
+    fetchUserInfoById(userId),
+    getAvatars(),
+    fetchWithMockFallback(
+      async () => ({ data: await gamificationApi.getUserLevel(userId) }),
+      MOCK_LEVEL,
+    ),
+  ]);
+
+  return mapUser(userId, userInfo, avatarList, levelInfo);
+};
+
 export const deleteReview = async (reviewId: string): Promise<void> => {
   try {
     await http.delete(`/api/companies/reviews/${reviewId}`, {
@@ -555,6 +546,7 @@ export const userApi = {
   setUserFlags,
   fetchUserFlagsById,
   fetchUserProfileById,
+  fetchUserPublicProfileById,
   fetchProfile,
   fetchUser,
   fetchUserFlags,

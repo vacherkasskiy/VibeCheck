@@ -14,12 +14,12 @@ import { ProfileHeader } from 'widgets/ProfileHeader';
 import { UserFlags } from 'widgets/UserFlags';
 import { UserReviews } from 'widgets/UserReviews';
 import styles from './ProfilePage.module.css';
-import type { UserFeedDto } from 'entities/activity';
 
 export const ProfilePage = () => {
 	const navigate = useNavigate();
 	const { showToast } = useToast();
 	const { profile, loading, error } = useProfile();
+	const { data: activities = [] } = useUserActivity(5, !!profile);
 	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -193,6 +193,7 @@ export const ProfilePage = () => {
 					<section className={styles.section}>
 						<ActivityPanel
 							subscriptions={visibleSubscriptions}
+							activities={activities}
 							reviewsCount={reviews.length}
 							flagsCount={flags.green.length + flags.red.length}
 							likesReceived={reviews.reduce(

@@ -29,7 +29,7 @@ data:
   APP_INTERNAL_JWT_KID: "internal-key-2026-04"
   APP_INTERNAL_JWT_PRIVATE_KEY_PATH: "/var/run/secrets/internal-jwt/private.pem"
   APP_MINIO_ENDPOINT: "http://minio.vibecheck.svc.cluster.local:9000"
-  APP_MINIO_PUBLIC_ENDPOINT: "http://minio.api.local"
+  APP_MINIO_PUBLIC_ENDPOINT: "http://minio.vibecheck.svc.cluster.local:9000"
   APP_MINIO_BUCKET: "user-service"
   APP_MINIO_USE_SSL: "false"
   USER_SERVICE_AVATAR_SEED_ENABLED: "true"

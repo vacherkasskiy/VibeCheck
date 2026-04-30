@@ -15,8 +15,8 @@ master:
 
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi

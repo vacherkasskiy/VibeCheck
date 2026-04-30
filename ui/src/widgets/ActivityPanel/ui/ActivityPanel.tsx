@@ -1,5 +1,4 @@
-import { ActivityCard } from 'entities/activity';
-import { Users, FileText, Flag, Heart, X } from 'lucide-react';
+import { Users, FileText, Flag, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
@@ -29,6 +28,20 @@ export const ActivityPanel = ({
 
 	const handleOpenProfile = (userId: string) => {
 		navigate(`/user/${userId}`);
+	};
+
+	const getActivityTarget = (activity: UserFeedDto) => {
+		if (!activity.payload) return null;
+
+		switch (activity.payload.type) {
+			case 'REVIEW_WRITTEN':
+			case 'REVIEW_LIKED':
+				return activity.payload.companyId ? `/company/${activity.payload.companyId}` : null;
+			case 'USER_FOLLOWED':
+				return activity.payload.userId ? `/user/${activity.payload.userId}` : null;
+			default:
+				return null;
+		}
 	};
 
 	const formatActivityText = (activity: UserFeedDto) => {
@@ -100,7 +113,7 @@ export const ActivityPanel = ({
 				<div className={styles.listSection}>
 					<h4 className={styles.subtitle}>Подписки ({subscriptions.length})</h4>
 					<div className={styles.list}>
-						{subscriptions.slice(0, 5).map((subscription) => (
+						{(showAllSubs ? subscriptions : subscriptions.slice(0, 5)).map((subscription) => (
 							<div key={subscription.id} className={styles.subscriptionItem}>
 								<button
 									className={styles.subscriptionInfo}
@@ -133,8 +146,12 @@ export const ActivityPanel = ({
 							</div>
 						))}
 						{subscriptions.length > 5 && (
-							<button onClick={() => setShowAllSubs(true)} className={styles.showMore}>
-								Показать все
+							<button
+								onClick={() => setShowAllSubs((prev) => !prev)}
+								className={styles.showMore}
+								type="button"
+							>
+								{showAllSubs ? 'Скрыть' : 'Показать все'}
 							</button>
 						)}
 					</div>
@@ -145,11 +162,24 @@ export const ActivityPanel = ({
 				<div className={styles.listSection}>
 					<h4 className={styles.subtitle}>Активность ({activities.length})</h4>
 					<div className={styles.activityList}>
-						{activities.slice(0, 5).map((activity) => (
-							<div key={activity.activityId} className={styles.activityItem}>
-								{formatActivityText(activity)}
-							</div>
-						))}
+						{activities.slice(0, 5).map((activity) => {
+							const activityTarget = getActivityTarget(activity);
+
+							return activityTarget ? (
+								<button
+									key={activity.activityId}
+									className={`${styles.activityItem} ${styles.activityButton}`}
+									onClick={() => navigate(activityTarget)}
+									type="button"
+								>
+									{formatActivityText(activity)}
+								</button>
+							) : (
+								<div key={activity.activityId} className={styles.activityItem}>
+									{formatActivityText(activity)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			)}

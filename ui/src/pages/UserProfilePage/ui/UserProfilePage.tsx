@@ -1,36 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
-import { ReviewsModal, AchievementsModal } from 'features/profile/modals';
 import { UnsubscribeConfirmModal, useSubscribeMutation, useUnsubscribeMutation, useSubscriptionStatus } from 'features/subscribe';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
-import { Achievements } from 'widgets/Achievements';
-import { ActivityPanel } from 'widgets/ActivityPanel';
-import { CombinedSubscriptionsActivity } from 'widgets/CombinedSubscriptionsActivity';
-import { UserFlags } from 'widgets/UserFlags';
-import { UserReviews } from 'widgets/UserReviews';
 import styles from './UserProfilePage.module.css';
-import type { UserProfileData } from 'entities/user';
+import type { User } from 'entities/user';
 
 export const UserProfilePage = () => {
 	const { userId } = useParams<{ userId: string }>();
 	const navigate = useNavigate();
-	const { profile: currentUserProfile } = useProfile();
+	const { profile: currentUserProfile, loading: currentUserLoading } = useProfile();
 	const currentUserId = currentUserProfile?.user?.id ?? '';
-	const [profile, setProfile] = useState<UserProfileData | null>(null);
+	const [profile, setProfile] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
-	const [showReviewsModal, setShowReviewsModal] = useState(false);
 	const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
 
-	const isOwnProfile = userId === currentUserId;
+	const isOwnProfile = !!userId && !!currentUserId && userId === currentUserId;
+	const skipStatusRequest = currentUserLoading || isOwnProfile;
 
-	const { data: isSubscribed = false, isLoading: statusLoading, error: statusError } = useSubscriptionStatus(userId, isOwnProfile);
+	const { data: isSubscribed = false, isLoading: statusLoading, error: statusError } = useSubscriptionStatus(userId, skipStatusRequest);
 
 	const subscribeMutation = useSubscribeMutation();
 	const unsubscribeMutation = useUnsubscribeMutation();
@@ -38,6 +30,12 @@ export const UserProfilePage = () => {
 	const buttonDisabled = isPending || !!statusError;
 
 	// Tooltip not supported in Button, error handled by disabled + data=false fallback
+
+	useEffect(() => {
+		if (isOwnProfile) {
+			navigate('/profile', { replace: true });
+		}
+	}, [isOwnProfile, navigate]);
 
 	useEffect(() => {
 		const loadProfile = async () => {
@@ -49,7 +47,7 @@ export const UserProfilePage = () => {
 
 			try {
 				setLoading(true);
-				const profileData = await userApi.fetchUserProfileById(userId);
+				const profileData = await userApi.fetchUserPublicProfileById(userId);
 				setProfile(profileData);
 			} catch (err) {
 				setError('Ошибка загрузки профиля');
@@ -77,14 +75,6 @@ export const UserProfilePage = () => {
 
 	const handleCloseUnsubscribeModal = () => {
 		setShowUnsubscribeModal(false);
-	};
-
-	const handleViewAllAchievements = () => {
-		setShowAchievementsModal(true);
-	};
-
-	const handleViewAllReviews = () => {
-		setShowReviewsModal(true);
 	};
 
 	const formatRegistrationDate = (dateString: string) => {
@@ -146,7 +136,7 @@ export const UserProfilePage = () => {
 		);
 	}
 
-	const { user, flags, achievements, reviews } = profile;
+	const user = profile;
 
 	return (
 		<div className={styles.page}>
@@ -188,8 +178,21 @@ export const UserProfilePage = () => {
 							<span className={styles.levelLabel}>{user.levelLabel}</span>
 						</div>
 						<div className={styles.registrationDate}>
-						На платформе с {formatRegistrationDate(user.createdAt!)}
-
+							{user.createdAt && `На платформе с ${formatRegistrationDate(user.createdAt)}`}
+						</div>
+						<div className={styles.details}>
+							<div className={styles.detailItem}>
+								<span className={styles.detailLabel}>Образование</span>
+								<span className={styles.detailValue}>{user.education}</span>
+							</div>
+							<div className={styles.detailItem}>
+								<span className={styles.detailLabel}>Опыт</span>
+								<span className={styles.detailValue}>{user.experience}</span>
+							</div>
+							<div className={styles.detailItem}>
+								<span className={styles.detailLabel}>Специализация</span>
+								<span className={styles.detailValue}>{user.expertise}</span>
+							</div>
 						</div>
 					</div>
 
@@ -218,46 +221,7 @@ export const UserProfilePage = () => {
 					)}
 				</div>
 
-		<div className={styles.sections}>
-			<section className={styles.section}>
-				<UserFlags flags={flags} onEditFlags={() => {}} />
-			</section>
-
-			<section className={styles.section}>
-				<UserReviews
-					reviews={reviews}
-					onViewAll={handleViewAllReviews}
-					onEdit={() => {}}
-					onDelete={() => {}}
-				/>
-			</section>
-
-			<section className={styles.section}>
-				<Achievements
-					achievements={achievements}
-					onViewAll={handleViewAllAchievements}
-				/>
-			</section>
-
-			<section className={styles.section}>
-				<CombinedSubscriptionsActivity userId={userId!} />
-			</section>
-		</div>
 			</main>
-
-			<AchievementsModal
-				isOpen={showAchievementsModal}
-				onClose={() => setShowAchievementsModal(false)}
-				achievements={achievements}
-			/>
-
-			<ReviewsModal
-				isOpen={showReviewsModal}
-				onClose={() => setShowReviewsModal(false)}
-				reviews={reviews}
-				onDelete={() => {}}
-				canEdit={() => false}
-			/>
 			<UnsubscribeConfirmModal
 				isOpen={showUnsubscribeModal}
 				onClose={handleCloseUnsubscribeModal}

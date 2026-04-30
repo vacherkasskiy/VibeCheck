@@ -22,15 +22,32 @@ import type {
 } from './types';
 import type { GetLevelGatewayResponse, MyAchievementItemDto, UserAchievementItemDto } from 'entities/gamification';
 
+type AvatarOption = { id: string; url: string };
 
-const AVATARS = [
-  { id: '1', url: '/assets/avatars/avatar1.png' },
-  { id: '2', url: '/assets/avatars/avatar2.png' },
-  { id: '3', url: '/assets/avatars/avatar3.png' },
-  { id: '4', url: '/assets/avatars/avatar4.png' },
-  { id: '5', url: '/assets/avatars/avatar5.png' },
-  { id: '6', url: '/assets/avatars/avatar6.png' },
-];
+const DEFAULT_AVATAR_URL = '/assets/avatars/avatar1.png';
+
+const AVATAR_ID_TO_LOCAL_URL: Record<string, string> = {
+  '1': '/assets/avatars/avatar1.png',
+  '2': '/assets/avatars/avatar2.png',
+  '3': '/assets/avatars/avatar3.png',
+  '4': '/assets/avatars/avatar4.png',
+  '5': '/assets/avatars/avatar5.png',
+  '6': '/assets/avatars/avatar6.png',
+  'viktor-avatar.png': '/assets/avatars/avatar1.png',
+  'cat-avatar.png': '/assets/avatars/avatar2.png',
+  'fox-avatar.png': '/assets/avatars/avatar3.png',
+  'rabbit-avatar.png': '/assets/avatars/avatar4.png',
+  'dog-avatar.png': '/assets/avatars/avatar5.png',
+  'hedgehog-avatar.png': '/assets/avatars/avatar6.png',
+  'panda-avatar.png': '/assets/avatars/avatar2.png',
+  'turtle-avatar.png': '/assets/avatars/avatar3.png',
+  'wolf-avatar.png': '/assets/avatars/avatar4.png',
+};
+
+const AVATARS: AvatarOption[] = Object.entries(AVATAR_ID_TO_LOCAL_URL).map(([id, url]) => ({
+  id,
+  url,
+}));
 
 const MOCK_ACHIEVEMENTS: Achievement[] = [];
 
@@ -99,10 +116,28 @@ const getCurrentUserId = (): string => {
   }
 };
 
-const mapAvatarDto = (avatar: AvatarDto): { id: string; url: string } => ({
+const getLocalAvatarUrl = (avatarId?: string | null): string =>
+  (avatarId && AVATAR_ID_TO_LOCAL_URL[avatarId]) || DEFAULT_AVATAR_URL;
+
+const getAvatarUrl = (
+  avatarId: string | null | undefined,
+  avatarList: AvatarOption[],
+): string =>
+  avatarList.find((avatar) => avatar.id === avatarId)?.url || getLocalAvatarUrl(avatarId);
+
+const mapAvatarDto = (avatar: AvatarDto): AvatarOption => ({
   id: avatar.iconId,
-  url: avatar.link,
+  url: avatar.link || getLocalAvatarUrl(avatar.iconId),
 });
+
+const withLocalAvatarFallbacks = (avatars: AvatarOption[]): AvatarOption[] => {
+  const knownIds = new Set(avatars.map((avatar) => avatar.id));
+
+  return [
+    ...avatars,
+    ...AVATARS.filter((avatar) => !knownIds.has(avatar.id)),
+  ];
+};
 
 let flagNameMapPromise: Promise<Map<string, string>> | null = null;
 
@@ -175,12 +210,12 @@ const mapUserReview = (review: UserReviewItemDto): UserReview => {
 
 const mapSubscriptionDto = (
   subscription: SubscriptionUserProfileDto,
-  avatarList: Array<{ id: string; url: string }>,
+  avatarList: AvatarOption[],
 ): Subscription => ({
   id: subscription.userId,
   userId: subscription.userId,
   nickname: subscription.name?.trim() || 'Пользователь',
-  avatarUrl: avatarList.find((avatar) => avatar.id === subscription.iconId)?.url || null,
+  avatarUrl: getAvatarUrl(subscription.iconId, avatarList),
   subscribedAt: new Date().toISOString(),
 });
 
@@ -238,10 +273,10 @@ const mapUserAchievement = (achievement: UserAchievementItemDto): Achievement =>
 const mapUser = (
   id: string,
   userInfo: UserInfo,
-  avatarList: Array<{ id: string; url: string }>,
+  avatarList: AvatarOption[],
   levelInfo: GetLevelGatewayResponse,
 ): User => {
-  const avatarUrl = avatarList.find((avatar) => avatar.id === userInfo.iconId)?.url || null;
+  const avatarUrl = getAvatarUrl(userInfo.iconId, avatarList);
 
   return {
     id,
@@ -261,14 +296,15 @@ const mapUser = (
   };
 };
 
-export const getAvatars = async (): Promise<{ id: string; url: string }[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<AvatarDto[]>('/avatars');
-      return { data: response.data.map(mapAvatarDto) };
-    },
-    AVATARS
-  );
+export const getAvatars = async (): Promise<AvatarOption[]> => {
+  try {
+    const response = await http.get<AvatarDto[]>('/avatars');
+    const avatars = Array.isArray(response.data) ? response.data.map(mapAvatarDto) : [];
+
+    return withLocalAvatarFallbacks(avatars);
+  } catch {
+    return AVATARS;
+  }
 };
 
 export const createProfile = async (data: CreateOrUpdateUserInfoDto): Promise<void> => {
@@ -347,7 +383,7 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
     reviews: reviews.map((review) => ({
       ...review,
       authorName: review.authorName ?? userInfo.name,
-      authorAvatarUrl: review.authorAvatarUrl ?? avatarList.find((avatar) => avatar.id === userInfo.iconId)?.url ?? null,
+      authorAvatarUrl: review.authorAvatarUrl ?? getAvatarUrl(userInfo.iconId, avatarList),
     })),
     activity: [],
     subscriptions,
@@ -498,7 +534,7 @@ export const fetchUserProfileById = async (userId: string): Promise<UserProfileD
       ...review,
       authorId: review.authorId ?? userId,
       authorName: review.authorName ?? userInfo.name,
-      authorAvatarUrl: review.authorAvatarUrl ?? avatarList.find((avatar) => avatar.id === userInfo.iconId)?.url ?? null,
+      authorAvatarUrl: review.authorAvatarUrl ?? getAvatarUrl(userInfo.iconId, avatarList),
     })),
     activity: [],
     subscriptions,

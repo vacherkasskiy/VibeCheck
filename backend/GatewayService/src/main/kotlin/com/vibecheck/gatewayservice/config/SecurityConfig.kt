@@ -13,6 +13,7 @@ class SecurityConfig {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
+            .cors { it. }
             .csrf { it.disable() }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }

@@ -44,7 +44,7 @@ class RefreshTokenEntity {
 
     fun toEntity(domain: RefreshToken): RefreshTokenEntity = apply {
         tokenId = domain.tokenId
-        version = takeIf { domain.version != 0 }?.let { domain.version }
+        version = domain.version.takeIf { it != 0 }
         user = UserEntity().apply { id = domain.user.id }
         tokenHash = domain.tokenHash
         issuedAt = domain.issuedAt

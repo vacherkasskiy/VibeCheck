@@ -33,9 +33,24 @@ class RefreshTokenStorageImpl(
 
     @Transactional(propagation = Propagation.MANDATORY)
     override fun updateAll(refreshTokens: Collection<RefreshToken>): List<RefreshToken> {
-        return refreshTokenRepository.saveAllAndFlush(
-            refreshTokens.map { it.toManagedEntity() }
-        ).map { it.toDomain() }
+        if (refreshTokens.isEmpty()) {
+            return emptyList()
+        }
+
+        val managedTokensById = refreshTokenRepository.findAllById(refreshTokens.map { it.tokenId })
+            .associateBy { requireNotNull(it.tokenId) }
+
+        return refreshTokens.map { refreshToken ->
+            val entity = managedTokensById[refreshToken.tokenId]
+                ?: throw NotFoundException("Token not found: ${refreshToken.tokenId}")
+
+            entity.toEntity(refreshToken).apply {
+                user = userRepository.getReferenceById(refreshToken.user.id)
+            }
+            entity.toDomain()
+        }.also {
+            refreshTokenRepository.flush()
+        }
     }
 
     private fun RefreshToken.toManagedEntity() =

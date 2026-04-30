@@ -1,7 +1,7 @@
 services:
-  subscription-service-postgres:
+  subscription_service_api_db:
     image: postgres:16-alpine
-    container_name: subscription_service_api_postgres
+    container_name: subscription_service_api_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: subscription_service_api_db
@@ -30,7 +30,7 @@ services:
 
   subscription-service-redis:
     image: redis:7-alpine
-    container_name: user_service_api_redis
+    container_name: subscription-service-redis
     restart: unless-stopped
     ports:
       - "26379:6379"

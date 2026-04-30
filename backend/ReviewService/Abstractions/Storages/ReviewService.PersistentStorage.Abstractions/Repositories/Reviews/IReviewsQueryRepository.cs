@@ -43,6 +43,11 @@ public interface IReviewsQueryRepository
         Guid reviewId,
         CancellationToken ct);
 
+    Task<string?> GetReviewVoteModeAsync(
+        Guid reviewId,
+        Guid voterId,
+        CancellationToken ct);
+
     Task<ReviewEditInfoRepositoryModel?> GetReviewEditInfoAsync(
         Guid reviewId,
         CancellationToken ct);

@@ -3,7 +3,7 @@ import { Http, setAccessTokenProvider } from 'shared/api/http';
 import type { GamificationAuthState, UseGamificationAuthResult } from './types';
 import type { ReactNode } from 'react';
 
-const GAMIFICATION_API_BASE = 'http://gamification.local/api';
+const GATEWAY_API_BASE = __API_URL__ || 'http://gateway.local/';
 
 let gamificationHttp: Http;
 
@@ -24,21 +24,12 @@ export const GamificationAuthProvider: React.FC<GamificationAuthProviderProps> =
 	const fetchToken = useCallback(async () => {
 		try {
 			setState((prev) => ({ ...prev, loading: true, error: null }));
-			const expiresMinutes = 60;
-			const response = await fetch(
-				`${GAMIFICATION_API_BASE}/test-auth/token?expiresMinutes=${expiresMinutes}`,
-				{
-					method: 'POST',
-				},
-			);
-			if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
-			const data = await response.json();
-			const token = data.accessToken;
+			const token = localStorage.getItem('accessToken');
 			if (token) {
-				gamificationHttp = new Http(GAMIFICATION_API_BASE);
+				gamificationHttp = new Http(GATEWAY_API_BASE);
 				setState({
 					token,
-					expiresAt: data.expiresAtUtc,
+					expiresAt: null,
 					loading: false,
 					error: null,
 				});

@@ -165,10 +165,10 @@ export const useActivity = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchActivity = async () => {
+  const fetchActivity = async () => {
       try {
         setLoading(true);
-        const data = await userApi.fetchActivity();
+        const data = await userApi.fetchActivity({ limit: 10 });
         setActivity(data);
       } finally {
         setLoading(false);

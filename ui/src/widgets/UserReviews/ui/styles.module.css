@@ -1,21 +1,23 @@
 .container {
-	background: white;
-	border-radius: 12px;
-	padding: 20px;
-	margin-bottom: 20px;
+	background: #fff;
+	border: 1px solid rgba(28, 27, 40, 0.08);
+	border-radius: 20px;
+	padding: 32px;
+	box-shadow: 0 12px 36px rgba(28, 27, 40, 0.1);
 }
 
 .header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 16px;
+	gap: 16px;
+	margin-bottom: 24px;
 }
 
 .title {
 	font-size: 20px;
 	font-weight: 600;
-	color: var(--text-primary);
+	color: #1a1a1a;
 	margin: 0;
 }
 
@@ -26,10 +28,10 @@
 }
 
 .reviewCard {
-	background: var(--background-primary);
-	border-radius: 8px;
-	padding: 16px;
-	border: 1px solid var(--border-color);
+	background: #f8f9ff;
+	border-radius: 14px;
+	padding: 20px;
+	border: 1px solid rgba(28, 27, 40, 0.06);
 }
 
 .reviewHeader {
@@ -41,19 +43,19 @@
 
 .companyName {
 	font-weight: 600;
-	color: var(--text-primary);
+	color: #1a1a1a;
 	font-size: 16px;
 }
 
 .reviewDate {
 	font-size: 14px;
-	color: var(--text-secondary);
+	color: #686a7a;
 }
 
 .reviewText {
 	font-size: 14px;
 	line-height: 1.5;
-	color: var(--text-primary);
+	color: #333;
 	margin-bottom: 12px;
 }
 
@@ -64,8 +66,7 @@
 	margin-bottom: 12px;
 }
 
-.greenFlag,
-.redFlag {
+.reviewFlag {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -75,20 +76,9 @@
 	font-size: 12px;
 	font-weight: 500;
 	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	border: 3px solid;
-	box-shadow: 0 2px 2px var(--color-shadow);
-}
-
-.greenFlag {
-	background: var(--color-lightgreen-badge);
-	border-color: var(--color-green-badge);
-	color: var(--color-green-badge);
-}
-
-.redFlag {
-	background: var(--color-lightred-badge);
-	border-color: var(--color-red-badge);
-	color: var(--color-red-badge);
+	background: #fff;
+	border: 1px solid rgba(28, 27, 40, 0.08);
+	color: #333;
 }
 
 .reviewFooter {
@@ -96,14 +86,14 @@
 	justify-content: space-between;
 	align-items: center;
 	padding-top: 12px;
-	border-top: 1px solid var(--border-color);
+	border-top: 1px solid rgba(28, 27, 40, 0.08);
 }
 
 .reactions {
 	display: flex;
 	gap: 16px;
 	font-size: 14px;
-	color: var(--text-secondary);
+	color: #686a7a;
 }
 
 .actions {
@@ -123,7 +113,7 @@
 }
 
 .editButton:hover {
-	background-color: var(--background-secondary);
+	background-color: #eef2ff;
 }
 
 .deleteButton:hover {
@@ -132,7 +122,32 @@
 
 .empty {
 	text-align: center;
-	color: var(--text-secondary);
+	color: #686a7a;
 	padding: 32px;
 	font-style: italic;
+}
+
+.editForm {
+	margin-top: 12px;
+	padding: 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #fafafa;
+}
+
+.editTextarea {
+	width: 100%;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	padding: 8px;
+	font-size: 14px;
+	resize: vertical;
+	box-sizing: border-box;
+	margin-bottom: 8px;
+}
+
+.editButtons {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
 }

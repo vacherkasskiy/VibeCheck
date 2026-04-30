@@ -7,4 +7,10 @@ public interface IReviewEventsProducer
         Guid userId,
         DateTimeOffset createdAt,
         CancellationToken ct);
+
+    Task PublishReviewUpdatedAsync(
+        Guid reviewId,
+        Guid userId,
+        DateTimeOffset updatedAt,
+        CancellationToken ct);
 }

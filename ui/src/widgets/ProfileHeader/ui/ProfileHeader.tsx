@@ -8,6 +8,11 @@ interface ProfileHeaderProps {
 }
 
 export const ProfileHeader = ({ user, onEditProfile }: ProfileHeaderProps) => {
+	const progressText =
+		user.levelProgressTarget && user.levelProgressTarget > 0
+			? `${user.levelProgressCurrent ?? 0}/${user.levelProgressTarget}`
+			: user.levelLabel;
+
 	return (
 		<div className={styles.container}>
 			<div className={styles.mainInfo}>
@@ -23,14 +28,14 @@ export const ProfileHeader = ({ user, onEditProfile }: ProfileHeaderProps) => {
 						<h1 className={styles.nickname}>{user.nickname}</h1>
 						<p className={styles.email}>{user.email}</p>
 						<div className={styles.levelSection}>
-							<span className={styles.levelLabel}>{user.levelLabel}</span>
+							<span className={styles.levelText}>Уровень {user.level}</span>
 							<div className={styles.progressBar}>
 								<div
 									className={styles.progressFill}
 									style={{ width: `${user.levelProgress}%` }}
 								/>
 							</div>
-							<span className={styles.levelText}>Уровень {user.level}</span>
+							<span className={styles.levelLabel}>{progressText}</span>
 						</div>
 					</div>
 				</div>

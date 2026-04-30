@@ -51,7 +51,7 @@
 }
 
 .main {
-  max-width: 760px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: clamp(80px, 15vh, 120px) clamp(var(--spacing-md), 5vw, var(--spacing-xl)) var(--spacing-xl);
   display: flex;

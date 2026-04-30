@@ -10,7 +10,7 @@ interface ReviewsSectionProps {
 	reviews: CompanyReview[];
 }
 
-type SortOption = 'newest' | 'oldest' | 'likes' | 'dislikes';
+type SortOption = 'newest' | 'oldest' | 'bestScore' | 'worstScore';
 
 const VISIBLE_REVIEWS_COUNT = 3;
 
@@ -29,10 +29,10 @@ export const ReviewsSection = ({ reviews }: ReviewsSectionProps) => {
 				return sorted.sort(
 					(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
 				);
-			case 'likes':
-				return sorted.sort((a, b) => b.reactions.likes - a.reactions.likes);
-			case 'dislikes':
-				return sorted.sort((a, b) => b.reactions.dislikes - a.reactions.dislikes);
+			case 'bestScore':
+				return sorted.sort((a, b) => b.score - a.score);
+			case 'worstScore':
+				return sorted.sort((a, b) => a.score - b.score);
 			default:
 				return sorted;
 		}
@@ -47,8 +47,8 @@ export const ReviewsSection = ({ reviews }: ReviewsSectionProps) => {
 	const sortOptions = [
 		{ value: 'newest', label: 'Сначала новые' },
 		{ value: 'oldest', label: 'Сначала старые' },
-		{ value: 'likes', label: 'По лайкам' },
-		{ value: 'dislikes', label: 'По дизлайкам' },
+		{ value: 'bestScore', label: 'По рейтингу' },
+		{ value: 'worstScore', label: 'С низким рейтингом' },
 	];
 
 	const openModal = () => setIsModalOpen(true);
@@ -83,7 +83,7 @@ export const ReviewsSection = ({ reviews }: ReviewsSectionProps) => {
 				<div className={styles.reviewsList}>
 					{visibleReviews.length > 0 ? (
 						visibleReviews.map((review) => (
-							<ReviewCard key={review.id} review={review} />
+							<ReviewCard key={review.reviewId} review={review} />
 						))
 					) : (
 						<p className={styles.empty}>Пока нет отзывов</p>
@@ -116,7 +116,7 @@ export const ReviewsSection = ({ reviews }: ReviewsSectionProps) => {
 					<div className={styles.modalReviewsList}>
 						{sortedReviews.length > 0 ? (
 							sortedReviews.map((review) => (
-								<ReviewCard key={review.id} review={review} />
+								<ReviewCard key={review.reviewId} review={review} />
 							))
 						) : (
 							<p className={styles.empty}>Пока нет отзывов</p>

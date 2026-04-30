@@ -11,6 +11,7 @@ public sealed record UserReviewReadOperationModel
     public required Guid ReviewId { get; init; }
     public Guid AuthorId { get; init; }
     public Guid CompanyId { get; init; }
+    public string CompanyName { get; init; }
 
     public required string Text { get; init; }
     public required string AuthorIconId { get; set; }

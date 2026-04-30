@@ -1,76 +1,50 @@
-import { Users, X } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
-import styles from './styles.module.css';
+import styles from './SubscriptionsModal.module.css';
+import type { UserId } from 'entities/user';
 import type { Subscription } from 'entities/user';
 
 interface SubscriptionsModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-	subscriptions: Subscription[];
-	onUnsubscribe: (subscriptionId: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const SubscriptionsModal = ({
-	isOpen,
-	onClose,
-	subscriptions,
-	onUnsubscribe,
-}: SubscriptionsModalProps) => {
-	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<div className={styles.modalContent}>
-				<div className={styles.modalHeader}>
-					<h2 className={styles.modalTitle}>
-						<Users size={24} />
-						Мои подписки
-					</h2>
-					<button className={styles.closeButton} onClick={onClose} type="button">
-						<X size={20} />
-					</button>
-				</div>
+export const SubscriptionsModal = ({ isOpen, onClose }: SubscriptionsModalProps) => {
+  const userId: UserId = 'currentUserId'; // TODO: pass as prop or from useProfile
+  const subscriptions: Subscription[] = []; // Mock until subscribe impl complete
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState('');
 
-				<div className={styles.subscriptionsList}>
-					{subscriptions.length === 0 ? (
-						<p className={styles.emptyMessage}>У вас пока нет подписок</p>
-					) : (
-						subscriptions.map((subscription) => (
-							<div key={subscription.id} className={styles.subscriptionItem}>
-								<div className={styles.subscriptionInfo}>
-									{subscription.avatarUrl ? (
-										<img
-											src={subscription.avatarUrl}
-											alt={subscription.nickname}
-											className={styles.subscriptionAvatar}
-										/>
-									) : (
-										<div className={styles.subscriptionAvatarPlaceholder}>
-											{subscription.nickname.charAt(0).toUpperCase()}
-										</div>
-									)}
-									<span className={styles.subscriptionNickname}>
-										{subscription.nickname}
-									</span>
-								</div>
-								<Button
-									onClick={() => onUnsubscribe(subscription.id)}
-									variant="secondary"
-									size="small"
-									className={styles.unsubscribeButton}
-								>
-									Отписаться
-								</Button>
-							</div>
-						))
-					)}
-				</div>
+  const handleUnsubscribeClick = (subscriptionId: string) => {
+    setSelectedSubscriptionId(subscriptionId);
+    setShowUnsubscribe(true);
+  };
 
-				<div className={styles.modalFooter}>
-					<Button onClick={onClose} variant="secondary" size="small">
-						Закрыть
-					</Button>
-				</div>
-			</div>
-		</Modal>
-	);
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <div className={styles.content}>
+        <h2>Мои подписки ({subscriptions.length})</h2>
+        {subscriptions.length === 0 ? (
+          <p>Нет активных подписок</p>
+        ) : (
+          <ul>
+            {subscriptions.map((sub: Subscription) => (
+              <li key={sub.id}>
+                {sub.nickname}
+                <Button 
+                  variant="secondary" 
+                  size="small"
+                  onClick={() => handleUnsubscribeClick(sub.id)}
+                >
+                  Отписаться
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {/* UnsubscribeConfirmModal - TODO: uncomment when subscribe feature complete */}
+    </Modal>
+  );
 };

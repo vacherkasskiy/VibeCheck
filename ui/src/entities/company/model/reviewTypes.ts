@@ -1,15 +1,20 @@
 import type { CompanyFlag } from './types';
 
-export type ReviewsSortGatewayEnum = 'CREATED_AT_DESC' | 'CREATED_AT_ASC' | 'LIKES_DESC' | 'DISLIKES_DESC';
+export type ReviewsSortGatewayEnum = 'Newest' | 'Oldest' | 'BestScore' | 'WorstScore' | 'WeightDesc' | 'WeightAsc';
 
-export type VoteMode = 'Like' | 'Dislike' | 'Clear';
+export type VoteModeGatewayEnum = 'Like' | 'Dislike' | 'Clear';
 
-export type ReportReasonType = 'SPAM' | 'OFFENSIVE' | 'INACCURATE' | 'OTHER'; // assume common values
+export type VoteMode = VoteModeGatewayEnum;
+
+export type ReportReasonGatewayEnum = 'Spam' | 'Harassment' | 'Hate' | 'Nudity' | 'Violence' | 'Other';
+
+export type ReportReasonType = ReportReasonGatewayEnum;
 
 
 export interface CreateCompanyReviewRequest {
   text?: string;
-  flags: string[]; 
+  flags: string[] | null;
+  companyId: string;
 }
 
 export interface UpdateCompanyReviewRequest {
@@ -32,12 +37,11 @@ export interface ReportReviewRequest {
 import type { CompanyReview } from './types';
 
 export interface CompanyReviewListResponse {
-  items: CompanyReview[];
-  total: number;
+  reviews: CompanyReview[] | null;
+  totalCount: number;
 }
 
 export interface UserReviewsResponse {
-  items: CompanyReview[];
-  total: number;
+  reviews: CompanyReview[] | null;
+  totalCount: number;
 }
-

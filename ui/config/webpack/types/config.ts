@@ -22,6 +22,8 @@ export interface BuildOptions {
 	env: BuildEnv;
 	isDev: boolean;
 	API_URL: string;
+	REVIEW_GATEWAY_URL?: string;
 }
+
 
 export type WebpackConfiguration = webpack.Configuration;

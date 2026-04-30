@@ -2,6 +2,7 @@ using ReviewService.Core.Abstractions.Models.Reviews.UpdateCompanyReview;
 using ReviewService.Core.Abstractions.Observability;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Abstractions.Operations.Reviews;
+using ReviewService.MessageBroker.Abstractions.Producers;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 using System.Diagnostics;
 
@@ -9,9 +10,12 @@ namespace ReviewService.Core.Operations.Reviews;
 
 internal sealed class UpdateCompanyReviewOperation(
     IReviewsQueryRepository reviewsQueryRepository,
-    IReviewsCommandRepository reviewsCommandRepository)
+    IReviewsCommandRepository reviewsCommandRepository,
+    IReviewEventsProducer producer)
     : IUpdateCompanyReviewOperation
 {
+    private static readonly TimeSpan EditWindow = TimeSpan.FromMinutes(30);
+
     public async Task<Result> UpdateAsync(
         UpdateCompanyReviewOperationModel model,
         CancellationToken ct)
@@ -58,16 +62,24 @@ internal sealed class UpdateCompanyReviewOperation(
                 return Error.Validation("policy_forbidden");
             }
 
-            if (DateTime.UtcNow - review.CreatedAtUtc > TimeSpan.FromMinutes(5))
+            if (DateTime.UtcNow - review.CreatedAtUtc > EditWindow)
             {
                 status = "validation";
                 return Error.Validation("edit window expired");
             }
 
+            var updatedAt = DateTime.UtcNow;
+
             await reviewsCommandRepository.UpdateReviewTextAsync(
                 model.ReviewId,
                 model.Text,
-                DateTime.UtcNow,
+                updatedAt,
+                ct);
+
+            await producer.PublishReviewUpdatedAsync(
+                model.ReviewId,
+                model.UserId,
+                updatedAt,
                 ct);
 
             return Result.Success();

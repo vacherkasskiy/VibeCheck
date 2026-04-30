@@ -10,5 +10,5 @@ export {
 
 export { AchievementsModal } from './modals/AchievementsModal';
 export { ReviewsModal } from './modals/ReviewsModal';
-export { SubscriptionsModal } from './modals/SubscriptionsModal';
+// export { SubscriptionsModal } from './modals/SubscriptionsModal'; // Temp comment until deps resolved
 export { DeleteReviewModal } from './modals/DeleteReviewModal';

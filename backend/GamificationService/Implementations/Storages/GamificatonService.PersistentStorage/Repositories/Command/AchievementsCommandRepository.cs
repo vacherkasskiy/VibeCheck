@@ -11,8 +11,11 @@ public sealed class AchievementsCommandRepository(AppDbContext dbContext) : IAch
         AchievementProgressUpdateRepositoryInputModel input,
         CancellationToken ct)
     {
+        var achievement = await dbContext.Achievements
+            .SingleOrDefaultAsync(x => x.Id == input.AchievementId, ct)
+            ?? throw new InvalidOperationException($"Achievement '{input.AchievementId}' was not found.");
+
         var entity = await dbContext.UserAchievements
-            .Include(userAchievementEntity => userAchievementEntity.Achievement)
             .SingleOrDefaultAsync(
                 x => x.UserId == input.UserId && x.AchievementId == input.AchievementId,
                 ct);
@@ -57,14 +60,14 @@ public sealed class AchievementsCommandRepository(AppDbContext dbContext) : IAch
         {
             UserId = entity.UserId,
             AchievementId = entity.AchievementId,
-            AchievementName = entity.Achievement.Name,
+            AchievementName = achievement.Name,
             ProgressCurrent = entity.ProgressCurrent,
             WasJustObtained = wasJustObtained,
             ObtainedAt = entity.ObtainedAt is null
                 ? null
                 : new DateTimeOffset(DateTime.SpecifyKind(entity.ObtainedAt.Value,
                     DateTimeKind.Utc)),
-            AchievementXpReward = entity.Achievement.XpReward
+            AchievementXpReward = achievement.XpReward
         };
     }
 }

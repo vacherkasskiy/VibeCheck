@@ -3,6 +3,8 @@ const CenterGlow = (props: React.SVGProps<SVGSVGElement>) => (
 		viewBox="0 0 1397 1110"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
+		preserveAspectRatio="xMidYMid meet"
+		{...props}
 	>
 		<g opacity="0.2" filter="url(#filter0_f_88_291)">
 			<ellipse cx="868.339" cy="608.714" rx="368.661" ry="340.594" fill="#FF00F6" />

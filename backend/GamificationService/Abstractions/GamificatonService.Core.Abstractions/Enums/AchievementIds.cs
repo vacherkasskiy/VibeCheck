@@ -3,6 +3,7 @@ namespace GamificatonService.Core.Abstractions.Enums;
 public static class AchievementIds
 {
     public static readonly Guid FirstReview = Guid.Parse("11111111-1111-1111-1111-111111111102");
+    public static readonly Guid FirstReviewUpdate = Guid.Parse("11111111-1111-1111-1111-111111111103");
     public static readonly Guid TenReviews = Guid.Parse("11111111-1111-1111-1111-111111111104");
     public static readonly Guid FiftyReviews = Guid.Parse("11111111-1111-1111-1111-111111111105");
 

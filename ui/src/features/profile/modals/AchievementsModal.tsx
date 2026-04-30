@@ -11,12 +11,30 @@ interface AchievementsModalProps {
 }
 
 export const AchievementsModal = ({ isOpen, onClose, achievements }: AchievementsModalProps) => {
-	const formatDate = (dateString: string) => {
+	const sortedAchievements = [...achievements].sort((a, b) => {
+		const statusWeight = { Completed: 0, InProgress: 1, NotStarted: 2 };
+		return (statusWeight[a.status ?? 'NotStarted'] ?? 2) - (statusWeight[b.status ?? 'NotStarted'] ?? 2);
+	});
+
+	const formatDate = (dateString: string | number | Date) => {
 		return new Date(dateString).toLocaleDateString('ru-RU', {
 			day: 'numeric',
 			month: 'long',
 			year: 'numeric',
 		});
+	};
+
+	const getAchievementMeta = (achievement: Achievement) => {
+		if (achievement.status === 'Completed' && achievement.unlockedAt) {
+			return `Получено: ${formatDate(achievement.unlockedAt)}`;
+		}
+		if (achievement.progressTarget && achievement.progressTarget > 0) {
+			return `Прогресс: ${achievement.progressCurrent ?? 0}/${achievement.progressTarget}`;
+		}
+		if (achievement.status === 'NotStarted') {
+			return 'Не начато';
+		}
+		return 'В процессе';
 	};
 
 	const getAchievementIcon = (type: string) => {
@@ -49,13 +67,24 @@ export const AchievementsModal = ({ isOpen, onClose, achievements }: Achievement
 				</div>
 
 				<div className={styles.achievementsList}>
-					{achievements.map((achievement) => (
-						<div key={achievement.id} className={styles.achievementItem}>
+					{sortedAchievements.map((achievement) => (
+						<div
+							key={achievement.id}
+							className={`${styles.achievementItem} ${
+								achievement.status === 'Completed'
+									? styles.achievementCompleted
+									: styles.achievementUncompleted
+							}`}
+						>
 							<div
 								className={styles.achievementIcon}
 								style={{ backgroundColor: achievement.color }}
 							>
-								{getAchievementIcon(achievement.type)}
+								{achievement.iconUrl ? (
+									<img src={achievement.iconUrl} alt={achievement.name} />
+								) : (
+									getAchievementIcon(achievement.type)
+								)}
 							</div>
 							<div className={styles.achievementInfo}>
 								<h3 className={styles.achievementName}>{achievement.name}</h3>
@@ -63,11 +92,35 @@ export const AchievementsModal = ({ isOpen, onClose, achievements }: Achievement
 									{achievement.description}
 								</p>
 								<span className={styles.achievementDate}>
-									Получено: {formatDate(achievement.unlockedAt)}
+									{getAchievementMeta(achievement)}
 								</span>
+								{achievement.status !== 'Completed' && (
+									<div className={styles.achievementProgress}>
+										<div className={styles.achievementProgressTrack}>
+											<div
+												className={styles.achievementProgressFill}
+												style={{
+													width: `${
+														achievement.progressTarget && achievement.progressTarget > 0
+															? Math.min(
+																	100,
+																	((achievement.progressCurrent ?? 0) /
+																		achievement.progressTarget) *
+																		100,
+																)
+															: 0
+													}%`,
+												}}
+											/>
+										</div>
+									</div>
+								)}
 							</div>
 						</div>
 					))}
+					{sortedAchievements.length === 0 && (
+						<p className={styles.emptyState}>Достижения пока не найдены</p>
+					)}
 				</div>
 
 				<div className={styles.modalFooter}>

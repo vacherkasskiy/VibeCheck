@@ -1,72 +1,43 @@
+import { useQuery } from '@tanstack/react-query';
+import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
 import { ReviewsModal, AchievementsModal } from 'features/profile/modals';
+import { UnsubscribeConfirmModal, useSubscribeMutation, useUnsubscribeMutation, useSubscriptionStatus } from 'features/subscribe';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { Achievements } from 'widgets/Achievements';
+import { ActivityPanel } from 'widgets/ActivityPanel';
+import { CombinedSubscriptionsActivity } from 'widgets/CombinedSubscriptionsActivity';
 import { UserFlags } from 'widgets/UserFlags';
 import { UserReviews } from 'widgets/UserReviews';
 import styles from './UserProfilePage.module.css';
-import type { UserProfileData, User } from 'entities/user';
-
-const fetchUserProfile = async (userId: string): Promise<UserProfileData | null> => {
-	// TODO: Replace with actual API call
-	return {
-		user: {
-			id: userId,
-			nickname: 'User_' + userId.slice(0, 4),
-			email: 'user@example.com',
-			avatarUrl: null,
-			level: 5,
-			levelLabel: 'Опытный',
-			levelProgress: 65,
-			education: '',
-			experience: '',
-			expertise: '',
-		},
-		flags: {
-			green: [],
-			red: [],
-		},
-		achievements: [],
-		reviews: [],
-		activity: [],
-		subscriptions: [],
-	};
-};
-
-// Mock function to check if current user is subscribed to this user
-const checkSubscription = async (userId: string): Promise<boolean> => {
-	// TODO: Replace with actual API call
-	return false;
-};
-
-// Mock function to subscribe to user
-const subscribeToUser = async (userId: string): Promise<void> => {
-	// TODO: Replace with actual API call
-	console.log('Subscribed to user:', userId);
-};
-
-// Mock function to unsubscribe from user
-const unsubscribeFromUser = async (userId: string): Promise<void> => {
-	// TODO: Replace with actual API call
-	console.log('Unsubscribed from user:', userId);
-};
+import type { UserProfileData } from 'entities/user';
 
 export const UserProfilePage = () => {
 	const { userId } = useParams<{ userId: string }>();
 	const navigate = useNavigate();
 	const { profile: currentUserProfile } = useProfile();
+	const currentUserId = currentUserProfile?.user?.id ?? '';
 	const [profile, setProfile] = useState<UserProfileData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [isSubscribed, setIsSubscribed] = useState(false);
-	const [subscribing, setSubscribing] = useState(false);
 	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
+	const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
+
+	const isOwnProfile = userId === currentUserId;
+
+	const { data: isSubscribed = false, isLoading: statusLoading, error: statusError } = useSubscriptionStatus(userId, isOwnProfile);
+
+	const subscribeMutation = useSubscribeMutation();
+	const unsubscribeMutation = useUnsubscribeMutation();
+	const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending || statusLoading;
+	const buttonDisabled = isPending || !!statusError;
+
+	// Tooltip not supported in Button, error handled by disabled + data=false fallback
 
 	useEffect(() => {
 		const loadProfile = async () => {
@@ -78,17 +49,8 @@ export const UserProfilePage = () => {
 
 			try {
 				setLoading(true);
-				const [profileData, subscriptionStatus] = await Promise.all([
-					fetchUserProfile(userId),
-					checkSubscription(userId),
-				]);
-
-				if (!profileData) {
-					setError('Пользователь не найден');
-				} else {
-					setProfile(profileData);
-					setIsSubscribed(subscriptionStatus);
-				}
+				const profileData = await userApi.fetchUserProfileById(userId);
+				setProfile(profileData);
 			} catch (err) {
 				setError('Ошибка загрузки профиля');
 			} finally {
@@ -99,32 +61,22 @@ export const UserProfilePage = () => {
 		loadProfile();
 	}, [userId]);
 
-	const handleSubscribe = async () => {
-		if (!userId || subscribing) return;
-
-		try {
-			setSubscribing(true);
-			await subscribeToUser(userId);
-			setIsSubscribed(true);
-		} catch (err) {
-			console.error('Failed to subscribe:', err);
-		} finally {
-			setSubscribing(false);
+	const handleToggleSubscription = () => {
+		if (!userId || isOwnProfile) return;
+		if (isSubscribed) {
+			setShowUnsubscribeModal(true);
+		} else {
+			subscribeMutation.mutate(userId);
 		}
 	};
 
-	const handleUnsubscribe = async () => {
-		if (!userId || subscribing) return;
+	const handleConfirmUnsubscribe = () => {
+		unsubscribeMutation.mutate(userId!);
+		setShowUnsubscribeModal(false);
+	};
 
-		try {
-			setSubscribing(true);
-			await unsubscribeFromUser(userId);
-			setIsSubscribed(false);
-		} catch (err) {
-			console.error('Failed to unsubscribe:', err);
-		} finally {
-			setSubscribing(false);
-		}
+	const handleCloseUnsubscribeModal = () => {
+		setShowUnsubscribeModal(false);
 	};
 
 	const handleViewAllAchievements = () => {
@@ -147,8 +99,6 @@ export const UserProfilePage = () => {
 	if (loading) {
 		return (
 			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -172,8 +122,6 @@ export const UserProfilePage = () => {
 	if (error || !profile) {
 		return (
 			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -202,8 +150,6 @@ export const UserProfilePage = () => {
 
 	return (
 		<div className={styles.page}>
-			<HeaderGlow />
-			<CenterGlow />
 			<header className={styles.header}>
 				<div className={styles.logoContainer} onClick={() => navigate('/recommendations')}>
 					<img
@@ -242,52 +188,61 @@ export const UserProfilePage = () => {
 							<span className={styles.levelLabel}>{user.levelLabel}</span>
 						</div>
 						<div className={styles.registrationDate}>
-							На платформе с {formatRegistrationDate('2024-01-15')}
+						На платформе с {formatRegistrationDate(user.createdAt!)}
+
 						</div>
 					</div>
 
-					<div className={styles.actionsSection}>
-						{isSubscribed ? (
-							<Button
-								variant="secondary"
-								onClick={handleUnsubscribe}
-								disabled={subscribing}
-							>
-								{subscribing ? 'Загрузка...' : 'Отписаться'}
-							</Button>
-						) : (
-							<Button
-								variant="primary"
-								onClick={handleSubscribe}
-								disabled={subscribing}
-							>
-								{subscribing ? 'Загрузка...' : 'Подписаться'}
-							</Button>
-						)}
-					</div>
+					{!isOwnProfile && (
+						<div className={styles.actionsSection}>
+	{isSubscribed ? (
+		<Button
+			variant="secondary"
+			onClick={handleToggleSubscription}
+			disabled={buttonDisabled}
+		>
+			{statusLoading ? <Spinner /> : null}
+			{isPending ? 'Загрузка...' : 'Отписаться'}
+		</Button>
+	) : (
+		<Button
+			variant="primary"
+			onClick={handleToggleSubscription}
+			disabled={buttonDisabled}
+		>
+			{statusLoading ? <Spinner /> : null}
+			{isPending ? 'Загрузка...' : 'Подписаться'}
+		</Button>
+	)}
+						</div>
+					)}
 				</div>
 
-				<div className={styles.sections}>
-					<section className={styles.section}>
-						<UserFlags flags={flags} onEditFlags={() => {}} />
-					</section>
+		<div className={styles.sections}>
+			<section className={styles.section}>
+				<UserFlags flags={flags} onEditFlags={() => {}} />
+			</section>
 
-					<section className={styles.section}>
-						<UserReviews
-							reviews={reviews}
-							onViewAll={handleViewAllReviews}
-							onEdit={() => {}}
-							onDelete={() => {}}
-						/>
-					</section>
+			<section className={styles.section}>
+				<UserReviews
+					reviews={reviews}
+					onViewAll={handleViewAllReviews}
+					onEdit={() => {}}
+					onDelete={() => {}}
+				/>
+			</section>
 
-					<section className={styles.section}>
-						<Achievements
-							achievements={achievements}
-							onViewAll={handleViewAllAchievements}
-						/>
-					</section>
-				</div>
+			<section className={styles.section}>
+				<Achievements
+					achievements={achievements}
+					onViewAll={handleViewAllAchievements}
+				/>
+			</section>
+
+			<section className={styles.section}>
+				<CombinedSubscriptionsActivity userId={userId!} />
+			</section>
+		</div>
 			</main>
 
 			<AchievementsModal
@@ -302,6 +257,12 @@ export const UserProfilePage = () => {
 				reviews={reviews}
 				onDelete={() => {}}
 				canEdit={() => false}
+			/>
+			<UnsubscribeConfirmModal
+				isOpen={showUnsubscribeModal}
+				onClose={handleCloseUnsubscribeModal}
+				onConfirm={handleConfirmUnsubscribe}
+				userNickname={user.nickname}
 			/>
 		</div>
 	);

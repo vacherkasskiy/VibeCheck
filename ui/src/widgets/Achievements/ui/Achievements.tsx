@@ -9,6 +9,24 @@ interface AchievementsProps {
 }
 
 export const Achievements = ({ achievements, onViewAll }: AchievementsProps) => {
+	const sortedAchievements = [...achievements].sort((a, b) => {
+		const statusWeight = { Completed: 0, InProgress: 1, NotStarted: 2 };
+		return (statusWeight[a.status ?? 'NotStarted'] ?? 2) - (statusWeight[b.status ?? 'NotStarted'] ?? 2);
+	});
+
+	const getAchievementMeta = (achievement: Achievement) => {
+		if (achievement.status === 'Completed' && achievement.earnedAt) {
+			return new Date(achievement.earnedAt).toLocaleDateString('ru-RU');
+		}
+		if (achievement.progressTarget && achievement.progressTarget > 0) {
+			return `${achievement.progressCurrent ?? 0}/${achievement.progressTarget}`;
+		}
+		if (achievement.status === 'NotStarted') {
+			return 'Не начато';
+		}
+		return 'В процессе';
+	};
+
 	const getAchievementIcon = (type: string) => {
 		switch (type) {
 			case 'review':
@@ -26,7 +44,7 @@ export const Achievements = ({ achievements, onViewAll }: AchievementsProps) => 
 		}
 	};
 
-	const displayAchievements = achievements.slice(0, 5);
+	const displayAchievements = sortedAchievements.slice(0, 5);
 
 	return (
 		<div className={styles.container}>
@@ -41,16 +59,51 @@ export const Achievements = ({ achievements, onViewAll }: AchievementsProps) => 
 
 			<div className={styles.achievementsGrid}>
 				{displayAchievements.map((achievement) => (
-					<div key={achievement.id} className={styles.achievement}>
-						<div className={styles.icon}>{getAchievementIcon(achievement.type)}</div>
+					<div
+						key={achievement.id}
+						className={`${styles.achievement} ${
+							achievement.status === 'Completed'
+								? styles.completed
+								: styles.uncompleted
+						}`}
+					>
+						<div className={styles.icon}>
+							{achievement.iconUrl ? (
+								<img src={achievement.iconUrl} alt={achievement.name} />
+							) : (
+								getAchievementIcon(achievement.type)
+							)}
+						</div>
 						<div className={styles.info}>
 							<span className={styles.name}>{achievement.name}</span>
-							<span className={styles.date}>
-								{new Date(achievement.earnedAt).toLocaleDateString('ru-RU')}
-							</span>
+							<span className={styles.date}>{getAchievementMeta(achievement)}</span>
+							{achievement.status !== 'Completed' && (
+								<div className={styles.progress}>
+									<div className={styles.progressTrack}>
+										<div
+											className={styles.progressFill}
+											style={{
+												width: `${
+													achievement.progressTarget && achievement.progressTarget > 0
+														? Math.min(
+																100,
+																((achievement.progressCurrent ?? 0) /
+																	achievement.progressTarget) *
+																	100,
+															)
+														: 0
+												}%`,
+											}}
+										/>
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
 				))}
+				{displayAchievements.length === 0 && (
+					<p className={styles.empty}>Достижения пока не найдены</p>
+				)}
 			</div>
 		</div>
 	);

@@ -1,0 +1,235 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.overlay[aria-hidden='true'] {
+  animation: fadeOut 0.2s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  max-width: 600px;
+  max-height: 90vh;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.header {
+  padding: var(--spacing-2xl);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.body {
+  padding: var(--spacing-2xl);
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--color-purple), var(--color-green));
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+.reviewHeader {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+}
+
+.authorSection {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: center;
+  flex: 1;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  flex: 1;
+}
+
+.authorName {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-purple);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.authorName:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+
+.date {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  margin-top: var(--spacing-xs);
+}
+
+.fullText {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.flag {
+  padding: 6px 14px;
+  background: var(--color-purple-light);
+  color: var(--color-purple);
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.reactions {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: center;
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.reactionCount {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 768px) {
+  .overlay {
+    padding: var(--spacing-lg);
+    align-items: flex-start;
+  }
+  
+  .content {
+    max-height: 95vh;
+    margin-top: env(safe-area-inset-top);
+  }
+  
+  .header {
+    padding: var(--spacing-xl);
+  }
+  
+  .body {
+    padding: var(--spacing-xl);
+  }
+  
+  .reviewHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+  
+  .reactions {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+}
+

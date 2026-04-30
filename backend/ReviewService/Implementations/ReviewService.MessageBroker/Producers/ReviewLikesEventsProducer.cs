@@ -17,6 +17,7 @@ internal sealed class ReviewLikesEventsProducer(
         Guid reviewAuthorId,
         Guid reviewCompanyId,
         string reviewCompanyName,
+        string voteMode,
         DateTimeOffset createdAt,
         CancellationToken ct)
     {
@@ -31,7 +32,7 @@ internal sealed class ReviewLikesEventsProducer(
                 {
                     EventId = Guid.NewGuid()
                         .ToString(),
-                    EventType = "review.liked",
+                    EventType = voteMode == "like" ? "review.liked" : "review.disliked",
                     AggregateId = reviewId.ToString(),
                     PayloadVersion = 1,
                     OccurredAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
@@ -43,6 +44,7 @@ internal sealed class ReviewLikesEventsProducer(
                 ReviewCompanyName = reviewCompanyName,
                 LikedAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
                 LikedByUserId = likedByUserId.ToString(),
+                VoteMode = voteMode
             };
 
             await producer.Produce(message, ct);
@@ -55,7 +57,11 @@ internal sealed class ReviewLikesEventsProducer(
         }
         finally
         {
-            ReviewMetrics.RecordProducedMessage("ReviewLikesEventsProducer", "reviews-liked", "review.liked", status);
+            ReviewMetrics.RecordProducedMessage(
+                "ReviewLikesEventsProducer",
+                "reviews-liked",
+                voteMode == "like" ? "review.liked" : "review.disliked",
+                status);
             ReviewMetrics.RecordOperationDuration("publish_review_liked", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
         }
     }

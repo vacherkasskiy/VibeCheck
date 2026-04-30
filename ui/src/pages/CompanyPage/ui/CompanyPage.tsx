@@ -1,8 +1,8 @@
 import { CompanyInfo } from 'entities/company';
+import { getMyInfo } from 'features/auth';
 import { useCompanyPage } from 'features/companyPage';
-import { useCompanyFlags } from 'features/companyPage';
-import { useProfile } from 'features/profile';
 import { ReviewModal, useReviewModal } from 'features/reviewModal';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
@@ -16,8 +16,7 @@ export const CompanyPage = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { company, loading, error } = useCompanyPage(id);
-	const { loading: companyFlagsLoading } = useCompanyFlags(id);
-	const { profile } = useProfile();
+	const [nickname, setNickname] = useState<string>();
 	const {
 		isOpen,
 		openModal,
@@ -34,9 +33,29 @@ export const CompanyPage = () => {
 		error: modalError,
 		submitReview,
 		deleteReview,
-	} = useReviewModal(company?.id || 'test-company-001');
+	} = useReviewModal(company?.companyId || 'test-company-001');
 
-	if (loading || companyFlagsLoading) {
+	useEffect(() => {
+		let ignore = false;
+
+		getMyInfo()
+			.then((info) => {
+				if (!ignore) {
+					setNickname(info.name);
+				}
+			})
+			.catch(() => {
+				if (!ignore) {
+					setNickname(undefined);
+				}
+			});
+
+		return () => {
+			ignore = true;
+		};
+	}, []);
+
+	if (loading) {
 		return (
 			<div className={styles.page}>
 				<HeaderGlow />
@@ -108,14 +127,13 @@ export const CompanyPage = () => {
 						Написать отзыв
 					</Button>
 					<UserNavButton
-						avatarUrl={profile?.user?.avatarUrl}
-						nickname={profile?.user?.nickname}
+						nickname={nickname}
 					/>
 				</div>
 			</header>
 			<main className={styles.main}>
 				<CompanyInfo company={company} />
-				<div className={styles.sections}>
+				<div className={styles.sectionsRow}>
 					<ReviewsSection />
 					<Top20FlagsSection />
 				</div>
@@ -123,8 +141,8 @@ export const CompanyPage = () => {
 			<ReviewModal
 				isOpen={isOpen}
 				onClose={closeModal}
-				companyName={company.name}
-				companyId={company.id}
+				companyName={company.name ?? 'Компания'}
+				companyId={company.companyId}
 				isEditMode={isEditMode}
 				formData={formData}
 				setGreenFlags={setGreenFlags}

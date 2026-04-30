@@ -1,4 +1,4 @@
-import { createUserInfoDto, updateMyInfo } from 'features/auth';
+import { completeCurrentOnboardingStep, createMyInfo, createUserInfoDto } from 'features/auth';
 import { useState } from 'react';
 import { AvatarSelector } from 'shared/ui/AvatarSelector';
 import { Button } from 'shared/ui/Button';
@@ -188,7 +188,8 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				industry,
 				experiences: expWithISO,
 			});
-			await updateMyInfo(dto);
+			await createMyInfo(dto);
+			await completeCurrentOnboardingStep().catch(() => undefined);
 			onSubmit();
 		} catch (err: any) {
 			setGeneralError(err.response?.data?.message || 'Ошибка сохранения профиля');

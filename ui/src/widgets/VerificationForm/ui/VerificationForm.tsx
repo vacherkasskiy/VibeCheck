@@ -1,12 +1,13 @@
 /* eslint-disable @conarti/feature-sliced/absolute-relative */
 import {
+	completeCurrentOnboardingStep,
+	getActualOnboardingStep,
 	registerConfirm,
 	registerResend,
 	passwordConfirm,
 	passwordResetResend,
 } from 'features/auth';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button/';
 import { InputField } from 'shared/ui/InputField';
 import styles from './styles.module.css';
@@ -28,7 +29,6 @@ export const VerificationForm = ({
 	onBack,
 }: VerificationFormProps) => {
 	const { dispatch } = useAuth();
-	const navigate = useNavigate();
 	const [code, setCode] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -78,13 +78,18 @@ export const VerificationForm = ({
 
 		try {
 			if (mode === 'reset') {
-				await passwordConfirm(code, { newPassword: password });
-				navigate('/login');
+				const data = await passwordConfirm(code);
+				localStorage.setItem('accessToken', data.accessToken);
+				localStorage.setItem('refreshToken', data.refreshToken);
+				dispatch({ type: 'SET_TOKENS', payload: data });
+				onSuccess();
 			} else {
 				const data = await registerConfirm(code);
 				localStorage.setItem('accessToken', data.accessToken);
 				localStorage.setItem('refreshToken', data.refreshToken);
 				dispatch({ type: 'SET_TOKENS', payload: data });
+				await getActualOnboardingStep().catch(() => null);
+				await completeCurrentOnboardingStep().catch(() => undefined);
 				onSuccess();
 			}
 		} catch (err: any) {
@@ -100,7 +105,7 @@ export const VerificationForm = ({
 
 		try {
 			if (mode === 'reset') {
-				await passwordResetResend({ email });
+				await passwordResetResend({ email, newPassword: password });
 			} else {
 				await registerResend({ login: email, password });
 			}

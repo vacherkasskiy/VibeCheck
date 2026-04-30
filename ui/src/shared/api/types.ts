@@ -72,3 +72,35 @@ export interface IAxios {
     },
   ): Promise<AxiosResponse<T>>;
 }
+
+/**
+ * RFC7807 ProblemDetails для API ошибок ReviewService.Gateway
+ */
+export interface ProblemDetails {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  instance?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Типизированная ApiError для всех запросов
+ */
+export class ApiError extends Error {
+  public status?: number;
+  public problems?: ProblemDetails;
+
+  constructor(
+    message: string,
+    status?: number,
+    problems?: ProblemDetails,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.problems = problems;
+  }
+}
+

@@ -2,6 +2,7 @@ import { useGetAllFlags, PRIORITY_OPTIONS } from 'entities/tag';
 import { filterTags, groupByCategory } from 'entities/tag';
 import { ALL_TAGS } from 'entities/tag';
 import { userApi } from 'entities/user';
+import { completeCurrentOnboardingStep } from 'features/auth';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from 'shared/ui/Toast';
@@ -132,6 +133,9 @@ export const useFlags = () => {
       };
 
       await userApi.setUserFlags(requestBody);
+      if (context === 'register') {
+        await completeCurrentOnboardingStep().catch(() => undefined);
+      }
       showToast('Флаги сохранены успешно!', 'success');
       navigate('/recommendations', { state: { context } });
     } catch (error: any) {
@@ -172,4 +176,3 @@ export const useFlags = () => {
     closeConflict,
   };
 };
-

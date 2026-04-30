@@ -1,5 +1,7 @@
+export type UserId = string;
+
 export interface User {
-  id: string;
+  id: UserId;
   nickname: string;
   email: string;
   avatarUrl?: string | null;
@@ -11,6 +13,7 @@ export interface User {
   education: string;
   experience: string;
   expertise: string;
+  createdAt?: string;
 }
 
 export interface UserFlag {
@@ -27,6 +30,65 @@ export interface UserFlags {
 export interface AvatarDto {
   iconId: string;
   link: string;
+}
+
+export type Sex = 'SEX_MALE' | 'SEX_FEMALE' | 'SEX_OTHER';
+
+export type EducationLevel =
+  | 'EDUCATION_LEVEL_NONE'
+  | 'EDUCATION_LEVEL_PRIMARY'
+  | 'EDUCATION_LEVEL_BASIC'
+  | 'EDUCATION_LEVEL_SECONDARY'
+  | 'EDUCATION_LEVEL_SECONDARY_PROFESSIONAL'
+  | 'EDUCATION_LEVEL_INCOMPLETE_HIGHER'
+  | 'EDUCATION_LEVEL_BACHELOR'
+  | 'EDUCATION_LEVEL_SPECIALIST'
+  | 'EDUCATION_LEVEL_MASTER'
+  | 'EDUCATION_LEVEL_POSTGRADUATE'
+  | 'EDUCATION_LEVEL_DOCTORATE'
+  | 'EDUCATION_LEVEL_RESIDENCY'
+  | 'EDUCATION_LEVEL_ADJUNCTURE';
+
+export type Specialization =
+  | 'SPECIALTY_IT'
+  | 'SPECIALTY_DESIGN'
+  | 'SPECIALTY_MARKETING'
+  | 'SPECIALTY_FINANCE'
+  | 'SPECIALTY_HR'
+  | 'SPECIALTY_SALES'
+  | 'SPECIALTY_LOGISTICS'
+  | 'SPECIALTY_LAW'
+  | 'SPECIALTY_EDUCATION'
+  | 'SPECIALTY_MEDICINE'
+  | 'SPECIALTY_CONSTRUCTION'
+  | 'SPECIALTY_ENGINEERING'
+  | 'SPECIALTY_ART'
+  | 'SPECIALTY_TOURISM'
+  | 'SPECIALTY_MEDIA'
+  | 'SPECIALTY_ANALYTICS'
+  | 'SPECIALTY_PROJECT_MANAGEMENT'
+  | 'SPECIALTY_SPORT'
+  | 'SPECIALTY_OTHER';
+
+export interface WorkExperienceDto {
+  specialization: Specialization;
+  startedAt: string;
+  finishedAt: string | null;
+}
+
+export interface CreateOrUpdateUserInfoDto {
+  name: string;
+  iconId: string;
+  sex: Sex;
+  birthday: string;
+  education: EducationLevel;
+  specialization: Specialization;
+  workExperience?: WorkExperienceDto[];
+}
+
+export interface UserInfoDto extends CreateOrUpdateUserInfoDto {
+  email: string;
+  workExperience: WorkExperienceDto[];
 }
 
 export interface SetUserFlagsRequest {
@@ -93,6 +155,9 @@ export interface Achievement {
 
 export interface UserReview {
   id: string;
+  authorId?: string | null;
+  authorName?: string | null;
+  authorAvatarUrl?: string | null;
   companyId: string;
   companyName: string;
   text: string;
@@ -124,6 +189,39 @@ export interface Subscription {
   nickname: string;
   avatarUrl?: string | null;
   subscribedAt: string;
+}
+
+export interface SubscriptionUserProfileDto {
+  userId: string;
+  name?: string | null;
+  iconId?: string | null;
+}
+
+export interface SubscriptionStatusDto {
+  authorId: string;
+  subscriberId: string;
+  status: 'ACTIVE' | 'INACTIVE';
+}
+
+export type ReportReasonType =
+  | 'SPAM_OR_ADVERTISEMENT'
+  | 'FRAUD_OR_EXTORTION'
+  | 'HARASSMENT_OR_INSULT'
+  | 'HATE_SPEECH'
+  | 'THREAT_OR_VIOLENCE'
+  | 'PERSONAL_DATA'
+  | 'MISLEADING_INFORMATION'
+  | 'OFF_TOPIC_OR_LOW_QUALITY'
+  | 'OTHER';
+
+export interface CreateUserReportDto {
+  reportId: string;
+  reasonType: ReportReasonType;
+  reasonText: string;
+}
+
+export interface OnboardingStepDto {
+  currentStep: string;
 }
 
 export interface UserProfileData {

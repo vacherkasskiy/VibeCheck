@@ -17,14 +17,16 @@ export default (): webpack.Configuration => {
 	};
 
 	const MODE: BuildMode = (process.env.MODE as BuildMode) || 'development';
-	const API_URL = process.env.API_URL || 'http://localhost:8000';
+const API_URL = process.env.API_URL || 'http://localhost:8000';
+// REVIEW_GATEWAY_URL passed to buildWebpackConfig for __REVIEW_GATEWAY_URL__ define
+
 	const IS_DEV = MODE === 'development';
 
 	const env: BuildEnv = {
 		MODE,
 	};
 
-	const config = BuildWebpackConfig({
+const config = BuildWebpackConfig({
 		env,
 		paths,
 		API_URL,

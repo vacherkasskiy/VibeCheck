@@ -38,6 +38,27 @@ export interface AvatarDto {
   link: string;
 }
 
+export type ReportReasonType =
+  | 'SPAM_OR_ADVERTISEMENT'
+  | 'FRAUD_OR_EXTORTION'
+  | 'HARASSMENT_OR_INSULT'
+  | 'HATE_SPEECH'
+  | 'THREAT_OR_VIOLENCE'
+  | 'PERSONAL_DATA'
+  | 'MISLEADING_INFORMATION'
+  | 'OFF_TOPIC_OR_LOW_QUALITY'
+  | 'OTHER';
+
+export interface CreateUserReportDto {
+  reportId: string;
+  reasonType: ReportReasonType;
+  reasonText: string;
+}
+
+export interface OnboardingStepDto {
+  currentStep: string;
+}
+
 export const mapEducation = (mockEducation: string): EducationLevel => {
   const map: Record<string, EducationLevel> = {
     NONE: 'EDUCATION_LEVEL_NONE',
@@ -108,12 +129,36 @@ export const getMyInfo = async (): Promise<UserInfoDto> => {
   return res.data;
 };
 
-export const updateMyInfo = async (dto: CreateOrUpdateUserInfoDto): Promise<UserInfoDto> => {
-  const res = await http.post<UserInfoDto>('/users/info', dto);
+export const getUserInfo = async (userId: string): Promise<UserInfoDto> => {
+  const res = await http.get<UserInfoDto>(`/users/${userId}/info`);
   return res.data;
+};
+
+export const createMyInfo = async (dto: CreateOrUpdateUserInfoDto): Promise<void> => {
+  await http.post('/users/info', dto);
+};
+
+export const updateMyInfo = async (dto: CreateOrUpdateUserInfoDto): Promise<UserInfoDto> => {
+  const res = await http.put<UserInfoDto>('/users/info', dto);
+  return res.data;
+};
+
+export const createUserReport = async (
+  userId: string,
+  dto: CreateUserReportDto,
+): Promise<void> => {
+  await http.post(`/users/${userId}/reports`, dto);
+};
+
+export const getActualOnboardingStep = async (): Promise<OnboardingStepDto> => {
+  const res = await http.get<OnboardingStepDto>('/onboarding/step');
+  return res.data;
+};
+
+export const completeCurrentOnboardingStep = async (): Promise<void> => {
+  await http.post('/onboarding/step');
 };
 
 export const saveUserPreferences = async (_prefs: any) => {
   return { success: true };
 };
-

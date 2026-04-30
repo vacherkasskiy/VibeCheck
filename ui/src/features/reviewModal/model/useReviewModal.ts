@@ -1,7 +1,11 @@
-import { reviewApi } from 'entities/company';
+import { useQueryClient } from '@tanstack/react-query';
+import { reviewApi, useCreateCompanyReview } from 'entities/company';
+
+
 import { useState, useCallback, useMemo } from 'react';
 import type { ReviewFormData, UseReviewModalReturn } from './types';
 import type { CreateCompanyReviewRequest } from 'entities/company/model/reviewTypes';
+
 
 
 const MIN_FLAGS_REQUIRED = 2;
@@ -88,6 +92,8 @@ export const useReviewModal = (companyId: string): UseReviewModalReturn => {
     return diffMinutes <= EDIT_TIME_LIMIT_MINUTES;
   }, [isEditMode, createdAt]);
 
+  const createReviewMutation = useCreateCompanyReview();
+
   const submitReview = useCallback(async () => {
     if (!canSubmit) return;
 
@@ -106,7 +112,7 @@ export const useReviewModal = (companyId: string): UseReviewModalReturn => {
         await reviewApi.updateCompanyReview(reviewId, { text: formData.text });
       } else {
         // Create
-        await reviewApi.createCompanyReview(companyId, request);
+        await createReviewMutation.mutateAsync({ companyId, data: request });
       }
 
       closeModal();
@@ -116,7 +122,8 @@ export const useReviewModal = (companyId: string): UseReviewModalReturn => {
     } finally {
       setLoading(false);
     }
-  }, [canSubmit, formData, isEditMode, reviewId, companyId, closeModal, resetForm]);
+  }, [canSubmit, formData, isEditMode, reviewId, companyId, closeModal, resetForm, createReviewMutation]);
+
 
   const deleteReview = useCallback(async () => {
     if (!reviewId) return;

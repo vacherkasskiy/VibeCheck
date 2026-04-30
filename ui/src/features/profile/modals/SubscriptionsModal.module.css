@@ -1,0 +1,23 @@
+/* Reuse from ReviewsModal, add if needed */
+.content {
+  padding: 2rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.content h2 {
+  margin-bottom: 1.5rem;
+}
+
+.content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.content li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}

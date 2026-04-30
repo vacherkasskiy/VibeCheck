@@ -2,9 +2,13 @@ import type { CompanyFlag } from './types';
 
 export type ReviewsSortGatewayEnum = 'Newest' | 'Oldest' | 'BestScore' | 'WorstScore' | 'WeightDesc' | 'WeightAsc';
 
-export type VoteMode = 'Like' | 'Dislike' | 'Clear';
+export type VoteModeGatewayEnum = 'Like' | 'Dislike' | 'Clear';
 
-export type ReportReasonType = 'Spam' | 'Harassment' | 'Hate' | 'Nudity' | 'Violence' | 'Other';
+export type VoteMode = VoteModeGatewayEnum;
+
+export type ReportReasonGatewayEnum = 'Spam' | 'Harassment' | 'Hate' | 'Nudity' | 'Violence' | 'Other';
+
+export type ReportReasonType = ReportReasonGatewayEnum;
 
 
 export interface CreateCompanyReviewRequest {

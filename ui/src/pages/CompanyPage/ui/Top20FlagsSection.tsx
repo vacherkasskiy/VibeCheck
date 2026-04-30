@@ -1,92 +1,40 @@
-import { useUserFlags } from 'entities/user';
-import { useCompanyFlags } from 'features/companyPage';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Input } from 'shared/ui/Input';
+import { Top20FlagsSection as WidgetTop20FlagsSection } from '../../../widgets/Top20FlagsSection';
+import { useCompanyFlags } from 'features/companyPage/model/useCompanyFlags';
 import styles from './Top20FlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
-import type { UserFlag } from 'entities/user';
 
-interface Top20FlagsSectionProps {
-	companyId?: string;
-}
+export const Top20FlagsSection = () => {
+  const { id } = useParams<{ id: string }>();
+  
+  const { 
+    flags, 
+    loading, 
+    error 
+  } = useCompanyFlags(id);
 
-export const Top20FlagsSection = ({ companyId }: Top20FlagsSectionProps = {}) => {
-	const { id } = useParams<{ id: string }>();
-	const finalCompanyId = companyId || id;
+  const top20Flags = useMemo(() => {
+    return flags
+      .slice(0, 20)
+      .sort((a: CompanyFlag, b: CompanyFlag) => b.count - a.count);
+  }, [flags]);
 
-	const { flags, loading, error, searchQuery, setSearchQuery } = useCompanyFlags(finalCompanyId);
+  if (loading) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.loading}>Загрузка топ-20 флагов...</div>
+      </section>
+    );
+  }
 
-	const {
-		flags: { green: userGreenFlags, red: userRedFlags },
-	} = useUserFlags();
+  if (error) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.error}>Не удалось загрузить топ флагов</div>
+      </section>
+    );
+  }
 
-	const filteredFlags = useMemo(() => {
-		if (!searchQuery.trim()) return flags;
-		const query = searchQuery.toLowerCase();
-		return flags.filter((flag: CompanyFlag) => (flag.name ?? '').toLowerCase().includes(query));
-	}, [flags, searchQuery]);
-
-	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
-		const isGreen = userGreenFlags.some((f: UserFlag) => f.id === flagId);
-		const isRed = userRedFlags.some((f: UserFlag) => f.id === flagId);
-
-		if (isGreen) return 'green';
-		if (isRed) return 'red';
-		return 'gray';
-	};
-
-	if (loading) {
-		return (
-			<section className={styles.section}>
-				<div className={styles.header}>
-					<h2 className={styles.title}>Топ-20 флагов</h2>
-				</div>
-				<div className={styles.loading}>Загрузка флагов...</div>
-			</section>
-		);
-	}
-
-	if (error) {
-		return (
-			<section className={styles.section}>
-				<div className={styles.header}>
-					<h2 className={styles.title}>Топ-20 флагов</h2>
-				</div>
-				<div className={styles.error}>Ошибка загрузки флагов</div>
-			</section>
-		);
-	}
-
-	return (
-		<section className={styles.section}>
-			<div className={styles.header}>
-				<h2 className={styles.title}>Топ-20 флагов</h2>
-				<div className={styles.search}>
-					<Input
-						type="text"
-						placeholder="Поиск флагов..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-					/>
-				</div>
-			</div>
-
-			<div className={styles.flagsGrid}>
-				{filteredFlags.length > 0 ? (
-					filteredFlags.map((flag: CompanyFlag) => {
-						const color = getFlagColor(flag.id);
-						return (
-							<div key={flag.id} className={`${styles.flag} ${styles[color]}`}>
-								<span className={styles.flagName}>{flag.name ?? 'Флаг'}</span>
-								<span className={styles.flagCount}>{flag.count}</span>
-							</div>
-						);
-					})
-				) : (
-					<p className={styles.empty}>Флаги не найдены</p>
-				)}
-			</div>
-		</section>
-	);
+  return <WidgetTop20FlagsSection flags={top20Flags} />;
 };

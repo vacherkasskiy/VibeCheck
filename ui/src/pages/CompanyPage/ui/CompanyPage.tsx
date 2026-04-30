@@ -133,7 +133,7 @@ export const CompanyPage = () => {
 			</header>
 			<main className={styles.main}>
 				<CompanyInfo company={company} />
-				<div className={styles.sections}>
+				<div className={styles.sectionsRow}>
 					<ReviewsSection />
 					<Top20FlagsSection />
 				</div>

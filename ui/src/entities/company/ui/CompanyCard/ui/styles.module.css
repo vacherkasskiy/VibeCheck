@@ -1,13 +1,13 @@
 .companyCard {
 	border: 1px solid #e0e0f0;
 	border-radius: 20px;
-	padding: 24px;
-	background: white;
+	padding: 32px;
+	background: #fff;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 	transition: all 0.2s;
 	cursor: pointer;
 	animation: fadeIn 0.3s ease-out;
-	min-height: 200px;
+	min-height: 260px;
 }
 
 .companyCard:hover {
@@ -19,13 +19,13 @@
 .companyHeader {
 	display: flex;
 	align-items: flex-start;
-	gap: 16px;
-	margin-bottom: 20px;
+	gap: 20px;
+	margin-bottom: 28px;
 }
 
 .companyLogo {
-	width: 56px;
-	height: 56px;
+	width: clamp(88px, 12vw, 120px);
+	height: clamp(88px, 12vw, 120px);
 	border-radius: 16px;
 	background: #f0f0ff;
 	display: flex;
@@ -33,7 +33,7 @@
 	justify-content: center;
 	color: #6c63ff;
 	font-weight: bold;
-	font-size: 24px;
+	font-size: clamp(36px, 6vw, 48px);
 	flex-shrink: 0;
 }
 
@@ -43,7 +43,7 @@
 }
 
 .companyName {
-	font-size: 24px;
+	font-size: 28px;
 	font-weight: 700;
 	color: #2d2d2d;
 	line-height: 1.3;
@@ -53,9 +53,9 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	margin-top: 8px;
+	margin-top: 10px;
 	color: #6c63ff;
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: 500;
 }
 
@@ -66,8 +66,8 @@
 }
 
 .flagsSection {
-	margin-top: 16px;
-	padding-top: 16px;
+	margin-top: 24px;
+	padding-top: 24px;
 	border-top: 1px solid #f0f0ff;
 }
 
@@ -75,16 +75,30 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	margin-bottom: 12px;
+	margin-bottom: 16px;
 	color: #6c63ff;
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: 600;
 }
 
 .flagsContainer {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: 10px;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f0f0ff;
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  color: #666;
 }
 
 @keyframes fadeIn {
@@ -100,35 +114,35 @@
 
 @media (max-width: 768px) {
 	.companyCard {
-		padding: 20px;
-		min-height: 180px;
+		padding: 24px;
+		min-height: 220px;
 	}
 
 	.companyLogo {
-		width: 48px;
-		height: 48px;
-		font-size: 20px;
+		width: clamp(88px, 12vw, 120px);
+		height: clamp(88px, 12vw, 120px);
+		font-size: clamp(36px, 6vw, 48px);
 	}
 
 	.companyName {
-		font-size: 20px;
+		font-size: 22px;
 	}
 }
 
 @media (max-width: 480px) {
 	.companyCard {
-		padding: 16px;
-		min-height: 160px;
+		padding: 20px;
+		min-height: 190px;
 	}
 
 	.companyLogo {
-		width: 44px;
-		height: 44px;
-		font-size: 18px;
+		width: clamp(88px, 12vw, 120px);
+		height: clamp(88px, 12vw, 120px);
+		font-size: clamp(36px, 6vw, 48px);
 	}
 
 	.companyName {
-		font-size: 18px;
+		font-size: 20px;
 	}
 
 	.flagsTitle {

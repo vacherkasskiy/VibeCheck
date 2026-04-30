@@ -5,5 +5,6 @@ export type {
   GetLevelGatewayResponse,
   GetUserAchievementsGatewayResponse,
   MyAchievementItemDto,
+  UserAchievementItemDto,
   MyAchievementsFilterStatus
 } from './model/types';

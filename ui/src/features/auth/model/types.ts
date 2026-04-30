@@ -47,3 +47,24 @@ export interface RefreshResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export type JwtTokensDto = RefreshResponse;
+
+export interface InternalTokenRequestDto {
+  audiences: string[];
+}
+
+export interface InternalTokenResponseDto {
+  token: string;
+}
+
+export interface InternalEmployeeAuthRequestDto {
+  login: string;
+  password: string;
+  audiences: string[];
+}
+
+export interface InternalEmployeeAuthTokensDto {
+  accessToken: string;
+  internalToken: string;
+}

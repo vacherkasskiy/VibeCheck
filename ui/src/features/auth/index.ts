@@ -9,7 +9,22 @@ export {
   registerResend, 
   passwordConfirm, 
   passwordResetResend,
+  passwordReset,
+  refreshAccessToken,
+  logout,
+  generateInternalToken,
+  internalLogin,
 } from './model/api';
 
 
-export { getMyInfo, updateMyInfo, createUserInfoDto } from './model/userApi';
+export {
+  getMyInfo,
+  getUserInfo,
+  createMyInfo,
+  updateMyInfo,
+  createUserReport,
+  getActualOnboardingStep,
+  completeCurrentOnboardingStep,
+  getAvatars,
+  createUserInfoDto,
+} from './model/userApi';

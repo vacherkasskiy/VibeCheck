@@ -216,7 +216,7 @@ export const RegistrationForm = () => {
 	const renderStep3 = () => (
 		<ProfileForm
 			email={email}
-			onSubmit={() => navigate('/recommendations')}
+			onSubmit={() => navigate('/flags', { state: { context: 'register' } })}
 			onBack={() => setStep(2)}
 		/>
 	);

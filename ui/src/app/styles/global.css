@@ -26,6 +26,12 @@ body {
 	position: relative;
 }
 
+.appContent {
+	position: relative;
+	z-index: 1;
+	min-height: 100vh;
+}
+
 /* Background glow components - fixed positioning for all pages */
 :global(.centerGlow),
 :global(.headerGlow) {

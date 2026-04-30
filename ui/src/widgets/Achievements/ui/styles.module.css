@@ -1,16 +1,17 @@
 .container {
-	background-color: white;
-	border-radius: 16px;
-	padding: 24px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	border: #1a1a1a 1px;
+	background: #fff;
+	border: 1px solid rgba(28, 27, 40, 0.08);
+	border-radius: 20px;
+	padding: 32px;
+	box-shadow: 0 12px 36px rgba(28, 27, 40, 0.1);
 }
 
 .header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 20px;
+	gap: 16px;
+	margin-bottom: 24px;
 }
 
 .title {
@@ -31,10 +32,11 @@
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	padding: 16px;
-	background: #f8f9fa;
-	border: 1px solid #eef0f3;
-	border-radius: 12px;
+	min-height: 148px;
+	padding: 18px;
+	background: #f8f9ff;
+	border: 1px solid rgba(28, 27, 40, 0.06);
+	border-radius: 14px;
 	transition:
 		transform 0.2s ease,
 		box-shadow 0.2s ease;

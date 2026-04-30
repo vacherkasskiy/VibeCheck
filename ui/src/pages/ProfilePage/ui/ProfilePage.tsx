@@ -1,8 +1,9 @@
+import { useUserActivity } from 'entities/activity';
+import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
 import { AchievementsModal, ReviewsModal, DeleteReviewModal } from 'features/profile/modals';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { useToast } from 'shared/ui/Toast';
@@ -13,6 +14,7 @@ import { ProfileHeader } from 'widgets/ProfileHeader';
 import { UserFlags } from 'widgets/UserFlags';
 import { UserReviews } from 'widgets/UserReviews';
 import styles from './ProfilePage.module.css';
+import type { UserFeedDto } from 'entities/activity';
 
 export const ProfilePage = () => {
 	const navigate = useNavigate();
@@ -25,6 +27,7 @@ export const ProfilePage = () => {
 		id: string;
 		companyName: string;
 	} | null>(null);
+	const [removedSubscriptionIds, setRemovedSubscriptionIds] = useState<string[]>([]);
 
 	const handleEditProfile = () => {
 		navigate('/profile/edit');
@@ -73,6 +76,15 @@ export const ProfilePage = () => {
 		}
 	};
 
+	const handleUnsubscribe = async (authorId: string) => {
+		try {
+			await userApi.unsubscribeFromUser(authorId);
+			setRemovedSubscriptionIds((prev) => [...prev, authorId]);
+		} catch (err) {
+			console.error('Failed to unsubscribe:', err);
+		}
+	};
+
 	const canEditReview = (createdAt: string): boolean => {
 		const created = new Date(createdAt).getTime();
 		const now = Date.now();
@@ -80,11 +92,9 @@ export const ProfilePage = () => {
 		return now - created <= fiveMinutes;
 	};
 
-		if (loading) {
+	if (loading) {
 		return (
 			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -105,11 +115,9 @@ export const ProfilePage = () => {
 		);
 	}
 
-		if (error || !profile) {
+	if (error || !profile) {
 		return (
 			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -135,11 +143,12 @@ export const ProfilePage = () => {
 	}
 
 	const { user, flags, achievements, reviews, subscriptions } = profile;
+	const visibleSubscriptions = subscriptions.filter(
+		(subscription) => !removedSubscriptionIds.includes(subscription.userId),
+	);
 
 	return (
 			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
 				<header className={styles.header}>
 					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
 						<img
@@ -183,15 +192,16 @@ export const ProfilePage = () => {
 
 					<section className={styles.section}>
 						<ActivityPanel
-							subscriptions={subscriptions}
+							subscriptions={visibleSubscriptions}
 							reviewsCount={reviews.length}
 							flagsCount={flags.green.length + flags.red.length}
 							likesReceived={reviews.reduce(
 								(sum, review) => sum + review.reactions.likes,
 								0,
 							)}
-							onUnsubscribe={() => {}}
+							onUnsubscribe={handleUnsubscribe}
 						/>
+
 					</section>
 				</div>
 			</main>

@@ -33,7 +33,6 @@
 .page {
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--color-bg-page);
   color: var(--color-text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
@@ -89,8 +88,8 @@
   z-index: 1000;
   margin: 0 auto;
   padding: clamp(24px, 5vw, 40px) clamp(16px, 4vw, 32px);
-  display: grid;
-  grid-template-columns: minmax(300px, 450px) 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-xl);
 }
 
@@ -126,8 +125,14 @@
   max-width: 400px;
 }
 
+.sectionsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
 @media (max-width: 1024px) {
-  .main {
+  .sectionsRow {
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }

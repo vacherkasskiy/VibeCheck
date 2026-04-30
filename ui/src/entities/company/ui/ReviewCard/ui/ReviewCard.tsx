@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import type { CompanyReview, ReviewFlagDto } from '../../../model/types';
@@ -63,15 +64,29 @@ export const ReviewCard = ({ review }: ReviewCardProps) => {
 			)}
 
 			<div className={styles.reactions}>
-				<button className={styles.reaction} type="button">
+				<button className={styles.reaction} type="button" onClick={() => {}}>
 					<span className={styles.reactionIcon}>👍</span>
 					<span className={styles.reactionCount}>{likes}</span>
 				</button>
-				<button className={styles.reaction} type="button">
+				<button className={styles.reaction} type="button" onClick={() => {}}>
 					<span className={styles.reactionIcon}>👎</span>
 					<span className={styles.reactionCount}>{dislikes}</span>
 				</button>
+				<button className={styles.reportButton} type="button" onClick={() => {}}>
+					⚠️ Пожаловаться
+				</button>
+				{false && canEdit(review.createdAt) && (
+					<button className={styles.editButton} type="button" title="Редактировать">
+						<Pencil size={16} />
+					</button>
+				)}
 			</div>
 		</div>
 	);
+};
+
+const canEdit = (createdAt: string): boolean => {
+	const now = Date.now();
+	const fiveMinutes = 5 * 60 * 1000;
+	return now - new Date(createdAt).getTime() < fiveMinutes;
 };

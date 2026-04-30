@@ -1,8 +1,9 @@
 .container {
-	background: white;
-	border-radius: 16px;
-	padding: 24px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	background: #fff;
+	border: 1px solid rgba(28, 27, 40, 0.08);
+	border-radius: 20px;
+	padding: 32px;
+	box-shadow: 0 12px 36px rgba(28, 27, 40, 0.1);
 }
 
 .mainInfo {
@@ -102,14 +103,19 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 16px;
-	padding-top: 16px;
-	border-top: 1px solid #f0f0f0;
+	padding-top: 24px;
+	border-top: 1px solid rgba(28, 27, 40, 0.08);
 }
 
 .detailItem {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 6px;
+	min-height: 88px;
+	padding: 16px;
+	background: #f8f9ff;
+	border: 1px solid rgba(28, 27, 40, 0.06);
+	border-radius: 14px;
 }
 
 .detailLabel {

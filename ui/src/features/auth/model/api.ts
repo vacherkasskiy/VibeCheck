@@ -1,8 +1,12 @@
 import http from 'shared/api/http';
 import type { 
-  RegisterRequest, RegisterResponse,
+  RegisterRequest,
   LoginRequest, LoginResponse,
-  PasswordResetRequest, RefreshResponse 
+  PasswordResetRequest, RefreshResponse,
+  InternalTokenRequestDto,
+  InternalTokenResponseDto,
+  InternalEmployeeAuthRequestDto,
+  InternalEmployeeAuthTokensDto,
 } from './types';
 
 export const register = async (data: RegisterRequest): Promise<void> => {
@@ -43,5 +47,19 @@ export const passwordResetResend = async (data: PasswordResetRequest): Promise<v
 export const passwordConfirm = async (code: string): Promise<RefreshResponse> => {
   const url = `/auth/email/password/reset?confirmCode=${code}`;
   const response = await http.put<RefreshResponse>(url);
+  return response.data;
+};
+
+export const generateInternalToken = async (
+  data: InternalTokenRequestDto,
+): Promise<InternalTokenResponseDto> => {
+  const response = await http.post<InternalTokenResponseDto>('/auth/internal', data);
+  return response.data;
+};
+
+export const internalLogin = async (
+  data: InternalEmployeeAuthRequestDto,
+): Promise<InternalEmployeeAuthTokensDto> => {
+  const response = await http.post<InternalEmployeeAuthTokensDto>('/auth/internal/login', data);
   return response.data;
 };

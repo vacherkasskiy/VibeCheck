@@ -1,4 +1,6 @@
-import { FileText, ThumbsUp, ThumbsDown, Pencil, Trash2 } from 'lucide-react';
+import { useUpdateCompanyReview } from 'entities/company';
+import { FileText, ThumbsUp, ThumbsDown, Pencil, Trash2, X } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
 import type { UserReview } from 'entities/user';
@@ -19,12 +21,48 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 		});
 	};
 
-	const canEdit = (createdAt: string): boolean => {
+	const updateCompanyReview = useUpdateCompanyReview();
+
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const canEdit = (createdAt: string): boolean => {
 		const created = new Date(createdAt).getTime();
 		const now = Date.now();
 		const fiveMinutes = 5 * 60 * 1000;
 		return now - created <= fiveMinutes;
 	};
+
+	const handleEdit = (review: UserReview) => {
+    setEditingReviewId(review.id);
+    setEditText(review.text);
+    // Focus textarea after render
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingReviewId || !editText.trim()) return;
+    updateCompanyReview.mutate(
+      { 
+        reviewId: editingReviewId, 
+        data: { text: editText } 
+      },
+      {
+        onSuccess: () => {
+          setEditingReviewId(null);
+        },
+        onError: (error) => {
+          console.error('Edit failed:', error);
+        },
+      }
+    );
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditText('');
+  };
 
 	const displayReviews = reviews.slice(0, 2);
 
@@ -80,7 +118,7 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 										{canEdit(review.createdAt) && (
 											<button
 												className={styles.editButton}
-												onClick={() => onEdit(review.id)}
+												onClick={() => handleEdit(review)}
 												type="button"
 												title="Редактировать"
 											>
@@ -89,7 +127,7 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 										)}
 										<button
 											className={styles.deleteButton}
-											onClick={() => onDelete(review.id)}
+											onClick={() => onDelete?.(review.id)}
 											type="button"
 											title="Удалить"
 										>
@@ -98,6 +136,35 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 									</div>
 								)}
 							</div>
+              {editingReviewId === review.id && (
+                <div className={styles.editForm}>
+                  <textarea
+                    ref={textareaRef}
+                    value={editText}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditText(e.target.value)}
+                    placeholder="Редактируйте отзыв..."
+                    rows={3}
+                    className={styles.editTextarea}
+                  />
+                  <div className={styles.editButtons}>
+                    <Button 
+                      size="small" 
+                      variant="secondary"
+                      onClick={handleCancelEdit}
+                    >
+                      <X size={16} />
+                      Отмена
+                    </Button>
+                    <Button 
+                      size="small"
+                      disabled={updateCompanyReview.isPending || !editText.trim()}
+                      onClick={handleSaveEdit}
+                    >
+                      Сохранить
+                    </Button>
+                  </div>
+                </div>
+              )}
 						</div>
 					))
 				) : (

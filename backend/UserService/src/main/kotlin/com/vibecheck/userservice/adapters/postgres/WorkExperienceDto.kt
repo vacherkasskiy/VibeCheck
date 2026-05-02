@@ -1,4 +1,4 @@
-package com.vibecheck.userservice.adapters.postgres.entity
+package com.vibecheck.userservice.adapters.postgres
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.vibecheck.userservice.domain.Speciality
@@ -12,14 +12,14 @@ data class WorkExperienceDto(
     val finishedAt: Instant?,
 ) {
     fun toDomain(): WorkExperience = WorkExperience(
-        speciality = specialization,
-        startedAt = startedAt,
-        endedAt = finishedAt,
+        specialization,
+        startedAt,
+        finishedAt,
     )
 }
 
-fun WorkExperience.toDto(): WorkExperienceDto = WorkExperienceDto(
-    specialization = speciality,
-    startedAt = startedAt,
-    finishedAt = endedAt
+fun WorkExperience.toDto() = WorkExperienceDto(
+    speciality,
+    startedAt,
+    endedAt
 )

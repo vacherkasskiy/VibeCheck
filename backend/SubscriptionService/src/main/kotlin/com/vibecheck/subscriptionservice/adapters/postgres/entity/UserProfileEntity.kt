@@ -2,18 +2,10 @@ package com.vibecheck.subscriptionservice.adapters.postgres.entity
 
 import com.vibecheck.subscriptionservice.domain.Sex
 import com.vibecheck.subscriptionservice.domain.UserProfile
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
-@Entity
-@Table(name = "user_profile")
 class UserProfileEntity {
-    @Id
     var userId: UUID? = null
 
     var version: Int? = null
@@ -22,7 +14,6 @@ class UserProfileEntity {
 
     var avatarId: String? = null
 
-    @Enumerated(EnumType.STRING)
     var sex: Sex? = null
 
     var birthday: Instant? = null
@@ -47,4 +38,5 @@ fun UserProfileEntity.toDomain(): UserProfile =
         avatarId = requireNotNull(avatarId),
         sex = requireNotNull(sex),
         birthday = requireNotNull(birthday),
+        isDefault = false,
     )

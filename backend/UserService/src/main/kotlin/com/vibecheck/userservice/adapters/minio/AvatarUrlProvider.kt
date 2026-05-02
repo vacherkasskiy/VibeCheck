@@ -11,13 +11,9 @@ import java.net.URI
 class AvatarUrlProvider(
     private val minioProperties: MinioProperties,
 ) {
-    private val publicMinioClient: MinioClient by lazy {
-        val publicUri = normalizeEndpoint(
-            minioProperties.publicEndpoint?.takeIf { it.isNotBlank() } ?: minioProperties.requiredEndpoint()
-        )
-
+    private val internalMinioClient: MinioClient by lazy {
         MinioClient.builder()
-            .endpoint(publicUri.toString())
+            .endpoint(normalizeEndpoint(minioProperties.requiredEndpoint()).toString())
             .credentials(
                 minioProperties.requiredAccessKey(),
                 minioProperties.requiredSecretKey(),
@@ -25,8 +21,23 @@ class AvatarUrlProvider(
             .build()
     }
 
-    fun getReadUrl(objectKey: String): String =
-        publicMinioClient.getPresignedObjectUrl(
+    private val publicMinioClient: MinioClient by lazy {
+        MinioClient.builder()
+            .endpoint(
+                minioProperties.publicEndpoint
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { normalizeEndpoint(it).toString() }
+                    ?: normalizeEndpoint(minioProperties.requiredEndpoint()).toString()
+            )
+            .credentials(
+                minioProperties.requiredAccessKey(),
+                minioProperties.requiredSecretKey(),
+            )
+            .build()
+    }
+
+    fun getReadUrl(objectKey: String): String {
+        return publicMinioClient.getPresignedObjectUrl(
             GetPresignedObjectUrlArgs.builder()
                 .method(Method.GET)
                 .bucket(minioProperties.bucket)
@@ -34,6 +45,7 @@ class AvatarUrlProvider(
                 .expiry(DEFAULT_PRESIGN_EXPIRY_SECONDS)
                 .build()
         )
+    }
 
     private fun normalizeEndpoint(endpoint: String): URI {
         val rawEndpoint = endpoint.trim()

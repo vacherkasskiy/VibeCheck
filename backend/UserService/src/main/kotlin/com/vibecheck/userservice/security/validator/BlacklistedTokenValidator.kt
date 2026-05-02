@@ -16,6 +16,7 @@ class BlacklistedTokenValidator(
     override fun validate(token: Jwt): OAuth2TokenValidatorResult {
         val tokenId = token.id
         val userId = UUID.fromString(token.subject)
+        val tokenIssuedAt = token.issuedAt
 
         if (tokenId.isNullOrBlank()) {
             return OAuth2TokenValidatorResult.failure(
@@ -23,7 +24,11 @@ class BlacklistedTokenValidator(
             )
         }
 
-        return if (accessTokenBlacklistCache.isExists(userId) || accessTokenBlacklistCache.isExists(tokenId)) {
+        val userBlacklistAddedAt = accessTokenBlacklistCache.getAddedAt(userId)
+        val isUserTokenRevoked = userBlacklistAddedAt != null &&
+            (tokenIssuedAt == null || !tokenIssuedAt.isAfter(userBlacklistAddedAt))
+
+        return if (isUserTokenRevoked || accessTokenBlacklistCache.isExists(tokenId)) {
             OAuth2TokenValidatorResult.failure(
                 OAuth2Error("invalid_token", "Token is revoked", null)
             )

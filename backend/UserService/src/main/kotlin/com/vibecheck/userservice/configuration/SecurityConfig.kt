@@ -47,6 +47,7 @@ class SecurityConfig {
             authorizeHttpRequests {
                 authorize("/auth/email/**", permitAll)
                 authorize("/auth/internal/login", permitAll)
+                authorize("/auth/refresh", permitAll)
                 authorize("/avatars/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/swagger-ui/**", permitAll)

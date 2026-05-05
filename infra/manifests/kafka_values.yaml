@@ -37,7 +37,7 @@ broker:
   automountServiceAccountToken: true
   persistence:
     enabled: true
-    size: 5Gi
+    size: 2Gi
   resources:
     requests:
       cpu: 100m

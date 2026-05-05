@@ -1,7 +1,6 @@
+// eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { gamificationApi } from 'entities/gamification';
 import http from 'shared/api/http';
-import type { FeedPageDto } from 'entities/activity/model/types';
-
 import type { 
   User, 
   AvatarDto,
@@ -20,6 +19,8 @@ import type {
   SubscriptionUserProfileDto,
   UserProfileData 
 } from './types';
+import type { FeedPageDto } from 'entities/activity';
+
 import type { GetLevelGatewayResponse, MyAchievementItemDto, UserAchievementItemDto } from 'entities/gamification';
 
 type AvatarOption = { id: string; url: string };
@@ -77,6 +78,15 @@ interface UserInfo {
   }>;
 }
 
+const DEFAULT_USER_INFO: UserInfo = {
+  name: 'Пользователь',
+  iconId: '1',
+  email: '',
+  education: 'Не указано',
+  specialization: 'Не указано',
+  workExperience: [],
+};
+
 interface FlagCatalogResponse {
   flags: Array<{
     id: string;
@@ -91,8 +101,10 @@ interface ActivityFeedParams {
 }
 
 const getMyUserInfo = async (): Promise<UserInfo> => {
-  const res = await http.get<UserInfo>('/users/me/info');
-  return res.data;
+  return fetchWithMockFallback(
+    () => http.get<UserInfo>('/users/me/info'),
+    DEFAULT_USER_INFO,
+  );
 };
 
 const getCurrentUserId = (): string => {
@@ -359,7 +371,7 @@ const fetchWithMockFallback = async <T>(
 ): Promise<T> => {
   try {
     const response = await apiCall();
-    return response.data;
+    return response.data ?? mockData;
   } catch {
     return mockData;
   }
@@ -401,8 +413,10 @@ export const fetchUser = async (): Promise<User> => {
 };
 
 export const fetchUserInfoById = async (userId: string): Promise<UserInfo> => {
-  const response = await http.get<UserInfo>(`/users/${userId}/info`);
-  return response.data;
+  return fetchWithMockFallback(
+    () => http.get<UserInfo>(`/users/${userId}/info`),
+    DEFAULT_USER_INFO,
+  );
 };
 
 export const fetchUserFlags = async (): Promise<UserFlags> => {

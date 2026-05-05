@@ -1,11 +1,17 @@
 package com.vibecheck.userservice.adapters.kafka
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 
 @Configuration
+@ConditionalOnProperty(
+    prefix = "user-service.kafka",
+    name = ["disabled"],
+    havingValue = "false",
+)
 class KafkaProducerConfig {
 
     @Bean

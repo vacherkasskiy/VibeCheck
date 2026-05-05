@@ -1,5 +1,6 @@
 package com.vibecheck.userservice.adapters.kafka
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -9,6 +10,11 @@ import org.springframework.kafka.listener.ContainerProperties
 
 @EnableKafka
 @Configuration
+@ConditionalOnProperty(
+    prefix = "user-service.kafka",
+    name = ["disabled"],
+    havingValue = "false",
+)
 class KafkaConsumerConfig {
     @Bean
     fun reportsKafkaListenerContainerFactory(

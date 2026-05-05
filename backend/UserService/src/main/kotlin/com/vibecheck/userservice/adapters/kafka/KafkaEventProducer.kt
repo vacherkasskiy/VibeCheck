@@ -2,11 +2,17 @@ package com.vibecheck.userservice.adapters.kafka
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import user.profile.v1.UserEvents
 
 @Service
+@ConditionalOnProperty(
+    prefix = "user-service.kafka",
+    name = ["disabled"],
+    havingValue = "false",
+)
 class KafkaEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, ByteArray>,
     @Value("\${user-service.kafka.topic.users}")

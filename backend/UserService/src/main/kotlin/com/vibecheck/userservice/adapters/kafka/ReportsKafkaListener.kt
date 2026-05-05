@@ -2,12 +2,18 @@ package com.vibecheck.userservice.adapters.kafka
 
 import com.vibecheck.userservice.usecase.IngestReviewReport
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
 import reports.ReportEvent
 
 @Service
+@ConditionalOnProperty(
+    prefix = "user-service.kafka",
+    name = ["disabled"],
+    havingValue = "false",
+)
 class ReportsKafkaListener(
     private val ingestReviewReport: IngestReviewReport,
 ) {

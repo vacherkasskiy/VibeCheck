@@ -1,5 +1,4 @@
 using GamificatonService.CloudStorage.Abstractions.Options;
-using GamificatonService.Core.Abstractions;
 using GamificatonService.Core.Abstractions.Handlers;
 using GamificatonService.Core.Abstractions.Helpers;
 using GamificatonService.Core.Abstractions.Operations.Achievements;
@@ -28,8 +27,13 @@ public static class ServiceCollectionExtensions
         
         // Helpers
         services.AddSingleton<ICurrentUserAccessor, JwtCurrentUserAccessor>();
-        
-        // Handler
+
+        return services;
+    }
+
+    public static IServiceCollection AddCoreHandlers(
+        this IServiceCollection services)
+    {
         services.AddScoped<IAchievementProgressService, AchievementProgressService>();
         services.AddScoped<IXpProgressService, XpProgressService>();
 

@@ -231,8 +231,6 @@ wait_for_ingress_nginx_ready
 
 # 7. helm repo
 helm repo add bitnami https://charts.bitnami.com/bitnami || true
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
-helm repo add grafana https://grafana.github.io/helm-charts || true
 helm repo update
 
 # 8. infra
@@ -257,20 +255,6 @@ helm upgrade --install kafka bitnami/kafka \
 # 9. kafka
 wait_for_kafka_ready
 create_kafka_topics
-
-### OBSERVABILITY. DISABLE IF NOT NECESSARY ###
-
-helm upgrade --install prometheus prometheus-community/prometheus \
-  -n vibecheck \
-  -f ../manifests/prometheus_values.yaml
-
-helm upgrade --install grafana grafana/grafana \
-  -n vibecheck \
-  -f ../manifests/grafana_values.yaml
-
-kubectl apply -f ../manifests/my/logging
-
-###############################################
 
 # 10. app manifests
 apply_runtime_secrets

@@ -18,6 +18,7 @@ class UserProfileEventMapper {
             avatarId = event.iconId,
             sex = event.sex.toDomain(),
             birthday = event.birthday.toInstant(),
+            isDefault = false,
         )
 
     private fun UserEvents.Sex.toDomain(): Sex = when (this) {

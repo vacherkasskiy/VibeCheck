@@ -3,7 +3,7 @@ package com.vibecheck.subscriptionservice.usecase
 import com.vibecheck.subscriptionservice.domain.Subscription
 import com.vibecheck.subscriptionservice.domain.event.SubscriptionIsCreatedEvent
 import com.vibecheck.subscriptionservice.domain.exception.BadRequestException
-import com.vibecheck.subscriptionservice.usecase.cache.FollowingCache
+import com.vibecheck.subscriptionservice.usecase.cache.SusbcriptionCache
 import com.vibecheck.subscriptionservice.usecase.cache.HeavyAuthorCache
 import com.vibecheck.subscriptionservice.usecase.cache.SubscriberFeedCache
 import com.vibecheck.subscriptionservice.usecase.storage.SubscriptionStorage
@@ -19,7 +19,7 @@ import java.util.UUID
 @Service
 class SubscriptionCreation(
     private val subscriptionStorage: SubscriptionStorage,
-    private val followingCache: FollowingCache,
+    private val susbcriptionCache: SusbcriptionCache,
     private val subscriberFeedCache: SubscriberFeedCache,
     private val heavyAuthorCache: HeavyAuthorCache,
     private val userActivityStorage: UserActivityStorage,
@@ -56,7 +56,7 @@ class SubscriptionCreation(
             throw BadRequestException("Subscription for followee $subscriberId and follower $authorId already exists")
         }
 
-        followingCache.add(authorId = authorId, subscriberId = subscriberId)
+        susbcriptionCache.add(authorId = authorId, subscriberId = subscriberId)
 
         if (!heavyAuthorCache.isHeavy(authorId)) {
             subscriberFeedCache.addAll(subscriberId, userActivityStorage.getLatestByUserId(authorId, hotSize))

@@ -13,5 +13,5 @@ class UserOnboardingStepSelection(
 ) {
     @Cacheable("users.onboarding")
     fun select(userId: UUID): UserOnboardingStep? =
-        userOnboardingStepStorage.findByUserIdAndStatus(userId, UserOnboardingStepStatus.ACTIVE).single()
+        userOnboardingStepStorage.findByUserIdAndStatus(userId, UserOnboardingStepStatus.ACTIVE).singleOrNull()
 }

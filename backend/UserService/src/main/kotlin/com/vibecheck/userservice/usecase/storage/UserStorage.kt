@@ -2,10 +2,10 @@ package com.vibecheck.userservice.usecase.storage
 
 import com.vibecheck.userservice.domain.User
 import com.vibecheck.userservice.domain.exception.NotFoundException
-import jakarta.persistence.Id
 import java.util.UUID
 
 interface UserStorage {
+    fun existsAny(): Boolean
     fun findById(userId: UUID): User
     fun findAllByIds(userIds: Set<UUID>): List<User>
     fun findByEmail(email: String): User?

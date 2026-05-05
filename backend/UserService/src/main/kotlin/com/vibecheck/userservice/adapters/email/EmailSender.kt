@@ -1,5 +1,6 @@
 package com.vibecheck.userservice.adapters.email
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -11,6 +12,7 @@ class EmailSender(
     private val mailSender: JavaMailSender,
     @Value("\${spring.mail.username}") private val fromAddress: String,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     fun sendRegistrationCode(email: String, confirmCode: Int) {
         val message = SimpleMailMessage().apply {
             setTo(email)
@@ -19,7 +21,13 @@ class EmailSender(
             from = fromAddress
         }
 
-        mailSender.send(message)
+        try {
+            mailSender.send(message).apply {
+                logger.info("Sent registration code: $confirmCode")
+            }
+        } catch (e: Exception) {
+            logger.error("Sent registration code failed", e)
+        }
     }
 
     fun sendPasswordConfirmationCode(email: String, confirmCode: Int) {
@@ -30,7 +38,13 @@ class EmailSender(
             from = fromAddress
         }
 
-        mailSender.send(message)
+        try {
+            mailSender.send(message).apply {
+                logger.info("Sent password confirmation code: $confirmCode")
+            }
+        } catch (e: Exception) {
+            logger.error("Sent password confirmation code failed", e)
+        }
     }
 
     fun sendNewLoginDeviceNotification(email: String, userAgent: String, ipAddress: String?, loggedAt: Instant) {
@@ -46,6 +60,12 @@ class EmailSender(
             from = fromAddress
         }
 
-        mailSender.send(message)
+        try {
+            mailSender.send(message).apply {
+                logger.info("Sent new login device")
+            }
+        } catch (e: Exception) {
+            logger.error("Sent new login device failed", e)
+        }
     }
 }

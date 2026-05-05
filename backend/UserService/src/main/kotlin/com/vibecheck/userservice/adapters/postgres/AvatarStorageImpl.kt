@@ -1,30 +1,46 @@
 package com.vibecheck.userservice.adapters.postgres
 
-import com.vibecheck.userservice.adapters.postgres.entity.toEntity
-import com.vibecheck.userservice.adapters.postgres.repository.AvatarRepository
 import com.vibecheck.userservice.domain.Avatar
 import com.vibecheck.userservice.usecase.storage.AvatarStorage
+import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrNull
+import java.time.Clock
+import java.time.Instant
 
 @Repository
 class AvatarStorageImpl(
-    private val avatarRepository: AvatarRepository
-): AvatarStorage {
+    private val dsl: DSLContext,
+    private val mapper: PostgresRecordMapper,
+    private val clock: Clock
+) : AvatarStorage {
     override fun existsById(id: String): Boolean =
-        avatarRepository.existsById(id)
+        dsl.fetchExists(
+            dsl.selectOne()
+                .from(AvatarsTable.TABLE)
+                .where(AvatarsTable.ID.eq(id))
+        )
 
     override fun findAll(): List<Avatar> =
-        avatarRepository.findAll().map { it.toDomain() }
+        dsl.selectFrom(AvatarsTable.TABLE)
+            .fetch(mapper::toAvatar)
 
-    override fun findById(id: String): Avatar? {
-        return avatarRepository.findById(id).getOrNull()?.toDomain()
-    }
+    override fun findById(id: String): Avatar? =
+        dsl.selectFrom(AvatarsTable.TABLE)
+            .where(AvatarsTable.ID.eq(id))
+            .fetchOne(mapper::toAvatar)
 
     @Transactional(propagation = Propagation.MANDATORY)
     override fun create(avatar: Avatar) {
-        avatarRepository.saveAndFlush(avatar.toEntity())
+        val now = clock.instant()
+
+        dsl.insertInto(AvatarsTable.TABLE)
+            .set(AvatarsTable.ID, avatar.id)
+            .set(AvatarsTable.VERSION, avatar.version)
+            .set(AvatarsTable.URL, avatar.url)
+            .set(AvatarsTable.CREATED_AT, now)
+            .set(AvatarsTable.UPDATED_AT, now)
+            .execute()
     }
 }

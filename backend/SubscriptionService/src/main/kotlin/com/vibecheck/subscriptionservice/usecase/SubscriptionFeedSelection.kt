@@ -3,7 +3,7 @@ package com.vibecheck.subscriptionservice.usecase
 import com.vibecheck.subscriptionservice.domain.UserActivity
 import com.vibecheck.subscriptionservice.domain.UserFeed
 import com.vibecheck.subscriptionservice.usecase.cache.ActivityCache
-import com.vibecheck.subscriptionservice.usecase.cache.FollowingCache
+import com.vibecheck.subscriptionservice.usecase.cache.SusbcriptionCache
 import com.vibecheck.subscriptionservice.usecase.cache.HeavyAuthorCache
 import com.vibecheck.subscriptionservice.usecase.cache.SubscriberFeedCache
 import com.vibecheck.subscriptionservice.usecase.cache.UserActivityCache
@@ -17,7 +17,7 @@ import java.util.UUID
 @Service
 class SubscriptionFeedSelection(
     private val activityCache: ActivityCache,
-    private val followingCache: FollowingCache,
+    private val susbcriptionCache: SusbcriptionCache,
     private val subscriberFeedCache: SubscriberFeedCache,
     private val userActivityCache: UserActivityCache,
     private val cachedUserProfileProvider: CachedUserProfileProvider,
@@ -111,14 +111,14 @@ class SubscriptionFeedSelection(
     }
 
     private fun resolveFollowingAuthorIds(userId: UUID): List<UUID> {
-        val cachedAuthorIds = followingCache.get(userId)
+        val cachedAuthorIds = susbcriptionCache.get(userId)
         if (cachedAuthorIds.isNotEmpty()) {
             return cachedAuthorIds
         }
 
         val authorIdsFromStorage = subscriptionStorage.findAuthorIdsBySubscriberId(userId)
         authorIdsFromStorage.forEach { authorId ->
-            followingCache.add(authorId = authorId, subscriberId = userId)
+            susbcriptionCache.add(authorId = authorId, subscriberId = userId)
         }
 
         return authorIdsFromStorage

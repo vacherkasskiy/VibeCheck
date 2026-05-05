@@ -28,35 +28,37 @@ class UserLoginDeviceProvider(
         val ipAddress = loginContext.ipAddress
             ?.trim()
             ?.takeIf { it.isNotBlank() }
+        val fingerprint = hashEncoder.sha256(userAgent.lowercase())
+
+        if (userLoginDeviceStorage.existsByUserIdAndFingerprint(user.id, fingerprint)) {
+            return
+        }
 
         val userLoginDevice = UserLoginDevice.new(
             userId = user.id,
-            fingerprint = hashEncoder.sha256(userAgent.lowercase()),
+            fingerprint = fingerprint,
             userAgent = userAgent,
             ipAddress = ipAddress,
             createdAt = clock.instant(),
         )
 
-        val isNewDevice = try {
+        try {
             transactionTemplate.execute {
                 userLoginDeviceStorage.create(userLoginDevice)
             }
-            true
         } catch (_: DuplicateUserLoginDeviceException) {
-            false
+            return
         }
 
-        if (isNewDevice) {
-            applicationEventPublisher.publishEvent(
-                NewLoginDeviceDetectedEvent(
-                    userId = user.id,
-                    email = user.email,
-                    userAgent = userAgent,
-                    ipAddress = ipAddress,
-                    loggedAt = userLoginDevice.createdAt,
-                )
+        applicationEventPublisher.publishEvent(
+            NewLoginDeviceDetectedEvent(
+                userId = user.id,
+                email = user.email,
+                userAgent = userAgent,
+                ipAddress = ipAddress,
+                loggedAt = userLoginDevice.createdAt,
             )
-        }
+        )
     }
 
     companion object {

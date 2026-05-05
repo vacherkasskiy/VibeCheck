@@ -20,6 +20,7 @@ class GatewayRoutesConfig(
                     "/auth/email/register/confirm",
                     "/auth/refresh",
                     "/auth/email/password/reset",
+                    "/avatars",
                     "/avatars/**"
                 )
                     .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
@@ -64,9 +65,17 @@ class GatewayRoutesConfig(
                     )
                     .uri(gatewayProperties.services.subscriptionServiceUrl)
             }
+            .route("review-service-public") { route ->
+                route.path(
+                    "/api/flags",
+                    "/api/flags/**"
+                )
+                    .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
+                    .uri(gatewayProperties.services.reviewServiceUrl)
+            }
             .route("review-service-authorized") { route ->
                 route.path(
-                    "/api/flags/**",
+                    "/api/companies",
                     "/api/companies/**",
                     "/api/users/me/flags",
                     "/api/users/*/flags",

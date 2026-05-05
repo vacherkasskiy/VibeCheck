@@ -1,14 +1,18 @@
 package com.vibecheck.userservice.startup
 
-import com.vibecheck.userservice.adapters.postgres.entity.UserEntity
-import com.vibecheck.userservice.adapters.postgres.entity.UserProfileEntity
-import com.vibecheck.userservice.adapters.postgres.entity.WorkExperienceDto
-import com.vibecheck.userservice.adapters.postgres.repository.UserProfileRepository
-import com.vibecheck.userservice.adapters.postgres.repository.UserRepository
 import com.vibecheck.userservice.domain.Education
+import com.vibecheck.userservice.domain.OnboardingStep
 import com.vibecheck.userservice.domain.Sex
 import com.vibecheck.userservice.domain.Speciality
+import com.vibecheck.userservice.domain.User
+import com.vibecheck.userservice.domain.UserOnboardingStep
 import com.vibecheck.userservice.domain.UserRole
+import com.vibecheck.userservice.domain.UserProfile
+import com.vibecheck.userservice.domain.WorkExperience
+import com.vibecheck.userservice.usecase.storage.OnboardingStepStorage
+import com.vibecheck.userservice.usecase.storage.UserOnboardingStepStorage
+import com.vibecheck.userservice.usecase.storage.UserProfileStorage
+import com.vibecheck.userservice.usecase.storage.UserStorage
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -18,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 @Component
 @ConditionalOnProperty(
@@ -28,34 +32,63 @@ import java.util.*
 )
 @Order(20)
 class TestUsersStartupSeeder(
-    private val userRepository: UserRepository,
-    private val userProfileRepository: UserProfileRepository,
+    private val userStorage: UserStorage,
+    private val userProfileStorage: UserProfileStorage,
+    private val onboardingStepStorage: OnboardingStepStorage,
+    private val userOnboardingStepStorage: UserOnboardingStepStorage,
     private val passwordEncoder: PasswordEncoder,
     private val testUsersSeedProperties: TestUsersSeedProperties,
-    private val transactionTemplate: TransactionTemplate
+    private val transactionTemplate: TransactionTemplate,
 ) : ApplicationRunner {
 
     override fun run(args: ApplicationArguments) {
-        if (userRepository.count() > 0) {
-            logger.info("Skipping test users seed because table 'users' is not empty")
+        transactionTemplate.execute {
+            seedUsersAndEnsureOnboardingSteps()
+        }
+    }
+
+    fun seedUsersAndEnsureOnboardingSteps() {
+        val encodedPassword = requireNotNull(passwordEncoder.encode(testUsersSeedProperties.defaultPassword))
+        val primaryOnboardingStepId = ensurePrimaryOnboardingStep().id
+
+        val missingSeedUsers = SEED_USERS.filterNot { userStorage.existsById(it.id) }
+
+        missingSeedUsers.forEach { seedUser ->
+            userStorage.create(seedUser.toUser(encodedPassword))
+            userProfileStorage.create(seedUser.toUserProfile())
+            userOnboardingStepStorage.create(UserOnboardingStep.new(seedUser.id, primaryOnboardingStepId))
+        }
+
+        if (missingSeedUsers.isNotEmpty()) {
+            logger.info("Inserted {} missing test users, profiles and onboarding steps", missingSeedUsers.size)
+        }
+
+        val missingOnboardingStepUserIds = SEED_USERS
+            .map { it.id }
+            .filterNot(userOnboardingStepStorage::existsByUserId)
+
+        if (missingOnboardingStepUserIds.isEmpty()) {
+            logger.info("All seeded users already have onboarding steps")
             return
         }
 
-        transactionTemplate.execute {
-            seedUsers()
+        missingOnboardingStepUserIds.forEach { userId ->
+            userOnboardingStepStorage.create(UserOnboardingStep.new(userId, primaryOnboardingStepId))
         }
+        logger.info("Inserted {} missing onboarding steps for seeded users", missingOnboardingStepUserIds.size)
     }
 
-    fun seedUsers() {
-        val encodedPassword = requireNotNull(passwordEncoder.encode(testUsersSeedProperties.defaultPassword))
-        val users = SEED_USERS.map { it.toUserEntity(encodedPassword) }
-        val profiles = SEED_USERS.map { it.toUserProfileEntity() }
-
-        userRepository.saveAll(users)
-        userProfileRepository.saveAll(profiles)
-
-        logger.info("Inserted {} test users and profiles", users.size)
-    }
+    private fun ensurePrimaryOnboardingStep(): OnboardingStep =
+        runCatching { onboardingStepStorage.findPrimary() }
+            .getOrElse {
+                onboardingStepStorage.create(
+                    OnboardingStep(
+                        id = DEFAULT_PRIMARY_ONBOARDING_STEP_ID,
+                        nextStepId = null,
+                        isPrimary = true,
+                    )
+                )
+            }
 
     private data class SeedUser(
         val id: UUID,
@@ -67,35 +100,37 @@ class TestUsersStartupSeeder(
         val avatarId: String,
         val education: Education,
         val speciality: Speciality,
-        val workExperience: List<WorkExperienceDto>,
+        val workExperience: List<WorkExperience>,
     ) {
-        fun toUserEntity(encodedPassword: String): UserEntity = UserEntity().apply {
-            id = this@SeedUser.id
-            email = this@SeedUser.email
-            password = encodedPassword
-            roles = this@SeedUser.roles
-            isBanned = false
-        }
+        fun toUser(encodedPassword: String): User =
+            User.new(
+                id = id,
+                email = email,
+                password = encodedPassword,
+                roles = roles,
+            )
 
-        fun toUserProfileEntity(): UserProfileEntity = UserProfileEntity().apply {
-            userId = id
-            name = this@SeedUser.name
-            sex = this@SeedUser.sex
-            birthday = this@SeedUser.birthday
-            avatarId = this@SeedUser.avatarId
-            education = this@SeedUser.education
-            speciality = this@SeedUser.speciality
-            workExperience = this@SeedUser.workExperience
-        }
+        fun toUserProfile(): UserProfile =
+            UserProfile.new(
+                userId = id,
+                name = name,
+                sex = sex,
+                avatarId = avatarId,
+                birthday = birthday,
+                education = education,
+                speciality = speciality,
+                workExperience = workExperience,
+            )
     }
 
     private companion object {
         private val logger = LoggerFactory.getLogger(TestUsersStartupSeeder::class.java)
+        private const val DEFAULT_PRIMARY_ONBOARDING_STEP_ID = "primary"
 
         private val SEED_USERS = listOf(
             SeedUser(
                 id = UUID.fromString("4d3f9d74-c4cb-4e6f-8d31-4ef4c2eaa101"),
-                email = "alex.admin@vibecheck.local",
+                email = "vladislav_fedotov_official@bk.ru",
                 roles = listOf(UserRole.ADMIN, UserRole.USER),
                 name = "Alex Admin",
                 sex = Sex.SEX_OTHER,
@@ -104,16 +139,16 @@ class TestUsersStartupSeeder(
                 education = Education.EDUCATION_LEVEL_MASTER,
                 speciality = Speciality.SPECIALTY_PROJECT_MANAGEMENT,
                 workExperience = listOf(
-                    WorkExperienceDto(
-                        specialization = Speciality.SPECIALTY_PROJECT_MANAGEMENT,
+                    WorkExperience(
+                        speciality = Speciality.SPECIALTY_PROJECT_MANAGEMENT,
                         startedAt = Instant.parse("2018-02-01T00:00:00Z"),
-                        finishedAt = null,
+                        endedAt = null,
                     ),
                 ),
             ),
             SeedUser(
                 id = UUID.fromString("8b9d91ee-8673-4e3d-a39c-3bfa3a9b8f11"),
-                email = "nina.qa@vibecheck.local",
+                email = "vacherkasskiy@yandex.ru",
                 roles = listOf(UserRole.USER),
                 name = "Nina QA",
                 sex = Sex.SEX_FEMALE,
@@ -122,16 +157,16 @@ class TestUsersStartupSeeder(
                 education = Education.EDUCATION_LEVEL_BACHELOR,
                 speciality = Speciality.SPECIALTY_IT,
                 workExperience = listOf(
-                    WorkExperienceDto(
-                        specialization = Speciality.SPECIALTY_IT,
+                    WorkExperience(
+                        speciality = Speciality.SPECIALTY_IT,
                         startedAt = Instant.parse("2020-06-01T00:00:00Z"),
-                        finishedAt = null,
+                        endedAt = null,
                     ),
                 ),
             ),
             SeedUser(
                 id = UUID.fromString("34d50c6a-b6bf-4ba8-8798-5dc80df2f3d4"),
-                email = "maks.dev@vibecheck.local",
+                email = "ekaterina.polyah@yandex.ru",
                 roles = listOf(UserRole.USER),
                 name = "Maks Dev",
                 sex = Sex.SEX_MALE,
@@ -140,16 +175,16 @@ class TestUsersStartupSeeder(
                 education = Education.EDUCATION_LEVEL_SPECIALIST,
                 speciality = Speciality.SPECIALTY_IT,
                 workExperience = listOf(
-                    WorkExperienceDto(
-                        specialization = Speciality.SPECIALTY_IT,
+                    WorkExperience(
+                        speciality = Speciality.SPECIALTY_IT,
                         startedAt = Instant.parse("2019-03-15T00:00:00Z"),
-                        finishedAt = null,
+                        endedAt = null,
                     ),
                 ),
             ),
             SeedUser(
                 id = UUID.fromString("5d6aeb12-b7b5-484f-9e0e-f53fbb53b973"),
-                email = "olga.design@vibecheck.local",
+                email = "vdfrolovbukanov@edu.hse.ru",
                 roles = listOf(UserRole.USER),
                 name = "Olga Design",
                 sex = Sex.SEX_FEMALE,
@@ -158,10 +193,28 @@ class TestUsersStartupSeeder(
                 education = Education.EDUCATION_LEVEL_BACHELOR,
                 speciality = Speciality.SPECIALTY_DESIGN,
                 workExperience = listOf(
-                    WorkExperienceDto(
-                        specialization = Speciality.SPECIALTY_DESIGN,
+                    WorkExperience(
+                        speciality = Speciality.SPECIALTY_DESIGN,
                         startedAt = Instant.parse("2021-04-01T00:00:00Z"),
-                        finishedAt = null,
+                        endedAt = null,
+                    ),
+                ),
+            ),
+            SeedUser(
+                id = UUID.fromString("9c4c0d61-0f57-46be-9704-aecf5ee0d9a7"),
+                email = "internal.manager@vibecheck.local",
+                roles = listOf(UserRole.MANAGER, UserRole.USER),
+                name = "Ivan Internal",
+                sex = Sex.SEX_MALE,
+                birthday = Instant.parse("1991-07-12T00:00:00Z"),
+                avatarId = "wolf-avatar.png",
+                education = Education.EDUCATION_LEVEL_MASTER,
+                speciality = Speciality.SPECIALTY_PROJECT_MANAGEMENT,
+                workExperience = listOf(
+                    WorkExperience(
+                        speciality = Speciality.SPECIALTY_PROJECT_MANAGEMENT,
+                        startedAt = Instant.parse("2017-01-10T00:00:00Z"),
+                        endedAt = null,
                     ),
                 ),
             ),

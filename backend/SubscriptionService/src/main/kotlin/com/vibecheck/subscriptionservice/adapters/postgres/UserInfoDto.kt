@@ -1,4 +1,4 @@
-package com.vibecheck.subscriptionservice.adapters.postgres.entity
+package com.vibecheck.subscriptionservice.adapters.postgres
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

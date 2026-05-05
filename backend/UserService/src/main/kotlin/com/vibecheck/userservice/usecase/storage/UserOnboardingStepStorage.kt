@@ -7,6 +7,7 @@ import java.util.UUID
 
 interface UserOnboardingStepStorage {
     fun findByUserIdAndStatus(userId: UUID, status: UserOnboardingStepStatus): List<UserOnboardingStep>
+    fun existsByUserId(userId: UUID): Boolean
 
     fun create(userOnboardingStep: UserOnboardingStep): UserOnboardingStep
 

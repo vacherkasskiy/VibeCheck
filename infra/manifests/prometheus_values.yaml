@@ -5,7 +5,7 @@ server:
   enabled: true
   persistentVolume:
     enabled: true
-    size: 5Gi
+    size: 4Gi
   service:
     type: ClusterIP
     servicePort: 9090
@@ -16,8 +16,8 @@ server:
       cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 384Mi
+      cpu: 200m
+      memory: 256Mi
 
 kube-state-metrics:
   enabled: false

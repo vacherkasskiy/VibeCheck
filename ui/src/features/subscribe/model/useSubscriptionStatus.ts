@@ -1,8 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
+import { userApi } from 'entities/user';
+
 export const useSubscriptionStatus = (
-  _authorId?: string | number,
-  isOwnProfile?: boolean
-) => ({
-  data: false,
-  isLoading: isOwnProfile ? false : false,
-  error: null as Error | null,
-});
+  authorId?: string | number,
+  isOwnProfile?: boolean,
+) =>
+  useQuery({
+    queryKey: ['subscriptionStatus', authorId?.toString()],
+    queryFn: () => userApi.fetchSubscriptionStatus(authorId!.toString()),
+    enabled: !!authorId && !isOwnProfile,
+  });

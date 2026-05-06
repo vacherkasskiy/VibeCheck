@@ -13,12 +13,15 @@ export type PayloadType =
 
 export interface ReviewWrittenInfoDto {
   type: 'REVIEW_WRITTEN';
+  reviewId?: string;
   companyId?: string;
   companyName?: string;
 }
 
 export interface ReviewLikedInfoDto {
   type: 'REVIEW_LIKED';
+  reviewId?: string;
+  reviewAuthorId?: string;
   companyId?: string;
   companyName?: string;
 }
@@ -65,4 +68,3 @@ export const isReviewLiked = (payload: Payload): payload is ReviewLikedInfoDto =
 export const isAchievementGranted = (payload: Payload): payload is AchievementGrantedInfoDto => payload.type === 'ACHIEVEMENT_UNLOCKED';
 export const isUserFollowed = (payload: Payload): payload is UserFollowedInfoDto => payload.type === 'USER_FOLLOWED';
 export const isUserLevelUp = (payload: Payload): payload is UserLevelUpInfoDto => payload.type === 'LEVEL_UP';
-

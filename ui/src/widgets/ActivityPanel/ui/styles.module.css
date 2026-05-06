@@ -158,6 +158,18 @@
 	line-height: 1.4;
 }
 
+.activityButton {
+	width: 100%;
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.activityButton:hover {
+	background: #f1f3ff;
+	border-color: rgba(123, 97, 255, 0.22);
+}
+
 .showMore {
 	background: none;
 	border: none;

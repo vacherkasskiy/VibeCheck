@@ -23,14 +23,14 @@ controller:
   automountServiceAccountToken: true
   persistence:
     enabled: true
-    size: 5Gi
+    size: 2Gi
   resources:
     requests:
-      cpu: 150m
-      memory: 384Mi
+      cpu: 75m
+      memory: 256Mi
     limits:
-      cpu: 750m
-      memory: 768Mi
+      cpu: 300m
+      memory: 384Mi
 
 broker:
   replicaCount: 1
@@ -40,11 +40,11 @@ broker:
     size: 5Gi
   resources:
     requests:
-      cpu: 150m
-      memory: 384Mi
+      cpu: 100m
+      memory: 320Mi
     limits:
-      cpu: 750m
-      memory: 768Mi
+      cpu: 500m
+      memory: 512Mi
 
 listeners:
   client:

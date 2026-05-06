@@ -56,23 +56,29 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
   const Icon = getIcon(activity.payload.type);
 
   let text = 'Новое событие';
-  let onClick = undefined;
+  let onClick: (() => void) | undefined;
 
   switch (activity.payload.type) {
     case 'REVIEW_WRITTEN':
       text = `${actorName} оставил(а) отзыв о компании ${activity.payload.companyName || 'компании'}`;
-      onClick = () => navigate(`/companies/${(activity.payload as ReviewWrittenInfoDto).companyId}`);
+      if ((activity.payload as ReviewWrittenInfoDto).companyId) {
+        onClick = () => navigate(`/company/${(activity.payload as ReviewWrittenInfoDto).companyId}`);
+      }
       break;
     case 'REVIEW_LIKED':
       text = `${actorName} оценил(а) отзыв о компании ${activity.payload.companyName || 'компании'}`;
-      onClick = () => navigate(`/companies/${(activity.payload as ReviewLikedInfoDto).companyId}`);
+      if ((activity.payload as ReviewLikedInfoDto).companyId) {
+        onClick = () => navigate(`/company/${(activity.payload as ReviewLikedInfoDto).companyId}`);
+      }
       break;
     case 'ACHIEVEMENT_UNLOCKED':
       text = `${actorName} получил(а) достижение «${activity.payload.displayName || 'неизвестное'}»`;
       break;
     case 'USER_FOLLOWED':
       text = `${actorName} подписался(ась) на ${activity.payload.displayName || 'пользователя'}`;
-      onClick = () => navigate(`/users/${(activity.payload as UserFollowedInfoDto).userId}`);
+      if ((activity.payload as UserFollowedInfoDto).userId) {
+        onClick = () => navigate(`/user/${(activity.payload as UserFollowedInfoDto).userId}`);
+      }
       break;
     case 'LEVEL_UP':
       text = `${actorName} достиг(ла) уровня ${activity.payload.newLevel || '?'}`;
@@ -82,7 +88,18 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
   const avatarUrl = getAvatarUrl(activity.actor.iconId);
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className={styles.avatar}>
         <img src={avatarUrl} alt={actorName} />
       </div>
@@ -96,4 +113,3 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
     </div>
   );
 };
-

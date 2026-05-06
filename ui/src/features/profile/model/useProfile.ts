@@ -169,7 +169,7 @@ export const useActivity = () => {
       try {
         setLoading(true);
         const data = await userApi.fetchActivity({ limit: 10 });
-        setActivity(data);
+        setActivity((data.activities ?? []) as ActivityItem[]);
       } finally {
         setLoading(false);
       }

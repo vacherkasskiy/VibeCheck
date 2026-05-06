@@ -12,28 +12,40 @@ class SubscriptionKafkaEventProducer(
     @Value("\${app.kafka.topics.subscriptions:subscriptions}")
     private val topic: String,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     fun publishUserSubscribedEvent(event: SubscriptionEvents.UserSubscribedEvent) {
+        log.info(
+            "Publishing subscription eventId={}, followerId={}, targetUserId={}, topic={}",
+            event.meta.eventId,
+            event.followerId,
+            event.targetUserId,
+            topic,
+        )
+
         kafkaTemplate.send(topic, event.followerId, event.toByteArray()).whenComplete { result, ex ->
             if (ex != null) {
                 log.error(
-                    "Failed to publish subscription eventId={}, followerId={}, topic={}",
+                    "Failed to publish subscription eventId={}, followerId={}, targetUserId={}, topic={}",
                     event.meta.eventId,
                     event.followerId,
+                    event.targetUserId,
                     topic,
                     ex
                 )
             } else {
                 log.info(
-                    "Published subscription eventId={}, followerId={}, topic={}, partition={}, offset={}",
+                    "Published subscription eventId={}, followerId={}, targetUserId={}, topic={}, partition={}, offset={}",
                     event.meta.eventId,
                     event.followerId,
+                    event.targetUserId,
                     topic,
                     result.recordMetadata.partition(),
                     result.recordMetadata.offset()
                 )
             }
         }
+    }
+
+    private companion object {
+        private val log = LoggerFactory.getLogger(SubscriptionKafkaEventProducer::class.java)
     }
 }

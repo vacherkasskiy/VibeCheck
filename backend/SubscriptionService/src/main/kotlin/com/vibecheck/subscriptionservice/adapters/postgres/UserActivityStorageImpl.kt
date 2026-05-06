@@ -1,6 +1,5 @@
 package com.vibecheck.subscriptionservice.adapters.postgres
 
-import com.vibecheck.subscriptionservice.adapters.postgres.entity.toDto
 import com.vibecheck.subscriptionservice.domain.UserActivity
 import com.vibecheck.subscriptionservice.usecase.storage.UserActivityStorage
 import org.jooq.DSLContext

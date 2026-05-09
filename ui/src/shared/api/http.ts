@@ -2,13 +2,13 @@ import axios from 'axios';
 
 import {
   EHttpMethod,
-  ApiError,
-  ProblemDetails,
+  ApiError
 } from './types';
 import type {
   IAxios,
   TRequestConfig 
-} from './types';
+,
+  ProblemDetails } from './types';
 import type {
   AxiosInstance,
   AxiosRequestConfig,
@@ -30,6 +30,9 @@ const buildApiUrl = (path: string): string => {
   const baseUrl = __API_URL__ || '/';
   return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 };
+
+const PUBLIC_AUTH_ROUTE_RE =
+  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh|avatars)/;
 
 class Http implements IAxios {
   private static isRefreshing = false;
@@ -59,7 +62,7 @@ class Http implements IAxios {
     this.http.interceptors.request.use(
       (config) => {
         const token = accessTokenProvider ? accessTokenProvider() : localStorage.getItem('accessToken');
-        if (token && !config.url?.match(/(auth\/email\/login|auth\/email\/register|auth\/email\/register\/confirm|auth\/refresh|avatars)/)) {
+        if (token && !config.url?.match(PUBLIC_AUTH_ROUTE_RE)) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
@@ -74,8 +77,11 @@ class Http implements IAxios {
         const { response } = error;
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-        // 401 auto-refresh (сохранена логика)
         if (response?.status === 401 && !originalRequest._retry) {
+          if (originalRequest.url?.match(PUBLIC_AUTH_ROUTE_RE)) {
+            throw error;
+          }
+
           originalRequest._retry = true;
 
           const refreshToken = localStorage.getItem('refreshToken');
@@ -92,23 +98,29 @@ class Http implements IAxios {
           }
 
           Http.isRefreshing = true;
-          Http.refreshPromise = axios.post(buildApiUrl('/auth/refresh'), { refreshToken }).then(({ data }) => {
-            if (data.accessToken) {
-              localStorage.setItem('accessToken', data.accessToken);
-              if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-              return data;
-            }
-            throw new Error('Invalid refresh');
-          });
+          Http.refreshPromise = axios
+            .post(buildApiUrl('/auth/refresh'), { refreshToken })
+            .then(({ data }) => {
+              if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+                if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+                return data;
+              }
+              throw new Error('Invalid refresh');
+            });
 
-          const refreshedData = await Http.refreshPromise;
-          Http.isRefreshing = false;
-          Http.refreshPromise = null;
+          let refreshedData;
+          try {
+            refreshedData = await Http.refreshPromise;
+          } finally {
+            Http.isRefreshing = false;
+            Http.refreshPromise = null;
+          }
+
           (originalRequest.headers as any).Authorization = `Bearer ${refreshedData.accessToken}`;
           return this.http(originalRequest);
         }
 
-        // ProblemDetails + ApiError для 400-599
         if (response?.status && response.status >= 400 && response.status < 600) {
           const problems: ProblemDetails = response.data || {};
           const status = response.status;
@@ -127,7 +139,6 @@ class Http implements IAxios {
           throw new ApiError(message, status, problems);
         }
 
-        // Network/timeout
         if (error.code === 'ECONNABORTED') throw new ApiError('Превышен таймаут запроса', 408);
         if (!response) throw new ApiError('Ошибка сети. Проверьте соединение.', 0);
 

@@ -1,9 +1,9 @@
 import { companyApi } from 'entities/company';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Logo from 'shared/assets/Logo';
 import { Button } from 'shared/ui/Button';
 import { InputField } from 'shared/ui/InputField';
-import { TextAreaField } from 'shared/ui/TextAreaField';
 import styles from './styles.module.css';
 import type { FC } from 'react';
 
@@ -32,7 +32,7 @@ export const AddCompanyForm: FC = () => {
 			});
 
 			navigate('/recommendations');
-		} catch (err) {
+		} catch {
 			setError('Ошибка при отправке заявки. Попробуйте позже.');
 		} finally {
 			setIsSubmitting(false);
@@ -45,33 +45,34 @@ export const AddCompanyForm: FC = () => {
 
 	return (
 		<form onSubmit={handleSubmit} className={styles.form}>
-			<div className={styles.backLink}>
-				<Button
-					variant="secondary"
-					as="button"
-					onClick={handleBack}
-					className={styles.backButton}
+			<button type="button" className={styles.backButton} onClick={handleBack}>
+				<svg
+					width="20"
+					height="20"
+					viewBox="0 0 20 20"
+					fill="none"
+					className={styles.backIcon}
 				>
-					<svg
-						width="20"
-						height="20"
-						viewBox="0 0 20 20"
-						fill="none"
-						className={styles.backIcon}
-					>
-						<path
-							d="M12 4L6 10L12 16"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-					<span>Вернуться на главную страницу</span>
-				</Button>
-			</div>
+					<path
+						d="M12 4L6 10L12 16"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+				<span>Назад</span>
+			</button>
 
-			<h1 className={styles.title}>Заполните заявку на добавление компании</h1>
+			<div className={styles.header}>
+				<div className={styles.logoContainer}>
+					<Logo className={styles.logo} />
+				</div>
+				<h1 className={styles.title}>Добавить компанию</h1>
+				<p className={styles.subtitle}>
+					Заполните короткую заявку, чтобы отправить компанию на модерацию.
+				</p>
+			</div>
 
 			<div className={styles.fields}>
 				<InputField
@@ -97,7 +98,7 @@ export const AddCompanyForm: FC = () => {
 			<div className={styles.submitContainer}>
 				<Button
 					type="submit"
-					variant="secondary"
+					variant="primary"
 					disabled={isSubmitting}
 					className={styles.submitButton}
 				>

@@ -1,5 +1,6 @@
 import { useCompanySearch } from 'features/companySearch';
 import { useNavigate } from 'react-router-dom';
+import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { CompanyList } from 'widgets/CompanyList';
 import { RecommendationsHeader } from 'widgets/RecommendationsHeader';
 import styles from './styles.module.css';
@@ -15,10 +16,9 @@ export const RecommendationsPage: FC = () => {
 
 	return (
 		<div className={styles.page}>
-			<RecommendationsHeader 
-				searchValue={query} 
-				onSearchChange={setQuery} 
-			/>
+			<HeaderGlow />
+			<CenterGlow />
+			<RecommendationsHeader searchValue={query} onSearchChange={setQuery} />
 
 			<main className={styles.main}>
 				<CompanyList

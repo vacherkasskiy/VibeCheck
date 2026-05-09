@@ -1,0 +1,132 @@
+.container {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	padding: 6px 10px;
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-pill);
+}
+
+.compact {
+	gap: 6px;
+}
+
+.arrowButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 50%;
+	background: transparent;
+	font-size: 20px;
+	line-height: 1;
+	font-weight: 600;
+	color: #b4b4c5;
+	cursor: default;
+	transition:
+		transform var(--transition-fast),
+		color var(--transition-fast),
+		opacity var(--transition-fast),
+		background var(--transition-fast);
+}
+
+button.arrowButton {
+	cursor: pointer;
+}
+
+button.arrowButton:hover:not(:disabled) {
+	transform: translateY(-1px);
+	background: rgba(155, 108, 244, 0.08);
+}
+
+button.arrowButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.arrowUp.arrowActive {
+	color: var(--color-green-badge);
+	background: rgba(58, 159, 84, 0.1);
+}
+
+.arrowDown.arrowActive {
+	color: var(--color-red-badge);
+	background: rgba(217, 90, 107, 0.1);
+}
+
+.score {
+	min-width: 1.6ch;
+	text-align: center;
+	font-size: 20px;
+	font-weight: var(--weight-bold);
+	line-height: 1;
+}
+
+.scorePositive {
+	color: var(--color-green-badge);
+}
+
+.scoreNegative {
+	color: var(--color-red-badge);
+}
+
+.scoreNeutral {
+	color: var(--color-text-muted);
+}
+
+.compact .arrowButton {
+	width: 18px;
+	height: 18px;
+	font-size: 14px;
+}
+
+.compact .score {
+	font-size: 16px;
+}
+
+@media (max-width: 768px) {
+	.container {
+		gap: 6px;
+	}
+
+	.arrowButton {
+		width: 24px;
+		height: 24px;
+		font-size: 20px;
+	}
+
+	.score {
+		font-size: 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.container {
+		gap: 5px;
+	}
+
+	.arrowButton {
+		width: 20px;
+		height: 20px;
+		font-size: 18px;
+	}
+
+	.score {
+		font-size: 18px;
+		min-width: 1.4ch;
+	}
+
+	.compact .arrowButton {
+		width: 16px;
+		height: 16px;
+		font-size: 14px;
+	}
+
+	.compact .score {
+		font-size: 14px;
+	}
+}

@@ -6,19 +6,20 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  z-index: 1000;
+  padding: clamp(24px, 8vh, 72px) 16px 24px;
+  z-index: 2200;
   backdrop-filter: blur(4px);
 }
 
 .modal {
   background: white;
   border-radius: 16px;
-  padding: 32px;
+  padding: 28px;
   max-width: 480px;
-  width: 90%;
-  max-height: 90vh;
+  width: min(480px, 100%);
+  max-height: min(560px, calc(100vh - 48px));
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalSlideIn 0.3s ease-out;
@@ -36,17 +37,17 @@
 }
 
 .title {
-  margin: 0 0 24px 0;
-  font-size: 1.5rem;
+  margin: 0 0 20px 0;
+  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.5rem);
   font-weight: 700;
   color: var(--color-text-primary);
-  text-align: center;
+  text-align: left;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
 .field {
@@ -66,13 +67,14 @@
 .textarea {
   resize: vertical;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 12px 14px;
   font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.45;
   transition: all 0.2s ease;
   background: #f8f9ff;
+  min-height: 112px;
 }
 
 .textarea:focus {
@@ -107,23 +109,66 @@
 
 .buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
-  margin-top: 8px;
-  padding-top: 20px;
+  margin-top: 4px;
+  padding-top: 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+}
+
+.buttons > * {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .overlay {
+    padding-top: 20px;
+    padding-inline: 12px;
+  }
+
+  .modal {
+    padding: 22px 18px;
+    max-height: calc(100vh - 32px);
+    border-radius: 14px;
+  }
+
+  .field {
+    gap: 6px;
+  }
+
+  .buttons {
+    justify-content: stretch;
+  }
+
+  .buttons > * {
+    flex: 1 1 0;
+  }
 }
 
 @media (max-width: 480px) {
   .modal {
-    padding: 24px 20px;
-    margin: 20px;
+    padding: 20px 16px;
   }
-  
+
+  .title {
+    margin-bottom: 16px;
+  }
+
+  .form {
+    gap: 16px;
+  }
+
+  .textarea {
+    min-height: 96px;
+    font-size: 0.9rem;
+  }
+
   .buttons {
     flex-direction: column;
+    align-items: stretch;
   }
-  
+
   .buttons > * {
     width: 100%;
   }

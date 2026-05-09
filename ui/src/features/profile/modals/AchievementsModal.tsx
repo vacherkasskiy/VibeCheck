@@ -55,7 +55,7 @@ export const AchievementsModal = ({ isOpen, onClose, achievements }: Achievement
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
+		<Modal isOpen={isOpen} onClose={onClose} className={styles.modalShell}>
 			<div className={styles.modalContent}>
 				<div className={styles.modalHeader}>
 					<h2 className={styles.modalTitle}>

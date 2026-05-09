@@ -14,7 +14,10 @@ export const register = async (data: RegisterRequest): Promise<void> => {
 };
 
 export const registerConfirm = async (code: string): Promise<{accessToken: string; refreshToken: string}> => {
-  const res = await http.post<{accessToken: string; refreshToken: string}>('/auth/email/register/confirm?confirmCode=' + parseInt(code), undefined);
+  const confirmCode = Number.parseInt(code, 10);
+  const res = await http.post<{accessToken: string; refreshToken: string}>(
+    `/auth/email/register/confirm?confirmCode=${confirmCode}`,
+  );
   return res.data;
 };
 
@@ -45,7 +48,8 @@ export const passwordResetResend = async (data: PasswordResetRequest): Promise<v
 };
 
 export const passwordConfirm = async (code: string): Promise<RefreshResponse> => {
-  const url = `/auth/email/password/reset?confirmCode=${code}`;
+  const confirmCode = Number.parseInt(code, 10);
+  const url = `/auth/email/password/reset?confirmCode=${confirmCode}`;
   const response = await http.put<RefreshResponse>(url);
   return response.data;
 };

@@ -3,6 +3,7 @@ import { useProfile } from 'features/profile';
 import { UnsubscribeConfirmModal, useSubscribeMutation, useUnsubscribeMutation, useSubscriptionStatus } from 'features/subscribe';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { translateEducation, translateExperience, translateSpecialization } from 'shared/lib';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
@@ -183,15 +184,15 @@ export const UserProfilePage = () => {
 						<div className={styles.details}>
 							<div className={styles.detailItem}>
 								<span className={styles.detailLabel}>Образование</span>
-								<span className={styles.detailValue}>{user.education}</span>
+								<span className={styles.detailValue}>{translateEducation(user.education)}</span>
 							</div>
 							<div className={styles.detailItem}>
 								<span className={styles.detailLabel}>Опыт</span>
-								<span className={styles.detailValue}>{user.experience}</span>
+								<span className={styles.detailValue}>{translateExperience(user.experience)}</span>
 							</div>
 							<div className={styles.detailItem}>
 								<span className={styles.detailLabel}>Специализация</span>
-								<span className={styles.detailValue}>{user.expertise}</span>
+								<span className={styles.detailValue}>{translateSpecialization(user.expertise)}</span>
 							</div>
 						</div>
 					</div>

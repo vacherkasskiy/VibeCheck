@@ -1,12 +1,9 @@
 import { companyApi } from 'entities/company';
-import { useEffect, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
+import { mockCompanies } from 'shared/model/mockCompanies';
+import { TEST_COMPANY_FLAGS_MOCK, TEST_COMPANY_MOCK } from 'shared/model/mockCompanyForTest';
+import useSWR from 'swr';
 import type { CompanyFlag } from 'entities/company';
-
-interface FetchCompanyFlagsParams {
-  q?: string;
-  take?: number;
-  pageNum?: number;
-}
 
 interface UseCompanyFlagsResult {
   flags: CompanyFlag[];
@@ -18,50 +15,46 @@ interface UseCompanyFlagsResult {
 }
 
 export const useCompanyFlags = (companyId: string | undefined, initialTake = 20): UseCompanyFlagsResult => {
-  const [flags, setFlags] = useState<CompanyFlag[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const loadFlags = useCallback(async (q: string = '', refresh = false) => {
-    if (!companyId) {
-      setFlags([]);
-      setTotal(0);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const params: FetchCompanyFlagsParams = {
-        q: q || undefined,
-        take: initialTake,
+  const { data, error, isLoading } = useSWR(
+    companyId ? ['company-flags', companyId, searchQuery, initialTake] : null,
+    async ([, id, query, take]: readonly [string, string, string, number]) =>
+      companyApi.fetchCompanyFlags(id, {
+        q: query || undefined,
+        take,
         pageNum: 1,
-      };
-      const response = await companyApi.fetchCompanyFlags(companyId, params);
-      setFlags(response.flags ?? []);
-      setTotal(response.totalCount ?? 0);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load flags');
-      setFlags([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [companyId, initialTake]);
+      }),
+  );
 
-  useEffect(() => {
-    loadFlags(searchQuery);
-  }, [loadFlags, searchQuery]);
+  const fallback = useMemo(() => {
+    if (!companyId) return { flags: [], total: 0 };
+
+    const fallbackFlags =
+      companyId === TEST_COMPANY_MOCK.companyId
+        ? TEST_COMPANY_FLAGS_MOCK
+        : mockCompanies.find((company) => company.companyId === companyId)?.topFlags ?? [];
+
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const filteredFlags = normalizedQuery
+      ? fallbackFlags.filter((flag) =>
+          (flag.name ?? '').toLowerCase().includes(normalizedQuery),
+        )
+      : fallbackFlags;
+
+    return {
+      flags: filteredFlags.slice(0, initialTake),
+      total: filteredFlags.length,
+    };
+  }, [companyId, initialTake, searchQuery]);
+
+  const shouldUseFallback = !!error && !data;
 
   return {
-    flags,
-    total,
-    loading,
-    error,
+    flags: shouldUseFallback ? fallback.flags : data?.flags ?? [],
+    total: shouldUseFallback ? fallback.total : data?.totalCount ?? 0,
+    loading: isLoading && !shouldUseFallback,
+    error: shouldUseFallback ? null : error instanceof Error ? error.message : null,
     searchQuery,
     setSearchQuery,
   };

@@ -1,8 +1,9 @@
-import { Button } from 'shared/ui/Button';
-import { Modal } from 'shared/ui/Modal';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReviewScore } from 'shared/ui';
+import { Button } from 'shared/ui/Button';
+import { Modal } from 'shared/ui/Modal';
 import styles from './styles.module.css';
 import type { UserReview } from 'entities/user';
 
@@ -10,6 +11,7 @@ interface ReviewsModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	reviews: UserReview[];
+	onEdit: (reviewId: string) => void;
 	onDelete: (reviewId: string) => void;
 	canEdit: (createdAt: string) => boolean;
 }
@@ -18,6 +20,7 @@ export const ReviewsModal = ({
 	isOpen,
 	onClose,
 	reviews,
+	onEdit,
 	onDelete,
 	canEdit,
 }: ReviewsModalProps) => {
@@ -44,12 +47,10 @@ export const ReviewsModal = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={handleClose}>
+		<Modal isOpen={isOpen} onClose={handleClose} className={styles.modalShell}>
 			<div className={`${styles.modalContent} ${selectedReview ? styles.reviewDetailsModal : ''}`}>
 				<div className={styles.modalHeader}>
-					<h2 className={styles.modalTitle}>
-						{selectedReview ? 'Полный отзыв' : '📝 Все отзывы'}
-					</h2>
+					<h2 className={styles.modalTitle}>{selectedReview ? 'Полный отзыв' : 'Все отзывы'}</h2>
 					<button className={styles.closeButton} onClick={handleClose} type="button">
 						✕
 					</button>
@@ -77,9 +78,9 @@ export const ReviewsModal = ({
 							</div>
 							<div className={styles.reviewMetaCard}>
 								<span className={styles.reviewMetaLabel}>Оценка</span>
-								<span className={styles.reviewMetaValue}>
-									👍 {selectedReview.reactions.likes} · 👎 {selectedReview.reactions.dislikes}
-								</span>
+								<div className={styles.reviewMetaValue}>
+									<ReviewScore score={selectedReview.score} compact />
+								</div>
 							</div>
 							<div className={styles.reviewMetaCard}>
 								<span className={styles.reviewMetaLabel}>ID отзыва</span>
@@ -160,12 +161,19 @@ export const ReviewsModal = ({
 
 								<div className={styles.reviewActions}>
 									<div className={styles.reviewReactions}>
-										<span>👍 {review.reactions.likes}</span>
-										<span>👎 {review.reactions.dislikes}</span>
+										<ReviewScore score={review.score} compact />
 									</div>
 									{canEdit(review.createdAt) && (
 										<div className={styles.reviewButtons}>
-											<span className={styles.editButton}>Редактировать</span>
+											<span
+												className={styles.editButton}
+												onClick={(event) => {
+													event.stopPropagation();
+													onEdit(review.id);
+												}}
+											>
+												Редактировать
+											</span>
 											<span
 												className={styles.deleteButton}
 												onClick={(event) => {

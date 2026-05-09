@@ -1,6 +1,6 @@
 .container {
-  background: var(--color-bg-card);
-  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-lg);
   padding: clamp(24px, 4vw, 32px);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
@@ -13,7 +13,7 @@
 .logoSection {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+  gap: var(--space-4);
 }
 
 .logo {
@@ -22,20 +22,24 @@
   border-radius: var(--radius-md);
   object-fit: contain;
   flex-shrink: 0;
+  background: var(--color-surface-muted);
+  border: 1px solid rgba(90, 79, 132, 0.08);
+  padding: var(--space-3);
 }
 
 .logoPlaceholder {
-  width: clamp(56px, 8vw, 72px);
-  height: clamp(56px, 8vw, 72px);
+  width: clamp(72px, 8vw, 88px);
+  height: clamp(72px, 8vw, 88px);
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-purple) 0%, #a855f7 100%);
+  background: linear-gradient(135deg, var(--color-purple-soft) 0%, #efe8ff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: clamp(36px, 6vw, 48px);
-  font-weight: 700;
+  color: var(--color-purple);
+  font-size: clamp(28px, 5vw, 38px);
+  font-weight: var(--weight-bold);
   flex-shrink: 0;
+  border: 1px solid rgba(155, 108, 244, 0.16);
 }
 
 .nameSection {
@@ -44,10 +48,10 @@
 }
 
 .name {
-  font-size: clamp(22px, 3vw, 28px);
-  font-weight: 700;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: var(--weight-bold);
   color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--space-2);
   line-height: 1.2;
   word-break: break-word;
 }
@@ -55,7 +59,7 @@
 .contacts {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -65,20 +69,20 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: var(--color-bg-card-alt);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: 18px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
   text-decoration: none;
 }
 
 .contact:hover {
-  background: var(--color-purple-light);
+  background: rgba(155, 108, 244, 0.08);
   border-color: var(--color-purple);
   color: var(--color-purple);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .contactIcon {
@@ -88,15 +92,16 @@
 }
 
 .description {
-  padding-top: var(--spacing-lg);
+  padding-top: var(--space-5);
   border-top: 1px solid var(--color-border);
 }
 
 .description p {
   font-size: clamp(14px, 2vw, 16px);
-  line-height: 1.7;
+  line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
   margin: 0;
+  max-width: 70ch;
 }
 
 .topFlags {

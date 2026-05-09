@@ -1,9 +1,12 @@
+import { TagInfoModal } from 'features/flags';
+import { useGetAllFlags } from 'entities/tag';
 import { useUserFlags } from 'entities/user';
 import { useState, useMemo } from 'react';
 import { Input } from 'shared/ui/Input';
 import styles from './Top20FlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
 import type { UserFlag } from 'entities/user';
+import type { Tag } from 'entities/tag';
 
 interface Top20FlagsSectionProps {
 	flags: CompanyFlag[];
@@ -11,9 +14,16 @@ interface Top20FlagsSectionProps {
 
 export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 	const [searchQuery, setSearchQuery] = useState('');
+	const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+	const { flags: allFlags } = useGetAllFlags();
 	const {
 		flags: { green: userGreenFlags, red: userRedFlags },
 	} = useUserFlags();
+
+	const flagsById = useMemo(
+		() => new Map(allFlags.map((flag) => [flag.id, flag])),
+		[allFlags],
+	);
 
 	const filteredFlags = useMemo(() => {
 		if (!searchQuery.trim()) return flags;
@@ -30,35 +40,60 @@ export const Top20FlagsSection = ({ flags }: Top20FlagsSectionProps) => {
 		return 'gray';
 	};
 
-	return (
-		<section className={styles.section}>
-			<div className={styles.header}>
-				<h2 className={styles.title}>Топ-20 флагов</h2>
-				<div className={styles.search}>
-					<Input
-						type="text"
-						placeholder="Поиск флагов..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-					/>
-				</div>
-			</div>
+	const handleOpenTagInfo = (flag: CompanyFlag) => {
+		const fullTag = flagsById.get(flag.id);
+		setSelectedTag(
+			fullTag ?? {
+				id: flag.id,
+				name: flag.name ?? 'Флаг',
+				description: 'Описание для этого флага пока недоступно.',
+				category: 'Условия',
+			},
+		);
+	};
 
-			<div className={styles.flagsGrid}>
-				{filteredFlags.length > 0 ? (
-					filteredFlags.map((flag) => {
-						const color = getFlagColor(flag.id);
-						return (
-							<div key={flag.id} className={`${styles.flag} ${styles[color]}`}>
-								<span className={styles.flagName}>{flag.name ?? 'Флаг'}</span>
-								<span className={styles.flagCount}>{flag.count}</span>
-							</div>
-						);
-					})
-				) : (
-					<p className={styles.empty}>Флаги не найдены</p>
-				)}
-			</div>
-		</section>
+	return (
+		<>
+			<section className={styles.section}>
+				<div className={styles.header}>
+					<h2 className={styles.title}>Топ-20 флагов</h2>
+					<div className={styles.search}>
+						<Input
+							type="text"
+							placeholder="Поиск флагов..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</div>
+
+				<div className={styles.flagsGrid}>
+					{filteredFlags.length > 0 ? (
+						filteredFlags.map((flag) => {
+							const color = getFlagColor(flag.id);
+							return (
+								<button
+									key={flag.id}
+									type="button"
+									className={`${styles.flag} ${styles[color]}`}
+									onClick={() => handleOpenTagInfo(flag)}
+									title="Открыть описание флага"
+								>
+									<span className={styles.flagName}>{flag.name ?? 'Флаг'}</span>
+									<span className={styles.flagCount}>{flag.count}</span>
+								</button>
+							);
+						})
+					) : (
+						<p className={styles.empty}>Флаги не найдены</p>
+					)}
+				</div>
+			</section>
+			<TagInfoModal
+				tag={selectedTag}
+				isOpen={!!selectedTag}
+				onClose={() => setSelectedTag(null)}
+			/>
+		</>
 	);
 };

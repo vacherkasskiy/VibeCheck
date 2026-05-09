@@ -2,8 +2,8 @@ import { CompanyInfo } from 'entities/company';
 import { getMyInfo } from 'features/auth';
 import { useCompanyPage } from 'features/companyPage';
 import { ReviewModal, useReviewModal } from 'features/reviewModal';
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
@@ -11,12 +11,16 @@ import { UserNavButton } from 'shared/ui/UserNavButton';
 import styles from './CompanyPage.module.css';
 import { ReviewsSection } from './ReviewsSection';
 import { Top20FlagsSection } from './Top20FlagsSection';
+import type { CompanyReview } from 'entities/company';
 
 export const CompanyPage = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { company, loading, error } = useCompanyPage(id);
 	const [nickname, setNickname] = useState<string>();
+	const [reviewsRefreshKey, setReviewsRefreshKey] = useState(0);
+	const refreshReviews = () => setReviewsRefreshKey((prev) => prev + 1);
 	const {
 		isOpen,
 		openModal,
@@ -33,7 +37,26 @@ export const CompanyPage = () => {
 		error: modalError,
 		submitReview,
 		deleteReview,
-	} = useReviewModal(company?.companyId || 'test-company-001');
+	} = useReviewModal(company?.companyId || 'test-company-001', refreshReviews);
+
+	const pendingEditReview = useMemo(
+		() =>
+			(location.state as { editReview?: { id: string; text: string; createdAt: string } } | null)
+				?.editReview,
+		[location.state],
+	);
+
+	const handleEditReview = (review: CompanyReview | { reviewId?: string; id?: string; text: string | null; createdAt: string; flags?: Array<{ id: string }> | null }) => {
+		const targetReviewId = 'reviewId' in review ? review.reviewId : review.id;
+
+		openModal({
+			id: targetReviewId ?? '',
+			text: review.text ?? '',
+			greenFlags: (review.flags ?? []).map((flag) => flag.id),
+			redFlags: [],
+			createdAt: review.createdAt,
+		});
+	};
 
 	useEffect(() => {
 		let ignore = false;
@@ -54,6 +77,18 @@ export const CompanyPage = () => {
 			ignore = true;
 		};
 	}, []);
+
+	useEffect(() => {
+		if (pendingEditReview && company?.companyId) {
+			handleEditReview({
+				id: pendingEditReview.id,
+				text: pendingEditReview.text,
+				createdAt: pendingEditReview.createdAt,
+				flags: [],
+			});
+			navigate(location.pathname, { replace: true, state: null });
+		}
+	}, [company?.companyId, location.pathname, navigate, pendingEditReview]);
 
 	if (loading) {
 		return (
@@ -132,17 +167,23 @@ export const CompanyPage = () => {
 				</div>
 			</header>
 			<main className={styles.main}>
-				<CompanyInfo company={company} />
-				<div className={styles.sectionsRow}>
-					<ReviewsSection />
-					<Top20FlagsSection />
+				<div className={styles.contentGrid}>
+					<div className={styles.leftColumn}>
+						<CompanyInfo company={company} />
+						<Top20FlagsSection />
+					</div>
+					<ReviewsSection
+						className={styles.reviewsColumn}
+						companyName={company.name ?? 'Компания'}
+						refreshKey={reviewsRefreshKey}
+						onEditReview={handleEditReview}
+					/>
 				</div>
 			</main>
 			<ReviewModal
 				isOpen={isOpen}
 				onClose={closeModal}
 				companyName={company.name ?? 'Компания'}
-				companyId={company.companyId}
 				isEditMode={isEditMode}
 				formData={formData}
 				setGreenFlags={setGreenFlags}

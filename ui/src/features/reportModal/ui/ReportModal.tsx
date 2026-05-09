@@ -2,13 +2,19 @@ import React from 'react';
 import { Button } from 'shared/ui/Button';
 import { Select } from 'shared/ui/Select';
 import styles from './ReportModal.module.css';
-import type { ReportReasonGatewayEnum, ReportReviewRequest } from 'entities/company';
+import type { ReportReasonGatewayEnum } from 'entities/company';
 
 interface ReportModalProps {
   isOpen: boolean;
   reviewId: string | undefined;
   onClose: () => void;
-  onSubmit: (data: ReportReviewRequest) => void;
+  reasonType: ReportReasonGatewayEnum;
+  setReasonType: (value: ReportReasonGatewayEnum) => void;
+  reasonText: string;
+  setReasonText: (value: string) => void;
+  isFormValid: boolean;
+  isSubmitting: boolean;
+  onSubmit: () => void;
 }
 
 const reasonOptions: Array<{ value: ReportReasonGatewayEnum; label: string }> = [
@@ -20,20 +26,26 @@ const reasonOptions: Array<{ value: ReportReasonGatewayEnum; label: string }> = 
   { value: 'Other', label: 'Другое' },
 ];
 
-export const ReportModal = ({ isOpen, reviewId, onClose, onSubmit }: ReportModalProps) => {
-  const [reasonType, setReasonType] = React.useState<ReportReasonGatewayEnum>('Spam');
-  const [reasonText, setReasonText] = React.useState<string>('');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
+export const ReportModal = ({
+  isOpen,
+  reviewId,
+  onClose,
+  reasonType,
+  setReasonType,
+  reasonText,
+  setReasonText,
+  isFormValid,
+  isSubmitting,
+  onSubmit,
+}: ReportModalProps) => {
   const isOther = reasonType === 'Other';
   const isReasonTextValid = !isOther || (reasonText.trim().length > 0 && reasonText.trim().length <= 500);
-  const isFormValid = isReasonTextValid && reviewId !== undefined;
+  const canSubmit = isFormValid && reviewId !== undefined;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) return;
-    setIsSubmitting(true);
-    onSubmit({ reasonType, reasonText: reasonText.trim() || undefined });
+    if (!canSubmit) return;
+    onSubmit();
   };
 
   if (!isOpen) return null;
@@ -69,12 +81,13 @@ export const ReportModal = ({ isOpen, reviewId, onClose, onSubmit }: ReportModal
             <span className={styles.counter}>{reasonText.length}/500</span>
           </div>
           <div className={styles.buttons}>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+            <Button type="button" variant="secondary" size="small" onClick={onClose} disabled={isSubmitting}>
               Отмена
             </Button>
-  <Button 
+            <Button 
               type="submit" 
-              disabled={!isFormValid || isSubmitting}
+              size="small"
+              disabled={!canSubmit || isSubmitting}
             >
               {isSubmitting ? 'Отправка...' : 'Отправить жалобу'}
             </Button>

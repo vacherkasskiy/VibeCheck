@@ -1,6 +1,7 @@
 import { useUpdateCompanyReview } from 'entities/company';
-import { FileText, ThumbsUp, ThumbsDown, Pencil, Trash2, X } from 'lucide-react';
+import { Pencil, Trash2, X } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { ReviewScore } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
 import type { UserReview } from 'entities/user';
@@ -69,13 +70,10 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 	return (
 		<div className={styles.container}>
 			<div className={styles.header}>
-				<h2 className={styles.title}>
-					<FileText size={20} />
-					{onEdit ? 'Мои отзывы' : 'Отзывы пользователя'}
-				</h2>
-				{reviews.length > 2 && (
+				<h2 className={styles.title}>{onEdit ? 'Мои отзывы' : 'Отзывы пользователя'}</h2>
+				{reviews.length > 0 && (
 					<Button onClick={onViewAll} variant="secondary" size="small">
-						Посмотреть все
+						Открыть все
 					</Button>
 				)}
 			</div>
@@ -105,12 +103,7 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 
 							<div className={styles.reviewFooter}>
 								<div className={styles.reactions}>
-									<span>
-										<ThumbsUp size={16} /> {review.reactions.likes}
-									</span>
-									<span>
-										<ThumbsDown size={16} /> {review.reactions.dislikes}
-									</span>
+									<ReviewScore score={review.score} compact />
 								</div>
 
 								{onEdit && onDelete && (

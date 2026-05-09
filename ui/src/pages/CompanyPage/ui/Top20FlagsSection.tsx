@@ -1,18 +1,14 @@
+import { useCompanyFlags } from 'features/companyPage';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Top20FlagsSection as WidgetTop20FlagsSection } from '../../../widgets/Top20FlagsSection';
-import { useCompanyFlags } from 'features/companyPage/model/useCompanyFlags';
+import { Top20FlagsSection as WidgetTop20FlagsSection } from 'widgets/Top20FlagsSection';
 import styles from './Top20FlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
 
 export const Top20FlagsSection = () => {
   const { id } = useParams<{ id: string }>();
   
-  const { 
-    flags, 
-    loading, 
-    error 
-  } = useCompanyFlags(id);
+  const { flags, loading } = useCompanyFlags(id);
 
   const top20Flags = useMemo(() => {
     return flags
@@ -24,14 +20,6 @@ export const Top20FlagsSection = () => {
     return (
       <section className={styles.section}>
         <div className={styles.loading}>Загрузка топ-20 флагов...</div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className={styles.section}>
-        <div className={styles.error}>Не удалось загрузить топ флагов</div>
       </section>
     );
   }

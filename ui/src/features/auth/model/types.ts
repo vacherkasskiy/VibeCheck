@@ -28,7 +28,7 @@ export interface AuthContextType {
   state: AuthState;
   dispatch: React.Dispatch<AuthAction>;
   refreshTokens: () => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export interface LoginRequest {

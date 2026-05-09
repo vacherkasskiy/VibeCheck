@@ -11,6 +11,8 @@ export interface InputFieldProps {
 	maxLength?: number;
 	mask?: string;
 	onBlur?: () => void;
+	disabled?: boolean;
+	readOnly?: boolean;
 }
 
 export const InputField = ({
@@ -23,6 +25,8 @@ export const InputField = ({
 	error,
 	maxLength,
 	onBlur,
+	disabled = false,
+	readOnly = false,
 }: InputFieldProps) => {
 	return (
 		<div className={styles.container}>
@@ -37,6 +41,8 @@ export const InputField = ({
 				placeholder={placeholder}
 				maxLength={maxLength}
 				onBlur={onBlur}
+				disabled={disabled}
+				readOnly={readOnly}
 				className={`${styles.input} ${error ? styles.error : ''}`}
 			/>
 			{error && <span className={styles.errorMessage}>{error}</span>}

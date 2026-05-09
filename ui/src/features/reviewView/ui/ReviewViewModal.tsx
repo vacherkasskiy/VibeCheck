@@ -1,23 +1,36 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReviewScore } from 'shared/ui';
 import styles from './ReviewViewModal.module.css';
-import type { CompanyReview, ReviewFlagDto } from 'entities/company';
+import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities/company';
 
 export interface ReviewViewModalProps {
   isOpen: boolean;
   review: CompanyReview | null;
+  companyName: string;
   onClose: () => void;
+  myVote?: VoteModeGatewayEnum;
+  onVote?: (mode: VoteModeGatewayEnum) => void;
+  isVoting?: boolean;
+  onReport?: (reviewId: string) => void;
 }
 
-export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProps) => {
+export const ReviewViewModal = ({
+  isOpen,
+  review,
+  companyName,
+  onClose,
+  myVote,
+  onVote,
+  isVoting = false,
+  onReport,
+}: ReviewViewModalProps) => {
   const navigate = useNavigate();
 
   if (!review || !isOpen) return null;
 
   const authorName = `User ${review.authorId.slice(0, 8)}`;
   const flags = review.flags ?? [];
-  const likes = Math.max(review.score, 0);
-  const dislikes = Math.max(-review.score, 0);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -41,6 +54,15 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
     navigate(`/user/${review.authorId}`);
   };
 
+  const handleVote = (mode: VoteModeGatewayEnum) => () => {
+    if (!onVote || isVoting) return;
+    const nextMode = myVote === mode ? 'Clear' : mode;
+    onVote(nextMode);
+  };
+
+  const isLikeActive = myVote === 'Like';
+  const isDislikeActive = myVote === 'Dislike';
+
   return (
     <div 
       className={styles.overlay} 
@@ -52,22 +74,52 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
     >
       <div className={styles.content}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Отзыв</h2>
+          <h2 className={styles.title}>Полный отзыв</h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Закрыть">
             ×
           </button>
         </div>
         <div className={styles.body}>
-          <div className={styles.reviewHeader}>
-            <div className={styles.authorSection}>
+          <div className={styles.reviewDetailsGrid}>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Компания</span>
+              <span className={styles.reviewMetaValue}>{companyName}</span>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Дата</span>
+              <span className={styles.reviewMetaValue}>{formatDate(review.createdAt)}</span>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Оценка</span>
+              <div className={styles.reviewMetaValue}>
+                <ReviewScore
+                  score={review.score}
+                  onUpClick={handleVote('Like')}
+                  onDownClick={handleVote('Dislike')}
+                  isUpActive={isLikeActive}
+                  isDownActive={isDislikeActive}
+                  disabled={isVoting}
+                  compact
+                />
+              </div>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>ID отзыва</span>
+              <span className={styles.reviewMetaValue}>{review.reviewId}</span>
+            </div>
+          </div>
+
+          <div className={styles.reviewAuthorCard}>
+            <div className={styles.reviewAuthorInfo}>
               {review.iconId ? (
-                <img src={review.iconId} alt={authorName} className={styles.avatar} />
+                <img src={review.iconId} alt={authorName} className={styles.reviewAuthorAvatar} />
               ) : (
-                <div className={styles.avatarPlaceholder}>
+                <div className={styles.reviewAuthorAvatarPlaceholder}>
                   {authorName.charAt(0).toUpperCase()}
                 </div>
               )}
-              <div className={styles.authorInfo}>
+              <div>
+                <span className={styles.reviewMetaLabel}>Автор</span>
                 <button 
                   className={styles.authorName}
                   onClick={handleAuthorClick}
@@ -75,7 +127,6 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
                 >
                   {authorName}
                 </button>
-                <div className={styles.date}>{formatDate(review.createdAt)}</div>
               </div>
             </div>
           </div>
@@ -95,13 +146,26 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
           )}
 
           <div className={styles.reactions}>
-            <div className={styles.reactionCount}>
-              👍 {likes} / 👎 {dislikes}
+            <div className={styles.reviewScoreWrap}>
+              <ReviewScore
+                score={review.score}
+                onUpClick={handleVote('Like')}
+                onDownClick={handleVote('Dislike')}
+                isUpActive={isLikeActive}
+                isDownActive={isDislikeActive}
+                disabled={isVoting}
+              />
             </div>
+            <button
+              className={styles.reportButton}
+              type="button"
+              onClick={() => onReport?.(review.reviewId)}
+            >
+              ⚠️ Пожаловаться
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

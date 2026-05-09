@@ -1,5 +1,6 @@
 import { Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ReviewScore } from 'shared/ui';
 import styles from './styles.module.css';
 import type { CompanyReview, ReviewFlagDto } from '../../../model/types';
 
@@ -11,8 +12,6 @@ export const ReviewCard = ({ review }: ReviewCardProps) => {
 	const navigate = useNavigate();
 	const authorName = `User ${review.authorId.slice(0, 8)}`;
 	const flags = review.flags ?? [];
-	const likes = Math.max(review.score, 0);
-	const dislikes = Math.max(-review.score, 0);
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
@@ -64,14 +63,7 @@ export const ReviewCard = ({ review }: ReviewCardProps) => {
 			)}
 
 			<div className={styles.reactions}>
-				<button className={styles.reaction} type="button" onClick={() => {}}>
-					<span className={styles.reactionIcon}>👍</span>
-					<span className={styles.reactionCount}>{likes}</span>
-				</button>
-				<button className={styles.reaction} type="button" onClick={() => {}}>
-					<span className={styles.reactionIcon}>👎</span>
-					<span className={styles.reactionCount}>{dislikes}</span>
-				</button>
+				<ReviewScore score={review.score} />
 				<button className={styles.reportButton} type="button" onClick={() => {}}>
 					⚠️ Пожаловаться
 				</button>

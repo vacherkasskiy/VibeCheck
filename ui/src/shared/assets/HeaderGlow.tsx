@@ -21,9 +21,9 @@ const HeaderGlow = (props: React.SVGProps<SVGSVGElement>) => (
 				width="846"
 				height="846"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 				<feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_88_294" />
 			</filter>
@@ -34,9 +34,9 @@ const HeaderGlow = (props: React.SVGProps<SVGSVGElement>) => (
 				width="864"
 				height="862"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 				<feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_88_294" />
 			</filter>
@@ -47,9 +47,9 @@ const HeaderGlow = (props: React.SVGProps<SVGSVGElement>) => (
 				width="967"
 				height="967"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 				<feGaussianBlur stdDeviation="125" result="effect1_foregroundBlur_88_294" />
 			</filter>

@@ -223,7 +223,7 @@ export const RegistrationForm = () => {
 
 	return (
 		<div className={styles.page}>
-			<div className={styles.container}>
+			<div className={`${styles.container} ${step === 3 ? styles.profileStepContainer : ''}`}>
 				<button type="button" className={styles.backButton} onClick={handleBack}>
 					<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
 						<path
@@ -237,7 +237,7 @@ export const RegistrationForm = () => {
 					<span>Назад</span>
 				</button>
 
-				<div className={styles.form}>
+				<div className={`${styles.form} ${step === 3 ? styles.profileStepForm : ''}`}>
 					<form>
 						{step === 1 ? renderStep1() : step === 2 ? renderStep2() : renderStep3()}
 					</form>

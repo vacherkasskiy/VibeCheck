@@ -6,6 +6,7 @@ export { CenterGlow } from './CenterGlow';
 export { InputField } from './InputField'; 
 export { Select } from './Select';
 export { ProgressBar } from './ProgressBar';
+export { ReviewScore } from './ReviewScore';
 export { Modal } from './Modal';
 export { TextAreaField } from './TextAreaField';
 export { UserNavButton } from './UserNavButton';

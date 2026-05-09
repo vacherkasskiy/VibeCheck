@@ -1,22 +1,34 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { mutate as mutateCache } from 'swr';
+import { useMutation } from '@tanstack/react-query';
 import http from 'shared/api/http';
-import type { 
+import type {
   UpdateCompanyReviewRequest,
-  DeleteCompanyReviewRequest,
   CompanyReviewListResponse,
   ReviewsSortGatewayEnum,
   VoteModeGatewayEnum,
-  ReportReviewRequest
+  ReportReviewRequest,
+  CreateCompanyReviewRequest,
 } from './reviewTypes';
-
-
-import type { CreateCompanyReviewRequest } from './reviewTypes';
 
 interface FetchCompanyReviewsParams {
   take?: number;
   pageNum?: number;
   sort?: ReviewsSortGatewayEnum;
 }
+
+const isCompanyReviewsKey = (key: unknown, companyId?: string): boolean => {
+  return (
+    Array.isArray(key) &&
+    key[0] === 'company-reviews' &&
+    (companyId ? key[1] === companyId : true)
+  );
+};
+
+export const invalidateCompanyReviewCaches = async (companyId?: string): Promise<void> => {
+  await Promise.all([
+    mutateCache((key) => isCompanyReviewsKey(key, companyId)),
+  ]);
+};
 
 export const reviewApi = {
   async voteReview(reviewId: string, mode: VoteModeGatewayEnum): Promise<void> {
@@ -27,15 +39,15 @@ export const reviewApi = {
     await http.post(`/api/users/reviews/${reviewId}/report`, data);
   },
 
-  async fetchCompanyReviews(companyId: string, params: FetchCompanyReviewsParams = {}): Promise<CompanyReviewListResponse> {
+  async fetchCompanyReviews(
+    companyId: string,
+    params: FetchCompanyReviewsParams = {},
+  ): Promise<CompanyReviewListResponse> {
     const { take = 20, pageNum = 1, sort = 'Newest' } = params;
-    const response = await http.get<CompanyReviewListResponse>(`/api/companies/${companyId}/reviews`, {
-      params: {
-        take,
-        pageNum,
-        sort,
-      },
-    });
+    const response = await http.get<CompanyReviewListResponse>(
+      `/api/companies/${companyId}/reviews`,
+      { take, pageNum, sort },
+    );
     return response.data;
   },
 
@@ -50,40 +62,35 @@ export const reviewApi = {
   async deleteCompanyReview(reviewId: string): Promise<void> {
     await http.delete(`/api/companies/reviews/${reviewId}`, {
       config: {
-        data: { reviewId }
-      }
+        data: { reviewId },
+      },
     });
   },
 };
 
-
-
-
 export const useCreateCompanyReview = () => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ companyId, data }: { companyId: string; data: CreateCompanyReviewRequest }) => 
-      reviewApi.createCompanyReview(companyId, data),
-    onSuccess: (_, { companyId }) => {
-      queryClient.invalidateQueries({ queryKey: ['CompanyReviews', companyId] });
-      queryClient.invalidateQueries({ queryKey: ['UserReviews'] });
+    mutationFn: ({
+      companyId,
+      data,
+    }: {
+      companyId: string;
+      data: CreateCompanyReviewRequest;
+    }) => reviewApi.createCompanyReview(companyId, data),
+    onSuccess: async (_data, { companyId }) => {
+      await invalidateCompanyReviewCaches(companyId);
     },
   });
 };
 
 export const useUpdateCompanyReview = () => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ reviewId, data }: { reviewId: string; data: UpdateCompanyReviewRequest }) => 
-      reviewApi.updateCompanyReview(reviewId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['UserReviews'] });
-      queryClient.invalidateQueries({ queryKey: ['CompanyReviews'] });
-    },
+    mutationFn: ({
+      reviewId,
+      data,
+    }: {
+      reviewId: string;
+      data: UpdateCompanyReviewRequest;
+    }) => reviewApi.updateCompanyReview(reviewId, data),
   });
 };
-
-
-
-
-

@@ -18,7 +18,7 @@ import styles from './ProfilePage.module.css';
 export const ProfilePage = () => {
 	const navigate = useNavigate();
 	const { showToast } = useToast();
-	const { profile, loading, error } = useProfile();
+	const { profile, loading, error, refetch } = useProfile();
 	const { data: activities = [] } = useUserActivity(5, !!profile);
 	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
@@ -55,8 +55,18 @@ export const ProfilePage = () => {
 	};
 
 	const handleEditReview = (reviewId: string) => {
-		// TODO: Implement edit review modal
-		console.log('Edit review:', reviewId);
+		const review = profile?.reviews.find((item) => item.id === reviewId);
+		if (!review?.companyId) return;
+
+		navigate(`/company/${review.companyId}`, {
+			state: {
+				editReview: {
+					id: review.id,
+					text: review.text,
+					createdAt: review.createdAt,
+				},
+			},
+		});
 	};
 
 	const handleDeleteReview = (reviewId: string) => {
@@ -67,10 +77,16 @@ export const ProfilePage = () => {
 		}
 	};
 
-	const handleConfirmDelete = () => {
-		if (reviewToDelete) {
-			// TODO: Implement delete review API call
-			console.log('Deleting review:', reviewToDelete.id);
+	const handleConfirmDelete = async () => {
+		if (!reviewToDelete) return;
+
+		try {
+			await userApi.deleteReview(reviewToDelete.id);
+			await refetch();
+			showToast('Отзыв удален', 'success');
+		} catch {
+			showToast('Не удалось удалить отзыв', 'error');
+		} finally {
 			setReviewToDelete(null);
 			setShowDeleteModal(false);
 		}
@@ -217,6 +233,7 @@ export const ProfilePage = () => {
 				isOpen={showReviewsModal}
 				onClose={() => setShowReviewsModal(false)}
 				reviews={reviews}
+				onEdit={handleEditReview}
 				onDelete={handleDeleteReview}
 				canEdit={canEditReview}
 			/>

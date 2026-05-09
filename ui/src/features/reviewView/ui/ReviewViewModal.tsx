@@ -1,23 +1,34 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ReviewScore } from 'shared/ui';
 import styles from './ReviewViewModal.module.css';
-import type { CompanyReview, ReviewFlagDto } from 'entities/company';
+import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities/company';
 
 export interface ReviewViewModalProps {
   isOpen: boolean;
   review: CompanyReview | null;
   onClose: () => void;
+  myVote?: VoteModeGatewayEnum;
+  onVote?: (mode: VoteModeGatewayEnum) => void;
+  isVoting?: boolean;
+  onReport?: (reviewId: string) => void;
 }
 
-export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProps) => {
+export const ReviewViewModal = ({
+  isOpen,
+  review,
+  onClose,
+  myVote,
+  onVote,
+  isVoting = false,
+  onReport,
+}: ReviewViewModalProps) => {
   const navigate = useNavigate();
 
   if (!review || !isOpen) return null;
 
   const authorName = `User ${review.authorId.slice(0, 8)}`;
   const flags = review.flags ?? [];
-  const likes = Math.max(review.score, 0);
-  const dislikes = Math.max(-review.score, 0);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -40,6 +51,15 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
     onClose();
     navigate(`/user/${review.authorId}`);
   };
+
+  const handleVote = (mode: VoteModeGatewayEnum) => () => {
+    if (!onVote || isVoting) return;
+    const nextMode = myVote === mode ? 'Clear' : mode;
+    onVote(nextMode);
+  };
+
+  const isLikeActive = myVote === 'Like';
+  const isDislikeActive = myVote === 'Dislike';
 
   return (
     <div 
@@ -95,13 +115,24 @@ export const ReviewViewModal = ({ isOpen, review, onClose }: ReviewViewModalProp
           )}
 
           <div className={styles.reactions}>
-            <div className={styles.reactionCount}>
-              👍 {likes} / 👎 {dislikes}
-            </div>
+            <ReviewScore
+              score={review.score}
+              onUpClick={handleVote('Like')}
+              onDownClick={handleVote('Dislike')}
+              isUpActive={isLikeActive}
+              isDownActive={isDislikeActive}
+              disabled={isVoting}
+            />
+            <button
+              className={styles.reportButton}
+              type="button"
+              onClick={() => onReport?.(review.reviewId)}
+            >
+              ⚠️ Пожаловаться
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

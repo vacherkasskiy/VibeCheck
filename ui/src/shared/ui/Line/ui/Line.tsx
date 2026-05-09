@@ -23,10 +23,10 @@ export const Line = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => 
 					y2="16.6336"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#3C1CFF" />
-					<stop offset="0.275" stop-color="#9A4CFF" />
-					<stop offset="0.635" stop-color="#E647A6" />
-					<stop offset="1" stop-color="#FFCA8B" />
+					<stop stopColor="#3C1CFF" />
+					<stop offset="0.275" stopColor="#9A4CFF" />
+					<stop offset="0.635" stopColor="#E647A6" />
+					<stop offset="1" stopColor="#FFCA8B" />
 				</linearGradient>
 			</defs>
 		</svg>

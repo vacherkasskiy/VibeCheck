@@ -208,6 +208,7 @@ const mapUserReview = (review: UserReviewItemDto): UserReview => {
     companyId: review.companyId ?? '',
     companyName: review.companyName?.trim() || review.companyId || 'Компания',
     text: review.text ?? '',
+    score: review.score,
     createdAt: review.createdAt,
     flags,
     greenFlags: flags,

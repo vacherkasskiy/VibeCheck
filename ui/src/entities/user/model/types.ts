@@ -83,7 +83,7 @@ export interface CreateOrUpdateUserInfoDto {
   birthday: string;
   education: EducationLevel;
   specialization: Specialization;
-  workExperience?: WorkExperienceDto[];
+  workExperience: WorkExperienceDto[];
 }
 
 export interface UserInfoDto extends CreateOrUpdateUserInfoDto {
@@ -161,6 +161,7 @@ export interface UserReview {
   companyId: string;
   companyName: string;
   text: string;
+  score: number;
   createdAt: string;
   flags: string[];
   greenFlags: string[];

@@ -1,5 +1,5 @@
-import { completeCurrentOnboardingStep, createMyInfo, createUserInfoDto } from 'features/auth';
-import { useState } from 'react';
+import { completeCurrentOnboardingStep, createMyInfo, createUserInfoDto, getAvatars } from 'features/auth';
+import { useEffect, useState } from 'react';
 import { AvatarSelector } from 'shared/ui/AvatarSelector';
 import { Button } from 'shared/ui/Button';
 import { InputField } from 'shared/ui/InputField';
@@ -55,6 +55,36 @@ const INDUSTRY_OPTIONS = [
 	{ value: 'OTHER', label: 'Другое' },
 ];
 
+const LOCAL_AVATARS: Avatar[] = [
+	{ id: '1', url: '/avatars/avatar1.svg' },
+	{ id: '2', url: '/avatars/avatar2.svg' },
+	{ id: '3', url: '/avatars/avatar3.svg' },
+	{ id: '4', url: '/avatars/avatar4.svg' },
+	{ id: '5', url: '/avatars/avatar5.svg' },
+	{ id: '6', url: '/avatars/avatar6.svg' },
+];
+
+const formatDateInput = (value: string): string => {
+	const numeric = value.replace(/\D/g, '').slice(0, 8);
+	let formatted = numeric;
+	if (numeric.length >= 2) formatted = numeric.slice(0, 2) + '.' + numeric.slice(2);
+	if (numeric.length >= 4) {
+		formatted = numeric.slice(0, 2) + '.' + numeric.slice(2, 4) + '.' + numeric.slice(4);
+	}
+	return formatted;
+};
+
+const isRealDate = (value: string): boolean => {
+	if (!/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return false;
+	const [day, month, year] = value.split('.').map(Number);
+	const date = new Date(Date.UTC(year, month - 1, day));
+	return (
+		date.getUTCFullYear() === year &&
+		date.getUTCMonth() === month - 1 &&
+		date.getUTCDate() === day
+	);
+};
+
 const dateToISO = (dateStr: string): string => {
 	const [day, month, year] = dateStr.split('.').map(Number);
 	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00Z`;
@@ -75,18 +105,27 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	const [birthDateError, setBirthDateError] = useState('');
 	const [educationError, setEducationError] = useState('');
 	const [industryError, setIndustryError] = useState('');
+	const [experienceError, setExperienceError] = useState('');
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
 
-	const [avatars] = useState<Avatar[]>([
-		{ id: '1', url: '/avatars/avatar1.svg' },
-		{ id: '2', url: '/avatars/avatar2.svg' },
-		{ id: '3', url: '/avatars/avatar3.svg' },
-		{ id: '4', url: '/avatars/avatar4.svg' },
-		{ id: '5', url: '/avatars/avatar5.svg' },
-		{ id: '6', url: '/avatars/avatar6.svg' },
-	]);
+	const [avatars, setAvatars] = useState<Avatar[]>(LOCAL_AVATARS);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		getAvatars()
+			.then((items) => {
+				if (!isMounted || items.length === 0) return;
+				setAvatars(items.map((avatar) => ({ id: avatar.iconId, url: avatar.link })));
+			})
+			.catch(() => undefined);
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const validateNickname = (value: string): string => {
 		if (!value) return 'Обязательное поле';
@@ -101,6 +140,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	const validateBirthDate = (value: string): string => {
 		if (!value) return 'Обязательное поле';
 		if (!/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return 'Формат: ДД.ММ.ГГГГ';
+		if (!isRealDate(value)) return 'Некорректная дата';
 		const [day, month, year] = value.split('.').map(Number);
 		const birth = new Date(year, month - 1, day);
 		const today = new Date();
@@ -119,11 +159,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	};
 
 	const handleBirthDateChange = (value: string) => {
-		const numeric = value.replace(/\D/g, '').slice(0, 8);
-		let formatted = numeric;
-		if (numeric.length >= 2) formatted = numeric.slice(0, 2) + '.' + numeric.slice(2);
-		if (numeric.length >= 4)
-			formatted = numeric.slice(0, 2) + '.' + numeric.slice(2, 4) + '.' + numeric.slice(4);
+		const formatted = formatDateInput(value);
 		setBirthDate(formatted);
 		setBirthDateError(validateBirthDate(formatted));
 	};
@@ -143,6 +179,25 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 		setExperiences(
 			experiences.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)),
 		);
+		setExperienceError('');
+	};
+
+	const validateExperiences = (): string => {
+		for (const exp of experiences) {
+			const hasAnyValue = Boolean(exp.industry || exp.startDate || exp.endDate);
+			if (!hasAnyValue) continue;
+			if (!exp.industry) return 'Укажите сферу деятельности для каждого опыта';
+			if (!exp.startDate) return 'Укажите дату начала для каждого опыта';
+			if (!isRealDate(exp.startDate)) return 'Проверьте дату начала опыта';
+			if (exp.endDate && !isRealDate(exp.endDate)) return 'Проверьте дату окончания опыта';
+			if (exp.endDate) {
+				const startedAt = new Date(dateToISO(exp.startDate)).getTime();
+				const finishedAt = new Date(dateToISO(exp.endDate)).getTime();
+				if (finishedAt < startedAt) return 'Дата окончания опыта не может быть раньше даты начала';
+			}
+		}
+
+		return '';
 	};
 
 	const isFormValid = () =>
@@ -165,21 +220,24 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 		setBirthDateError(validateBirthDate(birthDate));
 		setEducationError(education ? '' : 'Обязательное поле');
 		setIndustryError(industry ? '' : 'Обязательное поле');
+		const nextExperienceError = validateExperiences();
+		setExperienceError(nextExperienceError);
 
-		if (!isFormValid()) return;
+		if (!isFormValid() || nextExperienceError) return;
 
 		setIsLoading(true);
 		setGeneralError('');
 
 		try {
 			const birthDateISO = dateToISO(birthDate);
-			const expWithISO = experiences.map((exp) => ({
-				industry: exp.industry,
-				startDate: dateToISO(exp.startDate),
-				endDate: exp.endDate ? dateToISO(exp.endDate) : null,
-			}));
+			const expWithISO = experiences
+				.filter((exp) => exp.industry && exp.startDate)
+				.map((exp) => ({
+					industry: exp.industry,
+					startDate: dateToISO(exp.startDate),
+					endDate: exp.endDate ? dateToISO(exp.endDate) : null,
+				}));
 			const dto = createUserInfoDto({
-				email,
 				avatarId: avatarId!,
 				nickname,
 				sex: sex as any,
@@ -283,14 +341,18 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 						<div className={styles.dateFields}>
 							<InputField
 								value={exp.startDate}
-								onChange={(v) => updateExperience(exp.id, 'startDate', v)}
+								onChange={(v) =>
+									updateExperience(exp.id, 'startDate', formatDateInput(v))
+								}
 								placeholder="ДД.ММ.ГГГГ"
 								maxLength={10}
 								label=""
 							/>
 							<InputField
 								value={exp.endDate}
-								onChange={(v) => updateExperience(exp.id, 'endDate', v)}
+								onChange={(v) =>
+									updateExperience(exp.id, 'endDate', formatDateInput(v))
+								}
 								placeholder="ДД.ММ.ГГГГ"
 								maxLength={10}
 								label=""
@@ -308,6 +370,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				<Button variant="secondary" onClick={addExperience}>
 					+ Добавить опыт
 				</Button>
+				{experienceError && <div className={styles.generalError}>{experienceError}</div>}
 			</div>
 
 			{generalError && <div className={styles.generalError}>{generalError}</div>}

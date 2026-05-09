@@ -1,4 +1,5 @@
 import React from 'react';
+import { ReviewScore } from 'shared/ui';
 import styles from './ReviewCard.module.css';
 import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities/company';
 
@@ -9,6 +10,8 @@ interface ReviewCardProps {
 	onVote?: (mode: VoteModeGatewayEnum) => void;
 	isVoting?: boolean;
 	onReport?: (reviewId: string) => void;
+	canManage?: boolean;
+	onEdit?: (review: CompanyReview) => void;
 }
 
 export const ReviewCard = ({ 
@@ -18,14 +21,12 @@ export const ReviewCard = ({
 	onVote, 
 	isVoting = false,
 	onReport,
+	canManage = false,
+	onEdit,
 }: ReviewCardProps) => {
-	const authorName = `User ${review.authorId.slice(0, 8)}`;
 	const flags = review.flags ?? [];
-	const likes = Math.max(review.score, 0);
-	const dislikes = Math.max(-review.score, 0);
 
-	const handleVote = (mode: VoteModeGatewayEnum) => (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const handleVote = (mode: VoteModeGatewayEnum) => () => {
 		if (onVote && !isVoting) {
 			const nextMode = myVote === mode ? 'Clear' : mode;
 			onVote(nextMode);
@@ -75,30 +76,26 @@ export const ReviewCard = ({
 			)}
 
 			<div className={styles.reactions}>
-				<button 
-					className={[
-						styles.reaction,
-						isLikeActive && styles['reaction--active']
-					].filter(Boolean).join(' ')} 
-					type="button" 
-					onClick={handleVote('Like')}
+				<ReviewScore
+					score={review.score}
+					onUpClick={handleVote('Like')}
+					onDownClick={handleVote('Dislike')}
+					isUpActive={isLikeActive}
+					isDownActive={isDislikeActive}
 					disabled={isVoting}
-				>
-					<span className={styles.reactionIcon}>👍</span>
-					<span className={styles.reactionCount}>{likes}</span>
-				</button>
-				<button 
-					className={[
-						styles.reaction,
-						isDislikeActive && styles['reaction--dislike-active']
-					].filter(Boolean).join(' ')} 
-					type="button" 
-					onClick={handleVote('Dislike')}
-					disabled={isVoting}
-				>
-					<span className={styles.reactionIcon}>👎</span>
-					<span className={styles.reactionCount}>{dislikes}</span>
-				</button>
+				/>
+				{canManage && (
+					<button
+						className={styles.reportButton}
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation();
+							onEdit?.(review);
+						}}
+					>
+						Редактировать
+					</button>
+				)}
 				<button 
 					className={styles.reportButton} 
 					type="button" 

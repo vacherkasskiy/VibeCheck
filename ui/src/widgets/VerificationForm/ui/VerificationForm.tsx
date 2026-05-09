@@ -1,7 +1,5 @@
 /* eslint-disable @conarti/feature-sliced/absolute-relative */
 import {
-	completeCurrentOnboardingStep,
-	getActualOnboardingStep,
 	registerConfirm,
 	registerResend,
 	passwordConfirm,
@@ -88,8 +86,6 @@ export const VerificationForm = ({
 				localStorage.setItem('accessToken', data.accessToken);
 				localStorage.setItem('refreshToken', data.refreshToken);
 				dispatch({ type: 'SET_TOKENS', payload: data });
-				await getActualOnboardingStep().catch(() => null);
-				await completeCurrentOnboardingStep().catch(() => undefined);
 				onSuccess();
 			}
 		} catch (err: any) {

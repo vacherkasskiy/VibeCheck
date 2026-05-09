@@ -1,11 +1,172 @@
-/* Mock companies - DEPRECATED. Real API endpoints now used in companyApi.ts */
+import type { CompanyDTO } from 'entities/company';
 
-/**
- * Import this only if you need fallback mock data for development without backend.
- * All production code should use entities/company/model/api.ts
- */
-
-export const mockCompanies = {
-  // Empty - real API handles all requests now
-};
-
+export const mockCompanies: CompanyDTO[] = [
+  {
+    companyId: 'mock-company-001',
+    name: 'Yandex',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 98,
+    description: 'Поисковые технологии, облачные сервисы и продукты для миллионов пользователей.',
+    topFlags: [
+      { id: 'flag-flex', name: 'Гибкий график', count: 48 },
+      { id: 'flag-growth', name: 'Профессиональный рост', count: 44 },
+      { id: 'flag-team', name: 'Сильная команда', count: 41 },
+      { id: 'flag-money', name: 'Хорошая зарплата', count: 35 },
+      { id: 'flag-process', name: 'Выстроенные процессы', count: 31 },
+    ],
+  },
+  {
+    companyId: 'mock-company-002',
+    name: 'VK',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 94,
+    description: 'Экосистема цифровых продуктов, соцсети, медиа и инфраструктурные сервисы.',
+    topFlags: [
+      { id: 'flag-speed', name: 'Быстрые решения', count: 37 },
+      { id: 'flag-team', name: 'Дружелюбная команда', count: 35 },
+      { id: 'flag-remote', name: 'Удаленная работа', count: 34 },
+      { id: 'flag-stack', name: 'Современный стек', count: 29 },
+      { id: 'flag-office', name: 'Комфортный офис', count: 23 },
+    ],
+  },
+  {
+    companyId: 'mock-company-003',
+    name: 'T-Bank',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 92,
+    description: 'Финтех с сильной инженерной культурой и высоким темпом запуска новых продуктов.',
+    topFlags: [
+      { id: 'flag-product', name: 'Сильный продукт', count: 46 },
+      { id: 'flag-money', name: 'Достойная компенсация', count: 40 },
+      { id: 'flag-remote', name: 'Гибридный формат', count: 32 },
+      { id: 'flag-ownership', name: 'Ответственность за результат', count: 28 },
+      { id: 'flag-scale', name: 'Большой масштаб', count: 25 },
+    ],
+  },
+  {
+    companyId: 'mock-company-004',
+    name: 'Ozon Tech',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 89,
+    description: 'Технологическая команда e-commerce платформы с большим количеством инженерных задач.',
+    topFlags: [
+      { id: 'flag-scale', name: 'Интересный масштаб', count: 42 },
+      { id: 'flag-stack', name: 'Сильная инженерия', count: 38 },
+      { id: 'flag-process', name: 'Понятные процессы', count: 27 },
+      { id: 'flag-growth', name: 'Рост внутри компании', count: 25 },
+      { id: 'flag-benefits', name: 'Хорошие бенефиты', count: 22 },
+    ],
+  },
+  {
+    companyId: 'mock-company-005',
+    name: 'Wildberries',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 84,
+    description: 'Крупная retail-tech компания с интенсивным ритмом и большим количеством направлений.',
+    topFlags: [
+      { id: 'flag-scale', name: 'Крупные проекты', count: 34 },
+      { id: 'flag-autonomy', name: 'Самостоятельность', count: 28 },
+      { id: 'flag-speed', name: 'Высокий темп', count: 26 },
+      { id: 'flag-office', name: 'Новые офисы', count: 20 },
+      { id: 'flag-team', name: 'Команда', count: 18 },
+    ],
+  },
+  {
+    companyId: 'mock-company-006',
+    name: 'SberDevices',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 82,
+    description: 'R&D и продуктовые команды на стыке AI, железа и пользовательских сервисов.',
+    topFlags: [
+      { id: 'flag-innovation', name: 'Инновационные задачи', count: 39 },
+      { id: 'flag-stack', name: 'Современные технологии', count: 30 },
+      { id: 'flag-benefits', name: 'Бенефиты', count: 27 },
+      { id: 'flag-office', name: 'Сильная инфраструктура', count: 19 },
+      { id: 'flag-growth', name: 'Развитие', count: 17 },
+    ],
+  },
+  {
+    companyId: 'mock-company-007',
+    name: 'Avito',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 80,
+    description: 'Продуктовая компания с хорошей аналитикой, экспериментами и зрелой digital-культурой.',
+    topFlags: [
+      { id: 'flag-data', name: 'Data-driven подход', count: 44 },
+      { id: 'flag-team', name: 'Сильные менеджеры', count: 31 },
+      { id: 'flag-growth', name: 'Карьерный рост', count: 29 },
+      { id: 'flag-balance', name: 'Work-life balance', count: 25 },
+      { id: 'flag-remote', name: 'Гибкий формат', count: 24 },
+    ],
+  },
+  {
+    companyId: 'mock-company-008',
+    name: '2GIS',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 76,
+    description: 'Картографические и геосервисы, сильные мобильные и backend команды.',
+    topFlags: [
+      { id: 'flag-team', name: 'Теплая атмосфера', count: 29 },
+      { id: 'flag-product', name: 'Полезный продукт', count: 26 },
+      { id: 'flag-stack', name: 'Инженерная культура', count: 24 },
+      { id: 'flag-process', name: 'Прозрачная коммуникация', count: 18 },
+      { id: 'flag-balance', name: 'Баланс', count: 16 },
+    ],
+  },
+  {
+    companyId: 'mock-company-009',
+    name: 'Lamoda Tech',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 73,
+    description: 'Fashion e-commerce с продуктовыми и платформенными командами.',
+    topFlags: [
+      { id: 'flag-team', name: 'Открытая команда', count: 21 },
+      { id: 'flag-office', name: 'Комфортный гибрид', count: 19 },
+      { id: 'flag-growth', name: 'Наставничество', count: 18 },
+      { id: 'flag-product', name: 'Влияние на продукт', count: 16 },
+      { id: 'flag-process', name: 'Понятный онбординг', count: 14 },
+    ],
+  },
+  {
+    companyId: 'mock-company-010',
+    name: 'Skyeng',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 70,
+    description: 'EdTech с распределенными командами, сильным маркетингом и продуктовой разработкой.',
+    topFlags: [
+      { id: 'flag-remote', name: 'Полная удаленка', count: 36 },
+      { id: 'flag-balance', name: 'Гибкий график', count: 30 },
+      { id: 'flag-team', name: 'Поддержка коллег', count: 20 },
+      { id: 'flag-growth', name: 'Обучение', count: 18 },
+      { id: 'flag-product', name: 'Осмысленный продукт', count: 15 },
+    ],
+  },
+  {
+    companyId: 'mock-company-011',
+    name: 'Kaspersky',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 68,
+    description: 'Кибербезопасность, исследовательские команды и разработка сложных B2B/B2C решений.',
+    topFlags: [
+      { id: 'flag-stack', name: 'Сильная экспертиза', count: 33 },
+      { id: 'flag-product', name: 'Сложные задачи', count: 28 },
+      { id: 'flag-team', name: 'Сильные ревью', count: 21 },
+      { id: 'flag-growth', name: 'Глубокое обучение', count: 17 },
+      { id: 'flag-office', name: 'Стабильность', count: 16 },
+    ],
+  },
+  {
+    companyId: 'mock-company-012',
+    name: 'Контур',
+    iconUrl: '/assets/vibecheck-favicon.png',
+    weight: 65,
+    description: 'B2B SaaS и внутренние платформы, ориентир на устойчивую продуктовую разработку.',
+    topFlags: [
+      { id: 'flag-process', name: 'Спокойные процессы', count: 27 },
+      { id: 'flag-balance', name: 'Баланс нагрузки', count: 25 },
+      { id: 'flag-team', name: 'Уважительная культура', count: 22 },
+      { id: 'flag-growth', name: 'Внутренние ротации', count: 17 },
+      { id: 'flag-product', name: 'Качественный продукт', count: 16 },
+    ],
+  },
+];

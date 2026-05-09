@@ -1,4 +1,5 @@
 import http from 'shared/api/http';
+import { useMemo } from 'react';
 import useSWR from 'swr';
 import { ALL_TAGS } from './mock';
 import { FLAG_CATEGORY_LABELS } from './types';
@@ -23,13 +24,20 @@ const flagsFetcher = async (path: string) => {
 export const useGetAllFlags = () => {
   const { data, error, isLoading, mutate } = useSWR<GetAllFlagsResponse>('/api/flags', flagsFetcher);
 
-  const apiFlags = data?.flags ?? [];
-  const flags: Tag[] = error ? ALL_TAGS : apiFlags.map(f => ({
-    id: f.id,
-    name: f.name ?? '',
-    description: f.description ?? '',
-    category: FLAG_CATEGORY_LABELS[f.category] ?? 'Культура',
-  })); 
+  const flags = useMemo<Tag[]>(() => {
+    const apiFlags = data?.flags ?? [];
+
+    if (error) {
+      return ALL_TAGS;
+    }
+
+    return apiFlags.map((flag) => ({
+      id: flag.id,
+      name: flag.name ?? '',
+      description: flag.description ?? '',
+      category: FLAG_CATEGORY_LABELS[flag.category] ?? 'Культура',
+    }));
+  }, [data?.flags, error]);
 
   return {
     flags,

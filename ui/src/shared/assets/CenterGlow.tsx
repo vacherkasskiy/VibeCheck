@@ -20,9 +20,9 @@ const CenterGlow = (props: React.SVGProps<SVGSVGElement>) => (
 				width="1057.32"
 				height="1001.19"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 				<feGaussianBlur stdDeviation="80" result="effect1_foregroundBlur_88_291" />
 			</filter>
@@ -33,9 +33,9 @@ const CenterGlow = (props: React.SVGProps<SVGSVGElement>) => (
 				width="1166.72"
 				height="1107.39"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 				<feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_88_291" />
 			</filter>

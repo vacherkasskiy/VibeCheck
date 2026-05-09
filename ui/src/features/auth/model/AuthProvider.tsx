@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { setAccessTokenProvider } from 'shared/api/http';
-import { refreshAccessToken } from './api';
+import { logout as logoutRequest, refreshAccessToken } from './api';
 import type { AuthState, AuthAction, AuthContextType } from './types';
 import type { ReactNode } from 'react';
 
@@ -100,8 +100,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 	};
 
-	const logout = () => {
-		dispatch({ type: 'LOGOUT' });
+	const logout = async (): Promise<void> => {
+		try {
+			await logoutRequest();
+		} catch (error) {
+			console.error('Logout request failed:', error);
+		} finally {
+			dispatch({ type: 'LOGOUT' });
+		}
 	};
 
 	useEffect(() => {
@@ -116,18 +122,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		} else {
 			dispatch({ type: 'SET_TOKENS', payload: { accessToken: null, refreshToken } });
 		}
-	}, []);
-
-	useEffect(() => {
-		const handleLogout = () => {
-			dispatch({ type: 'LOGOUT' });
-		};
-
-		window.addEventListener('vibecheck:logout', handleLogout);
-
-		return () => {
-			window.removeEventListener('vibecheck:logout', handleLogout);
-		};
 	}, []);
 
 	return (

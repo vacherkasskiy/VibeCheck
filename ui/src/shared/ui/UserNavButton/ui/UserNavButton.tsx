@@ -1,3 +1,4 @@
+import { useAuth } from 'features/auth';
 import { Flag, Info, LogOut, PencilLine, User } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ interface UserNavButtonProps {
 
 export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonProps) => {
 	const navigate = useNavigate();
+	const { logout } = useAuth();
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,9 +53,9 @@ export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonPro
 		navigate(path);
 	};
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
 		setIsOpen(false);
-		window.dispatchEvent(new Event('vibecheck:logout'));
+		await logout();
 		navigate('/login');
 	};
 

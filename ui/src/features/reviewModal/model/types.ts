@@ -27,6 +27,6 @@ export interface UseReviewModalReturn {
   canSubmit: boolean;
   canDelete: boolean;
   resetForm: () => void;
-  submitReview: () => Promise<void>;
-  deleteReview: () => Promise<void>;
+  submitReview: () => Promise<boolean>;
+  deleteReview: () => Promise<boolean>;
 }

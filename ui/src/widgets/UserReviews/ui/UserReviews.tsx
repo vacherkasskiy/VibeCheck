@@ -1,6 +1,7 @@
 import { useUpdateCompanyReview } from 'entities/company';
-import { FileText, ThumbsUp, ThumbsDown, Pencil, Trash2, X } from 'lucide-react';
+import { FileText, Pencil, Trash2, X } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { ReviewScore } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
 import type { UserReview } from 'entities/user';
@@ -105,12 +106,7 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 
 							<div className={styles.reviewFooter}>
 								<div className={styles.reactions}>
-									<span>
-										<ThumbsUp size={16} /> {review.reactions.likes}
-									</span>
-									<span>
-										<ThumbsDown size={16} /> {review.reactions.dislikes}
-									</span>
+									<ReviewScore score={review.score} compact />
 								</div>
 
 								{onEdit && onDelete && (

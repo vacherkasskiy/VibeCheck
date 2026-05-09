@@ -17,8 +17,8 @@ export default (): webpack.Configuration => {
 	};
 
 	const MODE: BuildMode = (process.env.MODE as BuildMode) || 'development';
-const API_URL = process.env.API_URL || 'http://localhost:8000';
-// REVIEW_GATEWAY_URL passed to buildWebpackConfig for __REVIEW_GATEWAY_URL__ define
+	const API_URL = process.env.API_URL || 'http://localhost:8080';
+	// REVIEW_GATEWAY_URL passed to buildWebpackConfig for __REVIEW_GATEWAY_URL__ define
 
 	const IS_DEV = MODE === 'development';
 
@@ -26,7 +26,7 @@ const API_URL = process.env.API_URL || 'http://localhost:8000';
 		MODE,
 	};
 
-const config = BuildWebpackConfig({
+	const config = BuildWebpackConfig({
 		env,
 		paths,
 		API_URL,

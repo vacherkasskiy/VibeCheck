@@ -1,5 +1,6 @@
-import { useReportReviewMutation } from 'features/userReviews';
-import React, { useCallback, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { reviewApi } from 'entities/company';
+import { useCallback, useState } from 'react';
 import type { ReportReasonGatewayEnum, ReportReviewRequest } from 'entities/company';
 
 export const useReportModal = () => {
@@ -8,7 +9,10 @@ export const useReportModal = () => {
   const [reasonType, setReasonType] = useState<ReportReasonGatewayEnum>('Spam');
   const [reasonText, setReasonText] = useState('');
 
-  const reportMutation = useReportReviewMutation();
+  const reportMutation = useMutation({
+    mutationFn: ({ targetReviewId, data }: { targetReviewId: string; data: ReportReviewRequest }) =>
+      reviewApi.reportReview(targetReviewId, data),
+  });
 
   const open = useCallback((id: string) => {
     setReviewId(id);
@@ -31,10 +35,15 @@ export const useReportModal = () => {
     if (!isFormValid || !reviewId) return;
     const data: ReportReviewRequest = {
       reasonType,
-      reasonText: reasonText.trim(),
+      reasonText: reasonText.trim() || undefined,
     };
-    reportMutation.mutate({ reviewId, data });
-  }, [isFormValid, reviewId, reasonType, reasonText, reportMutation]);
+    reportMutation.mutate(
+      { targetReviewId: reviewId, data },
+      {
+        onSuccess: () => close(),
+      },
+    );
+  }, [isFormValid, reviewId, reasonType, reasonText, reportMutation, close]);
 
   return {
     isOpen,

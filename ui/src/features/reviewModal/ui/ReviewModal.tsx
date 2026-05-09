@@ -1,7 +1,8 @@
-import { ALL_TAGS, filterTags, groupByCategory, type Tag, type SelectedTag } from 'entities/tag';
-import { useState, useCallback } from 'react';
+import { filterTags, groupByCategory, useGetAllFlags, type Tag, type SelectedTag } from 'entities/tag';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
+import { useToast } from 'shared/ui/Toast';
 import styles from './ReviewModal.module.css';
 import type { ReviewFormData } from '../model/types';
 
@@ -9,7 +10,6 @@ interface ReviewModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	companyName: string;
-	companyId: string;
 	isEditMode: boolean;
 	formData: ReviewFormData;
 	setGreenFlags: (flags: string[]) => void;
@@ -20,8 +20,8 @@ interface ReviewModalProps {
 	loading: boolean;
 	error: string | null;
 	resetForm: () => void;
-	submitReview: () => Promise<void>;
-	deleteReview: () => Promise<void>;
+	submitReview: () => Promise<boolean>;
+	deleteReview: () => Promise<boolean>;
 }
 
 const MAX_CHARS = 500;
@@ -33,7 +33,6 @@ export const ReviewModal = ({
 	isOpen,
 	onClose,
 	companyName,
-	companyId,
 	isEditMode,
 	formData,
 	setGreenFlags,
@@ -51,40 +50,79 @@ export const ReviewModal = ({
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showFlagsModal, setShowFlagsModal] = useState(false);
 	const [infoTag, setInfoTag] = useState<Tag | null>(null);
-
-	// Flags modal state
-	const [green, setGreen] = useState<Record<string, SelectedTag>>(() => {
-		const initial: Record<string, SelectedTag> = {};
-		(formData.greenFlags || []).forEach((flagName) => {
-			const tag = ALL_TAGS.find((t) => t.name === flagName);
-			if (tag) {
-				initial[tag.id] = { tag, priority: 3 };
-			}
-		});
-		return initial;
-	});
-
-	const [red, setRed] = useState<Record<string, SelectedTag>>(() => {
-		const initial: Record<string, SelectedTag> = {};
-		(formData.redFlags || []).forEach((flagName) => {
-			const tag = ALL_TAGS.find((t) => t.name === flagName);
-			if (tag) {
-				initial[tag.id] = { tag, priority: 3 };
-			}
-		});
-		return initial;
-	});
-
 	const [query, setQuery] = useState('');
 	const [draggingId, setDraggingId] = useState<string | null>(null);
+	const { showToast } = useToast();
+	const { flags: availableFlags, isLoading: isFlagsLoading, error: flagsError } = useGetAllFlags();
 
-	const filteredTags = (() => {
+	const flagsById = useMemo(
+		() => new Map(availableFlags.map((tag) => [tag.id, tag])),
+		[availableFlags],
+	);
+
+	const syncSelectedTags = useCallback(
+		(flagIds: string[]) =>
+			flagIds.reduce<Record<string, SelectedTag>>((acc, flagId) => {
+				const tag = flagsById.get(flagId);
+				if (tag) {
+					acc[flagId] = { tag, priority: 3 };
+				}
+				return acc;
+			}, {}),
+		[flagsById],
+	);
+
+	const [green, setGreen] = useState<Record<string, SelectedTag>>({});
+	const [red, setRed] = useState<Record<string, SelectedTag>>({});
+
+	const areSelectedTagsEqual = useCallback(
+		(
+			left: Record<string, SelectedTag>,
+			right: Record<string, SelectedTag>,
+		): boolean => {
+			const leftKeys = Object.keys(left);
+			const rightKeys = Object.keys(right);
+
+			if (leftKeys.length !== rightKeys.length) return false;
+
+			return leftKeys.every((key) => {
+				const leftTag = left[key];
+				const rightTag = right[key];
+
+				return (
+					rightTag !== undefined &&
+					leftTag.tag.id === rightTag.tag.id &&
+					leftTag.priority === rightTag.priority
+				);
+			});
+		},
+		[],
+	);
+
+	useEffect(() => {
+		if (!isOpen || availableFlags.length === 0) return;
+
+		const nextGreen = syncSelectedTags(formData.greenFlags || []);
+		const nextRed = syncSelectedTags(formData.redFlags || []);
+
+		setGreen((prev) => (areSelectedTagsEqual(prev, nextGreen) ? prev : nextGreen));
+		setRed((prev) => (areSelectedTagsEqual(prev, nextRed) ? prev : nextRed));
+	}, [
+		isOpen,
+		availableFlags,
+		formData.greenFlags,
+		formData.redFlags,
+		syncSelectedTags,
+		areSelectedTagsEqual,
+	]);
+
+	const filteredTags = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
-		return filterTags(ALL_TAGS, q, excludeIds);
-	})();
+		return filterTags(availableFlags, q, excludeIds);
+	}, [availableFlags, green, red, query]);
 
-	const groupedByCategory = groupByCategory(filteredTags);
+	const groupedByCategory = useMemo(() => groupByCategory(filteredTags), [filteredTags]);
 
 	const startDrag = (id: string) => setDraggingId(id);
 	const endDrag = () => setDraggingId(null);
@@ -110,16 +148,16 @@ export const ReviewModal = ({
 		if (!item) return;
 		if (to === 'green') {
 			setRed((prev) => {
-				const newRed = { ...prev };
-				delete newRed[tagId];
-				return newRed;
+				const next = { ...prev };
+				delete next[tagId];
+				return next;
 			});
 			setGreen((prev) => ({ ...prev, [tagId]: item }));
 		} else {
 			setGreen((prev) => {
-				const newGreen = { ...prev };
-				delete newGreen[tagId];
-				return newGreen;
+				const next = { ...prev };
+				delete next[tagId];
+				return next;
 			});
 			setRed((prev) => ({ ...prev, [tagId]: item }));
 		}
@@ -136,57 +174,30 @@ export const ReviewModal = ({
 	const removeTag = (tagId: string, side: Side) => {
 		const setter = side === 'green' ? setGreen : setRed;
 		setter((prev) => {
-			const newSide = { ...prev };
-			delete newSide[tagId];
-			return newSide;
+			const next = { ...prev };
+			delete next[tagId];
+			return next;
 		});
 	};
 
-	const handleDropToGreen = () => {
+	const handleDropToSide = (side: Side) => {
 		if (!draggingId) return;
-		const tag = groupedByCategory.flatMap(([, tags]) => tags).find((t) => t.id === draggingId);
-		if (tag) {
-			addToSide(tag, 'green');
-			endDrag();
-		}
-	};
-
-	const handleDropToRed = () => {
-		if (!draggingId) return;
-		const tag = groupedByCategory.flatMap(([, tags]) => tags).find((t) => t.id === draggingId);
-		if (tag) {
-			addToSide(tag, 'red');
-			endDrag();
-		}
+		const tag = availableFlags.find((item) => item.id === draggingId);
+		if (!tag) return;
+		addToSide(tag, side);
+		endDrag();
 	};
 
 	const handleEditFlags = useCallback(() => {
-		// Reset state to current form data
-		const newGreen: Record<string, SelectedTag> = {};
-		(formData.greenFlags || []).forEach((flagName) => {
-			const tag = ALL_TAGS.find((t) => t.name === flagName);
-			if (tag) {
-				newGreen[tag.id] = { tag, priority: 3 };
-			}
-		});
-		const newRed: Record<string, SelectedTag> = {};
-		(formData.redFlags || []).forEach((flagName) => {
-			const tag = ALL_TAGS.find((t) => t.name === flagName);
-			if (tag) {
-				newRed[tag.id] = { tag, priority: 3 };
-			}
-		});
-		setGreen(newGreen);
-		setRed(newRed);
+		setGreen(syncSelectedTags(formData.greenFlags || []));
+		setRed(syncSelectedTags(formData.redFlags || []));
 		setQuery('');
 		setShowFlagsModal(true);
-	}, [formData.greenFlags, formData.redFlags]);
+	}, [formData.greenFlags, formData.redFlags, syncSelectedTags]);
 
 	const handleSaveFlags = useCallback(() => {
-		const greenFlags = Object.values(green).map((item) => item.tag.name);
-		const redFlags = Object.values(red).map((item) => item.tag.name);
-		setGreenFlags(greenFlags);
-		setRedFlags(redFlags);
+		setGreenFlags(Object.keys(green));
+		setRedFlags(Object.keys(red));
 		setShowFlagsModal(false);
 	}, [green, red, setGreenFlags, setRedFlags]);
 
@@ -197,26 +208,28 @@ export const ReviewModal = ({
 	}, [canSubmit]);
 
 	const handleConfirmSubmit = useCallback(async () => {
-		try {
-			await submitReview();
+		const success = await submitReview();
+		if (success) {
 			setShowConfirmModal(false);
-		} catch (err) {
-			console.error('Submit error:', err);
+			showToast(isEditMode ? 'Отзыв сохранен' : 'Отзыв сохранен', 'success');
+		} else {
+			setShowConfirmModal(false);
 		}
-	}, [submitReview]);
+	}, [submitReview, showToast, isEditMode]);
 
 	const handleDelete = useCallback(() => {
 		setShowDeleteModal(true);
 	}, []);
 
 	const handleConfirmDelete = useCallback(async () => {
-		try {
-			await deleteReview();
+		const success = await deleteReview();
+		if (success) {
 			setShowDeleteModal(false);
-		} catch (err) {
-			console.error('Delete error:', err);
+			showToast('Отзыв удален', 'success');
+		} else {
+			setShowDeleteModal(false);
 		}
-	}, [deleteReview]);
+	}, [deleteReview, showToast]);
 
 	const handleClose = useCallback(() => {
 		resetForm();
@@ -224,7 +237,6 @@ export const ReviewModal = ({
 	}, [resetForm, onClose]);
 
 	if (error) {
-		// Error toast or inline message
 		console.error('Review modal error:', error);
 	}
 
@@ -267,18 +279,13 @@ export const ReviewModal = ({
 									Green Flags ({formData.greenFlags?.length || 0})
 								</span>
 								<div className={styles.flagsList}>
-									{(formData.greenFlags || []).map((flag) => (
-										<span
-											key={flag}
-											className={`${styles.flag} ${styles.greenFlag}`}
-										>
-											{flag}
+									{(formData.greenFlags || []).map((flagId) => (
+										<span key={flagId} className={`${styles.flag} ${styles.greenFlag}`}>
+											{flagsById.get(flagId)?.name ?? flagId}
 										</span>
 									))}
 									{(formData.greenFlags?.length || 0) === 0 && (
-										<span className={styles.noFlags}>
-											Не выбраны зеленые флаги
-										</span>
+										<span className={styles.noFlags}>Не выбраны зеленые флаги</span>
 									)}
 								</div>
 							</div>
@@ -286,19 +293,25 @@ export const ReviewModal = ({
 								variant="secondary"
 								onClick={handleEditFlags}
 								className={styles.editFlagsBtn}
+								disabled={isFlagsLoading}
 							>
-								Выбрать флаги
+								{isFlagsLoading ? 'Загрузка...' : 'Выбрать флаги'}
 							</Button>
 						</div>
+						{isEditMode && (
+							<p className={styles.flagsEditHint}>
+								При редактировании по API можно изменить только текст отзыва.
+							</p>
+						)}
 
 						<div className={styles.flagsGroup}>
 							<span className={styles.flagsLabel}>
 								Red Flags ({formData.redFlags?.length || 0})
 							</span>
 							<div className={styles.flagsList}>
-								{(formData.redFlags || []).map((flag) => (
-									<span key={flag} className={`${styles.flag} ${styles.redFlag}`}>
-										{flag}
+								{(formData.redFlags || []).map((flagId) => (
+									<span key={flagId} className={`${styles.flag} ${styles.redFlag}`}>
+										{flagsById.get(flagId)?.name ?? flagId}
 									</span>
 								))}
 								{(formData.redFlags?.length || 0) === 0 && (
@@ -324,6 +337,9 @@ export const ReviewModal = ({
 					</div>
 
 					<div className={styles.actions}>
+						{loading && (
+							<div className={styles.flagsState}>Сохраняем отзыв. Это может занять несколько секунд...</div>
+						)}
 						{isEditMode && canDelete && (
 							<Button
 								variant="secondary"
@@ -351,7 +367,6 @@ export const ReviewModal = ({
 				</div>
 			</Modal>
 
-			{/* Full Flags Selection Modal */}
 			<Modal
 				isOpen={showFlagsModal}
 				onClose={() => setShowFlagsModal(false)}
@@ -376,9 +391,16 @@ export const ReviewModal = ({
 					</div>
 
 					<div className={styles.flagsModalGrid}>
-						{/* Library Section */}
 						<div className={styles.flagsLibrarySection}>
 							<div className={styles.flagsLibraryContent}>
+								{isFlagsLoading && (
+									<div className={styles.flagsState}>Загрузка библиотеки флагов...</div>
+								)}
+								{flagsError && (
+									<div className={styles.flagsState}>
+										Не удалось загрузить флаги. Используется резервный список.
+									</div>
+								)}
 								{groupedByCategory.map(([category, tags]) => (
 									<div key={category} className={styles.flagsCategory}>
 										<h5 className={styles.flagsCategoryTitle}>{category}</h5>
@@ -393,20 +415,24 @@ export const ReviewModal = ({
 													onClick={() => setInfoTag(tag)}
 													title="Нажми чтобы увидеть описание"
 												>
-													<span className={styles.flagLibraryName}>
-														{tag.name}
-													</span>
+													<span className={styles.flagLibraryName}>{tag.name}</span>
 													<div className={styles.flagLibraryActions}>
 														<button
 															className={styles.flagAddGreen}
-															onClick={() => addToSide(tag, 'green')}
+															onClick={(event) => {
+																event.stopPropagation();
+																addToSide(tag, 'green');
+															}}
 															title="Добавить к зеленым"
 														>
 															✓
 														</button>
 														<button
 															className={styles.flagAddRed}
-															onClick={() => addToSide(tag, 'red')}
+															onClick={(event) => {
+																event.stopPropagation();
+																addToSide(tag, 'red');
+															}}
 															title="Добавить к красным"
 														>
 															✕
@@ -417,21 +443,19 @@ export const ReviewModal = ({
 										</div>
 									</div>
 								))}
-								{groupedByCategory.length === 0 && (
+								{!isFlagsLoading && groupedByCategory.length === 0 && (
 									<div className={styles.noFlagsFound}>No flags found</div>
 								)}
 							</div>
 						</div>
 
-						{/* Columns Section */}
 						<div className={styles.flagsColumnsSection}>
-							{/* Green Column */}
 							<div
 								className={styles.flagsColumn}
 								onDragOver={(e) => e.preventDefault()}
 								onDrop={(e) => {
 									e.preventDefault();
-									handleDropToGreen();
+									handleDropToSide('green');
 								}}
 							>
 								<h4 className={`${styles.flagsColumnTitle} ${styles.greenTitle}`}>
@@ -443,9 +467,7 @@ export const ReviewModal = ({
 											key={tag.id}
 											className={`${styles.selectedFlag} ${styles.greenSelectedFlag}`}
 										>
-											<span className={styles.selectedFlagName}>
-												{tag.name}
-											</span>
+											<span className={styles.selectedFlagName}>{tag.name}</span>
 											<div className={styles.selectedFlagActions}>
 												<select
 													value={priority}
@@ -480,20 +502,17 @@ export const ReviewModal = ({
 										</div>
 									))}
 									{Object.keys(green).length === 0 && (
-										<div className={styles.emptyColumn}>
-											Перенесите флаг сюда
-										</div>
+										<div className={styles.emptyColumn}>Перенесите флаг сюда</div>
 									)}
 								</div>
 							</div>
 
-							{/* Red Column */}
 							<div
 								className={styles.flagsColumn}
 								onDragOver={(e) => e.preventDefault()}
 								onDrop={(e) => {
 									e.preventDefault();
-									handleDropToRed();
+									handleDropToSide('red');
 								}}
 							>
 								<h4 className={`${styles.flagsColumnTitle} ${styles.redTitle}`}>
@@ -505,9 +524,7 @@ export const ReviewModal = ({
 											key={tag.id}
 											className={`${styles.selectedFlag} ${styles.redSelectedFlag}`}
 										>
-											<span className={styles.selectedFlagName}>
-												{tag.name}
-											</span>
+											<span className={styles.selectedFlagName}>{tag.name}</span>
 											<div className={styles.selectedFlagActions}>
 												<select
 													value={priority}
@@ -527,14 +544,14 @@ export const ReviewModal = ({
 												<button
 													className={styles.moveToGreen}
 													onClick={() => moveAcross(tag.id, 'green')}
-													title="Move to Green"
+													title="Переместить в зеленые"
 												>
 													←
 												</button>
 												<button
 													className={styles.removeFlag}
 													onClick={() => removeTag(tag.id, 'red')}
-													title="Remove"
+													title="Удалить"
 												>
 													×
 												</button>
@@ -542,7 +559,7 @@ export const ReviewModal = ({
 										</div>
 									))}
 									{Object.keys(red).length === 0 && (
-										<div className={styles.emptyColumn}>Drop flags here</div>
+										<div className={styles.emptyColumn}>Перенесите флаг сюда</div>
 									)}
 								</div>
 							</div>
@@ -564,35 +581,39 @@ export const ReviewModal = ({
 				</div>
 			</Modal>
 
-			{/* Submit Confirmation Modal */}
 			<Modal
 				isOpen={showConfirmModal}
-				onClose={() => setShowConfirmModal(false)}
+				onClose={() => {
+					if (!loading) setShowConfirmModal(false);
+				}}
 				className={styles.confirmModal}
 			>
 				<div className={styles.confirmContainer}>
-					<h3 className={styles.confirmTitle}>
-						Вы уверены что хотите опубликоваться отзыв?
-					</h3>
+					<h3 className={styles.confirmTitle}>Вы уверены что хотите опубликоваться отзыв?</h3>
+					{loading && (
+						<p className={styles.flagsState}>Сохраняем отзыв и обновляем список компании...</p>
+					)}
 					<div className={styles.confirmActions}>
 						<Button
 							variant="secondary"
 							size="small"
 							onClick={() => setShowConfirmModal(false)}
+							disabled={loading}
 						>
 							Вернуться к редактированию
 						</Button>
-						<Button variant="primary" size="small" onClick={handleConfirmSubmit}>
-							Подтвердить
+						<Button variant="primary" size="small" onClick={handleConfirmSubmit} disabled={loading}>
+							{loading ? 'Сохраняем...' : 'Подтвердить'}
 						</Button>
 					</div>
 				</div>
 			</Modal>
 
-			{/* Delete Confirmation Modal */}
 			<Modal
 				isOpen={showDeleteModal}
-				onClose={() => setShowDeleteModal(false)}
+				onClose={() => {
+					if (!loading) setShowDeleteModal(false);
+				}}
 				className={styles.confirmModal}
 			>
 				<div className={styles.confirmContainer}>
@@ -604,6 +625,7 @@ export const ReviewModal = ({
 							variant="secondary"
 							size="small"
 							onClick={() => setShowDeleteModal(false)}
+							disabled={loading}
 						>
 							Отменить
 						</Button>
@@ -612,14 +634,34 @@ export const ReviewModal = ({
 							size="small"
 							onClick={handleConfirmDelete}
 							className={styles.deleteConfirmBtn}
+							disabled={loading}
 						>
-							Удалить
+							{loading ? 'Удаляем...' : 'Удалить'}
 						</Button>
 					</div>
 				</div>
 			</Modal>
 
-			{/* Tag Info Modal */}
+			<Modal
+				isOpen={!!error}
+				onClose={handleClose}
+				className={styles.confirmModal}
+			>
+				<div className={styles.confirmContainer}>
+					<h3 className={styles.confirmTitle}>Ошибка</h3>
+					<p className={styles.flagsState}>{error}</p>
+					<div className={styles.confirmActions}>
+						<Button
+							variant="secondary"
+							size="small"
+							onClick={handleClose}
+						>
+							Выйти
+						</Button>
+					</div>
+				</div>
+			</Modal>
+
 			<Modal
 				isOpen={!!infoTag}
 				onClose={() => setInfoTag(null)}
@@ -645,10 +687,8 @@ export const ReviewModal = ({
 									variant="primary"
 									size="small"
 									onClick={() => {
-										if (infoTag) {
-											addToSide(infoTag, 'green');
-											setInfoTag(null);
-										}
+										addToSide(infoTag, 'green');
+										setInfoTag(null);
 									}}
 									className={styles.tagInfoAddGreen}
 								>
@@ -658,10 +698,8 @@ export const ReviewModal = ({
 									variant="primary"
 									size="small"
 									onClick={() => {
-										if (infoTag) {
-											addToSide(infoTag, 'red');
-											setInfoTag(null);
-										}
+										addToSide(infoTag, 'red');
+										setInfoTag(null);
 									}}
 									className={styles.tagInfoAddRed}
 								>

@@ -19,7 +19,7 @@ export interface CreateOrUpdateUserInfoDto {
   birthday: string;
   education: EducationLevel;
   specialization: Specialization;
-  workExperience?: WorkExperienceDto[];
+  workExperience: WorkExperienceDto[];
 }
 
 export interface UserInfoDto {
@@ -101,11 +101,10 @@ export const mapMockExperience = (exp: { industry: string; startDate: string; en
 });
 
 export const createUserInfoDto = (formData: {
-  email: string;
   avatarId: string;
   nickname: string;
   sex: Sex;
-  birthDate: string; 
+  birthDate: string;
   education: string;
   industry: string;
   experiences: Array<{ industry: string; startDate: string; endDate: string | null }>;

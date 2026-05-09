@@ -65,9 +65,11 @@ export const CompanyList: FC<CompanyListProps> = ({
   return (
     <div className={`${styles.list} ${className}`}>
       {items.map((company) => (
-        <div key={company.companyId} onClick={() => handleCardClick(company.companyId)}>
-          <CompanyCard company={company} />
-        </div>
+        <CompanyCard
+          key={company.companyId}
+          company={company}
+          onClick={handleCardClick}
+        />
       ))}
 
       {pending && hasMore && (

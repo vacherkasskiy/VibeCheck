@@ -1,48 +1,49 @@
 .section {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-lg);
+  padding: clamp(22px, 3vw, 30px);
+  box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
-
-
 
 .title {
   margin: 0;
-  font-size: 1.65rem;
-  font-weight: 700;
+  font-size: clamp(1.5rem, 2.4vw, 1.85rem);
+  font-weight: var(--weight-bold);
   color: var(--color-text-primary);
 }
 
 .titleBlock {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
 }
 
 .subtitle {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--font-size-sm);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: var(--spacing-lg);
-  gap: var(--spacing-md);
+  margin-bottom: var(--space-5);
+  gap: var(--space-4);
 }
 
 .metaRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: var(--spacing-lg);
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 
 .metaPill {
@@ -51,20 +52,22 @@
   min-height: 36px;
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: var(--color-surface-muted);
+  border: 1px solid rgba(90, 79, 132, 0.08);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--weight-semibold);
 }
 
 .reviewsList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  max-height: 720px;
+  flex: 1;
+  gap: var(--space-4);
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
-  padding-right: 12px;
+  padding-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
@@ -78,7 +81,7 @@
 }
 
 .reviewsList::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--color-purple), var(--color-green));
+  background: linear-gradient(var(--color-purple), var(--color-pink));
   border-radius: 3px;
   opacity: 0.6;
 }
@@ -90,10 +93,9 @@
 .loadMore {
   position: sticky;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.94) 38%);
   backdrop-filter: blur(12px);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: var(--space-4);
   margin-top: 4px;
 }
 
@@ -102,16 +104,17 @@
   color: var(--color-text-secondary);
   font-style: italic;
   padding: var(--spacing-2xl);
+  padding: var(--space-10);
 }
 
 .error, .loading {
   text-align: center;
-  padding: var(--spacing-xl);
+  padding: var(--space-8);
   color: var(--color-text-secondary);
 }
 
 .sort {
-  min-width: 200px;
+  min-width: 220px;
 }
 
 @media (max-width: 768px) {

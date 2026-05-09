@@ -167,13 +167,17 @@ export const CompanyPage = () => {
 				</div>
 			</header>
 			<main className={styles.main}>
-				<CompanyInfo company={company} />
-				<div className={styles.sectionsRow}>
+				<div className={styles.contentGrid}>
+					<div className={styles.leftColumn}>
+						<CompanyInfo company={company} />
+						<Top20FlagsSection />
+					</div>
 					<ReviewsSection
+						className={styles.reviewsColumn}
+						companyName={company.name ?? 'Компания'}
 						refreshKey={reviewsRefreshKey}
 						onEditReview={handleEditReview}
 					/>
-					<Top20FlagsSection />
 				</div>
 			</main>
 			<ReviewModal

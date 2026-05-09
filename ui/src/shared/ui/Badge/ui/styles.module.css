@@ -2,29 +2,30 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 8px 16px;
-	box-shadow: 0 2px 2px var(--color-shadow);
+	padding: 8px 14px;
+	box-shadow: var(--shadow-xs);
 	z-index: 10000;
-	border-radius: 20px;
-	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	font-weight: 500;
+	border-radius: var(--radius-pill);
+	font-family: var(--font-family-base);
+	font-weight: var(--weight-semibold);
+	border: 1px solid transparent;
 }
 
 .small {
 	min-height: 32px;
-	font-size: 13px;
+	font-size: var(--font-size-xs);
 	padding: 6px 12px;
 }
 
 .medium {
-	min-height: 42px;
-	font-size: 15px;
+	min-height: 40px;
+	font-size: var(--font-size-sm);
 	padding: 8px 16px;
 }
 
 .large {
-	min-height: 52px;
-	font-size: 17px;
+	min-height: 48px;
+	font-size: var(--font-size-md);
 	padding: 12px 20px;
 }
 
@@ -37,15 +38,13 @@
 }
 
 .success {
-	border: 3px solid;
-	border-color: var(--color-green-badge);
+	border-color: rgba(58, 159, 84, 0.22);
 	background: var(--color-lightgreen-badge);
 	color: var(--color-green-badge);
 }
 
 .danger {
-	border: 3px solid;
-	border-color: var(--color-red-badge);
+	border-color: rgba(217, 90, 107, 0.22);
 	background: var(--color-lightred-badge);
 	color: var(--color-red-badge);
 }

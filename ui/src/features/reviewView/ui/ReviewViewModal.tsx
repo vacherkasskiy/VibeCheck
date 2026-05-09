@@ -7,6 +7,7 @@ import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities
 export interface ReviewViewModalProps {
   isOpen: boolean;
   review: CompanyReview | null;
+  companyName: string;
   onClose: () => void;
   myVote?: VoteModeGatewayEnum;
   onVote?: (mode: VoteModeGatewayEnum) => void;
@@ -17,6 +18,7 @@ export interface ReviewViewModalProps {
 export const ReviewViewModal = ({
   isOpen,
   review,
+  companyName,
   onClose,
   myVote,
   onVote,
@@ -72,22 +74,52 @@ export const ReviewViewModal = ({
     >
       <div className={styles.content}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Отзыв</h2>
+          <h2 className={styles.title}>Полный отзыв</h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Закрыть">
             ×
           </button>
         </div>
         <div className={styles.body}>
-          <div className={styles.reviewHeader}>
-            <div className={styles.authorSection}>
+          <div className={styles.reviewDetailsGrid}>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Компания</span>
+              <span className={styles.reviewMetaValue}>{companyName}</span>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Дата</span>
+              <span className={styles.reviewMetaValue}>{formatDate(review.createdAt)}</span>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>Оценка</span>
+              <div className={styles.reviewMetaValue}>
+                <ReviewScore
+                  score={review.score}
+                  onUpClick={handleVote('Like')}
+                  onDownClick={handleVote('Dislike')}
+                  isUpActive={isLikeActive}
+                  isDownActive={isDislikeActive}
+                  disabled={isVoting}
+                  compact
+                />
+              </div>
+            </div>
+            <div className={styles.reviewMetaCard}>
+              <span className={styles.reviewMetaLabel}>ID отзыва</span>
+              <span className={styles.reviewMetaValue}>{review.reviewId}</span>
+            </div>
+          </div>
+
+          <div className={styles.reviewAuthorCard}>
+            <div className={styles.reviewAuthorInfo}>
               {review.iconId ? (
-                <img src={review.iconId} alt={authorName} className={styles.avatar} />
+                <img src={review.iconId} alt={authorName} className={styles.reviewAuthorAvatar} />
               ) : (
-                <div className={styles.avatarPlaceholder}>
+                <div className={styles.reviewAuthorAvatarPlaceholder}>
                   {authorName.charAt(0).toUpperCase()}
                 </div>
               )}
-              <div className={styles.authorInfo}>
+              <div>
+                <span className={styles.reviewMetaLabel}>Автор</span>
                 <button 
                   className={styles.authorName}
                   onClick={handleAuthorClick}
@@ -95,7 +127,6 @@ export const ReviewViewModal = ({
                 >
                   {authorName}
                 </button>
-                <div className={styles.date}>{formatDate(review.createdAt)}</div>
               </div>
             </div>
           </div>
@@ -115,14 +146,16 @@ export const ReviewViewModal = ({
           )}
 
           <div className={styles.reactions}>
-            <ReviewScore
-              score={review.score}
-              onUpClick={handleVote('Like')}
-              onDownClick={handleVote('Dislike')}
-              isUpActive={isLikeActive}
-              isDownActive={isDislikeActive}
-              disabled={isVoting}
-            />
+            <div className={styles.reviewScoreWrap}>
+              <ReviewScore
+                score={review.score}
+                onUpClick={handleVote('Like')}
+                onDownClick={handleVote('Dislike')}
+                isUpActive={isLikeActive}
+                isDownActive={isDislikeActive}
+                disabled={isVoting}
+              />
+            </div>
             <button
               className={styles.reportButton}
               type="button"

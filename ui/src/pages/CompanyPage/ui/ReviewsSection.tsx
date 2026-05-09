@@ -17,6 +17,8 @@ type SortOption = {
 };
 
 interface ReviewsSectionProps {
+	className?: string;
+	companyName: string;
 	refreshKey?: number;
 	onEditReview?: (review: CompanyReview) => void;
 }
@@ -48,7 +50,12 @@ const canEditReview = (review: CompanyReview, currentUserId: string): boolean =>
 	return diffMs <= 5 * 60 * 1000;
 };
 
-export const ReviewsSection = ({ refreshKey = 0, onEditReview }: ReviewsSectionProps) => {
+export const ReviewsSection = ({
+	className,
+	companyName,
+	refreshKey = 0,
+	onEditReview,
+}: ReviewsSectionProps) => {
 	const { id } = useParams<{ id: string }>();
 	const { reviews, total, loading, loadingMore, error, sort, setSort, hasMore, loadMore } =
 		useCompanyReviews({
@@ -130,7 +137,7 @@ export const ReviewsSection = ({ refreshKey = 0, onEditReview }: ReviewsSectionP
 
 	if (loading) {
 		return (
-			<section className={styles.section}>
+			<section className={[styles.section, className].filter(Boolean).join(' ')}>
 				<div className={styles.loading}>Загрузка отзывов...</div>
 			</section>
 		);
@@ -138,7 +145,7 @@ export const ReviewsSection = ({ refreshKey = 0, onEditReview }: ReviewsSectionP
 
 	if (error) {
 		return (
-			<section className={styles.section}>
+			<section className={[styles.section, className].filter(Boolean).join(' ')}>
 				<div className={styles.error}>Ошибка загрузки отзывов</div>
 			</section>
 		);
@@ -146,7 +153,7 @@ export const ReviewsSection = ({ refreshKey = 0, onEditReview }: ReviewsSectionP
 
 	return (
 		<>
-			<section className={styles.section}>
+			<section className={[styles.section, className].filter(Boolean).join(' ')}>
 				<div className={styles.header}>
 					<div className={styles.titleBlock}>
 						<h2 className={styles.title}>Отзывы</h2>
@@ -206,6 +213,7 @@ export const ReviewsSection = ({ refreshKey = 0, onEditReview }: ReviewsSectionP
 			<ReviewViewModal
 				isOpen={isReviewViewOpen}
 				review={selectedDisplayedReview}
+				companyName={companyName}
 				onClose={closeReviewView}
 				myVote={selectedDisplayedReview ? userVotes[selectedDisplayedReview.reviewId] : undefined}
 				onVote={

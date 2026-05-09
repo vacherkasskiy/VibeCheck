@@ -1,7 +1,11 @@
 .container {
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--space-2);
+	padding: 6px 10px;
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-pill);
 }
 
 .compact {
@@ -15,17 +19,19 @@
 	width: 28px;
 	height: 28px;
 	padding: 0;
-	border: none;
+	border: 1px solid transparent;
+	border-radius: 50%;
 	background: transparent;
-	font-size: 24px;
+	font-size: 20px;
 	line-height: 1;
 	font-weight: 600;
-	color: #cfcfd4;
+	color: #b4b4c5;
 	cursor: default;
 	transition:
-		transform 0.2s ease,
-		color 0.2s ease,
-		opacity 0.2s ease;
+		transform var(--transition-fast),
+		color var(--transition-fast),
+		opacity var(--transition-fast),
+		background var(--transition-fast);
 }
 
 button.arrowButton {
@@ -34,6 +40,7 @@ button.arrowButton {
 
 button.arrowButton:hover:not(:disabled) {
 	transform: translateY(-1px);
+	background: rgba(155, 108, 244, 0.08);
 }
 
 button.arrowButton:disabled {
@@ -42,37 +49,39 @@ button.arrowButton:disabled {
 }
 
 .arrowUp.arrowActive {
-	color: #ff5a1f;
+	color: var(--color-green-badge);
+	background: rgba(58, 159, 84, 0.1);
 }
 
 .arrowDown.arrowActive {
-	color: #4b5563;
+	color: var(--color-red-badge);
+	background: rgba(217, 90, 107, 0.1);
 }
 
 .score {
 	min-width: 1.6ch;
 	text-align: center;
-	font-size: 24px;
-	font-weight: 600;
+	font-size: 20px;
+	font-weight: var(--weight-bold);
 	line-height: 1;
 }
 
 .scorePositive {
-	color: #ff5a1f;
+	color: var(--color-green-badge);
 }
 
 .scoreNegative {
-	color: #4b5563;
+	color: var(--color-red-badge);
 }
 
 .scoreNeutral {
-	color: #9ca3af;
+	color: var(--color-text-muted);
 }
 
 .compact .arrowButton {
 	width: 18px;
 	height: 18px;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 .compact .score {

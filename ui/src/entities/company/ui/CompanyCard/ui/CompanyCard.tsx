@@ -22,6 +22,8 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
   const { flags: { green: userGreenFlags, red: userRedFlags } } = useUserFlags();
 	const companyName = company.name ?? 'Компания';
 	const topFlags = company.topFlags ?? [];
+	const previewFlags = topFlags.slice(0, 5);
+	const description = company.description?.trim();
 
 	const handleClick = () => {
 		if (onClick) {
@@ -30,7 +32,8 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 	};
 
 	return (
-		<div className={`${styles.companyCard} ${className}`} onClick={handleClick}>
+		<button type="button" className={`${styles.companyCard} ${className}`} onClick={handleClick}>
+			<div className={styles.cardGlow} />
 			<div className={styles.companyHeader}>
           {company.iconUrl ? (
             <img 
@@ -50,9 +53,20 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 				</div>
 			</div>
 
-			<div className={styles.flagsSection}>
-				<div className={styles.flagsTitle}>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+			<div className={styles.companyBody}>
+				{description ? (
+					<p className={styles.companyDescription}>{description}</p>
+				) : (
+					<p className={styles.companyDescriptionMuted}>
+						Откройте карточку компании, чтобы посмотреть отзывы, описание и топ флагов команды.
+					</p>
+				)}
+			</div>
+
+			<div className={styles.companyFooter}>
+				<div className={styles.flagsSection}>
+					<div className={styles.flagsTitle}>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
 						<path
 							d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
 							stroke="currentColor"
@@ -60,32 +74,48 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 							strokeLinecap="round"
 							strokeLinejoin="round"
 						/>
-					</svg>
-					<span>Топ-5 флагов</span>
+						</svg>
+						<span>Топ-флаги</span>
+					</div>
+
+					<div className={styles.flagsContainer}>
+						{previewFlags.length > 0 ? (
+							previewFlags.map((flag) => {
+								const color = getFlagColor(flag.id, userGreenFlags, userRedFlags);
+								if (color === 'default') {
+									return (
+										<span key={flag.id} className={styles.flag}>
+											{flag.name ?? 'Флаг'}
+										</span>
+									);
+								}
+								return (
+									<Badge
+										key={flag.id}
+										variant={color}
+										size="small"
+									>
+										{flag.name ?? 'Флаг'}
+									</Badge>
+								);
+							})
+						) : (
+							<span className={styles.emptyFlags}>Флаги пока не добавлены</span>
+						)}
+					</div>
 				</div>
 
-				<div className={styles.flagsContainer}>
-{topFlags.slice(0, 5).map((flag) => {
-  const color = getFlagColor(flag.id, userGreenFlags, userRedFlags);
-  if (color === 'default') {
-    return (
-      <span key={flag.id} className={styles.flag}>
-        {flag.name ?? 'Флаг'}
-      </span>
-    );
-  }
-  return (
-    <Badge
-      key={flag.id}
-      variant={color}
-      size="small"
-    >
-      {flag.name ?? 'Флаг'}
-    </Badge>
-  );
-})}
+				<div className={styles.cardMeta}>
+					<div className={styles.metaPill}>
+						<span className={styles.metaLabel}>Флагов</span>
+						<span className={styles.metaValue}>{topFlags.length}</span>
+					</div>
+					<div className={styles.metaPill}>
+						<span className={styles.metaLabel}>Профиль</span>
+						<span className={styles.metaValue}>Открыть</span>
+					</div>
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 };

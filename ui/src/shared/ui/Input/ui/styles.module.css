@@ -1,15 +1,15 @@
 .container {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--space-2);
 	width: 100%;
 }
 
 .label {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	font-weight: 500;
-	color: #374151;
+	font-family: var(--font-family-base);
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 }
 
 .required {
@@ -25,30 +25,33 @@
 
 .input {
 	width: 100%;
-	padding: 12px 16px;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 16px;
-	color: #1f2937;
-	background: #ffffff;
-	border: 2px solid #e5e7eb;
-	border-radius: 10px;
+	min-height: 48px;
+	padding: 0 16px;
+	font-family: var(--font-family-base);
+	font-size: var(--font-size-md);
+	color: var(--color-text-primary);
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
 	outline: none;
 	transition:
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
+		border-color var(--transition-smooth),
+		box-shadow var(--transition-smooth),
+		background var(--transition-smooth);
 }
 
 .input:focus {
 	border-color: var(--color-purple);
-	box-shadow: 0 0 0 3px var(--color-purple-glow);
+	background: var(--color-white);
+	box-shadow: 0 0 0 4px rgba(155, 108, 244, 0.12);
 }
 
 .input::placeholder {
-	color: #9ca3af;
+	color: var(--color-text-muted);
 }
 
 .input:disabled {
-	background: #f3f4f6;
+	background: var(--color-light-grey);
 	cursor: not-allowed;
 }
 
@@ -83,13 +86,13 @@
 }
 
 .errorText {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 13px;
+	font-family: var(--font-family-base);
+	font-size: var(--font-size-xs);
 	color: #ef4444;
 }
 
 .helperText {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 13px;
-	color: #6b7280;
+	font-family: var(--font-family-base);
+	font-size: var(--font-size-xs);
+	color: var(--color-text-muted);
 }

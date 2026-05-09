@@ -22,6 +22,8 @@ export const TagInfoModal = ({
 }: TagInfoModalProps) => {
 	if (!isOpen || !tag) return null;
 
+	const hasActions = Boolean(onAddToGreen || onAddToRed);
+
 	const handleAddToGreen = () => {
 		onAddToGreen?.(tag);
 		onClose();
@@ -39,28 +41,38 @@ export const TagInfoModal = ({
 					×
 				</button>
 				<h3 className={styles.title}>{tag.name}</h3>
-				<p className={styles.description}>{tag.description}</p>
-				<div className={styles.category}>
-					<span className={styles.categoryLabel}>Категория:</span>
-					<span className={styles.categoryValue}>{tag.category}</span>
-				</div>
+				<p className={styles.description}>
+					{tag.description || 'Описание для этого флага пока недоступно.'}
+				</p>
+				{tag.category && (
+					<div className={styles.category}>
+						<span className={styles.categoryLabel}>Категория:</span>
+						<span className={styles.categoryValue}>{tag.category}</span>
+					</div>
+				)}
 
-				<div className={styles.actions}>
-					<button
-						className={`${styles.actionButton} ${styles.greenButton}`}
-						onClick={handleAddToGreen}
-						disabled={isInGreen}
-					>
-						{isInGreen ? '✓ Добавлено в зелёные' : '+ Добавить в зелёные'}
-					</button>
-					<button
-						className={`${styles.actionButton} ${styles.redButton}`}
-						onClick={handleAddToRed}
-						disabled={isInRed}
-					>
-						{isInRed ? '✓ Добавлено в красные' : '+ Добавить в красные'}
-					</button>
-				</div>
+				{hasActions && (
+					<div className={styles.actions}>
+						{onAddToGreen && (
+							<button
+								className={`${styles.actionButton} ${styles.greenButton}`}
+								onClick={handleAddToGreen}
+								disabled={isInGreen}
+							>
+								{isInGreen ? '✓ Добавлено в зелёные' : '+ Добавить в зелёные'}
+							</button>
+						)}
+						{onAddToRed && (
+							<button
+								className={`${styles.actionButton} ${styles.redButton}`}
+								onClick={handleAddToRed}
+								disabled={isInRed}
+							>
+								{isInRed ? '✓ Добавлено в красные' : '+ Добавить в красные'}
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 		</div>
 	);

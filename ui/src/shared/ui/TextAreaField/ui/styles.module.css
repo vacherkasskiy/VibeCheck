@@ -1,16 +1,16 @@
 .container {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--space-2);
 	width: 100%;
 }
 
 .label {
-	font-size: 14px;
-	font-weight: 500;
-	color: #374151;
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 	display: flex;
-	gap: 4px;
+	gap: var(--space-1);
 	align-items: center;
 }
 
@@ -29,44 +29,46 @@
 	width: 100%;
 	min-height: 160px;
 	padding: 16px;
-	border: 2px solid #e5e7eb;
-	border-radius: 12px;
-	font-size: 16px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	font-size: var(--font-size-md);
 	font-family: inherit;
-	line-height: 1.5;
+	line-height: var(--line-height-relaxed);
 	resize: vertical;
-	background: #fafbfc;
+	background: rgba(255, 255, 255, 0.92);
 	transition:
-		border-color 0.2s,
-		box-shadow 0.2s;
+		border-color var(--transition-smooth),
+		box-shadow var(--transition-smooth),
+		background var(--transition-smooth);
 	box-sizing: border-box;
 }
 
 .textarea:focus {
 	outline: none;
-	border-color: #3b82f6;
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	border-color: var(--color-purple);
+	background: var(--color-white);
+	box-shadow: 0 0 0 4px rgba(155, 108, 244, 0.12);
 }
 
 .textarea::placeholder {
-	color: #9ca3af;
+	color: var(--color-text-muted);
 }
 
 .textarea.error {
 	border-color: #ef4444;
-	background: #fef2f2;
+	background: var(--color-light-red);
 }
 
 .charCounter {
 	align-self: flex-end;
-	font-size: 12px;
-	color: #6b7280;
-	margin-top: 4px;
+	font-size: var(--font-size-xs);
+	color: var(--color-text-muted);
+	margin-top: var(--space-1);
 	font-variant-numeric: tabular-nums;
 }
 
 .errorMessage {
 	color: #ef4444;
-	font-size: 12px;
-	margin-top: 4px;
+	font-size: var(--font-size-xs);
+	margin-top: var(--space-1);
 }

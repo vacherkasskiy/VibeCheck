@@ -1,7 +1,7 @@
 .reviewModal {
-	max-width: 700px;
+	max-width: 760px;
 	width: 100%;
-	animation: slideIn 0.2s ease-out;
+	animation: slideIn var(--transition-smooth) ease-out;
 }
 
 @keyframes slideIn {
@@ -19,25 +19,26 @@
 	padding: 32px;
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
+	gap: var(--space-6);
 }
 
 .backLink {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	color: #6b7280;
-	font-size: 14px;
+	gap: var(--space-2);
+	color: var(--color-text-secondary);
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
 	cursor: pointer;
 	background: none;
 	border: none;
 	padding: 0;
 	text-align: left;
-	transition: color 0.2s ease;
+	transition: color var(--transition-fast);
 }
 
 .backLink:hover {
-	color: #374151;
+	color: var(--color-purple);
 }
 
 .backArrow {
@@ -47,103 +48,107 @@
 .header {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--space-2);
 }
 
 .title {
-	font-size: 24px;
-	font-weight: 700;
-	color: #111827;
+	font-size: clamp(28px, 4vw, 36px);
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 	margin: 0;
+	line-height: var(--line-height-tight);
 }
 
 .subtitle {
-	font-size: 16px;
-	color: #6b7280;
+	font-size: var(--font-size-md);
+	color: var(--color-text-secondary);
 	margin: 0;
 }
 
 .flagsSection {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: var(--space-4);
+	padding: 20px;
+	background: var(--color-surface-muted);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-lg);
 }
 
 .flagsHeader {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
-	gap: 16px;
+	gap: var(--space-4);
 }
 
 .flagsGroup {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--space-2);
 	flex: 1;
 }
 
 .flagsLabel {
-	font-size: 14px;
-	font-weight: 600;
-	color: #374151;
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 }
 
 .flagsList {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	min-height: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-height: 32px;
 }
 
 .flag {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 32px;
+	min-height: 36px;
 	padding: 6px 12px;
-	border-radius: 20px;
-	font-size: 13px;
-	font-weight: 500;
-	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	border: 3px solid;
-	box-shadow: 0 2px 2px var(--color-shadow);
+	border-radius: var(--radius-pill);
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
+	font-family: var(--font-family-base);
+	border: 1px solid;
+	box-shadow: var(--shadow-xs);
 }
 
 .greenFlag {
 	background: var(--color-lightgreen-badge);
-	border-color: var(--color-green-badge);
+	border-color: rgba(58, 159, 84, 0.16);
 	color: var(--color-green-badge);
 }
 
 .redFlag {
 	background: var(--color-lightred-badge);
-	border-color: var(--color-red-badge);
+	border-color: rgba(217, 90, 107, 0.16);
 	color: var(--color-red-badge);
 }
 
 .noFlags {
-	font-size: 13px;
-	color: #9ca3af;
+	font-size: var(--font-size-xs);
+	color: var(--color-text-muted);
 	font-style: italic;
 }
 
 .editFlagsBtn {
 	white-space: nowrap;
-	padding: 8px 16px;
-	font-size: 14px;
+	align-self: flex-start;
 }
 
 .flagsEditHint {
 	margin: -4px 0 0;
-	font-size: 13px;
-	color: #6b7280;
+	font-size: var(--font-size-xs);
+	color: var(--color-text-muted);
 }
 
 .textareaSection {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--space-2);
 }
 
 .textareaWrapper {
@@ -152,34 +157,40 @@
 
 .textarea {
 	width: 100%;
-	min-height: 180px;
-	padding: 16px;
-	border: 1px solid #d1d5db;
-	border-radius: 12px;
-	font-size: 15px;
-	line-height: 1.6;
+	min-height: 220px;
+	padding: 18px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	font-size: var(--font-size-md);
+	line-height: var(--line-height-relaxed);
 	resize: vertical;
 	font-family: inherit;
-	transition: border-color 0.2s ease;
+	background: rgba(255, 255, 255, 0.92);
+	transition:
+		border-color var(--transition-fast),
+		box-shadow var(--transition-fast),
+		background var(--transition-fast);
 }
 
 .textarea:focus {
 	outline: none;
-	border-color: #8b5cf6;
+	border-color: var(--color-purple);
+	background: var(--color-white);
+	box-shadow: 0 0 0 4px rgba(155, 108, 244, 0.12);
 }
 
 .textarea::placeholder {
-	color: #9ca3af;
+	color: var(--color-text-muted);
 }
 
 .charCount {
 	position: absolute;
 	bottom: 12px;
 	right: 16px;
-	font-size: 12px;
-	font-weight: 500;
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
 	padding: 4px 8px;
-	border-radius: 4px;
+	border-radius: var(--radius-pill);
 	background: rgba(255, 255, 255, 0.9);
 }
 
@@ -198,23 +209,20 @@
 .actions {
 	display: flex;
 	justify-content: flex-end;
+	align-items: center;
+	flex-wrap: wrap;
 	gap: 12px;
 	padding-top: 8px;
 }
 
 .deleteBtn {
-	background: #fee2e2;
-	color: #991b1b;
-	border-color: #ef4444;
+	background: var(--color-lightred-badge);
+	color: var(--color-red-badge);
+	border-color: rgba(217, 90, 107, 0.2);
 }
 
 .deleteBtn:hover {
-	background: #fecaca;
-}
-
-.submitBtn {
-	padding: 12px 32px;
-	font-size: 16px;
+	background: #ffe7eb;
 }
 
 .submitBtn:disabled {
@@ -233,9 +241,9 @@
 }
 
 .confirmTitle {
-	font-size: 18px;
-	font-weight: 600;
-	color: #111827;
+	font-size: var(--font-size-lg);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 	margin: 0 0 24px 0;
 	line-height: 1.5;
 }
@@ -378,20 +386,20 @@
 
 .flagsModalHeader {
 	padding-bottom: 16px;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid rgba(90, 79, 132, 0.08);
 	margin-bottom: 16px;
 }
 
 .flagsModalTitle {
-	font-size: 22px;
-	font-weight: 600;
-	color: #111827;
+	font-size: 24px;
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 	margin: 0 0 8px 0;
 }
 
 .flagsModalSubtitle {
-	font-size: 14px;
-	color: #6b7280;
+	font-size: var(--font-size-sm);
+	color: var(--color-text-secondary);
 	margin: 0;
 }
 
@@ -401,17 +409,19 @@
 
 .flagsSearchInput {
 	width: 100%;
-	padding: 12px 16px;
-	border: 1px solid #d1d5db;
-	border-radius: 8px;
-	font-size: 14px;
-	background: #ffffff;
-	color: #111827;
+	min-height: 48px;
+	padding: 0 16px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	font-size: var(--font-size-sm);
+	background: rgba(255, 255, 255, 0.92);
+	color: var(--color-text-primary);
 }
 
 .flagsSearchInput:focus {
 	outline: none;
-	border-color: #8b5cf6;
+	border-color: var(--color-purple);
+	box-shadow: 0 0 0 4px rgba(155, 108, 244, 0.12);
 }
 
 .flagsModalGrid {
@@ -426,10 +436,11 @@
 .flagsLibrarySection {
 	display: flex;
 	flex-direction: column;
-	background: #f9fafb;
-	border-radius: 12px;
+	background: var(--color-surface-muted);
+	border-radius: var(--radius-lg);
 	padding: 16px;
 	overflow: hidden;
+	border: 1px solid rgba(90, 79, 132, 0.08);
 }
 
 .flagsSectionTitle {
@@ -449,11 +460,11 @@
 
 .flagsState {
 	padding: 10px 12px;
-	border-radius: 10px;
+	border-radius: var(--radius-sm);
 	background: rgba(255, 255, 255, 0.85);
-	border: 1px solid #e5e7eb;
-	color: #6b7280;
-	font-size: 13px;
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	color: var(--color-text-secondary);
+	font-size: var(--font-size-xs);
 }
 
 .flagsCategory {
@@ -463,9 +474,9 @@
 }
 
 .flagsCategoryTitle {
-	font-size: 14px;
-	font-weight: 600;
-	color: #6b7280;
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-muted);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	margin: 0;
@@ -482,20 +493,20 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	padding: 6px 12px;
-	background: var(--color-light-grey);
-	border: 2px solid var(--color-border-grey);
-	border-radius: 20px;
+	padding: 8px 12px;
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid rgba(90, 79, 132, 0.12);
+	border-radius: var(--radius-pill);
 	cursor: pointer;
-	transition: all 0.2s ease;
-	min-height: 32px;
-	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	box-shadow: 0 2px 2px var(--color-shadow);
+	transition: all var(--transition-fast);
+	min-height: 36px;
+	font-family: var(--font-family-base);
+	box-shadow: var(--shadow-xs);
 }
 
 .flagLibraryItem:hover {
 	border-color: var(--color-purple);
-	box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+	box-shadow: var(--shadow-sm);
 	transform: translateY(-1px);
 }
 
@@ -504,9 +515,9 @@
 }
 
 .flagLibraryName {
-	font-size: 13px;
-	color: var(--color-accent-black);
-	font-weight: 500;
+	font-size: var(--font-size-xs);
+	color: var(--color-text-primary);
+	font-weight: var(--weight-medium);
 }
 
 .flagLibraryActions {
@@ -519,7 +530,7 @@
 	width: 24px;
 	height: 24px;
 	border: none;
-	border-radius: 4px;
+	border-radius: 8px;
 	font-size: 12px;
 	cursor: pointer;
 	display: flex;
@@ -564,18 +575,19 @@
 .flagsColumn {
 	display: flex;
 	flex-direction: column;
-	background: #f9fafb;
-	border-radius: 12px;
+	background: var(--color-surface-muted);
+	border-radius: var(--radius-lg);
 	padding: 16px;
 	overflow: hidden;
+	border: 1px solid rgba(90, 79, 132, 0.08);
 }
 
 .flagsColumnTitle {
-	font-size: 16px;
-	font-weight: 600;
+	font-size: var(--font-size-md);
+	font-weight: var(--weight-semibold);
 	margin: 0 0 12px 0;
 	padding-bottom: 8px;
-	border-bottom: 2px solid;
+	border-bottom: 1px solid;
 }
 
 .greenTitle {
@@ -598,8 +610,8 @@
 
 .emptyColumn {
 	text-align: center;
-	color: #9ca3af;
-	font-size: 14px;
+	color: var(--color-text-muted);
+	font-size: var(--font-size-sm);
 	padding: 24px;
 	font-style: italic;
 }
@@ -610,27 +622,27 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	padding: 6px 12px;
-	border-radius: 20px;
-	border: 3px solid;
-	min-height: 32px;
-	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	box-shadow: 0 2px 2px var(--color-shadow);
+	padding: 8px 12px;
+	border-radius: var(--radius-pill);
+	border: 1px solid;
+	min-height: 38px;
+	font-family: var(--font-family-base);
+	box-shadow: var(--shadow-xs);
 }
 
 .greenSelectedFlag {
 	background: var(--color-lightgreen-badge);
-	border-color: var(--color-green-badge);
+	border-color: rgba(58, 159, 84, 0.16);
 }
 
 .redSelectedFlag {
 	background: var(--color-lightred-badge);
-	border-color: var(--color-red-badge);
+	border-color: rgba(217, 90, 107, 0.16);
 }
 
 .selectedFlagName {
-	font-size: 13px;
-	font-weight: 500;
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
 	color: var(--color-green-badge);
 	flex: 1;
 }
@@ -646,18 +658,19 @@
 }
 
 .prioritySelect {
-	padding: 4px 8px;
-	border: 1px solid #d1d5db;
-	border-radius: 4px;
-	font-size: 12px;
+	min-height: 28px;
+	padding: 0 8px;
+	border: 1px solid rgba(90, 79, 132, 0.12);
+	border-radius: 8px;
+	font-size: var(--font-size-xs);
 	background: #ffffff;
-	color: #374151;
+	color: var(--color-text-primary);
 	cursor: pointer;
 }
 
 .prioritySelect:focus {
 	outline: none;
-	border-color: #8b5cf6;
+	border-color: var(--color-purple);
 }
 
 .moveToRed,
@@ -666,13 +679,13 @@
 	width: 24px;
 	height: 24px;
 	border: none;
-	border-radius: 4px;
+	border-radius: 8px;
 	font-size: 14px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: all 0.2s ease;
+	transition: all var(--transition-fast);
 }
 
 .moveToRed {
@@ -736,32 +749,32 @@
 .tagInfoCategory {
 	display: inline-block;
 	padding: 4px 12px;
-	background: rgba(139, 92, 246, 0.15);
-	color: #8b5cf6;
-	font-size: 12px;
-	font-weight: 600;
+	background: rgba(155, 108, 244, 0.12);
+	color: var(--color-purple);
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	border-radius: 20px;
+	border-radius: var(--radius-pill);
 	margin-bottom: 12px;
 }
 
 .tagInfoName {
 	font-size: 24px;
-	font-weight: 700;
-	color: #111827;
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 	margin: 0;
 }
 
 .tagInfoDescription {
-	font-size: 16px;
-	line-height: 1.6;
-	color: #4b5563;
+	font-size: var(--font-size-md);
+	line-height: var(--line-height-relaxed);
+	color: var(--color-text-secondary);
 	margin-bottom: 24px;
 	padding: 16px;
-	background: #f9fafb;
-	border-radius: 12px;
-	border: 1px solid #e5e7eb;
+	background: var(--color-surface-muted);
+	border-radius: var(--radius-md);
+	border: 1px solid rgba(90, 79, 132, 0.08);
 }
 
 .tagInfoActions {
@@ -769,6 +782,27 @@
 	gap: 12px;
 	justify-content: flex-end;
 	flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+	.container {
+		padding: 24px 20px;
+	}
+
+	.flagsHeader,
+	.actions,
+	.confirmActions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.editFlagsBtn {
+		width: 100%;
+	}
+
+	.textarea {
+		min-height: 180px;
+	}
 }
 
 .tagInfoAddGreen {

@@ -1,9 +1,9 @@
 .container {
-	background: #fff;
-	border: 1px solid rgba(28, 27, 40, 0.08);
-	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
 	padding: 32px;
-	box-shadow: 0 12px 36px rgba(28, 27, 40, 0.1);
+	box-shadow: var(--shadow-md);
 }
 
 .header {
@@ -15,9 +15,9 @@
 }
 
 .title {
-	font-size: 20px;
-	font-weight: 600;
-	color: #1a1a1a;
+	font-size: 22px;
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 	margin: 0;
 }
 
@@ -33,16 +33,19 @@
 	gap: 12px;
 	min-height: 160px;
 	padding: 20px;
-	background: #f8f9ff;
-	border: 1px solid rgba(28, 27, 40, 0.06);
-	border-radius: 14px;
+	background: var(--color-surface-muted);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-md);
 }
 
 .columnTitle {
-	font-size: 16px;
-	font-weight: 600;
-	color: #333;
+	font-size: var(--font-size-md);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 	margin: 0 0 8px 0;
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
 }
 
 .flagsList {
@@ -56,30 +59,31 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	padding: 6px 12px;
-	border-radius: 20px;
-	font-size: 13px;
-	font-weight: 500;
-	font-family: 'Inter-Medium', 'Arial', sans-serif;
-	min-height: 32px;
-	border: 3px solid;
-	box-shadow: 0 2px 2px var(--color-shadow);
-	transition: transform 0.2s ease;
+	padding: 8px 12px;
+	border-radius: var(--radius-pill);
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-semibold);
+	font-family: var(--font-family-base);
+	min-height: 36px;
+	border: 1px solid;
+	box-shadow: var(--shadow-xs);
+	transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .flag:hover {
 	transform: translateY(-1px);
+	box-shadow: var(--shadow-sm);
 }
 
 .greenFlag {
 	background: var(--color-lightgreen-badge);
-	border-color: var(--color-green-badge);
+	border-color: rgba(58, 159, 84, 0.16);
 	color: var(--color-green-badge);
 }
 
 .redFlag {
 	background: var(--color-lightred-badge);
-	border-color: var(--color-red-badge);
+	border-color: rgba(217, 90, 107, 0.16);
 	color: var(--color-red-badge);
 }
 
@@ -94,14 +98,14 @@
 }
 
 .empty {
-	color: #999;
-	font-size: 14px;
+	color: var(--color-text-muted);
+	font-size: var(--font-size-sm);
 	font-style: italic;
 	padding: 16px;
 	text-align: center;
-	background: #fff;
-	border: 1px dashed rgba(28, 27, 40, 0.12);
-	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px dashed rgba(90, 79, 132, 0.14);
+	border-radius: var(--radius-sm);
 }
 
 @media (max-width: 768px) {

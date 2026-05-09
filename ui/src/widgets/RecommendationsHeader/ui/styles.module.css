@@ -1,43 +1,58 @@
 .header {
 	position: sticky;
 	top: 0;
-	z-index: 100;
+	z-index: 1000;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 16px 24px;
-
-	border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+	padding: clamp(14px, 2vw, 20px) clamp(16px, 4vw, 32px);
+	background: rgba(255, 255, 255, 0.82);
+	backdrop-filter: blur(18px);
+	border-bottom: 1px solid var(--color-border);
+	box-shadow: var(--shadow-sm);
 }
 
 .logoContainer {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: var(--space-3);
 }
 
 .logoText {
-	font-weight: 700;
-	font-size: 18px;
-	color: #2d2d2d;
+	font-size: clamp(16px, 2.2vw, 19px);
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 }
 
 .headerActions {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: var(--space-3);
 }
 
 .searchContainer {
-	width: 320px;
+	width: min(100%, 360px);
 }
 
 @media (max-width: 768px) {
 	.header {
 		padding: 12px 16px;
-		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-3);
+	}
+
+	.headerActions {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.searchContainer {
+		width: min(100%, 280px);
+	}
+}
+
+@media (max-width: 480px) {
+	.header {
+		padding: 10px 12px;
 	}
 
 	.logoText {
@@ -45,16 +60,6 @@
 	}
 
 	.searchContainer {
-		width: 100%;
-	}
-}
-
-@media (max-width: 480px) {
-	.header {
-		padding: 8px 12px;
-	}
-
-	.logoText {
-		font-size: 14px;
+		width: min(100%, 220px);
 	}
 }

@@ -1,5 +1,14 @@
 import { completeCurrentOnboardingStep, createMyInfo, createUserInfoDto, getAvatars } from 'features/auth';
 import { useEffect, useState } from 'react';
+import {
+	dateToISO,
+	EDUCATION_OPTIONS,
+	formatDateInput,
+	INDUSTRY_OPTIONS,
+	SEX_OPTIONS,
+	validateBirthDate,
+	isRealDate,
+} from 'shared/lib';
 import { AvatarSelector } from 'shared/ui/AvatarSelector';
 import { Button } from 'shared/ui/Button';
 import { InputField } from 'shared/ui/InputField';
@@ -20,41 +29,6 @@ export interface ProfileFormProps {
 	onBack: () => void;
 }
 
-const SEX_OPTIONS = [
-	{ value: 'SEX_MALE', label: 'Мужской' },
-	{ value: 'SEX_FEMALE', label: 'Женский' },
-	{ value: 'SEX_OTHER', label: 'Другое' },
-];
-
-const EDUCATION_OPTIONS = [
-	{ value: 'SCHOOL', label: 'Школа' },
-	{ value: 'COLLEGE', label: 'Колледж/Техникум' },
-	{ value: 'BACHELOR', label: 'Бакалавриат' },
-	{ value: 'MASTER', label: 'Магистратура' },
-	{ value: 'SPECIALIST', label: 'Специалитет' },
-	{ value: 'PHD', label: 'Аспирантура' },
-	{ value: 'DOCTORATE', label: 'Докторантура' },
-	{ value: 'NONE', label: 'Нет образования' },
-];
-
-const INDUSTRY_OPTIONS = [
-	{ value: 'IT', label: 'Информационные технологии' },
-	{ value: 'FINANCE', label: 'Финансы и банки' },
-	{ value: 'MEDIA', label: 'Медиа и маркетинг' },
-	{ value: 'EDUCATION', label: 'Образование' },
-	{ value: 'HEALTHCARE', label: 'Здравоохранение' },
-	{ value: 'MANUFACTURING', label: 'Производство' },
-	{ value: 'RETAIL', label: 'Розничная торговля' },
-	{ value: 'HOSPITALITY', label: 'Гостиничный бизнес' },
-	{ value: 'TRANSPORT', label: 'Транспорт и логистика' },
-	{ value: 'CONSTRUCTION', label: 'Строительство' },
-	{ value: 'ENERGY', label: 'Энергетика' },
-	{ value: 'AGRICULTURE', label: 'Сельское хозяйство' },
-	{ value: 'GOVERNMENT', label: 'Госслужба' },
-	{ value: 'NGO', label: 'Некоммерческие организации' },
-	{ value: 'OTHER', label: 'Другое' },
-];
-
 const LOCAL_AVATARS: Avatar[] = [
 	{ id: '1', url: '/avatars/avatar1.svg' },
 	{ id: '2', url: '/avatars/avatar2.svg' },
@@ -63,32 +37,6 @@ const LOCAL_AVATARS: Avatar[] = [
 	{ id: '5', url: '/avatars/avatar5.svg' },
 	{ id: '6', url: '/avatars/avatar6.svg' },
 ];
-
-const formatDateInput = (value: string): string => {
-	const numeric = value.replace(/\D/g, '').slice(0, 8);
-	let formatted = numeric;
-	if (numeric.length >= 2) formatted = numeric.slice(0, 2) + '.' + numeric.slice(2);
-	if (numeric.length >= 4) {
-		formatted = numeric.slice(0, 2) + '.' + numeric.slice(2, 4) + '.' + numeric.slice(4);
-	}
-	return formatted;
-};
-
-const isRealDate = (value: string): boolean => {
-	if (!/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return false;
-	const [day, month, year] = value.split('.').map(Number);
-	const date = new Date(Date.UTC(year, month - 1, day));
-	return (
-		date.getUTCFullYear() === year &&
-		date.getUTCMonth() === month - 1 &&
-		date.getUTCDate() === day
-	);
-};
-
-const dateToISO = (dateStr: string): string => {
-	const [day, month, year] = dateStr.split('.').map(Number);
-	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00Z`;
-};
 
 export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	const [avatarId, setAvatarId] = useState<string | null>(null);
@@ -258,118 +206,151 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 
 	return (
 		<div className={styles.container}>
-			<div className={styles.header}>
-				<h1 className={styles.title}>Создать аккаунт</h1>
-				<p className={styles.subtitle}>Заполните свой профиль</p>
+			<div className={styles.titleBlock}>
+				<p className={styles.eyebrow}>Шаг 3 из 3</p>
+				<h1 className={styles.title}>Заполните профиль</h1>
+				<p className={styles.subtitle}>
+					Добавьте основные данные, чтобы профиль сразу выглядел полным и полезным.
+				</p>
 			</div>
 
-			<AvatarSelector
-				avatars={avatars}
-				selectedId={avatarId}
-				onSelect={(id) => {
-					setAvatarId(id);
-					setAvatarError('');
-				}}
-				required
-				error={avatarError}
-			/>
+			<div className={styles.section}>
+				<h2 className={styles.sectionTitle}>Аватар</h2>
+				<AvatarSelector
+					avatars={avatars}
+					selectedId={avatarId}
+					onSelect={(id) => {
+						setAvatarId(id);
+						setAvatarError('');
+					}}
+					required
+					error={avatarError}
+				/>
+			</div>
 
-			<InputField
-				label="Никнейм"
-				value={nickname}
-				onChange={handleNicknameChange}
-				placeholder="username"
-				required
-				error={nicknameError}
-			/>
-			<Select
-				label="Пол"
-				options={SEX_OPTIONS}
-				value={sex}
-				onChange={(v) => {
-					setSex(v);
-					setSexError('');
-				}}
-				placeholder="Выберите пол"
-				required
-				error={sexError}
-			/>
-			<InputField
-				label="Дата рождения"
-				value={birthDate}
-				onChange={handleBirthDateChange}
-				placeholder="ДД.ММ.ГГГГ"
-				required
-				error={birthDateError}
-				maxLength={10}
-			/>
-			<Select
-				label="Образование"
-				options={EDUCATION_OPTIONS}
-				value={education}
-				onChange={(v) => {
-					setEducation(v);
-					setEducationError('');
-				}}
-				placeholder="Выберите образование"
-				required
-				error={educationError}
-			/>
-			<Select
-				label="Сфера деятельности"
-				options={INDUSTRY_OPTIONS}
-				value={industry}
-				onChange={(v) => {
-					setIndustry(v);
-					setIndustryError('');
-				}}
-				placeholder="Выберите сферу"
-				required
-				error={industryError}
-			/>
+			<div className={styles.section}>
+				<h2 className={styles.sectionTitle}>Основные данные</h2>
+				<div className={styles.fieldsGrid}>
+					<InputField
+						label="Никнейм"
+						value={nickname}
+						onChange={handleNicknameChange}
+						placeholder="username"
+						required
+						error={nicknameError}
+					/>
+					<Select
+						label="Пол"
+						options={SEX_OPTIONS}
+						value={sex}
+						onChange={(v) => {
+							setSex(v);
+							setSexError('');
+						}}
+						placeholder="Выберите пол"
+						required
+						error={sexError}
+					/>
+					<InputField
+						label="Дата рождения"
+						value={birthDate}
+						onChange={handleBirthDateChange}
+						placeholder="ДД.ММ.ГГГГ"
+						required
+						error={birthDateError}
+						maxLength={10}
+					/>
+					<Select
+						label="Образование"
+						options={EDUCATION_OPTIONS}
+						value={education}
+						onChange={(v) => {
+							setEducation(v);
+							setEducationError('');
+						}}
+						placeholder="Выберите образование"
+						required
+						error={educationError}
+					/>
+					<Select
+						label="Сфера деятельности"
+						options={INDUSTRY_OPTIONS}
+						value={industry}
+						onChange={(v) => {
+							setIndustry(v);
+							setIndustryError('');
+						}}
+						placeholder="Выберите сферу"
+						required
+						error={industryError}
+					/>
+				</div>
+			</div>
 
-			<div className={styles.experienceSection}>
-				<p className={styles.experienceTitle}>Опыт работы (опционально)</p>
-				{experiences.map((exp) => (
-					<div key={exp.id} className={styles.experienceItem}>
-						<Select
-							options={INDUSTRY_OPTIONS}
-							value={exp.industry}
-							onChange={(v) => updateExperience(exp.id, 'industry', v)}
-							placeholder="Сфера деятельности"
-						/>
-						<div className={styles.dateFields}>
-							<InputField
-								value={exp.startDate}
-								onChange={(v) =>
-									updateExperience(exp.id, 'startDate', formatDateInput(v))
-								}
-								placeholder="ДД.ММ.ГГГГ"
-								maxLength={10}
-								label=""
-							/>
-							<InputField
-								value={exp.endDate}
-								onChange={(v) =>
-									updateExperience(exp.id, 'endDate', formatDateInput(v))
-								}
-								placeholder="ДД.ММ.ГГГГ"
-								maxLength={10}
-								label=""
-							/>
-						</div>
-						<button
-							type="button"
-							className={styles.removeExperience}
-							onClick={() => removeExperience(exp.id)}
-						>
-							Удалить
-						</button>
+			<div className={styles.section}>
+				<div className={styles.sectionHeader}>
+					<div>
+						<h2 className={styles.sectionTitle}>Опыт работы</h2>
+						<p className={styles.sectionDescription}>
+							Эту часть можно пропустить, если опыта пока нет. Если добавляете опыт, указывайте сферу и дату начала.
+						</p>
 					</div>
-				))}
-				<Button variant="secondary" onClick={addExperience}>
-					+ Добавить опыт
-				</Button>
+					<Button variant="secondary" size="small" onClick={addExperience}>
+						Добавить опыт
+					</Button>
+				</div>
+
+				{experiences.length > 0 ? (
+					<div className={styles.experienceList}>
+						{experiences.map((exp, index) => (
+							<div key={exp.id} className={styles.experienceCard}>
+								<div className={styles.experienceCardHeader}>
+									<h3 className={styles.experienceCardTitle}>Опыт #{index + 1}</h3>
+									<button
+										type="button"
+										className={styles.removeExperience}
+										onClick={() => removeExperience(exp.id)}
+									>
+										Удалить
+									</button>
+								</div>
+
+								<div className={styles.fieldsGrid}>
+									<Select
+										label="Сфера"
+										options={INDUSTRY_OPTIONS}
+										value={exp.industry}
+										onChange={(v) => updateExperience(exp.id, 'industry', v)}
+										placeholder="Выберите сферу"
+									/>
+									<InputField
+										label="Дата начала"
+										value={exp.startDate}
+										onChange={(v) =>
+											updateExperience(exp.id, 'startDate', formatDateInput(v))
+										}
+										placeholder="ДД.ММ.ГГГГ"
+										maxLength={10}
+									/>
+									<InputField
+										label="Дата окончания"
+										value={exp.endDate}
+										onChange={(v) =>
+											updateExperience(exp.id, 'endDate', formatDateInput(v))
+										}
+										placeholder="ДД.ММ.ГГГГ"
+										maxLength={10}
+									/>
+								</div>
+							</div>
+						))}
+					</div>
+				) : (
+					<div className={styles.emptyExperience}>
+						Опыт пока не добавлен. Его можно заполнить позже в настройках профиля.
+					</div>
+				)}
+
 				{experienceError && <div className={styles.generalError}>{experienceError}</div>}
 			</div>
 

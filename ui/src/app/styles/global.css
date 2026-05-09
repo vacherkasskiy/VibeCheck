@@ -19,11 +19,13 @@ body,
 }
 
 body {
-	font-family: 'Yandex Sans Text', sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	color: #4d4d4d;
+	font-family: var(--font-family-base);
+	font-size: var(--font-size-md);
+	font-weight: var(--weight-medium);
+	line-height: var(--line-height-base);
+	color: var(--color-text-primary);
 	position: relative;
+	background: var(--color-page-bg);
 }
 
 .appContent {
@@ -88,6 +90,25 @@ p {
 	font-weight: inherit;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: var(--color-text-primary);
+	line-height: var(--line-height-tight);
+}
+
+p,
+label,
+input,
+textarea,
+select,
+button {
+	line-height: var(--line-height-base);
+}
+
 ul,
 ul li {
 	list-style: none;
@@ -117,6 +138,11 @@ select {
 	font-size: inherit;
 	color: inherit;
 	background-color: transparent;
+}
+
+input::placeholder,
+textarea::placeholder {
+	color: var(--color-text-muted);
 }
 
 input::-ms-clear {
@@ -168,7 +194,7 @@ html {
 }
 
 body {
-  font-family: 'YS Text', 'Inter', 'Arial', sans-serif;
+  font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -176,10 +202,12 @@ body {
 
 a, button, [role="button"] {
   transition: 
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
+    transform var(--transition-smooth),
+    box-shadow var(--transition-smooth),
+    background var(--transition-smooth),
+    color var(--transition-smooth),
+    border-color var(--transition-smooth),
+    opacity var(--transition-smooth);
 }
 
 a, button {
@@ -199,6 +227,27 @@ a, button {
 
 .hero, .cta, .container {
   animation: fadeInUp 0.6s ease-out forwards;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, rgba(155, 108, 244, 0.48), rgba(239, 140, 199, 0.32));
+	border-radius: 999px;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(155, 108, 244, 0.4) transparent;
 }
 
 .cta { animation-delay: 0.1s; }

@@ -47,12 +47,10 @@ export const ReviewsModal = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={handleClose}>
+		<Modal isOpen={isOpen} onClose={handleClose} className={styles.modalShell}>
 			<div className={`${styles.modalContent} ${selectedReview ? styles.reviewDetailsModal : ''}`}>
 				<div className={styles.modalHeader}>
-					<h2 className={styles.modalTitle}>
-						{selectedReview ? 'Полный отзыв' : '📝 Все отзывы'}
-					</h2>
+					<h2 className={styles.modalTitle}>{selectedReview ? 'Полный отзыв' : 'Все отзывы'}</h2>
 					<button className={styles.closeButton} onClick={handleClose} type="button">
 						✕
 					</button>

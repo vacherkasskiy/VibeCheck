@@ -1,3 +1,4 @@
+import { translateEducation, translateExperience, translateSpecialization } from 'shared/lib';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
 import type { User } from 'entities/user';
@@ -53,15 +54,15 @@ export const ProfileHeader = ({ user, onEditProfile }: ProfileHeaderProps) => {
 			<div className={styles.details}>
 				<div className={styles.detailItem}>
 					<span className={styles.detailLabel}>Образование</span>
-					<span className={styles.detailValue}>{user.education}</span>
+					<span className={styles.detailValue}>{translateEducation(user.education)}</span>
 				</div>
 				<div className={styles.detailItem}>
 					<span className={styles.detailLabel}>Опыт</span>
-					<span className={styles.detailValue}>{user.experience}</span>
+					<span className={styles.detailValue}>{translateExperience(user.experience)}</span>
 				</div>
 				<div className={styles.detailItem}>
 					<span className={styles.detailLabel}>Специализация</span>
-					<span className={styles.detailValue}>{user.expertise}</span>
+					<span className={styles.detailValue}>{translateSpecialization(user.expertise)}</span>
 				</div>
 			</div>
 		</div>

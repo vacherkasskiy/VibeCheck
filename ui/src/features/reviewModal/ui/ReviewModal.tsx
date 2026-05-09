@@ -374,7 +374,7 @@ export const ReviewModal = ({
 			>
 				<div className={styles.flagsModalContainer}>
 					<div className={styles.flagsModalHeader}>
-						<h3 className={styles.flagsModalTitle}>Select Flags for "{companyName}"</h3>
+						<h3 className={styles.flagsModalTitle}>Выберите флаги для «{companyName}»</h3>
 						<p className={styles.flagsModalSubtitle}>
 							Перетащи в колонку зеленых или красных или кликни
 						</p>
@@ -385,7 +385,7 @@ export const ReviewModal = ({
 							type="text"
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
-							placeholder="Search flags..."
+							placeholder="Поиск по флагам..."
 							className={styles.flagsSearchInput}
 						/>
 					</div>
@@ -444,7 +444,7 @@ export const ReviewModal = ({
 									</div>
 								))}
 								{!isFlagsLoading && groupedByCategory.length === 0 && (
-									<div className={styles.noFlagsFound}>No flags found</div>
+									<div className={styles.noFlagsFound}>Флаги не найдены</div>
 								)}
 							</div>
 						</div>
@@ -480,9 +480,9 @@ export const ReviewModal = ({
 													}
 													className={styles.prioritySelect}
 												>
-													<option value={3}>High</option>
-													<option value={2}>Medium</option>
-													<option value={1}>Low</option>
+													<option value={3}>Высокий</option>
+													<option value={2}>Средний</option>
+													<option value={1}>Низкий</option>
 												</select>
 												<button
 													className={styles.moveToRed}
@@ -537,9 +537,9 @@ export const ReviewModal = ({
 													}
 													className={styles.prioritySelect}
 												>
-													<option value={3}>High</option>
-													<option value={2}>Medium</option>
-													<option value={1}>Low</option>
+													<option value={3}>Высокий</option>
+													<option value={2}>Средний</option>
+													<option value={1}>Низкий</option>
 												</select>
 												<button
 													className={styles.moveToGreen}
@@ -589,7 +589,7 @@ export const ReviewModal = ({
 				className={styles.confirmModal}
 			>
 				<div className={styles.confirmContainer}>
-					<h3 className={styles.confirmTitle}>Вы уверены что хотите опубликоваться отзыв?</h3>
+					<h3 className={styles.confirmTitle}>Вы уверены, что хотите опубликовать отзыв?</h3>
 					{loading && (
 						<p className={styles.flagsState}>Сохраняем отзыв и обновляем список компании...</p>
 					)}

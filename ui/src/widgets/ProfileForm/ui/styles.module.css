@@ -1,121 +1,158 @@
 .container {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: var(--space-6);
+	width: 100%;
 }
 
-.header {
+.titleBlock {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	gap: 16px;
-	text-align: center;
-	margin-bottom: 24px;
-}
-
-.logo {
-	width: 55px;
-	height: 40px;
-	display: block;
-	object-fit: contain;
+	gap: var(--space-3);
+	margin-bottom: var(--space-2);
 }
 
 .title {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 28px;
-	font-weight: 700;
-	color: #1f2937;
 	margin: 0;
-	line-height: 1.2;
+	font-size: clamp(2rem, 4vw, 2.75rem);
+	font-weight: var(--weight-bold);
+	line-height: 1.05;
+	letter-spacing: -0.03em;
+	color: var(--color-text-primary);
 }
 
 .subtitle {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 16px;
-	color: #6b7280;
 	margin: 0;
+	max-width: 62ch;
+	font-size: var(--font-size-md);
+	line-height: var(--line-height-relaxed);
+	color: var(--color-text-secondary);
 }
 
-.avatarSection {
-	margin: 8px 0 16px;
+.eyebrow {
+	margin: 0;
+	color: var(--color-purple);
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-bold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 }
 
 .sectionTitle {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	font-weight: 500;
-	color: #374151;
-	margin: 0 0 12px;
-	text-align: center;
+	margin: 0;
+	font-size: clamp(1.05rem, 2vw, 1.2rem);
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 }
 
-.experienceSection {
-	margin-top: 16px;
-	padding-top: 20px;
-	border-top: 1px solid #e5e7eb;
-}
-
-.experienceTitle {
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	color: #6b7280;
-	margin: 0 0 16px;
-	text-align: center;
-}
-
-.experienceItem {
-	background: #f9fafb;
-	border-radius: 12px;
-	padding: 16px;
-	margin-bottom: 12px;
+.section {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: var(--space-4);
+	padding: clamp(20px, 3vw, 24px);
+	background: rgba(255, 255, 255, 0.76);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-md);
 }
 
-.dateFields {
+.sectionHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--space-4);
+}
+
+.sectionDescription {
+	margin: 8px 0 0;
+	font-size: var(--font-size-sm);
+	line-height: var(--line-height-relaxed);
+	color: var(--color-text-secondary);
+}
+
+.fieldsGrid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 12px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-4);
+}
+
+.experienceList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.experienceCard {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+	padding: 20px;
+	background: var(--color-surface-muted);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-md);
+}
+
+.experienceCardHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+}
+
+.experienceCardTitle {
+	margin: 0;
+	font-size: var(--font-size-md);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 }
 
 .removeExperience {
 	background: none;
 	border: none;
-	color: #ef4444;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
+	color: var(--color-red-badge);
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
 	cursor: pointer;
 	padding: 0;
-	text-decoration: underline;
-	text-align: left;
-	transition: color 0.2s ease;
-	align-self: flex-start;
+	transition: color var(--transition-fast);
 }
 
 .removeExperience:hover {
-	color: #dc2626;
+	color: var(--color-red);
 }
 
-.actions {
-	display: flex;
-	justify-content: space-between;
-	gap: 12px;
-	margin-top: 24px;
+.emptyExperience {
+	padding: 18px;
+	background: var(--color-surface-muted);
+	border: 1px dashed rgba(90, 79, 132, 0.12);
+	border-radius: var(--radius-md);
+	color: var(--color-text-muted);
+	font-size: var(--font-size-sm);
+	line-height: var(--line-height-relaxed);
 }
 
 .submitButton {
-	margin-top: 16px;
+	margin-top: 4px;
 }
 
 .generalError {
-	background: #fef2f2;
-	color: #ef4444;
-	padding: 12px 16px;
-	border-radius: 12px;
-	font-family: 'YS Text', 'Arial', sans-serif;
-	font-size: 14px;
-	text-align: center;
+	color: var(--color-red-badge);
+	font-size: var(--font-size-sm);
+	padding: 12px;
+	background: rgba(255, 237, 240, 0.88);
+	border-radius: var(--radius-md);
+	border: 1px solid rgba(217, 90, 107, 0.18);
+}
+
+@media (max-width: 768px) {
+	.sectionHeader,
+	.experienceCardHeader {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.fieldsGrid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 480px) {
@@ -125,17 +162,5 @@
 
 	.subtitle {
 		font-size: 14px;
-	}
-
-	.dateFields {
-		grid-template-columns: 1fr;
-	}
-
-	.actions {
-		flex-direction: column;
-	}
-
-	.actions button {
-		width: 100%;
 	}
 }

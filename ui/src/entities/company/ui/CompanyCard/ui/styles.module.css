@@ -1,104 +1,195 @@
 .companyCard {
-	border: 1px solid #e0e0f0;
-	border-radius: 20px;
-	padding: 32px;
-	background: #fff;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-	transition: all 0.2s;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-5);
+	width: 100%;
+	min-height: 280px;
+	padding: clamp(24px, 4vw, 32px);
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-md);
+	text-align: left;
 	cursor: pointer;
+	overflow: hidden;
+	transition:
+		transform var(--transition-fast),
+		box-shadow var(--transition-fast),
+		border-color var(--transition-fast),
+		background var(--transition-fast);
 	animation: fadeIn 0.3s ease-out;
-	min-height: 260px;
 }
 
 .companyCard:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-	border-color: #d8d8ff;
+	transform: translateY(-3px);
+	box-shadow: var(--shadow-lg);
+	border-color: rgba(155, 108, 244, 0.18);
+	background: rgba(255, 255, 255, 0.96);
+}
+
+.companyCard:focus-visible {
+	outline: 3px solid rgba(155, 108, 244, 0.18);
+	outline-offset: 3px;
+}
+
+.cardGlow {
+	position: absolute;
+	inset: auto -15% -25% auto;
+	width: 220px;
+	height: 220px;
+	border-radius: 50%;
+	background: radial-gradient(circle, rgba(155, 108, 244, 0.14) 0%, rgba(155, 108, 244, 0) 72%);
+	pointer-events: none;
 }
 
 .companyHeader {
 	display: flex;
 	align-items: flex-start;
-	gap: 20px;
-	margin-bottom: 28px;
+	gap: var(--space-4);
+	position: relative;
+	z-index: 1;
 }
 
 .companyLogo {
 	width: clamp(88px, 12vw, 120px);
 	height: clamp(88px, 12vw, 120px);
-	border-radius: 16px;
-	background: #f0f0ff;
+	border-radius: var(--radius-md);
+	background: linear-gradient(135deg, var(--color-purple-soft) 0%, #efe8ff 100%);
+	border: 1px solid rgba(155, 108, 244, 0.16);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #6c63ff;
-	font-weight: bold;
+	color: var(--color-purple);
+	font-weight: var(--weight-bold);
 	font-size: clamp(36px, 6vw, 48px);
 	flex-shrink: 0;
+	box-shadow: var(--shadow-xs);
 }
 
 .companyInfo {
 	flex: 1;
 	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: var(--space-2);
 }
 
 .companyName {
-	font-size: 28px;
-	font-weight: 700;
-	color: #2d2d2d;
-	line-height: 1.3;
+	margin: 0;
+	color: var(--color-text-primary);
+	font-size: clamp(1.65rem, 3vw, 2.35rem);
+	font-weight: var(--weight-bold);
+	line-height: 1.12;
+	letter-spacing: -0.03em;
+	word-break: break-word;
 }
 
-.companyTags {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-top: 10px;
-	color: #6c63ff;
-	font-size: 16px;
-	font-weight: 500;
+.companyBody {
+	position: relative;
+	z-index: 1;
+	flex: 1;
 }
 
-.companyTagsIcon {
-	width: 18px;
-	height: 18px;
-	color: #6c63ff;
+.companyDescription,
+.companyDescriptionMuted {
+	margin: 0;
+	font-size: var(--font-size-sm);
+	line-height: var(--line-height-relaxed);
 }
 
-.flagsSection {
-	margin-top: 24px;
-	padding-top: 24px;
-	border-top: 1px solid #f0f0ff;
+.companyDescription {
+	color: var(--color-text-secondary);
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.companyDescriptionMuted {
+	color: var(--color-text-muted);
+}
+
+.companyFooter {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: var(--space-4);
+	align-items: end;
+	padding-top: var(--space-5);
+	border-top: 1px solid rgba(90, 79, 132, 0.08);
 }
 
 .flagsTitle {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	margin-bottom: 16px;
-	color: #6c63ff;
-	font-size: 16px;
-	font-weight: 600;
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+	color: var(--color-purple);
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-semibold);
 }
 
 .flagsContainer {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--space-2);
 }
 
 .flag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #f0f0ff;
-  border: 1px solid rgba(108, 99, 255, 0.2);
-  color: #666;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-medium);
+  background: var(--color-surface-muted);
+  border: 1px solid rgba(90, 79, 132, 0.1);
+  color: var(--color-text-secondary);
+}
+
+.emptyFlags {
+	color: var(--color-text-muted);
+	font-size: var(--font-size-xs);
+	font-style: italic;
+}
+
+.cardMeta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: var(--space-2);
+}
+
+.metaPill {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	min-height: 34px;
+	padding: 0 12px;
+	background: rgba(255, 255, 255, 0.82);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	border-radius: var(--radius-pill);
+	box-shadow: var(--shadow-xs);
+	white-space: nowrap;
+}
+
+.metaLabel {
+	color: var(--color-text-muted);
+	font-size: 11px;
+	font-weight: var(--weight-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.metaValue {
+	color: var(--color-text-primary);
+	font-size: var(--font-size-xs);
+	font-weight: var(--weight-bold);
 }
 
 @keyframes fadeIn {
@@ -114,31 +205,42 @@
 
 @media (max-width: 768px) {
 	.companyCard {
+		min-height: 240px;
 		padding: 24px;
-		min-height: 220px;
 	}
 
 	.companyLogo {
-		width: clamp(88px, 12vw, 120px);
-		height: clamp(88px, 12vw, 120px);
-		font-size: clamp(36px, 6vw, 48px);
+		width: 80px;
+		height: 80px;
+		font-size: 32px;
 	}
 
 	.companyName {
-		font-size: 22px;
+		font-size: 24px;
+	}
+
+	.companyFooter {
+		grid-template-columns: 1fr;
+		align-items: start;
+	}
+
+	.cardMeta {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
 	}
 }
 
 @media (max-width: 480px) {
 	.companyCard {
 		padding: 20px;
-		min-height: 190px;
+		min-height: 220px;
 	}
 
 	.companyLogo {
-		width: clamp(88px, 12vw, 120px);
-		height: clamp(88px, 12vw, 120px);
-		font-size: clamp(36px, 6vw, 48px);
+		width: 68px;
+		height: 68px;
+		font-size: 26px;
 	}
 
 	.companyName {
@@ -148,142 +250,4 @@
 	.flagsTitle {
 		font-size: 13px;
 	}
-}
-
-.card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  animation: fadeIn 0.3s ease-out;
-  min-height: 180px;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-border-hover);
-  background: var(--color-bg-card-hover);
-}
-
-.header {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.logo {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-md);
-  background: var(--color-purple-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-purple);
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  flex-shrink: 0;
-}
-
-.info {
-  flex: 1;
-  min-width: 0;
-}
-
-.name {
-  font-size: clamp(var(--font-size-lg), 3vw, var(--font-size-xl));
-  font-weight: 700;
-  color: var(--color-text-primary);
-  line-height: 1.3;
-  margin: 0;
-}
-
-.tags {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-xs);
-  color: var(--color-purple);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-}
-
-.tagsIcon {
-  width: 18px;
-  height: 18px;
-  color: var(--color-purple);
-}
-
-.flagsSection {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.flagsTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-purple);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-
-.flagsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-/* ===== Mobile ===== */
-@media (max-width: 768px) {
-  .card {
-    padding: var(--spacing-md);
-    min-height: 160px;
-  }
-  
-  .logo {
-    width: 48px;
-    height: 48px;
-    font-size: var(--font-size-md);
-  }
-  
-  .name {
-    font-size: var(--font-size-lg);
-  }
-  
-  .flagsTitle {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    padding: var(--spacing-sm);
-    min-height: 140px;
-  }
-  
-  .logo {
-    width: 44px;
-    height: 44px;
-    font-size: 18px;
-  }
-  
-  .name {
-    font-size: var(--font-size-md);
-  }
-  
-  .tags {
-    font-size: 13px;
-  }
-  
-  .flagsTitle {
-    font-size: 12px;
-  }
 }

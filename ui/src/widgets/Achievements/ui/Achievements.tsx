@@ -50,9 +50,9 @@ export const Achievements = ({ achievements, onViewAll }: AchievementsProps) => 
 		<div className={styles.container}>
 			<div className={styles.header}>
 				<h2 className={styles.title}>Достижения</h2>
-				{achievements.length > 5 && (
+				{achievements.length > 0 && (
 					<Button onClick={onViewAll} variant="secondary" size="small">
-						Смотреть все
+						Открыть все
 					</Button>
 				)}
 			</div>

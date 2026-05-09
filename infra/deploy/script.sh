@@ -116,33 +116,78 @@ wait_for_kafka_ready() {
 create_kafka_topics() {
   echo "creating kafka topics..."
 
-  kubectl exec -n vibecheck kafka-controller-0 -- bash -ec '
-    CLIENT_PROPS=/tmp/client.properties
-    CLIENT_PASSWORD="$(cat /opt/bitnami/kafka/config/secrets/client-passwords)"
+  kubectl delete job -n vibecheck kafka-topic-admin --ignore-not-found >/dev/null
 
-    cat > "$CLIENT_PROPS" <<EOF
-security.protocol=SASL_PLAINTEXT
-sasl.mechanism=PLAIN
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="app_user" password="${CLIENT_PASSWORD}";
-EOF
+  kubectl apply -f - <<'YAML'
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topic-admin
+  namespace: vibecheck
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-topic-admin
+          image: docker.io/bitnamilegacy/kafka:4.0.0-debian-12-r10
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_CLIENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-user-passwords
+                  key: client-passwords
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xms64m -Xmx128m"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          command:
+            - /bin/bash
+            - -ec
+          args:
+            - |
+              CLIENT_PROPS=/tmp/client.properties
+              CLIENT_PASSWORD="${KAFKA_CLIENT_PASSWORD%%,*}"
 
-    for topic in reviews-written reviews-updated reviews-liked gamification-achievement gamification-level subscriptions users reports; do
-      /opt/bitnami/kafka/bin/kafka-topics.sh \
-        --create \
-        --if-not-exists \
-        --bootstrap-server kafka:9092 \
-        --command-config "$CLIENT_PROPS" \
-        --topic "$topic" \
-        --partitions 1 \
-        --replication-factor 1
-    done
+              printf '%s\n' \
+                "security.protocol=SASL_PLAINTEXT" \
+                "sasl.mechanism=PLAIN" \
+                "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"app_user\" password=\"${CLIENT_PASSWORD}\";" \
+                > "$CLIENT_PROPS"
 
-    echo "listing kafka topics..."
-    /opt/bitnami/kafka/bin/kafka-topics.sh \
-      --list \
-      --bootstrap-server kafka:9092 \
-      --command-config "$CLIENT_PROPS"
-  '
+              for topic in reviews-written reviews-updated reviews-liked gamification-achievement gamification-level subscriptions users reports; do
+                /opt/bitnami/kafka/bin/kafka-topics.sh \
+                  --create \
+                  --if-not-exists \
+                  --bootstrap-server kafka:9092 \
+                  --command-config "$CLIENT_PROPS" \
+                  --topic "$topic" \
+                  --partitions 1 \
+                  --replication-factor 1
+              done
+
+              echo "listing kafka topics..."
+              /opt/bitnami/kafka/bin/kafka-topics.sh \
+                --list \
+                --bootstrap-server kafka:9092 \
+                --command-config "$CLIENT_PROPS"
+YAML
+
+  if ! kubectl wait -n vibecheck --for=condition=complete --timeout=300s job/kafka-topic-admin; then
+    kubectl logs -n vibecheck job/kafka-topic-admin || true
+    kubectl describe job -n vibecheck kafka-topic-admin || true
+    exit 1
+  fi
+
+  kubectl logs -n vibecheck job/kafka-topic-admin || true
 }
 
 apply_runtime_secrets() {
@@ -181,6 +226,7 @@ ensure_namespace "vibecheck"
 minikube addons enable ingress
 minikube addons enable default-storageclass
 minikube addons enable storage-provisioner
+minikube addons enable metrics-server
 wait_for_ingress_nginx_ready
 
 # 7. helm repo
@@ -208,6 +254,10 @@ helm upgrade --install kafka bitnami/kafka \
   -n vibecheck \
   -f ../manifests/kafka_values.yaml
 
+# 9. kafka
+wait_for_kafka_ready
+create_kafka_topics
+
 ### OBSERVABILITY. DISABLE IF NOT NECESSARY ###
 
 helm upgrade --install prometheus prometheus-community/prometheus \
@@ -222,14 +272,10 @@ kubectl apply -f ../manifests/my/logging
 
 ###############################################
 
-# 9. app manifests
+# 10. app manifests
 apply_runtime_secrets
 kubectl apply -f ../manifests/my/service
 kubectl apply -f ../manifests/my/ingress
-
-# 10. kafka
-wait_for_kafka_ready
-create_kafka_topics
 
 echo
 echo "starting minikube tunnel..."

@@ -268,7 +268,7 @@ helm upgrade --install grafana grafana/grafana \
   -n vibecheck \
   -f ../manifests/grafana_values.yaml
 
-kubectl apply -f ../manifests/my/logging
+kubectl apply -f ../manifests/my/observability
 
 ###############################################
 

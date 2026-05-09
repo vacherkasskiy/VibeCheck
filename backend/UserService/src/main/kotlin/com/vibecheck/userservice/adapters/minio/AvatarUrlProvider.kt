@@ -11,29 +11,8 @@ import java.net.URI
 class AvatarUrlProvider(
     private val minioProperties: MinioProperties,
 ) {
-    private val internalMinioClient: MinioClient by lazy {
-        MinioClient.builder()
-            .endpoint(normalizeEndpoint(minioProperties.requiredEndpoint()).toString())
-            .credentials(
-                minioProperties.requiredAccessKey(),
-                minioProperties.requiredSecretKey(),
-            )
-            .build()
-    }
-
     private val publicMinioClient: MinioClient by lazy {
-        MinioClient.builder()
-            .endpoint(
-                minioProperties.publicEndpoint
-                    ?.takeIf { it.isNotBlank() }
-                    ?.let { normalizeEndpoint(it).toString() }
-                    ?: normalizeEndpoint(minioProperties.requiredEndpoint()).toString()
-            )
-            .credentials(
-                minioProperties.requiredAccessKey(),
-                minioProperties.requiredSecretKey(),
-            )
-            .build()
+        buildClient(minioProperties.requiredPublicEndpoint())
     }
 
     fun getReadUrl(objectKey: String): String {
@@ -46,6 +25,14 @@ class AvatarUrlProvider(
                 .build()
         )
     }
+
+    private fun buildClient(endpoint: String): MinioClient = MinioClient.builder()
+        .endpoint(normalizeEndpoint(endpoint).toString())
+        .credentials(
+            minioProperties.requiredAccessKey(),
+            minioProperties.requiredSecretKey(),
+        )
+        .build()
 
     private fun normalizeEndpoint(endpoint: String): URI {
         val rawEndpoint = endpoint.trim()

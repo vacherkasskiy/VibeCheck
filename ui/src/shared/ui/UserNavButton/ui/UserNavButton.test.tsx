@@ -3,13 +3,15 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserNavButton } from './UserNavButton';
 
-const { logoutMock, navigateMock } = vi.hoisted(() => ({
+const { logoutMock, navigateMock, authStateMock } = vi.hoisted(() => ({
 	logoutMock: vi.fn(),
 	navigateMock: vi.fn(),
+	authStateMock: { isAuthenticated: false },
 }));
 
 vi.mock('features/auth', () => ({
 	useAuth: () => ({
+		state: authStateMock,
 		logout: logoutMock,
 	}),
 }));
@@ -27,6 +29,7 @@ describe('UserNavButton', () => {
 	beforeEach(() => {
 		logoutMock.mockReset();
 		navigateMock.mockReset();
+		authStateMock.isAuthenticated = false;
 	});
 
 	it('renders nothing without avatar and nickname', () => {
@@ -38,6 +41,14 @@ describe('UserNavButton', () => {
 
 		// Assert
 		expect(wrapper).toBeNull();
+	});
+
+	it('renders fallback profile button for authenticated user without profile data', () => {
+		authStateMock.isAuthenticated = true;
+
+		render(<UserNavButton />);
+
+		expect(screen.getByRole('button', { name: /профиль/i })).toBeInTheDocument();
 	});
 
 	it('opens menu and navigates to profile edit page', () => {

@@ -9,6 +9,8 @@ export interface ReviewViewModalProps {
   review: CompanyReview | null;
   companyName: string;
   onClose: () => void;
+  authorName?: string;
+  authorAvatarUrl?: string | null;
   myVote?: VoteModeGatewayEnum;
   onVote?: (mode: VoteModeGatewayEnum) => void;
   isVoting?: boolean;
@@ -20,6 +22,8 @@ export const ReviewViewModal = ({
   review,
   companyName,
   onClose,
+  authorName,
+  authorAvatarUrl,
   myVote,
   onVote,
   isVoting = false,
@@ -29,7 +33,8 @@ export const ReviewViewModal = ({
 
   if (!review || !isOpen) return null;
 
-  const authorName = `User ${review.authorId.slice(0, 8)}`;
+  const resolvedAuthorName = authorName ?? `User ${review.authorId.slice(0, 8)}`;
+  const authorAvatar = authorAvatarUrl ?? review.iconId;
   const flags = review.flags ?? [];
 
   const formatDate = (dateString: string) => {
@@ -50,6 +55,7 @@ export const ReviewViewModal = ({
   };
 
   const handleAuthorClick = () => {
+    if (!review.authorId) return;
     onClose();
     navigate(`/user/${review.authorId}`);
   };
@@ -111,22 +117,26 @@ export const ReviewViewModal = ({
 
           <div className={styles.reviewAuthorCard}>
             <div className={styles.reviewAuthorInfo}>
-              {review.iconId ? (
-                <img src={review.iconId} alt={authorName} className={styles.reviewAuthorAvatar} />
+              {authorAvatar ? (
+                <img src={authorAvatar ?? ''} alt={resolvedAuthorName} className={styles.reviewAuthorAvatar} />
               ) : (
                 <div className={styles.reviewAuthorAvatarPlaceholder}>
-                  {authorName.charAt(0).toUpperCase()}
+                  {resolvedAuthorName.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
                 <span className={styles.reviewMetaLabel}>Автор</span>
-                <button 
-                  className={styles.authorName}
-                  onClick={handleAuthorClick}
-                  type="button"
-                >
-                  {authorName}
-                </button>
+                {review.authorId ? (
+                  <button
+                    className={styles.authorName}
+                    onClick={handleAuthorClick}
+                    type="button"
+                  >
+                    {resolvedAuthorName}
+                  </button>
+                ) : (
+                  <span className={styles.authorNameStatic}>{resolvedAuthorName}</span>
+                )}
               </div>
             </div>
           </div>
@@ -156,13 +166,15 @@ export const ReviewViewModal = ({
                 disabled={isVoting}
               />
             </div>
-            <button
-              className={styles.reportButton}
-              type="button"
-              onClick={() => onReport?.(review.reviewId)}
-            >
-              ⚠️ Пожаловаться
-            </button>
+            {onReport && (
+              <button
+                className={styles.reportButton}
+                type="button"
+                onClick={() => onReport(review.reviewId)}
+              >
+                ⚠️ Пожаловаться
+              </button>
+            )}
           </div>
         </div>
       </div>

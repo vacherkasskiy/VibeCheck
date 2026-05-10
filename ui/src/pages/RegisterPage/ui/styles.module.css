@@ -10,21 +10,32 @@
 }
 
 .container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 480px; 
-  padding: 0 4px;
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 480px;
+	padding: 0 4px;
+	transition: max-width 0.25s ease;
+}
+
+.profileContainer {
+	max-width: min(1000px, calc(100vw - 40px));
 }
 
 @media (max-width: 480px) {
-  .page {
-    padding: 16px;
-    align-items: flex-start;
-    padding-top: 40px;
-  }
-  
-  .container {
-    max-width: 100%;
-  }
+	.page {
+		padding: 16px;
+		align-items: flex-start;
+	}
+
+	.container,
+	.profileContainer {
+		max-width: 100%;
+	}
+}
+
+@media (max-width: 1024px) {
+	.profileContainer {
+		max-width: calc(100vw - 32px);
+	}
 }

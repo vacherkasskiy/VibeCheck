@@ -2,6 +2,7 @@ import { useUserActivity } from 'entities/activity';
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
 import { AchievementsModal, ReviewsModal, DeleteReviewModal } from 'features/profile/modals';
+import { ReviewViewModal } from 'features/reviewView';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
@@ -10,10 +11,13 @@ import { useToast } from 'shared/ui/Toast';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { Achievements } from 'widgets/Achievements';
 import { ActivityPanel } from 'widgets/ActivityPanel';
+import { FooterLinks } from 'widgets/FooterLinks';
 import { ProfileHeader } from 'widgets/ProfileHeader';
 import { UserFlags } from 'widgets/UserFlags';
 import { UserReviews } from 'widgets/UserReviews';
 import styles from './ProfilePage.module.css';
+import type { CompanyReview } from 'entities/company';
+import type { UserReview } from 'entities/user';
 
 export const ProfilePage = () => {
 	const navigate = useNavigate();
@@ -22,6 +26,7 @@ export const ProfilePage = () => {
 	const { data: activities = [] } = useUserActivity(5, !!profile);
 	const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
+	const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [reviewToDelete, setReviewToDelete] = useState<{
 		id: string;
@@ -52,6 +57,15 @@ export const ProfilePage = () => {
 
 	const handleViewAllReviews = () => {
 		setShowReviewsModal(true);
+	};
+
+	const handleOpenReview = (review: UserReview) => {
+		setSelectedReview(review);
+	};
+
+	const handleOpenReviewFromModal = (review: UserReview) => {
+		setShowReviewsModal(false);
+		setSelectedReview(review);
 	};
 
 	const handleEditReview = (reviewId: string) => {
@@ -107,6 +121,22 @@ export const ProfilePage = () => {
 		const fiveMinutes = 5 * 60 * 1000;
 		return now - created <= fiveMinutes;
 	};
+
+	const selectedCompanyReview: CompanyReview | null = selectedReview
+		? {
+				reviewId: selectedReview.id,
+				authorId: selectedReview.authorId ?? '',
+				iconId: selectedReview.authorAvatarUrl ?? null,
+				text: selectedReview.text,
+				score: selectedReview.score,
+				createdAt: selectedReview.createdAt,
+				flags: selectedReview.flags.map((flag, index) => ({
+					id: `${selectedReview.id}-flag-${index}`,
+					name: flag,
+				})),
+				weight: 1,
+			}
+		: null;
 
 	if (loading) {
 		return (
@@ -201,6 +231,7 @@ export const ProfilePage = () => {
 						<UserReviews
 							reviews={reviews}
 							onViewAll={handleViewAllReviews}
+							onOpenReview={handleOpenReview}
 							onEdit={handleEditReview}
 							onDelete={handleDeleteReview}
 						/>
@@ -222,6 +253,7 @@ export const ProfilePage = () => {
 					</section>
 				</div>
 			</main>
+			<FooterLinks />
 
 			<AchievementsModal
 				isOpen={showAchievementsModal}
@@ -233,9 +265,19 @@ export const ProfilePage = () => {
 				isOpen={showReviewsModal}
 				onClose={() => setShowReviewsModal(false)}
 				reviews={reviews}
+				onOpenReview={handleOpenReviewFromModal}
 				onEdit={handleEditReview}
 				onDelete={handleDeleteReview}
 				canEdit={canEditReview}
+			/>
+
+			<ReviewViewModal
+				isOpen={selectedReview !== null}
+				review={selectedCompanyReview}
+				companyName={selectedReview?.companyName ?? ''}
+				authorName={selectedReview?.authorName ?? profile?.user.nickname}
+				authorAvatarUrl={selectedReview?.authorAvatarUrl ?? profile?.user.avatarUrl}
+				onClose={() => setSelectedReview(null)}
 			/>
 
 			<DeleteReviewModal

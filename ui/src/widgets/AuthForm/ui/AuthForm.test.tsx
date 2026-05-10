@@ -123,9 +123,9 @@ describe('AuthForm', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Войти' }));
 
 		// Assert
-		expect(
-			await screen.findByText('Ваш аккаунт был заблокирован'),
-		).toBeInTheDocument();
+		await waitFor(() => {
+			expect(navigateMock).toHaveBeenCalledWith('/blocked');
+		});
 		expect(navigateMock).not.toHaveBeenCalledWith('/recommendations');
 	});
 });

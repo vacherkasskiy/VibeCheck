@@ -28,6 +28,24 @@
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+	max-height: min(56vh, 720px);
+	overflow-y: auto;
+	padding-right: 8px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.reviewsList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.reviewsList::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.reviewsList::-webkit-scrollbar-thumb {
+	background: linear-gradient(var(--color-purple), var(--color-pink));
+	border-radius: 999px;
 }
 
 .reviewCard {
@@ -35,6 +53,22 @@
 	border-radius: var(--radius-md);
 	padding: 20px;
 	border: 1px solid rgba(90, 79, 132, 0.08);
+	cursor: pointer;
+	transition:
+		transform var(--transition-fast),
+		box-shadow var(--transition-fast),
+		border-color var(--transition-fast);
+}
+
+.reviewCard:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-xs);
+	border-color: rgba(155, 108, 244, 0.14);
+}
+
+.reviewCard:focus-visible {
+	outline: 2px solid rgba(155, 108, 244, 0.45);
+	outline-offset: 2px;
 }
 
 .reviewHeader {

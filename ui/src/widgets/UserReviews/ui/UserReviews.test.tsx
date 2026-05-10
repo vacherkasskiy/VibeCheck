@@ -58,6 +58,36 @@ describe('UserReviews', () => {
 		expect(onViewAll).toHaveBeenCalledTimes(1);
 	});
 
+	it('opens full review callback when clicking a review card', () => {
+		const onOpenReview = vi.fn();
+		const review = {
+			id: 'review-1',
+			companyId: 'company-1',
+			companyName: 'Acme',
+			text: 'Review text',
+			score: 2,
+			createdAt: new Date().toISOString(),
+			flags: [],
+			greenFlags: [],
+			redFlags: [],
+			reactions: { likes: 0, dislikes: 0, complaints: 0 },
+		};
+
+		render(
+			<UserReviews
+				reviews={[review] as any}
+				onViewAll={vi.fn()}
+				onOpenReview={onOpenReview}
+				onEdit={vi.fn()}
+				onDelete={vi.fn()}
+			/>,
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: /acme/i }));
+
+		expect(onOpenReview).toHaveBeenCalledWith(review);
+	});
+
 	it('calls delete callback and saves inline edit', async () => {
 		// Arrange
 		const onDelete = vi.fn();

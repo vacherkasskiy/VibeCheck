@@ -1,6 +1,3 @@
-import { ArrowLeft, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ReviewScore } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
@@ -11,6 +8,7 @@ interface ReviewsModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	reviews: UserReview[];
+	onOpenReview: (review: UserReview) => void;
 	onEdit: (reviewId: string) => void;
 	onDelete: (reviewId: string) => void;
 	canEdit: (createdAt: string) => boolean;
@@ -20,13 +18,11 @@ export const ReviewsModal = ({
 	isOpen,
 	onClose,
 	reviews,
+	onOpenReview,
 	onEdit,
 	onDelete,
 	canEdit,
 }: ReviewsModalProps) => {
-	const navigate = useNavigate();
-	const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
-
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('ru-RU', {
 			day: 'numeric',
@@ -35,164 +31,77 @@ export const ReviewsModal = ({
 		});
 	};
 
-	const handleClose = () => {
-		setSelectedReview(null);
-		onClose();
-	};
-
-	const handleAuthorClick = (authorId?: string | null) => {
-		if (!authorId) return;
-		handleClose();
-		navigate(`/user/${authorId}`);
-	};
-
 	return (
-		<Modal isOpen={isOpen} onClose={handleClose} className={styles.modalShell}>
-			<div className={`${styles.modalContent} ${selectedReview ? styles.reviewDetailsModal : ''}`}>
+		<Modal isOpen={isOpen} onClose={onClose} className={styles.modalShell}>
+			<div className={styles.modalContent}>
 				<div className={styles.modalHeader}>
-					<h2 className={styles.modalTitle}>{selectedReview ? 'Полный отзыв' : 'Все отзывы'}</h2>
-					<button className={styles.closeButton} onClick={handleClose} type="button">
+					<h2 className={styles.modalTitle}>Все отзывы</h2>
+					<button className={styles.closeButton} onClick={onClose} type="button">
 						✕
 					</button>
 				</div>
 
-				{selectedReview ? (
-					<div className={styles.reviewDetails}>
+				<div className={styles.reviewsList}>
+					{reviews.map((review) => (
 						<button
-							className={styles.backButton}
-							onClick={() => setSelectedReview(null)}
+							key={review.id}
+							className={styles.reviewItem}
+							onClick={() => onOpenReview(review)}
 							type="button"
 						>
-							<ArrowLeft size={16} />
-							К списку отзывов
+							<div className={styles.reviewHeader}>
+								<span className={styles.reviewCompany}>{review.companyName}</span>
+								<span className={styles.reviewDate}>
+									{formatDate(review.createdAt)}
+								</span>
+							</div>
+
+							<p className={styles.reviewText}>{review.text}</p>
+
+							{review.flags.length > 0 && (
+								<div className={styles.reviewFlags}>
+									{review.flags.map((flag, idx) => (
+										<span key={`${flag}-${idx}`} className={styles.reviewFlag}>
+											{flag}
+										</span>
+									))}
+								</div>
+							)}
+
+							<div className={styles.reviewActions}>
+								<div className={styles.reviewReactions}>
+									<ReviewScore score={review.score} compact />
+								</div>
+								{canEdit(review.createdAt) && (
+									<div className={styles.reviewButtons}>
+										<span
+											className={styles.editButton}
+											onClick={(event) => {
+												event.stopPropagation();
+												onEdit(review.id);
+											}}
+										>
+											Редактировать
+										</span>
+										<span
+											className={styles.deleteButton}
+											onClick={(event) => {
+												event.stopPropagation();
+												onDelete(review.id);
+											}}
+										>
+											Удалить
+										</span>
+									</div>
+								)}
+							</div>
 						</button>
-
-						<div className={styles.reviewDetailsGrid}>
-							<div className={styles.reviewMetaCard}>
-								<span className={styles.reviewMetaLabel}>Компания</span>
-								<span className={styles.reviewMetaValue}>{selectedReview.companyName}</span>
-							</div>
-							<div className={styles.reviewMetaCard}>
-								<span className={styles.reviewMetaLabel}>Дата</span>
-								<span className={styles.reviewMetaValue}>{formatDate(selectedReview.createdAt)}</span>
-							</div>
-							<div className={styles.reviewMetaCard}>
-								<span className={styles.reviewMetaLabel}>Оценка</span>
-								<div className={styles.reviewMetaValue}>
-									<ReviewScore score={selectedReview.score} compact />
-								</div>
-							</div>
-							<div className={styles.reviewMetaCard}>
-								<span className={styles.reviewMetaLabel}>ID отзыва</span>
-								<span className={styles.reviewMetaValue}>{selectedReview.id}</span>
-							</div>
-						</div>
-
-						<div className={styles.reviewAuthorCard}>
-							<div className={styles.reviewAuthorInfo}>
-								{selectedReview.authorAvatarUrl ? (
-									<img
-										src={selectedReview.authorAvatarUrl}
-										alt={selectedReview.authorName ?? 'Автор'}
-										className={styles.reviewAuthorAvatar}
-									/>
-								) : (
-									<div className={styles.reviewAuthorAvatarPlaceholder}>
-										{(selectedReview.authorName ?? 'А').charAt(0).toUpperCase()}
-									</div>
-								)}
-								<div>
-									<span className={styles.reviewMetaLabel}>Автор</span>
-									<div className={styles.reviewAuthorName}>
-										{selectedReview.authorName ?? selectedReview.authorId ?? 'Автор отзыва'}
-									</div>
-								</div>
-							</div>
-							<Button
-								onClick={() => handleAuthorClick(selectedReview.authorId)}
-								variant="secondary"
-								size="small"
-								disabled={!selectedReview.authorId}
-							>
-								<ExternalLink size={16} />
-								Профиль
-							</Button>
-						</div>
-
-						{selectedReview.flags.length > 0 && (
-							<div className={styles.reviewFlags}>
-								{selectedReview.flags.map((flag, idx) => (
-									<span key={`${flag}-${idx}`} className={styles.reviewFlag}>
-										{flag}
-									</span>
-								))}
-							</div>
-						)}
-
-						<div className={styles.fullReviewText}>{selectedReview.text}</div>
-					</div>
-				) : (
-					<div className={styles.reviewsList}>
-						{reviews.map((review) => (
-							<button
-								key={review.id}
-								className={styles.reviewItem}
-								onClick={() => setSelectedReview(review)}
-								type="button"
-							>
-								<div className={styles.reviewHeader}>
-									<span className={styles.reviewCompany}>{review.companyName}</span>
-									<span className={styles.reviewDate}>
-										{formatDate(review.createdAt)}
-									</span>
-								</div>
-
-								<p className={styles.reviewText}>{review.text}</p>
-
-								{review.flags.length > 0 && (
-									<div className={styles.reviewFlags}>
-										{review.flags.map((flag, idx) => (
-											<span key={`${flag}-${idx}`} className={styles.reviewFlag}>
-												{flag}
-											</span>
-										))}
-									</div>
-								)}
-
-								<div className={styles.reviewActions}>
-									<div className={styles.reviewReactions}>
-										<ReviewScore score={review.score} compact />
-									</div>
-									{canEdit(review.createdAt) && (
-										<div className={styles.reviewButtons}>
-											<span
-												className={styles.editButton}
-												onClick={(event) => {
-													event.stopPropagation();
-													onEdit(review.id);
-												}}
-											>
-												Редактировать
-											</span>
-											<span
-												className={styles.deleteButton}
-												onClick={(event) => {
-													event.stopPropagation();
-													onDelete(review.id);
-												}}
-											>
-												Удалить
-											</span>
-										</div>
-									)}
-								</div>
-							</button>
-						))}
-					</div>
-				)}
+					))}
+					{reviews.length === 0 && <p className={styles.emptyMessage}>Пока нет отзывов</p>}
+				</div>
 
 				<div className={styles.modalFooter}>
-					<Button onClick={handleClose} variant="secondary" size="small">
+					<Button onClick={onClose} variant="secondary" size="small">
 						Закрыть
 					</Button>
 				</div>

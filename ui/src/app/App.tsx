@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from 'features/auth';
 
+import { AboutPage } from 'pages/AboutPage';
 import { AddCompanyPage } from 'pages/AddCompanyPage';
+import { BlockedPage } from 'pages/BlockedPage';
 import { CompanyPage } from 'pages/CompanyPage';
 import { EditProfilePage } from 'pages/EditProfilePage';
 import { FlagsPage } from 'pages/FlagsPage';
@@ -48,6 +50,8 @@ const App = () => {
 							<Route path="/register" element={<RegisterPage />} />
 							<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 							<Route path="/flags" element={<FlagsPage />} />
+							<Route path="/about" element={<AboutPage />} />
+							<Route path="/blocked" element={<BlockedPage />} />
 							<Route path="/recommendations" element={<RecommendationsPage />} />
 							<Route path="/company/:id" element={<CompanyPage />} />
 							<Route path="/add-company" element={<AddCompanyPage />} />

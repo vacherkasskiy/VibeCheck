@@ -67,8 +67,9 @@ export const AuthForm = () => {
 			navigate('/recommendations');
 		} catch (err: any) {
 			const data = err.response?.data || err;
-			if (data.code === 'ACCOUNT_BLOCKED') {
-				setGeneralError('Ваш аккаунт был заблокирован');
+			const status = err.response?.status ?? err.status;
+			if (data.code === 'ACCOUNT_BLOCKED' || status === 403) {
+				navigate('/blocked');
 			} else {
 				setGeneralError(data.message || 'Ошибка входа');
 			}

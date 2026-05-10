@@ -1,15 +1,26 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { ApiError } from 'shared/api/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecommendationsPage } from './RecommendationsPage';
 
-const { useCompanySearchMock, navigateMock } = vi.hoisted(() => ({
+const { useCompanySearchMock, navigateMock, authStateMock } = vi.hoisted(() => ({
 	useCompanySearchMock: vi.fn(),
 	navigateMock: vi.fn(),
+	authStateMock: {
+		isAuthenticated: true,
+		loading: false,
+	},
 }));
 
 vi.mock('features/companySearch', () => ({
 	useCompanySearch: useCompanySearchMock,
+}));
+
+vi.mock('features/auth', () => ({
+	useAuth: () => ({
+		state: authStateMock,
+	}),
 }));
 
 vi.mock('shared/ui', () => ({
@@ -75,6 +86,8 @@ describe('RecommendationsPage', () => {
 	beforeEach(() => {
 		useCompanySearchMock.mockReset();
 		navigateMock.mockReset();
+		authStateMock.isAuthenticated = true;
+		authStateMock.loading = false;
 	});
 
 	it('renders search and company list and wires handlers', () => {
@@ -90,6 +103,7 @@ describe('RecommendationsPage', () => {
 			pending: false,
 			hasMore: true,
 			loadMore,
+			error: null,
 		});
 
 		// Act
@@ -104,5 +118,40 @@ describe('RecommendationsPage', () => {
 		expect(setQuery).toHaveBeenCalledWith('backend');
 		expect(loadMore).toHaveBeenCalledTimes(1);
 		expect(navigateMock).toHaveBeenCalledWith('/company/company-1');
+	});
+
+	it('redirects to login when user is not authenticated', () => {
+		authStateMock.isAuthenticated = false;
+		useCompanySearchMock.mockReturnValue({
+			query: '',
+			setQuery: vi.fn(),
+			items: [],
+			total: 0,
+			pending: false,
+			hasMore: false,
+			loadMore: vi.fn(),
+			error: null,
+		});
+
+		render(<RecommendationsPage />);
+
+		expect(navigateMock).toHaveBeenCalledWith('/login', { replace: true });
+	});
+
+	it('redirects to blocked page when recommendations API returns 403', () => {
+		useCompanySearchMock.mockReturnValue({
+			query: '',
+			setQuery: vi.fn(),
+			items: [],
+			total: 0,
+			pending: false,
+			hasMore: false,
+			loadMore: vi.fn(),
+			error: new ApiError('Доступ запрещён', 403),
+		});
+
+		render(<RecommendationsPage />);
+
+		expect(navigateMock).toHaveBeenCalledWith('/blocked', { replace: true });
 	});
 });

@@ -1,18 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ReviewsModal } from './ReviewsModal';
-
-const { navigateMock } = vi.hoisted(() => ({
-	navigateMock: vi.fn(),
-}));
-
-vi.mock('react-router-dom', async () => {
-	const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
-	return {
-		...actual,
-		useNavigate: () => navigateMock,
-	};
-});
 
 const reviews = [
 	{
@@ -33,17 +21,15 @@ const reviews = [
 ];
 
 describe('ReviewsModal', () => {
-	beforeEach(() => {
-		navigateMock.mockReset();
-	});
-
-	it('renders review list and opens selected review details', () => {
+	it('renders review list and opens selected review callback', () => {
 		// Arrange
+		const onOpenReview = vi.fn();
 		render(
 			<ReviewsModal
 				isOpen={true}
 				onClose={vi.fn()}
 				reviews={reviews as any}
+				onOpenReview={onOpenReview}
 				onEdit={vi.fn()}
 				onDelete={vi.fn()}
 				canEdit={() => true}
@@ -54,9 +40,7 @@ describe('ReviewsModal', () => {
 		fireEvent.click(screen.getByRole('button', { name: /acme/i }));
 
 		// Assert
-		expect(screen.getByText('Полный отзыв')).toBeInTheDocument();
-		expect(screen.getByText('First review text')).toBeInTheDocument();
-		expect(screen.getByText('review-1')).toBeInTheDocument();
+		expect(onOpenReview).toHaveBeenCalledWith(reviews[0]);
 	});
 
 	it('calls edit and delete from list view', () => {
@@ -68,6 +52,7 @@ describe('ReviewsModal', () => {
 				isOpen={true}
 				onClose={vi.fn()}
 				reviews={reviews as any}
+				onOpenReview={vi.fn()}
 				onEdit={onEdit}
 				onDelete={onDelete}
 				canEdit={() => true}
@@ -83,7 +68,7 @@ describe('ReviewsModal', () => {
 		expect(onDelete).toHaveBeenCalledWith('review-1');
 	});
 
-	it('navigates to author profile from details view', () => {
+	it('closes modal from footer button', () => {
 		// Arrange
 		const onClose = vi.fn();
 		render(
@@ -91,18 +76,17 @@ describe('ReviewsModal', () => {
 				isOpen={true}
 				onClose={onClose}
 				reviews={reviews as any}
+				onOpenReview={vi.fn()}
 				onEdit={vi.fn()}
 				onDelete={vi.fn()}
 				canEdit={() => true}
 			/>,
 		);
-		fireEvent.click(screen.getByRole('button', { name: /acme/i }));
 
 		// Act
-		fireEvent.click(screen.getByRole('button', { name: /профиль/i }));
+		fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }));
 
 		// Assert
 		expect(onClose).toHaveBeenCalledTimes(1);
-		expect(navigateMock).toHaveBeenCalledWith('/user/author-1');
 	});
 });

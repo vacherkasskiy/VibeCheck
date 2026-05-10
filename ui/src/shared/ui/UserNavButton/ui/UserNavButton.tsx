@@ -12,7 +12,7 @@ interface UserNavButtonProps {
 
 export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonProps) => {
 	const navigate = useNavigate();
-	const { logout } = useAuth();
+	const { logout, state } = useAuth();
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,9 +59,12 @@ export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonPro
 		navigate('/login');
 	};
 
-	if (!avatarUrl && !nickname) {
+	if (!avatarUrl && !nickname && !state.isAuthenticated) {
 		return null;
 	}
+
+	const resolvedAvatarUrl = avatarUrl || '/assets/avatars/avatar1.png';
+	const resolvedNickname = nickname || 'Профиль';
 
 	return (
 		<div className={styles.wrapper} ref={containerRef}>
@@ -73,11 +76,11 @@ export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonPro
 				aria-expanded={isOpen}
 			>
 				<img
-					src={avatarUrl || '/assets/avatars/avatar1.png'}
-					alt={nickname || 'Пользователь'}
+					src={resolvedAvatarUrl}
+					alt={resolvedNickname}
 					className={styles.avatar}
 				/>
-				<span className={styles.nickname}>{nickname || 'Пользователь'}</span>
+				<span className={styles.nickname}>{resolvedNickname}</span>
 			</button>
 
 			{isOpen && !onClick && (
@@ -111,7 +114,7 @@ export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonPro
 					</button>
 					<button
 						className={styles.menuItem}
-						onClick={() => navigateTo('/')}
+						onClick={() => navigateTo('/about')}
 						type="button"
 						role="menuitem"
 					>

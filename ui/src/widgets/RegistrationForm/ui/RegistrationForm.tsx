@@ -1,5 +1,5 @@
 /* eslint-disable @conarti/feature-sliced/absolute-relative */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from 'shared/assets/Logo';
 import { AuthButton } from 'shared/ui/AuthButton';
@@ -16,7 +16,11 @@ import { register } from '../../../features/auth';
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { VerificationForm } from '../../VerificationForm';
 
-export const RegistrationForm = () => {
+interface RegistrationFormProps {
+	onStepChange?: (step: number) => void;
+}
+
+export const RegistrationForm = ({ onStepChange }: RegistrationFormProps) => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState(1);
 	const [email, setEmail] = useState('');
@@ -28,6 +32,10 @@ export const RegistrationForm = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState('');
 	const [showErrorModal, setShowErrorModal] = useState(false);
+
+	useEffect(() => {
+		onStepChange?.(step);
+	}, [onStepChange, step]);
 
 	const STEPS = ['Email', 'Код', 'Профиль'];
 

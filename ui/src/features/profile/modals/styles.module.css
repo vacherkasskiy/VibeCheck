@@ -20,7 +20,7 @@
 	box-shadow: var(--shadow-lg);
 	max-width: 100%;
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: hidden;
 }
 
 .reviewDetailsModal {
@@ -93,6 +93,52 @@
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+}
+
+.achievementsList {
+	flex: 1;
+	min-height: 0;
+	max-height: min(58vh, 620px);
+	overflow-y: auto;
+	padding-right: 8px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.achievementsList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.achievementsList::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.achievementsList::-webkit-scrollbar-thumb {
+	background: linear-gradient(var(--color-purple), var(--color-pink));
+	border-radius: 999px;
+}
+
+.reviewsList {
+	flex: 1;
+	min-height: 0;
+	max-height: min(58vh, 620px);
+	overflow-y: auto;
+	padding-right: 8px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.reviewsList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.reviewsList::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.reviewsList::-webkit-scrollbar-thumb {
+	background: linear-gradient(var(--color-purple), var(--color-pink));
+	border-radius: 999px;
 }
 
 .achievementItem,

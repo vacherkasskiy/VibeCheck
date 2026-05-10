@@ -8,6 +8,7 @@ import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
+import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './CompanyPage.module.css';
 import { ReviewsSection } from './ReviewsSection';
 import { Top20FlagsSection } from './Top20FlagsSection';
@@ -180,6 +181,7 @@ export const CompanyPage = () => {
 					/>
 				</div>
 			</main>
+			<FooterLinks />
 			<ReviewModal
 				isOpen={isOpen}
 				onClose={closeModal}

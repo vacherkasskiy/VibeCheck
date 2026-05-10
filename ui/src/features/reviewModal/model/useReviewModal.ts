@@ -96,13 +96,13 @@ export const useReviewModal = (
     return totalFlags >= MIN_FLAGS_REQUIRED && totalFlags <= MAX_FLAGS_ALLOWED;
   }, [formData.greenFlags, formData.redFlags, isEditMode]);
 
-  const canDelete = useMemo(() => {
+  const canDelete = (() => {
     if (!isEditMode || !createdAt) return false;
     const reviewTime = new Date(createdAt).getTime();
     const now = Date.now();
     const diffMinutes = (now - reviewTime) / (1000 * 60);
     return diffMinutes <= EDIT_TIME_LIMIT_MINUTES;
-  }, [isEditMode, createdAt]);
+  })();
 
   const submitReview = useCallback(async (): Promise<boolean> => {
     if (!canSubmit) return false;

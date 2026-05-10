@@ -4,6 +4,10 @@
 	border-radius: var(--radius-lg);
 	padding: 32px;
 	box-shadow: var(--shadow-md);
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	height: min(74vh, 720px); 
 }
 
 .title {
@@ -85,18 +89,12 @@
 	min-width: 90px;
 }
 
-.showMore {
-	background: none;
-	border: none;
-	color: var(--color-purple);
-	font-weight: var(--weight-semibold);
-	cursor: pointer;
-	padding: 8px 0;
-	align-self: flex-start;
-}
-
 .feedSection {
 	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
 }
 
 .tabs {
@@ -151,6 +149,28 @@
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding-right: 8px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.activityFeed::-webkit-scrollbar,
+.followingList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.activityFeed::-webkit-scrollbar-track,
+.followingList::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.activityFeed::-webkit-scrollbar-thumb,
+.followingList::-webkit-scrollbar-thumb {
+	background: linear-gradient(var(--color-purple), var(--color-pink));
+	border-radius: 999px;
 }
 
 .activityCard,
@@ -224,6 +244,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+	flex: 1;
+	min-height: 0;
 }
 
 .followingProfile {
@@ -258,6 +280,8 @@
 @media (max-width: 768px) {
 	.panel {
 		padding: 24px;
+		height: auto;
+		min-height: 420px;
 	}
 
 	.tabs {

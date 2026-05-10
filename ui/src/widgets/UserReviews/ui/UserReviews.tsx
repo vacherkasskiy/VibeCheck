@@ -9,11 +9,18 @@ import type { UserReview } from 'entities/user';
 interface UserReviewsProps {
 	reviews: UserReview[];
 	onViewAll: () => void;
+	onOpenReview?: (review: UserReview) => void;
 	onEdit?: (reviewId: string) => void;
 	onDelete?: (reviewId: string) => void;
 }
 
-export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReviewsProps) => {
+export const UserReviews = ({
+	reviews,
+	onViewAll,
+	onOpenReview,
+	onEdit,
+	onDelete,
+}: UserReviewsProps) => {
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('ru-RU', {
 			day: 'numeric',
@@ -81,7 +88,19 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 			<div className={styles.reviewsList}>
 				{displayReviews.length > 0 ? (
 					displayReviews.map((review) => (
-						<div key={review.id} className={styles.reviewCard}>
+						<div
+							key={review.id}
+							className={styles.reviewCard}
+							role="button"
+							tabIndex={0}
+							onClick={() => onOpenReview?.(review)}
+							onKeyDown={(event) => {
+								if (event.key === 'Enter' || event.key === ' ') {
+									event.preventDefault();
+									onOpenReview?.(review);
+								}
+							}}
+						>
 							<div className={styles.reviewHeader}>
 								<span className={styles.companyName}>{review.companyName}</span>
 								<span className={styles.reviewDate}>
@@ -111,7 +130,10 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 										{canEdit(review.createdAt) && (
 											<button
 												className={styles.editButton}
-												onClick={() => handleEdit(review)}
+												onClick={(event) => {
+													event.stopPropagation();
+													handleEdit(review);
+												}}
 												type="button"
 												title="Редактировать"
 											>
@@ -120,7 +142,10 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
 										)}
 										<button
 											className={styles.deleteButton}
-											onClick={() => onDelete?.(review.id)}
+											onClick={(event) => {
+												event.stopPropagation();
+												onDelete?.(review.id);
+											}}
 											type="button"
 											title="Удалить"
 										>
@@ -134,6 +159,7 @@ export const UserReviews = ({ reviews, onViewAll, onEdit, onDelete }: UserReview
                   <textarea
                     ref={textareaRef}
                     value={editText}
+                    onClick={(event) => event.stopPropagation()}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditText(e.target.value)}
                     placeholder="Редактируйте отзыв..."
                     rows={3}

@@ -1,0 +1,128 @@
+.header {
+	position: sticky;
+	top: 0;
+	z-index: 120;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: min(100%, 1200px);
+	margin: 0 auto;
+	padding: 18px clamp(16px, 4vw, 28px);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(18px);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: 24px;
+	box-shadow: 0 14px 34px rgba(31, 24, 57, 0.08);
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+	text-decoration: none;
+}
+
+.logo {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	flex-shrink: 0;
+}
+
+.brandText {
+	color: #1f2937;
+	font-size: 1.05rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.actions,
+.authLinks {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.navLink,
+.primaryLink {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 42px;
+	padding: 0 16px;
+	border-radius: 999px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition:
+		background var(--transition-fast),
+		color var(--transition-fast),
+		transform var(--transition-fast),
+		box-shadow var(--transition-fast);
+}
+
+.navLink {
+	background: rgba(255, 255, 255, 0.82);
+	border: 1px solid rgba(90, 79, 132, 0.12);
+	color: var(--color-text-secondary);
+}
+
+.navLink:hover {
+	color: var(--color-purple);
+	transform: translateY(-1px);
+	box-shadow: 0 8px 20px rgba(155, 108, 244, 0.12);
+}
+
+.primaryLink {
+	background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-pink) 100%);
+	color: var(--color-white);
+	border: 1px solid transparent;
+	box-shadow: 0 10px 22px rgba(155, 108, 244, 0.22);
+}
+
+.primaryLink:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 14px 24px rgba(155, 108, 244, 0.28);
+}
+
+@media (max-width: 768px) {
+	.header {
+		width: calc(100% - 24px);
+		padding: 14px 16px;
+		border-radius: 20px;
+	}
+
+	.brandText {
+		display: none;
+	}
+
+	.actions {
+		gap: 8px;
+	}
+
+	.authLinks {
+		gap: 8px;
+	}
+
+	.navLink,
+	.primaryLink {
+		min-height: 38px;
+		padding: 0 12px;
+		font-size: 0.875rem;
+	}
+}
+
+@media (max-width: 560px) {
+	.header {
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.actions {
+		width: 100%;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+}

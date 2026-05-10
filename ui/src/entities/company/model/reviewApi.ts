@@ -1,6 +1,6 @@
-import { mutate as mutateCache } from 'swr';
 import { useMutation } from '@tanstack/react-query';
 import http from 'shared/api/http';
+import { mutate as mutateCache } from 'swr';
 import type {
   UpdateCompanyReviewRequest,
   CompanyReviewListResponse,

@@ -1,5 +1,5 @@
 import { Award, MessageSquare, TrendingUp, UserPlus, Heart } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
 import styles from './styles.module.css';
@@ -32,7 +32,6 @@ export const ActivityPanel = ({
 	onUnsubscribe,
 }: ActivityPanelProps) => {
 	const navigate = useNavigate();
-	const [showAllSubs, setShowAllSubs] = useState(false);
 	const [activeTab, setActiveTab] = useState<ActivityTab>('all');
 
 	const handleOpenProfile = (userId: string) => {
@@ -135,13 +134,6 @@ export const ActivityPanel = ({
 		}
 	};
 
-	const visibleSubscriptions = useMemo(
-		() => (showAllSubs ? subscriptions : subscriptions.slice(0, 5)),
-		[showAllSubs, subscriptions],
-	);
-
-	const visibleActivities = useMemo(() => activities.slice(0, 5), [activities]);
-
 	const hasActivityFeed = activities.length > 0 || subscriptions.length > 0;
 
 	return (
@@ -170,8 +162,8 @@ export const ActivityPanel = ({
 
 				{hasActivityFeed && activeTab !== 'following' && (
 					<div className={styles.activityFeed}>
-						{visibleActivities.length > 0 ? (
-							visibleActivities.map((activity) => {
+						{activities.length > 0 ? (
+							activities.map((activity) => {
 								const activityTarget = getActivityTarget(activity);
 								const { icon: Icon, text } = getActivityMeta(activity);
 								const content = (
@@ -213,9 +205,9 @@ export const ActivityPanel = ({
 
 				{hasActivityFeed && activeTab === 'following' && (
 					<div className={styles.followingSection}>
-						{visibleSubscriptions.length > 0 ? (
+						{subscriptions.length > 0 ? (
 							<div className={styles.followingList}>
-								{visibleSubscriptions.map((subscription) => (
+								{subscriptions.map((subscription) => (
 									<div key={subscription.id} className={styles.followingCard}>
 										<button
 											className={styles.followingProfile}
@@ -255,16 +247,6 @@ export const ActivityPanel = ({
 							<div className={styles.emptyState}>
 								<p className={styles.emptyText}>Подписок пока нет</p>
 							</div>
-						)}
-
-						{subscriptions.length > 5 && (
-							<button
-								onClick={() => setShowAllSubs((prev) => !prev)}
-								className={styles.showMore}
-								type="button"
-							>
-								{showAllSubs ? 'Скрыть' : 'Показать все'}
-							</button>
 						)}
 					</div>
 				)}

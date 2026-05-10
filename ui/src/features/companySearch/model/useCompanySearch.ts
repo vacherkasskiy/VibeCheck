@@ -1,5 +1,6 @@
 import { companyApi } from 'entities/company';
 import { useEffect, useMemo, useState } from 'react';
+import { ApiError } from 'shared/api/types';
 import { mockCompanies } from 'shared/model/mockCompanies';
 import useSWRInfinite from 'swr/infinite';
 import { useCompanySearchStore } from './store';
@@ -15,6 +16,7 @@ interface UseCompanySearchResult {
   pending: boolean;
   hasMore: boolean;
   loadMore: () => Promise<void>;
+  error: ApiError | null;
 }
 
 const getMockCompanies = (query: string): { items: CompanyDTO[]; total: number } => {
@@ -95,7 +97,8 @@ export const useCompanySearch = (): UseCompanySearchResult => {
   const liveTotal = data?.[0]?.totalCount ?? 0;
 
   const mockResult = useMemo(() => getMockCompanies(debouncedQuery), [debouncedQuery]);
-  const shouldUseMock = !!error && liveItems.length === 0;
+  const normalizedError = error instanceof ApiError ? error : null;
+  const shouldUseMock = !!error && normalizedError?.status !== 403 && liveItems.length === 0;
 
   const items = shouldUseMock ? mockResult.items.slice(0, size * COMPANIES_PAGE_SIZE) : liveItems;
   const total = shouldUseMock ? mockResult.total : liveTotal;
@@ -115,5 +118,6 @@ export const useCompanySearch = (): UseCompanySearchResult => {
     pending,
     hasMore,
     loadMore,
+    error: normalizedError,
   };
 };

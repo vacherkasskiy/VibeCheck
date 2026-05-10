@@ -4,10 +4,19 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 20px;
+	padding: 96px 20px 20px;
 	background: transparent;
 	position: relative;
 	overflow-x: hidden;
+	box-sizing: border-box;
+}
+
+.headerWrap {
+	position: absolute;
+	top: 20px;
+	left: 0;
+	width: 100%;
+	z-index: 2;
 }
 
 .container {
@@ -30,6 +39,6 @@
 
 @media (max-width: 480px) {
 	.page {
-		padding: 16px;
+		padding: 112px 16px 16px;
 	}
 }

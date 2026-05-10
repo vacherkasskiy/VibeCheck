@@ -11,8 +11,8 @@ export const Line = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => 
 			<path
 				d="M4.50098 28.7672C52.6288 19.2875 169.608 1.26328 252.501 5.00318"
 				stroke="url(#paint0_linear_88_315)"
-				stroke-width="9"
-				stroke-linecap="round"
+				strokeWidth="9"
+				strokeLinecap="round"
 			/>
 			<defs>
 				<linearGradient

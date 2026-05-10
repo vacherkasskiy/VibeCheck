@@ -1,6 +1,6 @@
-import useSWRInfinite from 'swr/infinite';
 import { reviewApi } from 'entities/company';
 import { useCallback, useEffect, useMemo } from 'react';
+import useSWRInfinite from 'swr/infinite';
 import { useCompanyReviewStore } from './reviewStore';
 import type { ReviewsSortGatewayEnum, CompanyReview } from 'entities/company';
 

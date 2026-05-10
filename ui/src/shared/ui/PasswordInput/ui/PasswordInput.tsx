@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { Input } from '../../Input';
 
@@ -23,6 +23,10 @@ export const PasswordInput = ({
 }: PasswordInputProps) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [localError, setLocalError] = useState<string | undefined>(error);
+
+	useEffect(() => {
+		setLocalError(error);
+	}, [error]);
 
 	const togglePassword = () => {
 		setShowPassword(!showPassword);

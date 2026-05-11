@@ -32,7 +32,7 @@ const buildApiUrl = (path: string): string => {
 };
 
 const PUBLIC_AUTH_ROUTE_RE =
-  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh|avatars)/;
+  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh)/;
 
 class Http implements IAxios {
   private static isRefreshing = false;

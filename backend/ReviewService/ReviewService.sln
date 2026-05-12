@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Gateway", "ReviewService.Gateway\ReviewService.Gateway.csproj", "{DFC865A7-1A46-4E82-8144-CE1B115CAB81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Gateway.Api", "Gateway\ReviewService.Gateway.Api\ReviewService.Gateway.Api.csproj", "{DFC865A7-1A46-4E82-8144-CE1B115CAB81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Core.Abstractions", "Abstractions\ReviewService.Core.Abstractions\ReviewService.Core.Abstractions.csproj", "{3898702C-6409-4764-8886-52F29902D6E6}"
 EndProject
@@ -31,6 +31,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storages", "Storages", "{0A89F532-656B-4113-B934-E02A4D01A1FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Tests", "ReviewService.Tests\ReviewService.Tests.csproj", "{4615048E-8BB7-4F89-8A75-D31D85C77FFA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{C116AA77-DAAA-4471-AB40-B4050DF60A1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService.Admin.Api", "Gateway\ReviewService.Admin.Api\ReviewService.Admin.Api.csproj", "{ECF90443-58CF-476F-89F1-1856D5C538C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +90,10 @@ Global
 		{4615048E-8BB7-4F89-8A75-D31D85C77FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4615048E-8BB7-4F89-8A75-D31D85C77FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4615048E-8BB7-4F89-8A75-D31D85C77FFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECF90443-58CF-476F-89F1-1856D5C538C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECF90443-58CF-476F-89F1-1856D5C538C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECF90443-58CF-476F-89F1-1856D5C538C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECF90443-58CF-476F-89F1-1856D5C538C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{31A59785-0F51-4F31-B2C1-621F31263535} = {956167AC-5B25-4677-912A-DD5E6D75DE22}
@@ -100,5 +108,7 @@ Global
 		{EC4157C9-62D7-42C4-8D09-95C78DD113F0} = {0A89F532-656B-4113-B934-E02A4D01A1FB}
 		{2A18D587-7188-43FA-8721-D004125D1D8C} = {0A89F532-656B-4113-B934-E02A4D01A1FB}
 		{32AF3014-A7B7-4994-A231-9BEB433E471D} = {0A89F532-656B-4113-B934-E02A4D01A1FB}
+		{DFC865A7-1A46-4E82-8144-CE1B115CAB81} = {C116AA77-DAAA-4471-AB40-B4050DF60A1D}
+		{ECF90443-58CF-476F-89F1-1856D5C538C1} = {C116AA77-DAAA-4471-AB40-B4050DF60A1D}
 	EndGlobalSection
 EndGlobal

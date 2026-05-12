@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ReviewService.Gateway\ReviewService.Gateway.csproj" />
+      <ProjectReference Include="..\Gateway\ReviewService.Gateway.Api\ReviewService.Gateway.Api.csproj" />
     </ItemGroup>
 
 </Project>

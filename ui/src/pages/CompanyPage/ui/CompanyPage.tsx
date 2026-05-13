@@ -6,10 +6,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
-import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './CompanyPage.module.css';
+import { CompanyPageSkeleton } from './CompanyPageSkeleton';
 import { ReviewsSection } from './ReviewsSection';
 import { Top20FlagsSection } from './TopFlagsSection';
 import type { CompanyReview } from 'entities/company';
@@ -91,29 +91,8 @@ export const CompanyPage = () => {
 		}
 	}, [company?.companyId, location.pathname, navigate, pendingEditReview]);
 
-	if (loading) {
-		return (
-			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
-				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={() => navigate('/recommendations')}
-					>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<span className={styles.logoText}>VibeCheck</span>
-					</div>
-				</header>
-				<div className={styles.spinnerWrapper}>
-					<Spinner />
-				</div>
-			</div>
-		);
+if (loading) {
+		return <CompanyPageSkeleton />;
 	}
 
 	if (error || !company) {

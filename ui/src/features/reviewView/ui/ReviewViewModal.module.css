@@ -134,8 +134,7 @@
 .reviewMetaCard,
 .reviewAuthorCard {
   padding: 18px;
-  background: var(--color-surface-muted);
-  border: 1px solid rgba(90, 79, 132, 0.08);
+  
   border-radius: var(--radius-md);
 }
 

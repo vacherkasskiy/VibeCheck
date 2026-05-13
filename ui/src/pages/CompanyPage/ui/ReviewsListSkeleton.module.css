@@ -1,0 +1,149 @@
+.container {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 4vw, 32px);
+  box-shadow: var(--shadow-md);
+}
+
+.header {
+  margin-bottom: var(--space-5);
+}
+
+.title {
+  width: 40%;
+  height: 24px;
+  border-radius: var(--radius-sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.reviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: rgba(249, 250, 251, 0.6);
+  border-radius: var(--radius-md);
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reviewInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.authorName {
+  width: 30%;
+  height: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.date {
+  width: 20%;
+  height: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.reviewContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.contentLine {
+  width: 100%;
+  height: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.contentLineShort {
+  width: 60%;
+  height: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.reviewFlags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.flag {
+  width: 80px;
+  height: 24px;
+  border-radius: var(--radius-full);
+}
+
+/* Skeleton animation */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px;
+  }
+  
+  .list {
+    gap: var(--space-4);
+  }
+  
+  .reviewItem {
+    padding: var(--space-3);
+  }
+  
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .flag {
+    width: 70px;
+    height: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .title {
+    height: 20px;
+  }
+  
+  .authorName {
+    width: 40%;
+  }
+  
+  .flag {
+    width: 60px;
+    height: 20px;
+  }
+}

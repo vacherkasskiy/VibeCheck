@@ -80,7 +80,7 @@ export const FlagsColumns = ({
 									title="Переместить в красные"
 									className={styles.moveButton}
 								>
-									Red
+									в красные
 								</button>
 							</div>
 						))}
@@ -131,7 +131,7 @@ export const FlagsColumns = ({
 									title="Переместить в зеленые"
 									className={styles.moveButton}
 								>
-									Green
+									в зеленые
 								</button>
 							</div>
 						))}

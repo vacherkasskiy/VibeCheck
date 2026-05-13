@@ -124,6 +124,7 @@
 	overflow-y: auto;
 	align-content: flex-start;
 	padding-right: 8px;
+	padding-top: 10px;
 }
 
 .tagsContainer::-webkit-scrollbar {

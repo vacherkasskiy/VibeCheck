@@ -34,6 +34,12 @@ const AVATAR_ID_TO_LOCAL_URL: Record<string, string> = {
   '4': '/assets/avatars/avatar4.png',
   '5': '/assets/avatars/avatar5.png',
   '6': '/assets/avatars/avatar6.png',
+  'avatar1.png': '/assets/avatars/avatar1.png',
+  'avatar2.png': '/assets/avatars/avatar2.png',
+  'avatar3.png': '/assets/avatars/avatar3.png',
+  'avatar4.png': '/assets/avatars/avatar4.png',
+  'avatar5.png': '/assets/avatars/avatar5.png',
+  'avatar6.png': '/assets/avatars/avatar6.png',
   'viktor-avatar.png': '/assets/avatars/avatar1.png',
   'cat-avatar.png': '/assets/avatars/avatar2.png',
   'fox-avatar.png': '/assets/avatars/avatar3.png',
@@ -128,7 +134,7 @@ const getCurrentUserId = (): string => {
   }
 };
 
-const getLocalAvatarUrl = (avatarId?: string | null): string =>
+export const getLocalAvatarUrl = (avatarId?: string | null): string =>
   (avatarId && AVATAR_ID_TO_LOCAL_URL[avatarId]) || DEFAULT_AVATAR_URL;
 
 const getAvatarUrl = (
@@ -485,11 +491,30 @@ export const fetchActivity = async (
 export const fetchSubscriptions = async (): Promise<Subscription[]> => {
   return fetchWithMockFallback(
     async () => {
-      const [response, avatarList] = await Promise.all([
-        http.get<SubscriptionUserProfileDto[]>('/users/me/subscriptions'),
-        getAvatars(),
-      ]);
-      return { data: (response.data ?? []).map((item) => mapSubscriptionDto(item, avatarList)) };
+      const response = await http.get<SubscriptionUserProfileDto[]>('/users/me/subscriptions');
+      const subscriptions = response.data ?? [];
+
+      // Fetch user info for each subscription to get fresh name and icon
+      const userInfos = await Promise.all(
+        subscriptions.map((sub) => fetchUserInfoById(sub.userId))
+      );
+
+      return {
+        data: subscriptions.map((item, index) => {
+          const userInfo = userInfos[index];
+          const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
+          const iconId = userInfo?.iconId || item.iconId;
+          const avatarUrl = getLocalAvatarUrl(iconId);
+
+          return {
+            id: item.userId,
+            userId: item.userId,
+            nickname,
+            avatarUrl,
+            subscribedAt: new Date().toISOString(),
+          } as Subscription;
+        }),
+      };
     },
     []
   );
@@ -498,11 +523,30 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> => {
 export const fetchUserSubscriptions = async (userId: string): Promise<Subscription[]> => {
   return fetchWithMockFallback(
     async () => {
-      const [response, avatarList] = await Promise.all([
-        http.get<SubscriptionUserProfileDto[]>(`/users/${userId}/subscriptions`),
-        getAvatars(),
-      ]);
-      return { data: (response.data ?? []).map((item) => mapSubscriptionDto(item, avatarList)) };
+      const response = await http.get<SubscriptionUserProfileDto[]>(`/users/${userId}/subscriptions`);
+      const subscriptions = response.data ?? [];
+
+      // Fetch user info for each subscription to get fresh name and icon
+      const userInfos = await Promise.all(
+        subscriptions.map((sub) => fetchUserInfoById(sub.userId))
+      );
+
+      return {
+        data: subscriptions.map((item, index) => {
+          const userInfo = userInfos[index];
+          const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
+          const iconId = userInfo?.iconId || item.iconId;
+          const avatarUrl = getLocalAvatarUrl(iconId);
+
+          return {
+            id: item.userId,
+            userId: item.userId,
+            nickname,
+            avatarUrl,
+            subscribedAt: new Date().toISOString(),
+          } as Subscription;
+        }),
+      };
     },
     []
   );

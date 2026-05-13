@@ -130,6 +130,21 @@
 	line-height: var(--line-height-relaxed);
 }
 
+.currentExperienceCheckbox {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	color: var(--text-secondary);
+	cursor: pointer;
+}
+
+.currentExperienceCheckbox input {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
 .submitButton {
 	margin-top: 4px;
 }

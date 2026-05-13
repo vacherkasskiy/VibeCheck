@@ -1,0 +1,103 @@
+.container {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 4vw, 32px);
+  box-shadow: var(--shadow-md);
+}
+
+.title {
+  margin-bottom: var(--space-5);
+}
+
+.titleLine {
+  width: 40%;
+  height: 24px;
+  border-radius: var(--radius-sm);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.flagItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(249, 250, 251, 0.6);
+  border-radius: var(--radius-md);
+}
+
+.flagBadge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.flagLabel {
+  flex: 1;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+
+.flagCount {
+  width: 24px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* Skeleton animation */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px;
+  }
+  
+  .grid {
+    gap: var(--space-2);
+  }
+  
+  .flagItem {
+    padding: var(--space-2);
+  }
+  
+  .flagBadge {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .flagLabel {
+    height: 12px;
+  }
+  
+  .flagCount {
+    width: 20px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -41,9 +41,12 @@
 
 .metaRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: var(--space-2);
   margin-bottom: var(--space-5);
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .metaPill {
@@ -117,7 +120,49 @@
 }
 
 .sort {
-  min-width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  border: 1px solid rgba(90, 79, 132, 0.08);
+  min-width: 180px;
+}
+
+.sort div.selectWrapper select.select {
+  min-width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: var(--weight-semibold) !important;
+  color: var(--color-text-secondary) !important;
+  outline: none !important;
+  cursor: pointer !important;
+  padding: 0 24px 0 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.sort div.selectWrapper select.select:focus {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.sort > div {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.sort .arrow {
+  position: absolute;
+  right: 4px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
 }
 
 @media (max-width: 768px) {

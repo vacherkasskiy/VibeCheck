@@ -15,11 +15,10 @@ interface ActivityPanelProps {
 	onUnsubscribe: (subscriptionId: string) => void;
 }
 
-type ActivityTab = 'all' | 'activity' | 'following';
+type ActivityTab = 'all' | 'following';
 
 const TABS: Array<{ id: ActivityTab; label: string }> = [
 	{ id: 'all', label: 'Все' },
-	{ id: 'activity', label: 'Моя активность' },
 	{ id: 'following', label: 'Подписки' },
 ];
 

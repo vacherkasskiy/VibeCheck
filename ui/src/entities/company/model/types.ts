@@ -16,10 +16,13 @@ export interface ReviewFlagDto {
 }
 
 export interface CompanyReview {
+	myVote?: string | undefined;
   weight: number;
   reviewId: string;
   authorId: string;
   iconId: string | null;
+  authorName?: string | null;
+  authorAvatarUrl?: string | null;
   text: string | null;
   score: number;
   createdAt: string;

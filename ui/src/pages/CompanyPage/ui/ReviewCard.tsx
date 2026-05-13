@@ -1,7 +1,9 @@
+import { useUserFlags } from 'entities/user';
 import React from 'react';
 import { ReviewScore } from 'shared/ui';
 import styles from './ReviewCard.module.css';
 import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities/company';
+import type { UserFlag } from 'entities/user';
 
 interface ReviewCardProps {
 	review: CompanyReview;
@@ -14,27 +16,45 @@ interface ReviewCardProps {
 	onEdit?: (review: CompanyReview) => void;
 }
 
-export const ReviewCard = ({ 
-	review, 
-	onClick, 
-	myVote, 
-	onVote, 
+export const ReviewCard = ({
+	review,
+	onClick,
+	myVote,
+	onVote,
 	isVoting = false,
 	onReport,
 	canManage = false,
 	onEdit,
 }: ReviewCardProps) => {
 	const flags = review.flags ?? [];
+	const authorName = review.authorName?.trim() || `User ${review.authorId.slice(0, 8)}`;
+	const authorAvatarUrl = review.authorAvatarUrl ?? review.iconId;
 
-	const handleVote = (mode: VoteModeGatewayEnum) => () => {
-		if (onVote && !isVoting) {
-			const nextMode = myVote === mode ? 'Clear' : mode;
-			onVote(nextMode);
-		}
+	const {
+		flags: { green: userGreenFlags, red: userRedFlags },
+	} = useUserFlags();
+
+	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
+		const isGreen = userGreenFlags.some((f: UserFlag) => f.id === flagId);
+		const isRed = userRedFlags.some((f: UserFlag) => f.id === flagId);
+
+		if (isGreen) return 'green';
+		if (isRed) return 'red';
+		return 'gray';
+	};
+
+	const handleVote = (mode: VoteModeGatewayEnum) => (e?: React.MouseEvent) => {
+		e?.stopPropagation();
+
+		if (!onVote || isVoting) return;
+
+		const nextMode = myVote === mode ? 'Clear' : mode;
+		onVote(nextMode);
 	};
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
+
 		return date.toLocaleDateString('ru-RU', {
 			day: 'numeric',
 			month: 'long',
@@ -46,7 +66,7 @@ export const ReviewCard = ({
 	const isDislikeActive = myVote === 'Dislike';
 
 	return (
-		<div 
+		<div
 			className={styles.card}
 			onClick={onClick}
 			role="button"
@@ -59,21 +79,36 @@ export const ReviewCard = ({
 			}}
 		>
 			<div className={styles.header}>
-				<span className={styles.companyName}>Компания</span>
+				<div className={styles.authorMeta}>
+					{authorAvatarUrl ? (
+						<img src={authorAvatarUrl} alt={authorName} className={styles.avatar} />
+					) : (
+						<div className={styles.avatarPlaceholder}>
+							{authorName.charAt(0).toUpperCase()}
+						</div>
+					)}
+
+					<span className={styles.companyName}>{authorName}</span>
+				</div>
+
 				<span className={styles.date}>{formatDate(review.createdAt)}</span>
 			</div>
 
-			{review.text && <p className={styles.text}>{review.text}</p>}
-
 			{flags.length > 0 && (
 				<div className={styles.flags}>
-					{flags.map((flag: ReviewFlagDto) => (
-						<span key={flag.id} className={styles.flag}>
-							{flag.name ?? 'Флаг'}
-						</span>
-					))}
+					{flags.map((flag: ReviewFlagDto) => {
+						const color = getFlagColor(flag.id);
+
+						return (
+							<span key={flag.id} className={`${styles.flag} ${styles[color]}`}>
+								{flag.name ?? 'Флаг'}
+							</span>
+						);
+					})}
 				</div>
 			)}
+
+			{review.text && <p className={styles.text}>{review.text}</p>}
 
 			<div className={styles.reactions}>
 				<ReviewScore
@@ -84,6 +119,7 @@ export const ReviewCard = ({
 					isDownActive={isDislikeActive}
 					disabled={isVoting}
 				/>
+
 				{canManage && (
 					<button
 						className={styles.reportButton}
@@ -96,12 +132,13 @@ export const ReviewCard = ({
 						Редактировать
 					</button>
 				)}
-				<button 
-					className={styles.reportButton} 
-					type="button" 
+
+				<button
+					className={styles.reportButton}
+					type="button"
 					onClick={(e) => {
 						e.stopPropagation();
-						if (onReport) onReport(review.reviewId);
+						onReport?.(review.reviewId);
 					}}
 				>
 					⚠️ Пожаловаться

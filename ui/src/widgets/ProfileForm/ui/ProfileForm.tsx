@@ -1,4 +1,9 @@
-import { completeCurrentOnboardingStep, createMyInfo, createUserInfoDto, getAvatars } from 'features/auth';
+import {
+	completeCurrentOnboardingStep,
+	createMyInfo,
+	createUserInfoDto,
+	getAvatars,
+} from 'features/auth';
 import { useEffect, useState } from 'react';
 import {
 	dateToISO,
@@ -21,6 +26,7 @@ export interface Experience {
 	industry: string;
 	startDate: string;
 	endDate: string;
+	isCurrent: boolean;
 }
 
 export interface ProfileFormProps {
@@ -30,12 +36,12 @@ export interface ProfileFormProps {
 }
 
 const LOCAL_AVATARS: Avatar[] = [
-	{ id: '1', url: '/avatars/avatar1.svg' },
-	{ id: '2', url: '/avatars/avatar2.svg' },
-	{ id: '3', url: '/avatars/avatar3.svg' },
-	{ id: '4', url: '/avatars/avatar4.svg' },
-	{ id: '5', url: '/avatars/avatar5.svg' },
-	{ id: '6', url: '/avatars/avatar6.svg' },
+	{ id: '1', url: '/avatars/avatar1.png' },
+	{ id: '2', url: '/avatars/avatar2.png' },
+	{ id: '3', url: '/avatars/avatar3.png' },
+	{ id: '4', url: '/avatars/avatar4.png' },
+	{ id: '5', url: '/avatars/avatar5.png' },
+	{ id: '6', url: '/avatars/avatar6.png' },
 ];
 
 export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
@@ -115,7 +121,13 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 	const addExperience = () => {
 		setExperiences([
 			...experiences,
-			{ id: Date.now().toString(), industry: '', startDate: '', endDate: '' },
+			{
+				id: Date.now().toString(),
+				industry: '',
+				startDate: '',
+				endDate: '',
+				isCurrent: false,
+			},
 		]);
 	};
 
@@ -132,16 +144,27 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 
 	const validateExperiences = (): string => {
 		for (const exp of experiences) {
-			const hasAnyValue = Boolean(exp.industry || exp.startDate || exp.endDate);
+			const hasAnyValue = Boolean(
+				exp.industry || exp.startDate || exp.endDate || exp.isCurrent,
+			);
+
 			if (!hasAnyValue) continue;
+
 			if (!exp.industry) return 'Укажите сферу деятельности для каждого опыта';
 			if (!exp.startDate) return 'Укажите дату начала для каждого опыта';
 			if (!isRealDate(exp.startDate)) return 'Проверьте дату начала опыта';
-			if (exp.endDate && !isRealDate(exp.endDate)) return 'Проверьте дату окончания опыта';
-			if (exp.endDate) {
+
+			if (!exp.isCurrent && exp.endDate && !isRealDate(exp.endDate)) {
+				return 'Проверьте дату окончания опыта';
+			}
+
+			if (!exp.isCurrent && exp.endDate) {
 				const startedAt = new Date(dateToISO(exp.startDate)).getTime();
 				const finishedAt = new Date(dateToISO(exp.endDate)).getTime();
-				if (finishedAt < startedAt) return 'Дата окончания опыта не может быть раньше даты начала';
+
+				if (finishedAt < startedAt) {
+					return 'Дата окончания опыта не может быть раньше даты начала';
+				}
 			}
 		}
 
@@ -183,7 +206,7 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 				.map((exp) => ({
 					industry: exp.industry,
 					startDate: dateToISO(exp.startDate),
-					endDate: exp.endDate ? dateToISO(exp.endDate) : null,
+					endDate: exp.isCurrent || !exp.endDate ? null : dateToISO(exp.endDate),
 				}));
 			const dto = createUserInfoDto({
 				avatarId: avatarId!,
@@ -292,7 +315,8 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 					<div>
 						<h2 className={styles.sectionTitle}>Опыт работы</h2>
 						<p className={styles.sectionDescription}>
-							Эту часть можно пропустить, если опыта пока нет. Если добавляете опыт, указывайте сферу и дату начала.
+							Эту часть можно пропустить, если опыта пока нет. Если добавляете опыт,
+							указывайте сферу и дату начала.
 						</p>
 					</div>
 					<Button variant="secondary" size="small" onClick={addExperience}>
@@ -305,7 +329,9 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 						{experiences.map((exp, index) => (
 							<div key={exp.id} className={styles.experienceCard}>
 								<div className={styles.experienceCardHeader}>
-									<h3 className={styles.experienceCardTitle}>Опыт #{index + 1}</h3>
+									<h3 className={styles.experienceCardTitle}>
+										Опыт #{index + 1}
+									</h3>
 									<button
 										type="button"
 										className={styles.removeExperience}
@@ -327,20 +353,57 @@ export const ProfileForm = ({ email, onSubmit, onBack }: ProfileFormProps) => {
 										label="Дата начала"
 										value={exp.startDate}
 										onChange={(v) =>
-											updateExperience(exp.id, 'startDate', formatDateInput(v))
+											updateExperience(
+												exp.id,
+												'startDate',
+												formatDateInput(v),
+											)
 										}
 										placeholder="ДД.ММ.ГГГГ"
 										maxLength={10}
 									/>
-									<InputField
-										label="Дата окончания"
-										value={exp.endDate}
-										onChange={(v) =>
-											updateExperience(exp.id, 'endDate', formatDateInput(v))
-										}
-										placeholder="ДД.ММ.ГГГГ"
-										maxLength={10}
-									/>
+									{!exp.isCurrent && (
+										<InputField
+											label="Дата окончания"
+											value={exp.endDate}
+											onChange={(v) =>
+												updateExperience(
+													exp.id,
+													'endDate',
+													formatDateInput(v),
+												)
+											}
+											placeholder="ДД.ММ.ГГГГ"
+											maxLength={10}
+										/>
+									)}
+
+									<label className={styles.currentExperienceCheckbox}>
+										<input
+											type="checkbox"
+											checked={exp.isCurrent}
+											onChange={(e) => {
+												const checked = e.target.checked;
+
+												setExperiences((prev) =>
+													prev.map((item) =>
+														item.id === exp.id
+															? {
+																	...item,
+																	isCurrent: checked,
+																	endDate: checked
+																		? ''
+																		: item.endDate,
+																}
+															: item,
+													),
+												);
+
+												setExperienceError('');
+											}}
+										/>
+										<span>Работаю по настоящее время</span>
+									</label>
 								</div>
 							</div>
 						))}

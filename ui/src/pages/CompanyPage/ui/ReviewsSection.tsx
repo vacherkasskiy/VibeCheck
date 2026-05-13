@@ -21,6 +21,7 @@ interface ReviewsSectionProps {
 	companyName: string;
 	refreshKey?: number;
 	onEditReview?: (review: CompanyReview) => void;
+	onWriteReview?: () => void;
 }
 
 const sortOptions: SortOption[] = [
@@ -31,22 +32,12 @@ const sortOptions: SortOption[] = [
 	{ value: 'WeightDesc', label: 'По весу' },
 ];
 
-const getScoreDelta = (
-	previousVote: VoteModeGatewayEnum | undefined,
-	nextVote: VoteModeGatewayEnum,
-): number => {
-	if (previousVote === nextVote) return 0;
-	if (!previousVote) return nextVote === 'Like' ? 1 : nextVote === 'Dislike' ? -1 : 0;
-	if (previousVote === 'Like') return nextVote === 'Dislike' ? -2 : -1;
-	if (previousVote === 'Dislike') return nextVote === 'Like' ? 2 : 1;
-	return 0;
-};
-
 const canEditReview = (review: CompanyReview, currentUserId: string): boolean => {
 	if (review.authorId !== currentUserId) return false;
 
 	const createdAt = new Date(review.createdAt).getTime();
 	const diffMs = Date.now() - createdAt;
+
 	return diffMs <= 5 * 60 * 1000;
 };
 
@@ -55,18 +46,20 @@ export const ReviewsSection = ({
 	companyName,
 	refreshKey = 0,
 	onEditReview,
+	onWriteReview,
 }: ReviewsSectionProps) => {
 	const { id } = useParams<{ id: string }>();
+	const [voteRefreshKey, setVoteRefreshKey] = useState(0);
+	const [userVotes, setUserVotes] = useState<Record<string, VoteModeGatewayEnum | undefined>>({});
+
 	const { reviews, total, loading, loadingMore, error, sort, setSort, hasMore, loadMore } =
 		useCompanyReviews({
 			companyId: id,
-			refreshKey,
+			refreshKey: refreshKey + voteRefreshKey,
 		});
-	const currentUserId = getCurrentUserId();
 
+	const currentUserId = getCurrentUserId();
 	const voteMutation = useVoteReviewMutation();
-	const [userVotes, setUserVotes] = useState<Record<string, VoteModeGatewayEnum>>({});
-	const [scoreAdjustments, setScoreAdjustments] = useState<Record<string, number>>({});
 
 	const {
 		isOpen: isReviewViewOpen,
@@ -77,19 +70,13 @@ export const ReviewsSection = ({
 
 	const reportModal = useReportModal();
 
-	const displayedReviews = useMemo(
-		() =>
-			reviews.map((review) => ({
-				...review,
-				score: review.score + (scoreAdjustments[review.reviewId] ?? 0),
-			})),
-		[reviews, scoreAdjustments],
-	);
-
 	const selectedDisplayedReview = useMemo(() => {
 		if (!selectedReview) return null;
-		return displayedReviews.find((review) => review.reviewId === selectedReview.reviewId) ?? selectedReview;
-	}, [displayedReviews, selectedReview]);
+
+		return (
+			reviews.find((review) => review.reviewId === selectedReview.reviewId) ?? selectedReview
+		);
+	}, [reviews, selectedReview]);
 
 	const handleSortChange = (value: ReviewsSortGatewayEnum) => {
 		setSort(value);
@@ -97,47 +84,53 @@ export const ReviewsSection = ({
 
 	const handleVote = useCallback(
 		(reviewId: string, mode: VoteModeGatewayEnum) => {
-			const previousVote = userVotes[reviewId];
-			const delta = getScoreDelta(previousVote, mode);
-
-			setUserVotes((prev) => ({
-				...prev,
-				[reviewId]: mode,
-			}));
-
-			setScoreAdjustments((prev) => ({
-				...prev,
-				[reviewId]: (prev[reviewId] ?? 0) + delta,
-			}));
-
 			voteMutation.mutate(
 				{ reviewId, mode },
 				{
-					onError: () => {
-						setUserVotes((prev) => {
-							const nextVotes = { ...prev };
-							if (previousVote) {
-								nextVotes[reviewId] = previousVote;
-							} else {
-								delete nextVotes[reviewId];
-							}
-							return nextVotes;
-						});
-
-						setScoreAdjustments((prev) => ({
+					onSuccess: () => {
+						setUserVotes((prev) => ({
 							...prev,
-							[reviewId]: (prev[reviewId] ?? 0) - delta,
+							[reviewId]: mode === 'Clear' ? undefined : mode,
 						}));
+
+						setVoteRefreshKey((prev) => prev + 1);
 					},
 				},
 			);
 		},
-		[userVotes, voteMutation],
+		[voteMutation],
 	);
 
 	if (loading) {
 		return (
 			<section className={[styles.section, className].filter(Boolean).join(' ')}>
+				<div className={styles.header}>
+					<div className={styles.titleBlock}>
+						<h2 className={styles.title}>Отзывы</h2>
+						<p className={styles.subtitle}>
+							Живые впечатления сотрудников и кандидатов
+						</p>
+					</div>
+
+					{onWriteReview && (
+						<Button variant="primary" size="small" onClick={onWriteReview}>
+							Написать отзыв
+						</Button>
+					)}
+				</div>
+
+				<div className={styles.metaRow}>
+					<div className={styles.metaPill}>Всего отзывов: 0</div>
+					<div className={styles.metaPill}>Показано: 0</div>
+					<div className={styles.sort}>
+						<Select
+							value={sort}
+							onChange={(value) => handleSortChange(value as ReviewsSortGatewayEnum)}
+							options={sortOptions}
+						/>
+					</div>
+				</div>
+
 				<div className={styles.loading}>Загрузка отзывов...</div>
 			</section>
 		);
@@ -161,6 +154,17 @@ export const ReviewsSection = ({
 							Живые впечатления сотрудников и кандидатов
 						</p>
 					</div>
+
+					{onWriteReview && (
+						<Button variant="primary" size="small" onClick={onWriteReview}>
+							Написать отзыв
+						</Button>
+					)}
+				</div>
+
+				<div className={styles.metaRow}>
+					<div className={styles.metaPill}>Всего отзывов: {total}</div>
+					<div className={styles.metaPill}>Показано: {reviews.length}</div>
 					<div className={styles.sort}>
 						<Select
 							value={sort}
@@ -170,32 +174,29 @@ export const ReviewsSection = ({
 					</div>
 				</div>
 
-				<div className={styles.metaRow}>
-					<div className={styles.metaPill}>Всего отзывов: {total}</div>
-					<div className={styles.metaPill}>Показано: {displayedReviews.length}</div>
-					<div className={styles.metaPill}>
-						Режим: {sortOptions.find((option) => option.value === sort)?.label}
-					</div>
-				</div>
-
 				<div className={styles.reviewsList}>
-					{displayedReviews.length > 0 ? (
-						displayedReviews.map((review) => (
-							<ReviewCard
-								key={review.reviewId}
-								review={review}
-								myVote={userVotes[review.reviewId]}
-								onVote={(mode) => handleVote(review.reviewId, mode)}
-								isVoting={voteMutation.isPending}
-								canManage={canEditReview(review, currentUserId)}
-								onEdit={onEditReview}
-								onReport={(reviewId) => reportModal.open(reviewId)}
-								onClick={() => openReview(review)}
-							/>
-						))
+					{reviews.length > 0 ? (
+						reviews.map((review) => {
+							const currentVote = userVotes[review.reviewId];
+
+							return (
+								<ReviewCard
+									key={review.reviewId}
+									review={review}
+									myVote={currentVote}
+									onVote={(mode) => handleVote(review.reviewId, mode)}
+									isVoting={voteMutation.isPending}
+									canManage={canEditReview(review, currentUserId)}
+									onEdit={onEditReview}
+									onReport={(reviewId) => reportModal.open(reviewId)}
+									onClick={() => openReview(review)}
+								/>
+							);
+						})
 					) : (
 						<p className={styles.empty}>Пока нет отзывов</p>
 					)}
+
 					{hasMore && (
 						<div className={styles.loadMore}>
 							<Button
@@ -210,12 +211,17 @@ export const ReviewsSection = ({
 					)}
 				</div>
 			</section>
+
 			<ReviewViewModal
 				isOpen={isReviewViewOpen}
 				review={selectedDisplayedReview}
 				companyName={companyName}
 				onClose={closeReviewView}
-				myVote={selectedDisplayedReview ? userVotes[selectedDisplayedReview.reviewId] : undefined}
+				myVote={
+					selectedDisplayedReview
+						? userVotes[selectedDisplayedReview.reviewId]
+						: undefined
+				}
 				onVote={
 					selectedDisplayedReview
 						? (mode) => handleVote(selectedDisplayedReview.reviewId, mode)
@@ -224,6 +230,7 @@ export const ReviewsSection = ({
 				isVoting={voteMutation.isPending}
 				onReport={(reviewId) => reportModal.open(reviewId)}
 			/>
+
 			<ReportModal
 				isOpen={reportModal.isOpen}
 				reviewId={reportModal.reviewId}

@@ -6,12 +6,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CenterGlow, HeaderGlow } from 'shared/ui';
 import { Button } from 'shared/ui/Button';
-import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './CompanyPage.module.css';
+import { CompanyPageSkeleton } from './CompanyPageSkeleton';
 import { ReviewsSection } from './ReviewsSection';
-import { Top20FlagsSection } from './Top20FlagsSection';
+import { TopFlagsSection } from './TopFlagsSection';
 import type { CompanyReview } from 'entities/company';
 
 export const CompanyPage = () => {
@@ -42,12 +42,25 @@ export const CompanyPage = () => {
 
 	const pendingEditReview = useMemo(
 		() =>
-			(location.state as { editReview?: { id: string; text: string; createdAt: string } } | null)
-				?.editReview,
+			(
+				location.state as {
+					editReview?: { id: string; text: string; createdAt: string };
+				} | null
+			)?.editReview,
 		[location.state],
 	);
 
-	const handleEditReview = (review: CompanyReview | { reviewId?: string; id?: string; text: string | null; createdAt: string; flags?: Array<{ id: string }> | null }) => {
+	const handleEditReview = (
+		review:
+			| CompanyReview
+			| {
+					reviewId?: string;
+					id?: string;
+					text: string | null;
+					createdAt: string;
+					flags?: Array<{ id: string }> | null;
+			  },
+	) => {
 		const targetReviewId = 'reviewId' in review ? review.reviewId : review.id;
 
 		openModal({
@@ -58,6 +71,11 @@ export const CompanyPage = () => {
 			createdAt: review.createdAt,
 		});
 	};
+
+// Scroll to top when the page mounts
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 
 	useEffect(() => {
 		let ignore = false;
@@ -92,28 +110,7 @@ export const CompanyPage = () => {
 	}, [company?.companyId, location.pathname, navigate, pendingEditReview]);
 
 	if (loading) {
-		return (
-			<div className={styles.page}>
-				<HeaderGlow />
-				<CenterGlow />
-				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={() => navigate('/recommendations')}
-					>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<span className={styles.logoText}>VibeCheck</span>
-					</div>
-				</header>
-				<div className={styles.spinnerWrapper}>
-					<Spinner />
-				</div>
-			</div>
-		);
+		return <CompanyPageSkeleton />;
 	}
 
 	if (error || !company) {
@@ -159,25 +156,21 @@ export const CompanyPage = () => {
 					<span className={styles.logoText}>VibeCheck</span>
 				</div>
 				<div className={styles.headerActions}>
-					<Button variant="primary" size="small" onClick={openModal}>
-						Написать отзыв
-					</Button>
-					<UserNavButton
-						nickname={nickname}
-					/>
+					<UserNavButton nickname={nickname} />
 				</div>
 			</header>
 			<main className={styles.main}>
 				<div className={styles.contentGrid}>
 					<div className={styles.leftColumn}>
 						<CompanyInfo company={company} />
-						<Top20FlagsSection />
+						<TopFlagsSection />
 					</div>
 					<ReviewsSection
 						className={styles.reviewsColumn}
 						companyName={company.name ?? 'Компания'}
 						refreshKey={reviewsRefreshKey}
 						onEditReview={handleEditReview}
+						onWriteReview={openModal}
 					/>
 				</div>
 			</main>

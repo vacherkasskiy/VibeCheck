@@ -134,8 +134,7 @@
 .reviewMetaCard,
 .reviewAuthorCard {
   padding: 18px;
-  background: var(--color-surface-muted);
-  border: 1px solid rgba(90, 79, 132, 0.08);
+  
   border-radius: var(--radius-md);
 }
 
@@ -295,6 +294,24 @@
 
 .reportButton:active {
   transform: translateY(0);
+}
+
+.green {
+	background: #e8f7ee;
+	color: #1f7a3f;
+	border-color: #9fdfb8;
+}
+
+.red {
+	background: #fdecec;
+	color: #b42318;
+	border-color: #f5b5b0;
+}
+
+.gray {
+	background: #f2f4f7;
+	color: #475467;
+	border-color: #d0d5dd;
 }
 
 @media (max-width: 768px) {

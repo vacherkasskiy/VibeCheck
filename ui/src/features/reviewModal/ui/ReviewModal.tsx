@@ -1,4 +1,4 @@
-import { filterTags, groupByCategory, useGetAllFlags, type Tag, type SelectedTag } from 'entities/tag';
+import { filterTags, groupByCategory, useGetAllFlags, type Tag } from 'entities/tag';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'shared/ui/Button';
 import { Modal } from 'shared/ui/Modal';
@@ -26,8 +26,6 @@ interface ReviewModalProps {
 
 const MAX_CHARS = 500;
 const WARNING_THRESHOLD = 480;
-
-type Side = 'green' | 'red';
 
 export const ReviewModal = ({
 	isOpen,
@@ -62,51 +60,37 @@ export const ReviewModal = ({
 
 	const syncSelectedTags = useCallback(
 		(flagIds: string[]) =>
-			flagIds.reduce<Record<string, SelectedTag>>((acc, flagId) => {
+			flagIds.reduce<Record<string, Tag>>((acc, flagId) => {
 				const tag = flagsById.get(flagId);
 				if (tag) {
-					acc[flagId] = { tag, priority: 3 };
+					acc[flagId] = tag;
 				}
 				return acc;
 			}, {}),
 		[flagsById],
 	);
 
-	const [green, setGreen] = useState<Record<string, SelectedTag>>({});
-	const [red, setRed] = useState<Record<string, SelectedTag>>({});
+	const [selected, setSelected] = useState<Record<string, Tag>>({});
 
-	const areSelectedTagsEqual = useCallback(
-		(
-			left: Record<string, SelectedTag>,
-			right: Record<string, SelectedTag>,
-		): boolean => {
-			const leftKeys = Object.keys(left);
-			const rightKeys = Object.keys(right);
+	const areSelectedTagsEqual = useCallback((left: Record<string, Tag>, right: Record<string, Tag>): boolean => {
+		const leftKeys = Object.keys(left);
+		const rightKeys = Object.keys(right);
 
-			if (leftKeys.length !== rightKeys.length) return false;
+		if (leftKeys.length !== rightKeys.length) return false;
 
-			return leftKeys.every((key) => {
-				const leftTag = left[key];
-				const rightTag = right[key];
+		return leftKeys.every((key) => {
+			const leftTag = left[key];
+			const rightTag = right[key];
 
-				return (
-					rightTag !== undefined &&
-					leftTag.tag.id === rightTag.tag.id &&
-					leftTag.priority === rightTag.priority
-				);
-			});
-		},
-		[],
-	);
+			return rightTag !== undefined && leftTag.id === rightTag.id;
+		});
+	}, []);
 
 	useEffect(() => {
 		if (!isOpen || availableFlags.length === 0) return;
 
-		const nextGreen = syncSelectedTags(formData.greenFlags || []);
-		const nextRed = syncSelectedTags(formData.redFlags || []);
-
-		setGreen((prev) => (areSelectedTagsEqual(prev, nextGreen) ? prev : nextGreen));
-		setRed((prev) => (areSelectedTagsEqual(prev, nextRed) ? prev : nextRed));
+		const nextSelected = syncSelectedTags([...(formData.greenFlags || []), ...(formData.redFlags || [])]);
+		setSelected((prev) => (areSelectedTagsEqual(prev, nextSelected) ? prev : nextSelected));
 	}, [
 		isOpen,
 		availableFlags,
@@ -118,88 +102,46 @@ export const ReviewModal = ({
 
 	const filteredTags = useMemo(() => {
 		const q = query.trim().toLowerCase();
-		const excludeIds = Array.from(new Set(Object.keys(green).concat(Object.keys(red))));
+		const excludeIds = Object.keys(selected);
 		return filterTags(availableFlags, q, excludeIds);
-	}, [availableFlags, green, red, query]);
+	}, [availableFlags, selected, query]);
 
 	const groupedByCategory = useMemo(() => groupByCategory(filteredTags), [filteredTags]);
 
 	const startDrag = (id: string) => setDraggingId(id);
 	const endDrag = () => setDraggingId(null);
 
-	const addToSide = (tag: Tag, side: Side) => {
-		const inGreen = green[tag.id];
-		const inRed = red[tag.id];
-		if ((side === 'green' && inRed) || (side === 'red' && inGreen)) {
-			moveAcross(tag.id, side);
-			return;
-		}
-		const selected: SelectedTag = { tag, priority: 3 };
-		if (side === 'green') {
-			setGreen((prev) => ({ ...prev, [tag.id]: selected }));
-		} else {
-			setRed((prev) => ({ ...prev, [tag.id]: selected }));
-		}
+	const addToSelected = (tag: Tag) => {
+		setSelected((prev) => ({ ...prev, [tag.id]: tag }));
 	};
 
-	const moveAcross = (tagId: string, to: Side) => {
-		const src = to === 'green' ? red : green;
-		const item = src[tagId];
-		if (!item) return;
-		if (to === 'green') {
-			setRed((prev) => {
-				const next = { ...prev };
-				delete next[tagId];
-				return next;
-			});
-			setGreen((prev) => ({ ...prev, [tagId]: item }));
-		} else {
-			setGreen((prev) => {
-				const next = { ...prev };
-				delete next[tagId];
-				return next;
-			});
-			setRed((prev) => ({ ...prev, [tagId]: item }));
-		}
-	};
-
-	const updatePriority = (tagId: string, side: Side, priority: 1 | 2 | 3) => {
-		const setter = side === 'green' ? setGreen : setRed;
-		setter((prev) => ({
-			...prev,
-			[tagId]: { ...prev[tagId], priority },
-		}));
-	};
-
-	const removeTag = (tagId: string, side: Side) => {
-		const setter = side === 'green' ? setGreen : setRed;
-		setter((prev) => {
+	const removeTag = (tagId: string) => {
+		setSelected((prev) => {
 			const next = { ...prev };
 			delete next[tagId];
 			return next;
 		});
 	};
 
-	const handleDropToSide = (side: Side) => {
+	const handleDropToSelected = () => {
 		if (!draggingId) return;
 		const tag = availableFlags.find((item) => item.id === draggingId);
 		if (!tag) return;
-		addToSide(tag, side);
+		addToSelected(tag);
 		endDrag();
 	};
 
 	const handleEditFlags = useCallback(() => {
-		setGreen(syncSelectedTags(formData.greenFlags || []));
-		setRed(syncSelectedTags(formData.redFlags || []));
+		setSelected(syncSelectedTags([...(formData.greenFlags || []), ...(formData.redFlags || [])]));
 		setQuery('');
 		setShowFlagsModal(true);
 	}, [formData.greenFlags, formData.redFlags, syncSelectedTags]);
 
 	const handleSaveFlags = useCallback(() => {
-		setGreenFlags(Object.keys(green));
-		setRedFlags(Object.keys(red));
+		setGreenFlags(Object.keys(selected));
+		setRedFlags([]);
 		setShowFlagsModal(false);
-	}, [green, red, setGreenFlags, setRedFlags]);
+	}, [selected, setGreenFlags, setRedFlags]);
 
 	const handleSubmit = useCallback(() => {
 		if (canSubmit) {
@@ -256,6 +198,8 @@ export const ReviewModal = ({
 		[setText],
 	);
 
+	const allSelectedFormFlags = [...(formData.greenFlags || []), ...(formData.redFlags || [])];
+
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={handleClose} className={styles.reviewModal}>
@@ -276,16 +220,16 @@ export const ReviewModal = ({
 						<div className={styles.flagsHeader}>
 							<div className={styles.flagsGroup}>
 								<span className={styles.flagsLabel}>
-									Green Flags ({formData.greenFlags?.length || 0})
+									Флаги ({allSelectedFormFlags.length})
 								</span>
 								<div className={styles.flagsList}>
-									{(formData.greenFlags || []).map((flagId) => (
-										<span key={flagId} className={`${styles.flag} ${styles.greenFlag}`}>
+									{allSelectedFormFlags.map((flagId) => (
+										<span key={flagId} className={styles.flag}>
 											{flagsById.get(flagId)?.name ?? flagId}
 										</span>
 									))}
-									{(formData.greenFlags?.length || 0) === 0 && (
-										<span className={styles.noFlags}>Не выбраны зеленые флаги</span>
+									{allSelectedFormFlags.length === 0 && (
+										<span className={styles.noFlags}>Флаги не выбраны</span>
 									)}
 								</div>
 							</div>
@@ -303,22 +247,6 @@ export const ReviewModal = ({
 								При редактировании по API можно изменить только текст отзыва.
 							</p>
 						)}
-
-						<div className={styles.flagsGroup}>
-							<span className={styles.flagsLabel}>
-								Red Flags ({formData.redFlags?.length || 0})
-							</span>
-							<div className={styles.flagsList}>
-								{(formData.redFlags || []).map((flagId) => (
-									<span key={flagId} className={`${styles.flag} ${styles.redFlag}`}>
-										{flagsById.get(flagId)?.name ?? flagId}
-									</span>
-								))}
-								{(formData.redFlags?.length || 0) === 0 && (
-									<span className={styles.noFlags}>Не выбраны красные флаги</span>
-								)}
-							</div>
-						</div>
 					</div>
 
 					<div className={styles.textareaSection}>
@@ -376,7 +304,7 @@ export const ReviewModal = ({
 					<div className={styles.flagsModalHeader}>
 						<h3 className={styles.flagsModalTitle}>Выберите флаги для «{companyName}»</h3>
 						<p className={styles.flagsModalSubtitle}>
-							Перетащи в колонку зеленых или красных или кликни
+							Перетащи в область выбранных флагов или нажми на флаг
 						</p>
 					</div>
 
@@ -418,24 +346,14 @@ export const ReviewModal = ({
 													<span className={styles.flagLibraryName}>{tag.name}</span>
 													<div className={styles.flagLibraryActions}>
 														<button
-															className={styles.flagAddGreen}
+															className={styles.flagAddNeutral}
 															onClick={(event) => {
 																event.stopPropagation();
-																addToSide(tag, 'green');
+																addToSelected(tag);
 															}}
-															title="Добавить к зеленым"
+															title="Добавить"
 														>
-															✓
-														</button>
-														<button
-															className={styles.flagAddRed}
-															onClick={(event) => {
-																event.stopPropagation();
-																addToSide(tag, 'red');
-															}}
-															title="Добавить к красным"
-														>
-															✕
+															+
 														</button>
 													</div>
 												</div>
@@ -455,45 +373,23 @@ export const ReviewModal = ({
 								onDragOver={(e) => e.preventDefault()}
 								onDrop={(e) => {
 									e.preventDefault();
-									handleDropToSide('green');
+									handleDropToSelected();
 								}}
 							>
-								<h4 className={`${styles.flagsColumnTitle} ${styles.greenTitle}`}>
-									Green Flags ({Object.keys(green).length})
+								<h4 className={styles.flagsColumnTitle}>
+									Выбранные флаги ({Object.keys(selected).length})
 								</h4>
 								<div className={styles.flagsColumnContent}>
-									{Object.values(green).map(({ tag, priority }) => (
+									{Object.values(selected).map((tag) => (
 										<div
 											key={tag.id}
-											className={`${styles.selectedFlag} ${styles.greenSelectedFlag}`}
+											className={styles.selectedFlag}
 										>
 											<span className={styles.selectedFlagName}>{tag.name}</span>
 											<div className={styles.selectedFlagActions}>
-												<select
-													value={priority}
-													onChange={(e) =>
-														updatePriority(
-															tag.id,
-															'green',
-															Number(e.target.value) as 1 | 2 | 3,
-														)
-													}
-													className={styles.prioritySelect}
-												>
-													<option value={3}>Высокий</option>
-													<option value={2}>Средний</option>
-													<option value={1}>Низкий</option>
-												</select>
-												<button
-													className={styles.moveToRed}
-													onClick={() => moveAcross(tag.id, 'red')}
-													title="Переместить в красные"
-												>
-													→
-												</button>
 												<button
 													className={styles.removeFlag}
-													onClick={() => removeTag(tag.id, 'green')}
+													onClick={() => removeTag(tag.id)}
 													title="Удалить"
 												>
 													×
@@ -501,64 +397,7 @@ export const ReviewModal = ({
 											</div>
 										</div>
 									))}
-									{Object.keys(green).length === 0 && (
-										<div className={styles.emptyColumn}>Перенесите флаг сюда</div>
-									)}
-								</div>
-							</div>
-
-							<div
-								className={styles.flagsColumn}
-								onDragOver={(e) => e.preventDefault()}
-								onDrop={(e) => {
-									e.preventDefault();
-									handleDropToSide('red');
-								}}
-							>
-								<h4 className={`${styles.flagsColumnTitle} ${styles.redTitle}`}>
-									Red Flags ({Object.keys(red).length})
-								</h4>
-								<div className={styles.flagsColumnContent}>
-									{Object.values(red).map(({ tag, priority }) => (
-										<div
-											key={tag.id}
-											className={`${styles.selectedFlag} ${styles.redSelectedFlag}`}
-										>
-											<span className={styles.selectedFlagName}>{tag.name}</span>
-											<div className={styles.selectedFlagActions}>
-												<select
-													value={priority}
-													onChange={(e) =>
-														updatePriority(
-															tag.id,
-															'red',
-															Number(e.target.value) as 1 | 2 | 3,
-														)
-													}
-													className={styles.prioritySelect}
-												>
-													<option value={3}>Высокий</option>
-													<option value={2}>Средний</option>
-													<option value={1}>Низкий</option>
-												</select>
-												<button
-													className={styles.moveToGreen}
-													onClick={() => moveAcross(tag.id, 'green')}
-													title="Переместить в зеленые"
-												>
-													←
-												</button>
-												<button
-													className={styles.removeFlag}
-													onClick={() => removeTag(tag.id, 'red')}
-													title="Удалить"
-												>
-													×
-												</button>
-											</div>
-										</div>
-									))}
-									{Object.keys(red).length === 0 && (
+									{Object.keys(selected).length === 0 && (
 										<div className={styles.emptyColumn}>Перенесите флаг сюда</div>
 									)}
 								</div>
@@ -687,23 +526,12 @@ export const ReviewModal = ({
 									variant="primary"
 									size="small"
 									onClick={() => {
-										addToSide(infoTag, 'green');
+										addToSelected(infoTag);
 										setInfoTag(null);
 									}}
-									className={styles.tagInfoAddGreen}
+									className={styles.tagInfoAddNeutral}
 								>
-									Добавить к зеленым
-								</Button>
-								<Button
-									variant="primary"
-									size="small"
-									onClick={() => {
-										addToSide(infoTag, 'red');
-										setInfoTag(null);
-									}}
-									className={styles.tagInfoAddRed}
-								>
-									Добавить к красным
+									Добавить
 								</Button>
 							</div>
 						</>

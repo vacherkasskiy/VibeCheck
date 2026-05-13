@@ -39,11 +39,6 @@ export const ProfilePage = () => {
 	};
 
 	const handleNavToRecommendations = () => {
-		if (!profile?.flags || (profile.flags.green.length + profile.flags.red.length === 0)) {
-			showToast('Выберите хотя бы один green или red флаг на странице флагов, чтобы разблокировать рекомендации', 'error');
-			navigate('/flags');
-			return;
-		}
 		navigate('/recommendations');
 	};
 
@@ -135,6 +130,7 @@ export const ProfilePage = () => {
 					name: flag,
 				})),
 				weight: 1,
+				myVote: undefined,
 			}
 		: null;
 
@@ -142,10 +138,7 @@ export const ProfilePage = () => {
 		return (
 			<div className={styles.page}>
 				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={handleNavToRecommendations}
-					>
+					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
 						<img
 							src="/assets/vibecheck-favicon.png"
 							alt="VibeCheck"
@@ -165,10 +158,7 @@ export const ProfilePage = () => {
 		return (
 			<div className={styles.page}>
 				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={handleNavToRecommendations}
-					>
+					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
 						<img
 							src="/assets/vibecheck-favicon.png"
 							alt="VibeCheck"
@@ -194,23 +184,23 @@ export const ProfilePage = () => {
 	);
 
 	return (
-			<div className={styles.page}>
-				<header className={styles.header}>
-					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<span className={styles.logoText}>VibeCheck</span>
-					</div>
-					<div className={styles.headerActions}>
-						<UserNavButton
-							avatarUrl={profile?.user?.avatarUrl}
-							nickname={profile?.user?.nickname}
-						/>
-					</div>
-				</header>
+		<div className={styles.page}>
+			<header className={styles.header}>
+				<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
+					<img
+						src="/assets/vibecheck-favicon.png"
+						alt="VibeCheck"
+						className={styles.logo}
+					/>
+					<span className={styles.logoText}>VibeCheck</span>
+				</div>
+				<div className={styles.headerActions}>
+					<UserNavButton
+						avatarUrl={profile?.user?.avatarUrl}
+						nickname={profile?.user?.nickname}
+					/>
+				</div>
+			</header>
 
 			<main className={styles.main}>
 				<ProfileHeader user={user} onEditProfile={handleEditProfile} />
@@ -249,7 +239,6 @@ export const ProfilePage = () => {
 							)}
 							onUnsubscribe={handleUnsubscribe}
 						/>
-
 					</section>
 				</div>
 			</main>

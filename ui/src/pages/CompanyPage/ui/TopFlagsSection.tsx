@@ -1,16 +1,17 @@
 import { useCompanyFlags } from 'features/companyPage';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Top20FlagsSection as WidgetTop20FlagsSection } from 'widgets/Top20FlagsSection';
-import styles from './Top20FlagsSection.module.css';
+import { TopFlagsSection as WidgetTopFlagsSection } from 'widgets/TopFlagsSection';
+import { FlagsGridSkeleton } from './FlagsGridSkeleton';
+import styles from './TopFlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
 
-export const Top20FlagsSection = () => {
+export const TopFlagsSection = () => {
   const { id } = useParams<{ id: string }>();
   
   const { flags, loading } = useCompanyFlags(id);
 
-  const top20Flags = useMemo(() => {
+  const topFlags = useMemo(() => {
     return flags
       .slice(0, 20)
       .sort((a: CompanyFlag, b: CompanyFlag) => b.count - a.count);
@@ -19,10 +20,10 @@ export const Top20FlagsSection = () => {
   if (loading) {
     return (
       <section className={styles.section}>
-        <div className={styles.loading}>Загрузка топ-20 флагов...</div>
+         <FlagsGridSkeleton/>
       </section>
     );
   }
 
-  return <WidgetTop20FlagsSection flags={top20Flags} />;
+return <WidgetTopFlagsSection flags={topFlags} totalCount={flags.length} />;
 };

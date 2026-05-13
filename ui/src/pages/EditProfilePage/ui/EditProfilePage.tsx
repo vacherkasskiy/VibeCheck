@@ -22,14 +22,15 @@ import { Select } from 'shared/ui/Select';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import styles from './EditProfilePage.module.css';
-import type { Avatar } from 'shared/ui/AvatarSelector';
 import type { UserInfoDto } from 'entities/user';
+import type { Avatar } from 'shared/ui/AvatarSelector';
 
 type ExperienceFormItem = {
 	id: string;
 	industry: string;
 	startDate: string;
 	endDate: string;
+	isCurrent: boolean;
 };
 
 const LOCAL_AVATARS: Avatar[] = [
@@ -97,6 +98,7 @@ export const EditProfilePage = () => {
 						industry: mapSpecializationToIndustryValue(experience.specialization),
 						startDate: isoToDisplayDate(experience.startedAt),
 						endDate: isoToDisplayDate(experience.finishedAt),
+						isCurrent: !experience.finishedAt,
 					})),
 				);
 			} catch {
@@ -117,7 +119,8 @@ export const EditProfilePage = () => {
 		};
 	}, []);
 
-	const pageError = error || (!detailsLoading && !rawProfile ? 'Не удалось загрузить профиль' : '');
+	const pageError =
+		error || (!detailsLoading && !rawProfile ? 'Не удалось загрузить профиль' : '');
 
 	const handleBirthDateChange = (value: string) => {
 		const formatted = formatDateInput(value);
@@ -128,7 +131,13 @@ export const EditProfilePage = () => {
 	const addExperience = () => {
 		setExperiences((prev) => [
 			...prev,
-			{ id: Date.now().toString(), industry: '', startDate: '', endDate: '' },
+			{
+				id: Date.now().toString(),
+				industry: '',
+				startDate: '',
+				endDate: '',
+				isCurrent: false,
+			},
 		]);
 	};
 
@@ -148,19 +157,25 @@ export const EditProfilePage = () => {
 	const validateExperiences = () => {
 		for (const experience of experiences) {
 			const hasAnyValue = Boolean(
-				experience.industry || experience.startDate || experience.endDate,
+				experience.industry ||
+					experience.startDate ||
+					experience.endDate ||
+					experience.isCurrent,
 			);
+
 			if (!hasAnyValue) continue;
 			if (!experience.industry) return 'Укажите сферу деятельности для каждого опыта';
 			if (!experience.startDate) return 'Укажите дату начала для каждого опыта';
 			if (!isRealDate(experience.startDate)) return 'Проверьте дату начала опыта';
-			if (experience.endDate && !isRealDate(experience.endDate)) {
+
+			if (!experience.isCurrent && experience.endDate && !isRealDate(experience.endDate)) {
 				return 'Проверьте дату окончания опыта';
 			}
 
-			if (experience.endDate) {
+			if (!experience.isCurrent && experience.endDate) {
 				const startedAt = new Date(dateToISO(experience.startDate)).getTime();
 				const finishedAt = new Date(dateToISO(experience.endDate)).getTime();
+
 				if (finishedAt < startedAt) {
 					return 'Дата окончания опыта не может быть раньше даты начала';
 				}
@@ -243,7 +258,10 @@ export const EditProfilePage = () => {
 					.map((experience) => ({
 						industry: experience.industry,
 						startDate: dateToISO(experience.startDate),
-						endDate: experience.endDate ? dateToISO(experience.endDate) : null,
+						endDate:
+							experience.isCurrent || !experience.endDate
+								? null
+								: dateToISO(experience.endDate),
 					})),
 			});
 			await updateMyInfo(dto);
@@ -443,7 +461,9 @@ export const EditProfilePage = () => {
 									error={industryError}
 								/>
 							</div>
-							<p className={styles.hint}>Никнейм зафиксирован и не редактируется со страницы профиля.</p>
+							<p className={styles.hint}>
+								Никнейм зафиксирован и не редактируется со страницы профиля.
+							</p>
 						</div>
 
 						<div className={styles.section}>
@@ -451,7 +471,8 @@ export const EditProfilePage = () => {
 								<div>
 									<h2 className={styles.sectionTitle}>Опыт работы</h2>
 									<p className={styles.sectionDescription}>
-										Добавьте один или несколько периодов опыта. Поля можно оставить пустыми, если опыта пока нет.
+										Добавьте один или несколько периодов опыта. Поля можно
+										оставить пустыми, если опыта пока нет.
 									</p>
 								</div>
 								<Button variant="secondary" size="small" onClick={addExperience}>
@@ -464,7 +485,9 @@ export const EditProfilePage = () => {
 									{experiences.map((experience, index) => (
 										<div key={experience.id} className={styles.experienceCard}>
 											<div className={styles.experienceCardHeader}>
-												<h3 className={styles.experienceCardTitle}>Опыт #{index + 1}</h3>
+												<h3 className={styles.experienceCardTitle}>
+													Опыт #{index + 1}
+												</h3>
 												<button
 													type="button"
 													className={styles.removeExperience}
@@ -479,7 +502,11 @@ export const EditProfilePage = () => {
 													options={INDUSTRY_OPTIONS}
 													value={experience.industry}
 													onChange={(value) =>
-														updateExperience(experience.id, 'industry', value)
+														updateExperience(
+															experience.id,
+															'industry',
+															value,
+														)
 													}
 													placeholder="Выберите сферу"
 												/>
@@ -496,19 +523,48 @@ export const EditProfilePage = () => {
 													placeholder="ДД.ММ.ГГГГ"
 													maxLength={10}
 												/>
-												<InputField
-													label="Дата окончания"
-													value={experience.endDate}
-													onChange={(value) =>
-														updateExperience(
-															experience.id,
-															'endDate',
-															formatDateInput(value),
-														)
-													}
-													placeholder="ДД.ММ.ГГГГ"
-													maxLength={10}
-												/>
+												{!experience.isCurrent && (
+													<InputField
+														label="Дата окончания"
+														value={experience.endDate}
+														onChange={(value) =>
+															updateExperience(
+																experience.id,
+																'endDate',
+																formatDateInput(value),
+															)
+														}
+														placeholder="ДД.ММ.ГГГГ"
+														maxLength={10}
+													/>
+												)}
+
+												<label className={styles.currentExperienceCheckbox}>
+													<input
+														type="checkbox"
+														checked={experience.isCurrent}
+														onChange={(e) => {
+															const checked = e.target.checked;
+
+															setExperiences((prev) =>
+																prev.map((item) =>
+																	item.id === experience.id
+																		? {
+																				...item,
+																				isCurrent: checked,
+																				endDate: checked
+																					? ''
+																					: item.endDate,
+																			}
+																		: item,
+																),
+															);
+
+															setExperienceError('');
+														}}
+													/>
+													<span>Работаю по настоящее время</span>
+												</label>
 											</div>
 										</div>
 									))}
@@ -519,7 +575,9 @@ export const EditProfilePage = () => {
 								</div>
 							)}
 
-							{experienceError && <div className={styles.error}>{experienceError}</div>}
+							{experienceError && (
+								<div className={styles.error}>{experienceError}</div>
+							)}
 						</div>
 
 						<div className={styles.section}>
@@ -533,7 +591,8 @@ export const EditProfilePage = () => {
 								readOnly
 							/>
 							<p className={styles.hint}>
-								Никнейм используется как публичный идентификатор профиля и сейчас недоступен для редактирования.
+								Никнейм используется как публичный идентификатор профиля и сейчас
+								недоступен для редактирования.
 							</p>
 						</div>
 

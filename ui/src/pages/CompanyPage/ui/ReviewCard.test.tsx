@@ -6,6 +6,8 @@ const review = {
 	reviewId: 'review-1',
 	authorId: 'author-1',
 	iconId: null,
+	authorName: 'Denis',
+	authorAvatarUrl: '/assets/avatars/avatar2.png',
 	text: 'Полный текст отзыва',
 	score: 3,
 	createdAt: '2026-05-10T00:00:00Z',
@@ -27,6 +29,8 @@ describe('ReviewCard', () => {
 		expect(text).toBeInTheDocument();
 		expect(screen.getByText('Supportive team')).toBeInTheDocument();
 		expect(screen.getByText('Fast growth')).toBeInTheDocument();
+		expect(screen.getByText('Denis')).toBeInTheDocument();
+		expect(screen.getByRole('img', { name: 'Denis' })).toBeInTheDocument();
 		expect(screen.getByText('10 мая 2026 г.')).toBeInTheDocument();
 	});
 

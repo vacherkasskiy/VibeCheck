@@ -2,12 +2,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReviewService.CloudStorage.Abstractions.Options;
 using ReviewService.Core.Abstractions.Helpers;
+using ReviewService.Core.Abstractions.Operations.Admin.Companies;
+using ReviewService.Core.Abstractions.Operations.Admin.Flags;
+using ReviewService.Core.Abstractions.Operations.Admin.Reviews;
 using ReviewService.Core.Abstractions.Operations.Companies;
 using ReviewService.Core.Abstractions.Operations.Flags;
 using ReviewService.Core.Abstractions.Operations.Reviews;
 using ReviewService.Core.Abstractions.Operations.Users;
 using ReviewService.Core.Helpers;
 using ReviewService.Core.MapperProfiles;
+using ReviewService.Core.Operations.Admin.Companies;
+using ReviewService.Core.Operations.Admin.Flags;
+using ReviewService.Core.Operations.Admin.Reviews;
 using ReviewService.Core.Operations.Companies;
 using ReviewService.Core.Operations.Flags;
 using ReviewService.Core.Operations.Reviews;
@@ -50,6 +56,27 @@ public static class ServiceCollectionExtensions
         // Helpers
         services.AddSingleton<ICurrentUserAccessor, JwtCurrentUserAccessor>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddAdminCoreServices(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAdminCompaniesOperation, AdminCompaniesOperations>();
+        services.AddScoped<IGetAdminCompanyOperation, AdminCompaniesOperations>();
+        services.AddScoped<ICreateAdminCompanyOperation, AdminCompaniesOperations>();
+        services.AddScoped<IUpdateAdminCompanyOperation, AdminCompaniesOperations>();
+        services.AddScoped<IDeleteAdminCompanyOperation, AdminCompaniesOperations>();
+        services.AddScoped<IGetCompanyRequestsOperation, AdminCompaniesOperations>();
+        
+        services.AddScoped<IGetAdminReviewReportsOperation, AdminReviewReportsOperations>();
+        services.AddScoped<IAdminDeleteReviewOperation, AdminReviewReportsOperations>();
+        
+        services.AddScoped<IGetAdminFlagsOperation, AdminFlagsOperations>();
+        services.AddScoped<IGetAdminFlagOperation, AdminFlagsOperations>();
+        services.AddScoped<ICreateAdminFlagOperation, AdminFlagsOperations>();
+        services.AddScoped<IUpdateAdminFlagOperation, AdminFlagsOperations>();
+        services.AddScoped<IDeleteAdminFlagOperation, AdminFlagsOperations>();
+        
         return services;
     }
 

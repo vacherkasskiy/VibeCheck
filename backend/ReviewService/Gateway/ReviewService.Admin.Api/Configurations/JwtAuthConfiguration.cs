@@ -47,7 +47,8 @@ public static class JwtAuthConfiguration
                     ValidAudience = jwtOptions.Audience,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false))
+                    IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false)),
+                    RoleClaimType = "roles"
                 };
             });
         

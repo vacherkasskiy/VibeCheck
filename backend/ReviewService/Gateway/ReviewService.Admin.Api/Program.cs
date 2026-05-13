@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using ReviewService.Admin.Api.Configurations;
 using ReviewService.CloudStorage.Extensions;
 using ReviewService.Core;
-using ReviewService.MessageBroker;
 using ReviewService.PersistentStorage.Extensions;
 using Serilog;
 
@@ -11,13 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddApplicationLogging();
 
 builder.Services
+    .AddAdminMapperProfiles()
     .AddCoreMapperProfiles()
     .AddApplicationCors()
     .AddApplicationOptions(builder.Configuration)
     .AddApplicationHealthChecks()
     .AddMinioServices()
-    .AddMessageBrokerServices()
-    .AddCoreServices()
+    .AddAdminCoreServices()
     .AddPersistentStorageMapperProfiles()
     .AddPersistentStorageServices()
     .AddJwtAuth(builder.Configuration)

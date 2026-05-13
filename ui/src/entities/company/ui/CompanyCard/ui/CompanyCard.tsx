@@ -104,17 +104,6 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 						)}
 					</div>
 				</div>
-
-				<div className={styles.cardMeta}>
-					<div className={styles.metaPill}>
-						<span className={styles.metaLabel}>Флагов</span>
-						<span className={styles.metaValue}>{topFlags.length}</span>
-					</div>
-					<div className={styles.metaPill}>
-						<span className={styles.metaLabel}>Профиль</span>
-						<span className={styles.metaValue}>Открыть</span>
-					</div>
-				</div>
 			</div>
 		</button>
 	);

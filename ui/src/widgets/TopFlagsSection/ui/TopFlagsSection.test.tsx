@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Top20FlagsSection } from './Top20FlagsSection';
+import { TopFlagsSection } from './TopFlagsSection';
 
 const { useGetAllFlagsMock, useUserFlagsMock } = vi.hoisted(() => ({
 	useGetAllFlagsMock: vi.fn(),
@@ -51,7 +51,7 @@ describe('Top20FlagsSection', () => {
 	it('filters flags by search query', () => {
 		// Arrange
 		render(
-			<Top20FlagsSection
+			<TopFlagsSection
 				flags={[
 					{ id: 'flag-1', name: 'Supportive team', count: 8 },
 					{ id: 'flag-2', name: 'Micromanagement', count: 2 },
@@ -72,7 +72,7 @@ describe('Top20FlagsSection', () => {
 	it('opens tag info modal with detailed flag description', () => {
 		// Arrange
 		render(
-			<Top20FlagsSection flags={[{ id: 'flag-1', name: 'Supportive team', count: 8 }] as any} />,
+			<TopFlagsSection flags={[{ id: 'flag-1', name: 'Supportive team', count: 8 }] as any} />,
 		);
 
 		// Act
@@ -87,7 +87,7 @@ describe('Top20FlagsSection', () => {
 	it('shows empty state when no flags match search', () => {
 		// Arrange
 		render(
-			<Top20FlagsSection flags={[{ id: 'flag-1', name: 'Supportive team', count: 8 }] as any} />,
+			<TopFlagsSection flags={[{ id: 'flag-1', name: 'Supportive team', count: 8 }] as any} />,
 		);
 
 		// Act

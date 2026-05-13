@@ -128,7 +128,7 @@ const getCurrentUserId = (): string => {
   }
 };
 
-const getLocalAvatarUrl = (avatarId?: string | null): string =>
+export const getLocalAvatarUrl = (avatarId?: string | null): string =>
   (avatarId && AVATAR_ID_TO_LOCAL_URL[avatarId]) || DEFAULT_AVATAR_URL;
 
 const getAvatarUrl = (

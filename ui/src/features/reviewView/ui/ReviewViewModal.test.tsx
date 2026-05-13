@@ -20,6 +20,8 @@ const review = {
 	reviewId: 'review-1',
 	authorId: 'author-12345678',
 	iconId: null,
+	authorName: 'Denis',
+	authorAvatarUrl: '/assets/avatars/avatar2.png',
 	text: 'Полный текст отзыва',
 	score: 4,
 	createdAt: '2026-05-10T10:30:00Z',
@@ -50,6 +52,7 @@ describe('ReviewViewModal', () => {
 		expect(screen.getByText('Acme')).toBeInTheDocument();
 		expect(screen.getByText('Полный текст отзыва')).toBeInTheDocument();
 		expect(screen.getByText('Supportive team')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Denis' })).toBeInTheDocument();
 		expect(screen.getByText('review-1')).toBeInTheDocument();
 	});
 
@@ -86,7 +89,7 @@ describe('ReviewViewModal', () => {
 		);
 
 		// Act
-		fireEvent.click(screen.getByRole('button', { name: 'User author-1' }));
+		fireEvent.click(screen.getByRole('button', { name: 'Denis' }));
 
 		// Assert
 		expect(onClose).toHaveBeenCalledTimes(1);

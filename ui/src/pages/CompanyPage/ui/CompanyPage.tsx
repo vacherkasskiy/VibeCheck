@@ -11,7 +11,7 @@ import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './CompanyPage.module.css';
 import { ReviewsSection } from './ReviewsSection';
-import { Top20FlagsSection } from './Top20FlagsSection';
+import { Top20FlagsSection } from './TopFlagsSection';
 import type { CompanyReview } from 'entities/company';
 
 export const CompanyPage = () => {
@@ -158,10 +158,7 @@ export const CompanyPage = () => {
 					/>
 					<span className={styles.logoText}>VibeCheck</span>
 				</div>
-				<div className={styles.headerActions}>
-					<Button variant="primary" size="small" onClick={openModal}>
-						Написать отзыв
-					</Button>
+<div className={styles.headerActions}>
 					<UserNavButton
 						nickname={nickname}
 					/>
@@ -173,11 +170,12 @@ export const CompanyPage = () => {
 						<CompanyInfo company={company} />
 						<Top20FlagsSection />
 					</div>
-					<ReviewsSection
+<ReviewsSection
 						className={styles.reviewsColumn}
 						companyName={company.name ?? 'Компания'}
 						refreshKey={reviewsRefreshKey}
 						onEditReview={handleEditReview}
+						onWriteReview={openModal}
 					/>
 				</div>
 			</main>

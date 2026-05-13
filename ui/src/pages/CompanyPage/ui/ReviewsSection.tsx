@@ -21,6 +21,7 @@ interface ReviewsSectionProps {
 	companyName: string;
 	refreshKey?: number;
 	onEditReview?: (review: CompanyReview) => void;
+	onWriteReview?: () => void;
 }
 
 const sortOptions: SortOption[] = [
@@ -55,6 +56,7 @@ export const ReviewsSection = ({
 	companyName,
 	refreshKey = 0,
 	onEditReview,
+	onWriteReview,
 }: ReviewsSectionProps) => {
 	const { id } = useParams<{ id: string }>();
 	const { reviews, total, loading, loadingMore, error, sort, setSort, hasMore, loadMore } =
@@ -135,9 +137,35 @@ export const ReviewsSection = ({
 		[userVotes, voteMutation],
 	);
 
-	if (loading) {
+if (loading) {
 		return (
 			<section className={[styles.section, className].filter(Boolean).join(' ')}>
+				<div className={styles.header}>
+					<div className={styles.titleBlock}>
+						<h2 className={styles.title}>Отзывы</h2>
+						<p className={styles.subtitle}>
+							Живые впечатления сотрудников и кандидатов
+						</p>
+					</div>
+					{onWriteReview && (
+						<Button variant="primary" size="small" onClick={onWriteReview}>
+							Написать отзыв
+						</Button>
+					)}
+				</div>
+
+<div className={styles.metaRow}>
+					<div className={styles.metaPill}>Всего отзывов: 0</div>
+					<div className={styles.metaPill}>Показано: 0</div>
+					<div className={styles.sort}>
+						<Select
+							value={sort}
+							onChange={(value) => handleSortChange(value as ReviewsSortGatewayEnum)}
+							options={sortOptions}
+						/>
+					</div>
+				</div>
+
 				<div className={styles.loading}>Загрузка отзывов...</div>
 			</section>
 		);
@@ -151,9 +179,9 @@ export const ReviewsSection = ({
 		);
 	}
 
-	return (
+return (
 		<>
-			<section className={[styles.section, className].filter(Boolean).join(' ')}>
+<section className={[styles.section, className].filter(Boolean).join(' ')}>
 				<div className={styles.header}>
 					<div className={styles.titleBlock}>
 						<h2 className={styles.title}>Отзывы</h2>
@@ -161,20 +189,22 @@ export const ReviewsSection = ({
 							Живые впечатления сотрудников и кандидатов
 						</p>
 					</div>
+					{onWriteReview && (
+						<Button variant="primary" size="small" onClick={onWriteReview}>
+							Написать отзыв
+						</Button>
+					)}
+				</div>
+
+<div className={styles.metaRow}>
+					<div className={styles.metaPill}>Всего отзывов: {total}</div>
+					<div className={styles.metaPill}>Показано: {displayedReviews.length}</div>
 					<div className={styles.sort}>
 						<Select
 							value={sort}
 							onChange={(value) => handleSortChange(value as ReviewsSortGatewayEnum)}
 							options={sortOptions}
 						/>
-					</div>
-				</div>
-
-				<div className={styles.metaRow}>
-					<div className={styles.metaPill}>Всего отзывов: {total}</div>
-					<div className={styles.metaPill}>Показано: {displayedReviews.length}</div>
-					<div className={styles.metaPill}>
-						Режим: {sortOptions.find((option) => option.value === sort)?.label}
 					</div>
 				</div>
 

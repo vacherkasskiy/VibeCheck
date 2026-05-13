@@ -33,8 +33,8 @@ export const ReviewViewModal = ({
 
   if (!review || !isOpen) return null;
 
-  const resolvedAuthorName = authorName ?? `User ${review.authorId.slice(0, 8)}`;
-  const authorAvatar = authorAvatarUrl ?? review.iconId;
+  const resolvedAuthorName = authorName ?? review.authorName ?? `User ${review.authorId.slice(0, 8)}`;
+  const authorAvatar = authorAvatarUrl ?? review.authorAvatarUrl ?? review.iconId;
   const flags = review.flags ?? [];
 
   const formatDate = (dateString: string) => {

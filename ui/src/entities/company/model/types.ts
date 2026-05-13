@@ -20,6 +20,8 @@ export interface CompanyReview {
   reviewId: string;
   authorId: string;
   iconId: string | null;
+  authorName?: string | null;
+  authorAvatarUrl?: string | null;
   text: string | null;
   score: number;
   createdAt: string;

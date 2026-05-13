@@ -40,15 +40,12 @@ export const AboutPage = () => {
 							Мы соединяем отзывы, карьерные флаги и персональные предпочтения, чтобы выбор компании был ближе к реальной рабочей жизни.
 						</p>
 
-						<div className={styles.actions}>
+<div className={styles.actions}>
 							<Link
-								to={state.isAuthenticated ? '/recommendations' : '/login'}
+								to={state.isAuthenticated ? '/recommendations' : '/welcome'}
 								className={styles.primaryAction}
 							>
 								{state.isAuthenticated ? 'К рекомендациям' : 'Войти, чтобы получить рекомендации'}
-							</Link>
-							<Link to="/" className={styles.secondaryAction}>
-								На главную
 							</Link>
 						</div>
 					</section>

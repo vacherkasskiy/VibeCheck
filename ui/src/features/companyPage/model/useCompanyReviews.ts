@@ -1,4 +1,5 @@
 import { reviewApi } from 'entities/company';
+import { fetchUserInfoById, getAvatars, getLocalAvatarUrl } from 'entities/user/model';
 import { useCallback, useEffect, useMemo } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { useCompanyReviewStore } from './reviewStore';
@@ -26,6 +27,54 @@ interface UseCompanyReviewsResult {
 
 const TAKE = 20;
 
+const enrichReviewsWithAuthors = async (reviews: CompanyReview[]): Promise<CompanyReview[]> => {
+  const avatarList = await getAvatars();
+  const avatarUrlById = new Map(
+    avatarList.map((avatar) => [avatar.id, avatar.url] as const),
+  );
+  const authorIds = Array.from(
+    new Set(
+      reviews
+        .map((review) => review.authorId)
+        .filter((authorId): authorId is string => Boolean(authorId)),
+    ),
+  );
+
+  if (authorIds.length === 0) {
+    return reviews;
+  }
+
+  const authorEntries = await Promise.all(
+    authorIds.map(async (authorId) => {
+      const userInfo = await fetchUserInfoById(authorId);
+
+      return [
+        authorId,
+        {
+          name: userInfo.name?.trim() || `User ${authorId.slice(0, 8)}`,
+          avatarUrl: avatarUrlById.get(userInfo.iconId) || getLocalAvatarUrl(userInfo.iconId),
+        },
+      ] as const;
+    }),
+  );
+
+  const authorMap = new Map(authorEntries);
+
+  return reviews.map((review) => {
+    const authorInfo = authorMap.get(review.authorId);
+
+    if (!authorInfo) {
+      return review;
+    }
+
+    return {
+      ...review,
+      authorName: authorInfo.name,
+      authorAvatarUrl: authorInfo.avatarUrl,
+    };
+  });
+};
+
 const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
   const baseDate = new Date('2026-01-18T12:00:00Z').getTime();
 
@@ -35,6 +84,8 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
       reviewId: `${targetCompanyId}-mock-review-1`,
       authorId: '00000000-0000-0000-0000-000000000101',
       iconId: null,
+      authorName: 'Пользователь 1',
+      authorAvatarUrl: '/assets/avatars/avatar1.png',
       text: 'Хороший темп работы и сильная команда. Есть ощущение, что твой вклад реально влияет на продукт.',
       score: 7,
       createdAt: new Date(baseDate).toISOString(),
@@ -48,6 +99,8 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
       reviewId: `${targetCompanyId}-mock-review-2`,
       authorId: '00000000-0000-0000-0000-000000000102',
       iconId: null,
+      authorName: 'Пользователь 2',
+      authorAvatarUrl: '/assets/avatars/avatar2.png',
       text: 'Процессы местами тяжеловаты, но задачи интересные и масштаб продукта это компенсирует.',
       score: 2,
       createdAt: new Date(baseDate - 1000 * 60 * 60 * 24 * 5).toISOString(),
@@ -61,6 +114,8 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
       reviewId: `${targetCompanyId}-mock-review-3`,
       authorId: '00000000-0000-0000-0000-000000000103',
       iconId: null,
+      authorName: 'Пользователь 3',
+      authorAvatarUrl: '/assets/avatars/avatar3.png',
       text: 'Команда приятная, но временами слишком высокий темп и плавающие приоритеты.',
       score: -3,
       createdAt: new Date(baseDate - 1000 * 60 * 60 * 24 * 11).toISOString(),
@@ -126,11 +181,18 @@ export const useCompanyReviews = ({
       return ['company-reviews', companyId, sort, pageIndex + 1, TAKE] as const;
     },
     async ([, id, nextSort, pageNum, take]) =>
-      reviewApi.fetchCompanyReviews(id, {
-        take,
-        pageNum,
-        sort: nextSort,
-      }),
+      {
+        const response = await reviewApi.fetchCompanyReviews(id, {
+          take,
+          pageNum,
+          sort: nextSort,
+        });
+
+        return {
+          ...response,
+          reviews: response.reviews ? await enrichReviewsWithAuthors(response.reviews) : response.reviews,
+        };
+      },
     {
       revalidateFirstPage: false,
     },

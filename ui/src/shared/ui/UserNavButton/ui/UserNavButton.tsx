@@ -56,7 +56,7 @@ export const UserNavButton = ({ avatarUrl, nickname, onClick }: UserNavButtonPro
 	const handleLogout = async () => {
 		setIsOpen(false);
 		await logout();
-		navigate('/login');
+		navigate('/welcome');
 	};
 
 	if (!avatarUrl && !nickname && !state.isAuthenticated) {

@@ -38,12 +38,7 @@ export const ProfilePage = () => {
 		navigate('/profile/edit');
 	};
 
-	const handleNavToRecommendations = () => {
-		if (!profile?.flags || (profile.flags.green.length + profile.flags.red.length === 0)) {
-			showToast('Выберите хотя бы один green или red флаг на странице флагов, чтобы разблокировать рекомендации', 'error');
-			navigate('/flags');
-			return;
-		}
+const handleNavToRecommendations = () => {
 		navigate('/recommendations');
 	};
 

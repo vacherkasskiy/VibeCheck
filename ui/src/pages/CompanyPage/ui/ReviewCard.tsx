@@ -25,6 +25,8 @@ export const ReviewCard = ({
 	onEdit,
 }: ReviewCardProps) => {
 	const flags = review.flags ?? [];
+	const authorName = review.authorName?.trim() || `User ${review.authorId.slice(0, 8)}`;
+	const authorAvatarUrl = review.authorAvatarUrl ?? review.iconId;
 
 	const handleVote = (mode: VoteModeGatewayEnum) => () => {
 		if (onVote && !isVoting) {
@@ -59,11 +61,20 @@ export const ReviewCard = ({
 			}}
 		>
 			<div className={styles.header}>
-				<span className={styles.companyName}>Компания</span>
+				<div className={styles.authorMeta}>
+					{authorAvatarUrl ? (
+						<img src={authorAvatarUrl} alt={authorName} className={styles.avatar} />
+					) : (
+						<div className={styles.avatarPlaceholder}>
+							{authorName.charAt(0).toUpperCase()}
+						</div>
+					)}
+					<span className={styles.companyName}>{authorName}</span>
+				</div>
 				<span className={styles.date}>{formatDate(review.createdAt)}</span>
 			</div>
 
-			{review.text && <p className={styles.text}>{review.text}</p>}
+			
 
 			{flags.length > 0 && (
 				<div className={styles.flags}>
@@ -75,6 +86,8 @@ export const ReviewCard = ({
 				</div>
 			)}
 
+			{review.text && <p className={styles.text}>{review.text}</p>}
+			
 			<div className={styles.reactions}>
 				<ReviewScore
 					score={review.score}

@@ -93,6 +93,7 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
         { id: 'flag-team', name: 'Сильная команда' },
         { id: 'flag-growth', name: 'Профессиональный рост' },
       ],
+      myVote: undefined
     },
     {
       weight: 0.81,
@@ -108,6 +109,7 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
         { id: 'flag-scale', name: 'Интересный масштаб' },
         { id: 'flag-process', name: 'Сложные процессы' },
       ],
+      myVote: undefined
     },
     {
       weight: 0.67,
@@ -123,6 +125,7 @@ const buildMockReviews = (targetCompanyId: string): CompanyReview[] => {
         { id: 'flag-team', name: 'Команда' },
         { id: 'flag-speed', name: 'Высокий темп' },
       ],
+      myVote: undefined
     },
   ];
 };

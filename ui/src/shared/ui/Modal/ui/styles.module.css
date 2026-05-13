@@ -25,6 +25,9 @@
 	overflow-y: auto;
 	position: relative;
 	animation: slideIn var(--transition-smooth) ease-out;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 @keyframes fadeIn {

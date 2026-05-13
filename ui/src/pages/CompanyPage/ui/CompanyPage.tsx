@@ -11,7 +11,7 @@ import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './CompanyPage.module.css';
 import { CompanyPageSkeleton } from './CompanyPageSkeleton';
 import { ReviewsSection } from './ReviewsSection';
-import { Top20FlagsSection } from './TopFlagsSection';
+import { TopFlagsSection } from './TopFlagsSection';
 import type { CompanyReview } from 'entities/company';
 
 export const CompanyPage = () => {
@@ -42,12 +42,25 @@ export const CompanyPage = () => {
 
 	const pendingEditReview = useMemo(
 		() =>
-			(location.state as { editReview?: { id: string; text: string; createdAt: string } } | null)
-				?.editReview,
+			(
+				location.state as {
+					editReview?: { id: string; text: string; createdAt: string };
+				} | null
+			)?.editReview,
 		[location.state],
 	);
 
-	const handleEditReview = (review: CompanyReview | { reviewId?: string; id?: string; text: string | null; createdAt: string; flags?: Array<{ id: string }> | null }) => {
+	const handleEditReview = (
+		review:
+			| CompanyReview
+			| {
+					reviewId?: string;
+					id?: string;
+					text: string | null;
+					createdAt: string;
+					flags?: Array<{ id: string }> | null;
+			  },
+	) => {
 		const targetReviewId = 'reviewId' in review ? review.reviewId : review.id;
 
 		openModal({
@@ -58,6 +71,11 @@ export const CompanyPage = () => {
 			createdAt: review.createdAt,
 		});
 	};
+
+// Scroll to top when the page mounts
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 
 	useEffect(() => {
 		let ignore = false;
@@ -91,7 +109,7 @@ export const CompanyPage = () => {
 		}
 	}, [company?.companyId, location.pathname, navigate, pendingEditReview]);
 
-if (loading) {
+	if (loading) {
 		return <CompanyPageSkeleton />;
 	}
 
@@ -137,19 +155,17 @@ if (loading) {
 					/>
 					<span className={styles.logoText}>VibeCheck</span>
 				</div>
-<div className={styles.headerActions}>
-					<UserNavButton
-						nickname={nickname}
-					/>
+				<div className={styles.headerActions}>
+					<UserNavButton nickname={nickname} />
 				</div>
 			</header>
 			<main className={styles.main}>
 				<div className={styles.contentGrid}>
 					<div className={styles.leftColumn}>
 						<CompanyInfo company={company} />
-						<Top20FlagsSection />
+						<TopFlagsSection />
 					</div>
-<ReviewsSection
+					<ReviewsSection
 						className={styles.reviewsColumn}
 						companyName={company.name ?? 'Компания'}
 						refreshKey={reviewsRefreshKey}

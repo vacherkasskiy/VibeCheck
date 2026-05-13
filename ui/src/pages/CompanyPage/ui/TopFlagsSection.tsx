@@ -2,10 +2,11 @@ import { useCompanyFlags } from 'features/companyPage';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { TopFlagsSection as WidgetTopFlagsSection } from 'widgets/TopFlagsSection';
+import { FlagsGridSkeleton } from './FlagsGridSkeleton';
 import styles from './TopFlagsSection.module.css';
 import type { CompanyFlag } from 'entities/company';
 
-export const Top20FlagsSection = () => {
+export const TopFlagsSection = () => {
   const { id } = useParams<{ id: string }>();
   
   const { flags, loading } = useCompanyFlags(id);
@@ -19,7 +20,7 @@ export const Top20FlagsSection = () => {
   if (loading) {
     return (
       <section className={styles.section}>
-        <div className={styles.loading}>Загрузка топ флагов...</div>
+         <FlagsGridSkeleton/>
       </section>
     );
   }

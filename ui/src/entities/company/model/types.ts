@@ -16,6 +16,7 @@ export interface ReviewFlagDto {
 }
 
 export interface CompanyReview {
+	myVote?: string | undefined;
   weight: number;
   reviewId: string;
   authorId: string;

@@ -1,8 +1,10 @@
+import { useUserFlags } from 'entities/user';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ReviewScore } from 'shared/ui';
 import styles from './ReviewViewModal.module.css';
 import type { CompanyReview, ReviewFlagDto, VoteModeGatewayEnum } from 'entities/company';
+import type { UserFlag } from 'entities/user';
 
 export interface ReviewViewModalProps {
 	isOpen: boolean;
@@ -31,15 +33,30 @@ export const ReviewViewModal = ({
 }: ReviewViewModalProps) => {
 	const navigate = useNavigate();
 
+	const {
+		flags: { green: userGreenFlags, red: userRedFlags },
+	} = useUserFlags();
+
 	if (!review || !isOpen) return null;
 
 	const resolvedAuthorName =
 		authorName ?? review.authorName ?? `User ${review.authorId.slice(0, 8)}`;
+
 	const authorAvatar = authorAvatarUrl ?? review.authorAvatarUrl ?? review.iconId;
 	const flags = review.flags ?? [];
 
+	const getFlagColor = (flagId: string): 'green' | 'red' | 'gray' => {
+		const isGreen = userGreenFlags.some((f: UserFlag) => f.id === flagId);
+		const isRed = userRedFlags.some((f: UserFlag) => f.id === flagId);
+
+		if (isGreen) return 'green';
+		if (isRed) return 'red';
+		return 'gray';
+	};
+
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
+
 		return date.toLocaleDateString('ru-RU', {
 			day: 'numeric',
 			month: 'long',
@@ -57,12 +74,16 @@ export const ReviewViewModal = ({
 
 	const handleAuthorClick = () => {
 		if (!review.authorId) return;
+
 		onClose();
 		navigate(`/user/${review.authorId}`);
 	};
 
-	const handleVote = (mode: VoteModeGatewayEnum) => () => {
+	const handleVote = (mode: VoteModeGatewayEnum) => (e?: React.MouseEvent) => {
+		e?.stopPropagation();
+
 		if (!onVote || isVoting) return;
+
 		const nextMode = myVote === mode ? 'Clear' : mode;
 		onVote(nextMode);
 	};
@@ -82,16 +103,18 @@ export const ReviewViewModal = ({
 			<div className={styles.content}>
 				<div className={styles.header}>
 					<h2 className={styles.title}>Полный отзыв o {companyName}</h2>
+
 					<button className={styles.closeButton} onClick={onClose} aria-label="Закрыть">
 						×
 					</button>
 				</div>
+
 				<div className={styles.body}>
 					<div className={styles.reviewDetailsGrid}>
 						<div className={styles.reviewAuthorInfo}>
 							{authorAvatar ? (
 								<img
-									src={authorAvatar ?? ''}
+									src={authorAvatar}
 									alt={resolvedAuthorName}
 									className={styles.reviewAuthorAvatar}
 								/>
@@ -100,8 +123,10 @@ export const ReviewViewModal = ({
 									{resolvedAuthorName.charAt(0).toUpperCase()}
 								</div>
 							)}
+
 							<div>
 								<span className={styles.reviewMetaLabel}>Автор</span>
+
 								{review.authorId ? (
 									<button
 										className={styles.authorName}
@@ -117,25 +142,29 @@ export const ReviewViewModal = ({
 								)}
 							</div>
 						</div>
-				
+
 						<div className={styles.reviewMetaCard}>
 							<span className={styles.reviewMetaLabel}>Дата</span>
 							<span className={styles.reviewMetaValue}>
 								{formatDate(review.createdAt)}
 							</span>
 						</div>
-						
 					</div>
-
-					
 
 					{flags.length > 0 && (
 						<div className={styles.flags}>
-							{flags.map((flag: ReviewFlagDto) => (
-								<span key={flag.id} className={styles.flag}>
-									{flag.name ?? 'Флаг'}
-								</span>
-							))}
+							{flags.map((flag: ReviewFlagDto) => {
+								const color = getFlagColor(flag.id);
+
+								return (
+									<span
+										key={flag.id}
+										className={`${styles.flag} ${styles[color]}`}
+									>
+										{flag.name ?? 'Флаг'}
+									</span>
+								);
+							})}
 						</div>
 					)}
 
@@ -152,11 +181,15 @@ export const ReviewViewModal = ({
 								disabled={isVoting}
 							/>
 						</div>
+
 						{onReport && (
 							<button
 								className={styles.reportButton}
 								type="button"
-								onClick={() => onReport(review.reviewId)}
+								onClick={(e) => {
+									e.stopPropagation();
+									onReport(review.reviewId);
+								}}
 							>
 								⚠️ Пожаловаться
 							</button>

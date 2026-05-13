@@ -38,7 +38,7 @@ export const ProfilePage = () => {
 		navigate('/profile/edit');
 	};
 
-const handleNavToRecommendations = () => {
+	const handleNavToRecommendations = () => {
 		navigate('/recommendations');
 	};
 
@@ -130,6 +130,7 @@ const handleNavToRecommendations = () => {
 					name: flag,
 				})),
 				weight: 1,
+				myVote: undefined,
 			}
 		: null;
 
@@ -137,10 +138,7 @@ const handleNavToRecommendations = () => {
 		return (
 			<div className={styles.page}>
 				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={handleNavToRecommendations}
-					>
+					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
 						<img
 							src="/assets/vibecheck-favicon.png"
 							alt="VibeCheck"
@@ -160,10 +158,7 @@ const handleNavToRecommendations = () => {
 		return (
 			<div className={styles.page}>
 				<header className={styles.header}>
-					<div
-						className={styles.logoContainer}
-						onClick={handleNavToRecommendations}
-					>
+					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
 						<img
 							src="/assets/vibecheck-favicon.png"
 							alt="VibeCheck"
@@ -189,23 +184,23 @@ const handleNavToRecommendations = () => {
 	);
 
 	return (
-			<div className={styles.page}>
-				<header className={styles.header}>
-					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<span className={styles.logoText}>VibeCheck</span>
-					</div>
-					<div className={styles.headerActions}>
-						<UserNavButton
-							avatarUrl={profile?.user?.avatarUrl}
-							nickname={profile?.user?.nickname}
-						/>
-					</div>
-				</header>
+		<div className={styles.page}>
+			<header className={styles.header}>
+				<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
+					<img
+						src="/assets/vibecheck-favicon.png"
+						alt="VibeCheck"
+						className={styles.logo}
+					/>
+					<span className={styles.logoText}>VibeCheck</span>
+				</div>
+				<div className={styles.headerActions}>
+					<UserNavButton
+						avatarUrl={profile?.user?.avatarUrl}
+						nickname={profile?.user?.nickname}
+					/>
+				</div>
+			</header>
 
 			<main className={styles.main}>
 				<ProfileHeader user={user} onEditProfile={handleEditProfile} />
@@ -244,7 +239,6 @@ const handleNavToRecommendations = () => {
 							)}
 							onUnsubscribe={handleUnsubscribe}
 						/>
-
 					</section>
 				</div>
 			</main>

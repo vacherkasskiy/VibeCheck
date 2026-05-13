@@ -12,6 +12,7 @@ const review: CompanyReview = {
 	score: 10,
 	createdAt: '2026-05-10T00:00:00Z',
 	flags: [{ id: 'flag-1', name: 'Флаг 1' }],
+	myVote: undefined,
 };
 
 describe('useReviewViewModal', () => {

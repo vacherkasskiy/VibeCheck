@@ -230,6 +230,8 @@ minikube addons enable metrics-server
 wait_for_ingress_nginx_ready
 
 # 7. helm repo
+helm repo remove prometheus-community || true
+helm repo remove grafana || true
 helm repo add bitnami https://charts.bitnami.com/bitnami || true
 helm repo update
 

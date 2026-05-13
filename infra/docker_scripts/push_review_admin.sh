@@ -11,8 +11,8 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t ikeeo/vibecheck-review-service:20 \
-  -t ikeeo/vibecheck-review-service:latest \
-  -f "${BACKEND_DIR}/ReviewService/Gateway/ReviewService.Gateway.Api/Dockerfile" \
+  -t ikeeo/vibecheck-review-admin-service:1.0 \
+  -t ikeeo/vibecheck-review-admin-service:latest \
+  -f "${BACKEND_DIR}/ReviewService/Gateway/ReviewService.Admin.Api/Dockerfile" \
   "${BACKEND_DIR}" \
   --push

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration
 @EnableConfigurationProperties(
     GatewayProperties::class,
     ProxyHttpClientProperties::class,
-    GatewayTlsProperties::class
+    GatewayTlsProperties::class,
+    GeoRestrictionProperties::class
 )
 class GatewayConfig

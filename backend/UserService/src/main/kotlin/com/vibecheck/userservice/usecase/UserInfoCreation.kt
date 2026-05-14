@@ -6,7 +6,6 @@ import com.vibecheck.userservice.domain.exception.NotFoundException
 import com.vibecheck.userservice.usecase.storage.AvatarStorage
 import com.vibecheck.userservice.usecase.storage.UserProfileStorage
 import com.vibecheck.userservice.usecase.storage.UserStorage
-import org.springframework.cache.annotation.CachePut
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
@@ -20,7 +19,6 @@ class UserInfoCreation(
     private val transactionTemplate: TransactionTemplate,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
-    @CachePut(value = ["users.profiles"], key = "#userId")
     fun create(userId: UUID, createOrUpdateUserInfo: CreateOrUpdateUserInfo): UserInfo = with(createOrUpdateUserInfo) {
         if (!avatarStorage.existsById(avatarId)) {
             throw NotFoundException("Avatar id '${avatarId}' is not found");

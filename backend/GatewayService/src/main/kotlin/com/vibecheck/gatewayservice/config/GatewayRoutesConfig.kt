@@ -4,6 +4,7 @@ import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 
 @Configuration
 class GatewayRoutesConfig(
@@ -42,6 +43,7 @@ class GatewayRoutesConfig(
                     "/auth/internal",
                     "/auth/internal/login",
                     "/auth/logout",
+                    "/internal/**",
                     "/onboarding/**",
                     "/users/me/info",
                     "/users/*/info",
@@ -66,10 +68,9 @@ class GatewayRoutesConfig(
                     .uri(gatewayProperties.services.subscriptionServiceUrl)
             }
             .route("review-service-public") { route ->
-                route.path(
-                    "/api/flags",
-                    "/api/flags/**"
-                )
+                route.path("/api/flags")
+                    .and()
+                    .method(HttpMethod.GET)
                     .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.NONE.name)
                     .uri(gatewayProperties.services.reviewServiceUrl)
             }
@@ -77,6 +78,14 @@ class GatewayRoutesConfig(
                 route.path(
                     "/api/companies",
                     "/api/companies/**",
+                    "/api/company-requests",
+                    "/api/company-requests/**",
+                    "/api/flags",
+                    "/api/flags/**",
+                    "/api/review-reports",
+                    "/api/review-reports/**",
+                    "/api/reviews",
+                    "/api/reviews/**",
                     "/api/users/me/flags",
                     "/api/users/*/flags",
                     "/api/users/flags",

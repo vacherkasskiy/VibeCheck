@@ -8,6 +8,7 @@ import type { SelectedTag, Tag } from 'entities/tag';
 interface SingleFlagColumnProps {
   side: 'green' | 'red';
   flags: Record<string, SelectedTag>;
+  draggingId?: string | null;
   onDrop?: () => void;
   onTagClick: (tag: Tag) => void;
   onUpdatePriority: (id: string, side: 'green' | 'red', priority: 1 | 2 | 3) => void;
@@ -18,6 +19,7 @@ interface SingleFlagColumnProps {
 export const SingleFlagColumn = ({
   side,
   flags,
+  draggingId,
   onDrop,
   onTagClick,
   onUpdatePriority,
@@ -39,7 +41,11 @@ export const SingleFlagColumn = ({
   const title = isGreen ? 'Green флаги' : 'Red флаги';
 
   return (
-    <div onMouseUp={onDrop} className={`${styles.column} ${columnClass}`} style={{ height: '100%' }}>
+    <div
+      onMouseUp={onDrop}
+      className={`${styles.column} ${columnClass} ${draggingId ? styles.dragOver : ''}`}
+      style={{ height: '100%' }}
+    >
       <h3 className={styles.columnTitle}>{title}</h3>
       {Object.keys(flags).length === 0 ? (
         <p className={styles.emptyMessage}>Перетащите теги сюда</p>
@@ -92,4 +98,3 @@ export const SingleFlagColumn = ({
     </div>
   );
 };
-

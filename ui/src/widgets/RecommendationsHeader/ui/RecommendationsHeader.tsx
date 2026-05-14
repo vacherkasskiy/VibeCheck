@@ -21,16 +21,18 @@ export const RecommendationsHeader: FC<RecommendationsHeaderProps> = ({
 
 	return (
 		<header className={`${styles.header} ${className}`}>
-			<div className={styles.logoContainer}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<img
-						src="/assets/vibecheck-favicon.png"
-						alt="VibeCheck"
-						style={{ width: 32, height: 28, borderRadius: 6 }}
-					/>
-				</div>
+			<button
+				type="button"
+				className={styles.logoContainer}
+				onClick={() => navigate('/recommendations')}
+			>
+				<img
+					src="/assets/vibecheck-favicon.png"
+					alt="VibeCheck"
+					className={styles.logo}
+				/>
 				<span className={styles.logoText}>VibeCheck</span>
-			</div>
+			</button>
 
 			<div className={styles.headerActions}>
 				<SearchInput

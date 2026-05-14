@@ -1,0 +1,53 @@
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	width: 100%;
+	padding: 28px;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 52px;
+	border-radius: 18px;
+	background: linear-gradient(135deg, rgba(217, 90, 107, 0.12), rgba(239, 140, 199, 0.12));
+	color: var(--color-red-badge);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.title {
+	font-size: 22px;
+	font-weight: var(--weight-bold);
+	line-height: 1.15;
+	color: var(--color-text-primary);
+}
+
+.text {
+	color: var(--color-text-secondary);
+	line-height: var(--line-height-relaxed);
+}
+
+.nickname {
+	color: var(--color-purple-dark);
+	font-weight: var(--weight-semibold);
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+	.content {
+		padding: 22px 18px;
+	}
+
+	.actions {
+		flex-direction: column-reverse;
+	}
+}

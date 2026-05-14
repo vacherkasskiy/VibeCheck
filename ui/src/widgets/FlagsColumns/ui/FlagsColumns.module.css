@@ -86,19 +86,19 @@
 	color: #9f1239;
 }
 
-.column.drag-over {
+.dragOver {
 	transform: scale(1.02);
 	box-shadow:
 		0 12px 40px rgba(0, 0, 0, 0.12),
 		0 0 0 2px rgba(255, 255, 255, 0.9) inset;
 }
 
-.greenColumn.drag-over {
+.greenColumn.dragOver {
 	border-color: #22c55e;
 	background: linear-gradient(135deg, #bbf7d0 0%, #86efac 50%, #4ade80 100%);
 }
 
-.redColumn.drag-over {
+.redColumn.dragOver {
 	border-color: #ef4444;
 	background: linear-gradient(135deg, #fecdd3 0%, #fda4af 50%, #fb7185 100%);
 }

@@ -1,7 +1,6 @@
 import { companyApi } from 'entities/company';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logo from 'shared/assets/Logo';
 import { Button } from 'shared/ui/Button';
 import { InputField } from 'shared/ui/InputField';
 import styles from './styles.module.css';
@@ -65,9 +64,6 @@ export const AddCompanyForm: FC = () => {
 			</button>
 
 			<div className={styles.header}>
-				<div className={styles.logoContainer}>
-					<Logo className={styles.logo} />
-				</div>
 				<h1 className={styles.title}>Добавить компанию</h1>
 				<p className={styles.subtitle}>
 					Заполните короткую заявку, чтобы отправить компанию на модерацию.

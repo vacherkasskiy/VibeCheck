@@ -6,7 +6,6 @@ import { ReviewViewModal } from 'features/reviewView';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'shared/ui/Button';
-import { Spinner } from 'shared/ui/Spinner';
 import { useToast } from 'shared/ui/Toast';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { Achievements } from 'widgets/Achievements';
@@ -135,23 +134,7 @@ export const ProfilePage = () => {
 		: null;
 
 	if (loading) {
-		return (
-			<div className={styles.page}>
-				<header className={styles.header}>
-					<div className={styles.logoContainer} onClick={handleNavToRecommendations}>
-						<img
-							src="/assets/vibecheck-favicon.png"
-							alt="VibeCheck"
-							className={styles.logo}
-						/>
-						<span className={styles.logoText}>VibeCheck</span>
-					</div>
-				</header>
-				<div className={styles.spinnerWrapper}>
-					<Spinner />
-				</div>
-			</div>
-		);
+		return <ProfilePageSkeleton />;
 	}
 
 	if (error || !profile) {
@@ -278,3 +261,73 @@ export const ProfilePage = () => {
 		</div>
 	);
 };
+
+const ProfilePageSkeleton = () => (
+	<div className={styles.page}>
+		<header className={styles.header}>
+			<div className={styles.logoContainer}>
+				<img
+					src="/assets/vibecheck-favicon.png"
+					alt="VibeCheck"
+					className={styles.logo}
+				/>
+				<span className={styles.logoText}>VibeCheck</span>
+			</div>
+			<div className={styles.headerActions}>
+				<div className={`${styles.skeletonNavButton} ${styles.skeleton}`} />
+			</div>
+		</header>
+
+		<main className={styles.main}>
+			<section className={styles.profileSkeletonCard}>
+				<div className={styles.profileSkeletonTop}>
+					<div className={`${styles.profileSkeletonAvatar} ${styles.skeleton}`} />
+					<div className={styles.profileSkeletonInfo}>
+						<div className={`${styles.profileSkeletonTitle} ${styles.skeleton}`} />
+						<div className={`${styles.profileSkeletonSubtitle} ${styles.skeleton}`} />
+						<div className={styles.profileSkeletonTags}>
+							<div className={`${styles.profileSkeletonTag} ${styles.skeleton}`} />
+							<div className={`${styles.profileSkeletonTag} ${styles.skeleton}`} />
+							<div className={`${styles.profileSkeletonTagShort} ${styles.skeleton}`} />
+						</div>
+					</div>
+					<div className={`${styles.profileSkeletonAction} ${styles.skeleton}`} />
+				</div>
+				<div className={styles.profileSkeletonStats}>
+					<div className={`${styles.profileSkeletonStat} ${styles.skeleton}`} />
+					<div className={`${styles.profileSkeletonStat} ${styles.skeleton}`} />
+					<div className={`${styles.profileSkeletonStat} ${styles.skeleton}`} />
+				</div>
+			</section>
+
+			<div className={styles.sections}>
+				<SkeletonSection lines={4} />
+				<SkeletonSection lines={5} />
+				<SkeletonSection lines={6} />
+				<SkeletonSection lines={5} />
+			</div>
+		</main>
+		<FooterLinks />
+	</div>
+);
+
+const SkeletonSection = ({ lines }: { lines: number }) => (
+	<section className={styles.section}>
+		<div className={styles.sectionSkeletonCard}>
+			<div className={styles.sectionSkeletonHeader}>
+				<div className={`${styles.sectionSkeletonTitle} ${styles.skeleton}`} />
+				<div className={`${styles.sectionSkeletonAction} ${styles.skeleton}`} />
+			</div>
+			<div className={styles.sectionSkeletonBody}>
+				{Array.from({ length: lines }, (_, index) => (
+					<div
+						key={`line-${lines}-${index}`}
+						className={`${styles.sectionSkeletonLine} ${
+							index === lines - 1 ? styles.sectionSkeletonLineShort : ''
+						} ${styles.skeleton}`}
+					/>
+				))}
+			</div>
+		</div>
+	</section>
+);

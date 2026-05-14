@@ -1,5 +1,5 @@
 import { useFlags, TagModal, ConflictDialog } from 'features/flags';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CenterGlow } from 'shared/ui/CenterGlow';
 import { HeaderGlow } from 'shared/ui/HeaderGlow';
@@ -23,6 +23,7 @@ export const FlagsPage = () => {
 	const companyName = state?.companyName || '';
 
 	const [mobileTab, setMobileTab] = useState<'library' | 'green' | 'red'>('library');
+	const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
 
 	const {
 		green,
@@ -42,7 +43,41 @@ export const FlagsPage = () => {
 		closeConflict,
 	} = useFlags();
 
+	const draggedTag = useMemo(
+		() => groupedByCategory.flatMap(([, tags]) => tags).find((tag) => tag.id === draggingId) ?? null,
+		[groupedByCategory, draggingId],
+	);
+
+	useEffect(() => {
+		if (!draggingId) {
+			setDragPoint(null);
+			return;
+		}
+
+		const handleMouseMove = (event: MouseEvent) => {
+			setDragPoint({ x: event.clientX, y: event.clientY });
+		};
+
+		const handleMouseUp = () => {
+			endDrag();
+			setDragPoint(null);
+		};
+
+		window.addEventListener('mousemove', handleMouseMove);
+		window.addEventListener('mouseup', handleMouseUp);
+
+		return () => {
+			window.removeEventListener('mousemove', handleMouseMove);
+			window.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, [draggingId, endDrag]);
+
 	const handleBack = () => navigate(-1);
+
+	const handleStartDrag = (id: string, point: { x: number; y: number }) => {
+		setDragPoint(point);
+		startDrag(id);
+	};
 
 	const handleDropToGreen = () => {
 		if (!draggingId) return;
@@ -103,8 +138,9 @@ export const FlagsPage = () => {
 					<FlagsLibrary
 						groupedByCategory={groupedByCategory}
 						onTagClick={(tag) => addToSide(tag, 'green')}
-						onTagDragStart={startDrag}
+						onTagDragStart={handleStartDrag}
 						onTagDragEnd={endDrag}
+						draggingId={draggingId}
 						onAddToGreen={(tag) => addToSide(tag, 'green')}
 						onAddToRed={(tag) => addToSide(tag, 'red')}
 						greenTags={green}
@@ -113,6 +149,7 @@ export const FlagsPage = () => {
 					<FlagsColumns
 						green={green}
 						red={red}
+						draggingId={draggingId}
 						onDropToGreen={handleDropToGreen}
 						onDropToRed={handleDropToRed}
 						onTagClick={(tag) => closeModal()}
@@ -129,8 +166,9 @@ export const FlagsPage = () => {
 							<FlagsLibrary
 								groupedByCategory={groupedByCategory}
 								onTagClick={(tag) => addToSide(tag, 'green')}
-								onTagDragStart={startDrag}
+								onTagDragStart={handleStartDrag}
 								onTagDragEnd={endDrag}
+								draggingId={draggingId}
 								onAddToGreen={(tag) => addToSide(tag, 'green')}
 								onAddToRed={(tag) => addToSide(tag, 'red')}
 								greenTags={green}
@@ -144,6 +182,7 @@ export const FlagsPage = () => {
 							<SingleFlagColumn
 								side="green"
 								flags={green}
+								draggingId={draggingId}
 								onDrop={handleDropToGreen}
 								onTagClick={(tag) => closeModal()}
 								onUpdatePriority={updatePriority}
@@ -158,6 +197,7 @@ export const FlagsPage = () => {
 							<SingleFlagColumn
 								side="red"
 								flags={red}
+								draggingId={draggingId}
 								onDrop={handleDropToRed}
 								onTagClick={(tag) => closeModal()}
 								onUpdatePriority={updatePriority}
@@ -190,6 +230,18 @@ export const FlagsPage = () => {
 				onClose={closeConflict}
 				onMove={(id, target, type) => moveAcross(id, target, type)}
 			/>
+
+			{draggedTag && dragPoint && (
+				<div
+					className={styles.dragPreview}
+					style={{
+						left: dragPoint.x,
+						top: dragPoint.y,
+					}}
+				>
+					<span className={styles.dragPreviewLabel}>{draggedTag.name}</span>
+				</div>
+			)}
 		</div>
 	);
 };

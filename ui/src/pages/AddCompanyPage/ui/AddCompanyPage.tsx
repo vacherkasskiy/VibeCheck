@@ -1,4 +1,3 @@
-import Logo from 'shared/assets/Logo';
 import { CenterGlow } from 'shared/ui/CenterGlow';
 import { AddCompanyForm } from 'widgets/AddCompanyForm';
 import { AppHeader } from 'widgets/AppHeader';
@@ -13,7 +12,6 @@ export const AddCompanyPage: FC = () => {
 				<AppHeader />
 			</div>
 			<div className={styles.container}>
-				<Logo className={styles.logo} />
 				<AddCompanyForm />
 			</div>
 		</div>

@@ -1,0 +1,38 @@
+.button {
+	min-width: 172px;
+}
+
+.buttonSubscribed {
+	background: rgba(255, 255, 255, 0.9);
+	border-color: rgba(155, 108, 244, 0.2);
+	color: var(--color-purple-dark);
+}
+
+.buttonSubscribed:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.98);
+	border-color: rgba(155, 108, 244, 0.32);
+	box-shadow: 0 16px 30px rgba(155, 108, 244, 0.14);
+}
+
+.buttonPending {
+	min-width: 190px;
+}
+
+.content {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.label {
+	white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+	.button,
+	.buttonPending {
+		width: 100%;
+		min-width: 0;
+	}
+}

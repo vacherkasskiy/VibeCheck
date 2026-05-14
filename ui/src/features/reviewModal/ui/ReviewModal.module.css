@@ -427,6 +427,71 @@
 	min-height: 0;
 }
 
+.mobileSelectedFlagsPanel {
+	display: none;
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	margin-bottom: 12px;
+	padding: 14px;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.88);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	box-shadow: var(--shadow-xs);
+}
+
+.mobileSelectedFlagsHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.mobileSelectedFlagsTitle {
+	margin: 0;
+	font-size: var(--font-size-sm);
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
+}
+
+.mobileSelectedFlagsList {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.mobileSelectedFlag {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 32px;
+	padding: 6px 10px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.96);
+	border: 1px solid rgba(90, 79, 132, 0.08);
+}
+
+.mobileSelectedFlagName {
+	font-size: 12px;
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-secondary);
+}
+
+.mobileSelectedFlagRemove {
+	width: 20px;
+	height: 20px;
+	border: 0;
+	border-radius: 999px;
+	background: rgba(229, 231, 235, 0.9);
+	color: #4b5563;
+	font-size: 14px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .flagsLibrarySection {
 	display: flex;
 	flex-direction: column;
@@ -653,12 +718,15 @@
 @media (max-width: 768px) {
 	.flagsModalGrid {
 		grid-template-columns: 1fr;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: 1fr;
+	}
+
+	.mobileSelectedFlagsPanel {
+		display: block;
 	}
 
 	.flagsColumnsSection {
-		grid-template-rows: 1fr 1fr;
-		grid-template-columns: 1fr;
+		display: none;
 	}
 
 	.fullFlagsModal {

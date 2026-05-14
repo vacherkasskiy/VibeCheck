@@ -1,7 +1,10 @@
 .page {
 	min-height: 100vh;
-	background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
-	color: var(--color-accent-black, #1c1b28);
+	min-height: 100dvh;
+	background: transparent;
+	color: var(--color-text-primary);
+	display: flex;
+	flex-direction: column;
 }
 
 .header {
@@ -41,9 +44,9 @@
 }
 
 .logoText {
-	font-size: 20px;
-	font-weight: 600;
-	color: var(--color-accent-black, #1c1b28);
+	font-size: 19px;
+	font-weight: var(--weight-bold);
+	color: var(--color-text-primary);
 }
 
 .headerActions {
@@ -52,36 +55,59 @@
 }
 
 .main {
-	max-width: 1200px;
+	max-width: 1240px;
 	margin: 0 auto;
-	padding: 32px 24px;
+	padding: 32px 24px 48px;
+	display: flex;
+	flex: 1;
+	width: 100%;
 }
 
-.profileHeader {
-	display: flex;
-	align-items: center;
+.profileHero {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) minmax(260px, 320px);
+	align-items: stretch;
 	gap: 24px;
-	margin-bottom: 32px;
 	padding: 32px;
-	background: #fff;
-	border-radius: 20px;
-	border: 1px solid rgba(28, 27, 40, 0.08);
-	box-shadow: 0 12px 36px rgba(28, 27, 40, 0.1);
+	border-radius: 30px;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 245, 255, 0.92)),
+		radial-gradient(circle at top right, rgba(155, 108, 244, 0.1), transparent 36%);
+	backdrop-filter: blur(18px);
+	box-shadow: 0 18px 44px rgba(31, 24, 57, 0.1);
+	overflow: hidden;
+	flex: 1;
+	min-height: 100%;
+}
+
+.heroAccent {
+	position: absolute;
+	inset: auto -40px -60px auto;
+	width: 240px;
+	height: 240px;
+	border-radius: 999px;
+	background: radial-gradient(circle, rgba(239, 140, 199, 0.22), transparent 64%);
+	pointer-events: none;
 }
 
 .avatarSection {
 	flex-shrink: 0;
+	position: relative;
+	z-index: 1;
 }
 
 .avatar {
-	width: 120px;
-	height: 120px;
-	border-radius: 50%;
+	width: 132px;
+	height: 132px;
+	border-radius: 34px;
 	overflow: hidden;
 	background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-dark) 100%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-shadow: 0 20px 40px rgba(155, 108, 244, 0.24);
 }
 
 .avatar img {
@@ -91,78 +117,139 @@
 }
 
 .avatarPlaceholder {
-	font-size: 48px;
-	font-weight: 600;
+	font-size: 52px;
+	font-weight: var(--weight-bold);
 	color: var(--color-white);
 }
 
 .infoSection {
 	flex: 1;
+	position: relative;
+	z-index: 1;
+}
+
+.identityRow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
 }
 
 .nickname {
-	font-size: 28px;
-	font-weight: 600;
-	margin: 0 0 12px 0;
-	color: var(--color-accent-black, #1c1b28);
+	font-size: clamp(2rem, 4vw, 2.5rem);
+	font-weight: var(--weight-bold);
+	margin: 0;
+	color: var(--color-text-primary);
 }
 
 .levelInfo {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	margin-bottom: 8px;
 }
 
 .level {
 	font-size: 16px;
-	font-weight: 500;
-	color: var(--color-purple);
+	font-weight: var(--weight-semibold);
+	color: var(--color-purple-dark);
 }
 
 .levelLabel {
-	font-size: 14px;
-	color: var(--color-grey-text, #686a7a);
-	background: var(--color-main-background-grey, #f4f5f9);
-	padding: 4px 12px;
-	border-radius: 12px;
+	font-size: 13px;
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-secondary);
+	background: rgba(255, 255, 255, 0.76);
+	padding: 7px 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(155, 108, 244, 0.14);
 }
 
 .registrationDate {
 	font-size: 14px;
-	color: var(--color-grey-text, #686a7a);
+	color: var(--color-text-secondary);
+	margin-top: 10px;
+}
+
+.profileSummary {
+	margin-top: 14px;
+	max-width: 60ch;
+	color: var(--color-text-secondary);
+	line-height: var(--line-height-relaxed);
 }
 
 .details {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 12px;
+	gap: 14px;
 	margin-top: 20px;
 }
 
 .detailItem {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	padding: 12px;
-	background: var(--color-main-background-grey, #f4f5f9);
-	border-radius: 12px;
+	gap: 6px;
+	padding: 16px;
+	background: rgba(255, 255, 255, 0.72);
+	border-radius: 18px;
+	border: 1px solid rgba(90, 79, 132, 0.08);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
 }
 
 .detailLabel {
 	font-size: 12px;
-	color: var(--color-grey-text, #686a7a);
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--color-text-muted);
 }
 
 .detailValue {
 	font-size: 14px;
-	font-weight: 500;
-	color: var(--color-accent-black, #1c1b28);
+	font-weight: var(--weight-semibold);
+	color: var(--color-text-primary);
 	overflow-wrap: anywhere;
 }
 
 .actionsSection {
-	flex-shrink: 0;
+	position: relative;
+	z-index: 1;
+}
+
+.actionsCard {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 20px;
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(250, 247, 255, 0.94), rgba(255, 255, 255, 0.84));
+	border: 1px solid rgba(155, 108, 244, 0.12);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.actionsEyebrow {
+	font-size: 12px;
+	font-weight: var(--weight-semibold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-purple-dark);
+}
+
+.actionsTitle {
+	margin-top: 12px;
+	font-size: 22px;
+	font-weight: var(--weight-bold);
+	line-height: 1.15;
+	color: var(--color-text-primary);
+}
+
+.actionsText {
+	margin-top: 10px;
+	color: var(--color-text-secondary);
+	line-height: var(--line-height-relaxed);
+}
+
+.subscribeButton {
+	margin-top: auto;
+	padding-top: 18px;
 }
 
 .sections {
@@ -185,11 +272,11 @@
 .errorMessage {
 	text-align: center;
 	padding: 64px 24px;
-	color: var(--color-grey-text, #686a7a);
+	color: var(--color-text-secondary);
 }
 
 .errorMessage h2 {
-	color: var(--color-accent-black, #1c1b28);
+	color: var(--color-text-primary);
 	margin-bottom: 16px;
 }
 
@@ -209,10 +296,12 @@
 		padding: 16px;
 	}
 
-	.profileHeader {
-		flex-direction: column;
+	.profileHero {
+		grid-template-columns: 1fr;
 		text-align: center;
-		gap: 16px;
+		gap: 18px;
+		padding: 24px;
+		min-height: auto;
 	}
 
 	.avatar {
@@ -230,6 +319,7 @@
 
 	.levelInfo {
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.details {
@@ -238,10 +328,6 @@
 	}
 
 	.actionsSection {
-		width: 100%;
-	}
-
-	.actionsSection button {
 		width: 100%;
 	}
 }

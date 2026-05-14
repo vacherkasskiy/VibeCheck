@@ -12,7 +12,7 @@ import type { FC } from 'react';
 export const RecommendationsPage: FC = () => {
 	const navigate = useNavigate();
 	const { state } = useAuth();
-	const { query, setQuery, items, total, pending, hasMore, loadMore, error } = useCompanySearch();
+	const { query, setQuery, items, pending, hasMore, loadMore, error } = useCompanySearch();
 
 	useEffect(() => {
 		if (!state.loading && !state.isAuthenticated) {
@@ -41,13 +41,25 @@ export const RecommendationsPage: FC = () => {
 			<RecommendationsHeader searchValue={query} onSearchChange={setQuery} />
 
 			<main className={styles.main}>
-				<CompanyList
-					items={items}
-					pending={pending}
-					hasMore={hasMore}
-					onLoadMore={loadMore}
-					onCardClick={handleCardClick}
-				/>
+				<section className={styles.hero}>
+					<div className={styles.heroCopy}>
+						<span className={styles.kicker}>Рекомендации</span>
+						<h1 className={styles.heroTitle}>Подборка компаний под ваши интересы</h1>
+						<p className={styles.heroText}>
+							Здесь собраны компании, которые лучше всего совпадают с вашими флагами и активностью. Используйте поиск, чтобы быстро найти нужную карточку и перейти к отзывам, описанию и деталям команды.
+						</p>
+					</div>
+				</section>
+
+				<section className={styles.listSection}>
+					<CompanyList
+						items={items}
+						pending={pending}
+						hasMore={hasMore}
+						onLoadMore={loadMore}
+						onCardClick={handleCardClick}
+					/>
+				</section>
 			</main>
 			<FooterLinks />
 		</div>

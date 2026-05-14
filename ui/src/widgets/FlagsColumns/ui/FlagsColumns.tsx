@@ -7,6 +7,7 @@ import type { SelectedTag, Tag } from 'entities/tag';
 interface FlagsColumnsProps {
 	green: Record<string, SelectedTag>;
 	red: Record<string, SelectedTag>;
+	draggingId?: string | null;
 	onDropToGreen: () => void;
 	onDropToRed: () => void;
 	onTagClick: (tag: SelectedTag['tag']) => void;
@@ -18,6 +19,7 @@ interface FlagsColumnsProps {
 export const FlagsColumns = ({
 	green,
 	red,
+	draggingId,
 	onDropToGreen,
 	onDropToRed,
 	onTagClick,
@@ -26,6 +28,7 @@ export const FlagsColumns = ({
 	onMoveAcross,
 }: FlagsColumnsProps) => {
 	const [infoTag, setInfoTag] = useState<Tag | null>(null);
+	const [dropTarget, setDropTarget] = useState<'green' | 'red' | null>(null);
 
 	const handleTagClick = (tag: Tag) => {
 		setInfoTag(tag);
@@ -35,9 +38,36 @@ export const FlagsColumns = ({
 		setInfoTag(null);
 	};
 
+	const handleColumnEnter = (target: 'green' | 'red') => {
+		if (!draggingId) return;
+		setDropTarget(target);
+	};
+
+	const handleColumnLeave = (target: 'green' | 'red') => {
+		if (dropTarget !== target) return;
+		setDropTarget(null);
+	};
+
+	const handleDrop = (target: 'green' | 'red') => {
+		setDropTarget(null);
+		if (target === 'green') {
+			onDropToGreen();
+			return;
+		}
+
+		onDropToRed();
+	};
+
 	return (
 		<section className={styles.flagsContainer}>
-			<div onMouseUp={onDropToGreen} className={`${styles.column} ${styles.greenColumn}`}>
+			<div
+				onMouseEnter={() => handleColumnEnter('green')}
+				onMouseLeave={() => handleColumnLeave('green')}
+				onMouseUp={() => handleDrop('green')}
+				className={`${styles.column} ${styles.greenColumn} ${
+					dropTarget === 'green' ? styles.dragOver : ''
+				}`}
+			>
 				<h3 className={styles.columnTitle}>Green флаги</h3>
 				{Object.keys(green).length === 0 ? (
 					<p className={styles.emptyMessage}>Перетащите теги сюда</p>
@@ -88,7 +118,14 @@ export const FlagsColumns = ({
 				)}
 			</div>
 
-			<div onMouseUp={onDropToRed} className={`${styles.column} ${styles.redColumn}`}>
+			<div
+				onMouseEnter={() => handleColumnEnter('red')}
+				onMouseLeave={() => handleColumnLeave('red')}
+				onMouseUp={() => handleDrop('red')}
+				className={`${styles.column} ${styles.redColumn} ${
+					dropTarget === 'red' ? styles.dragOver : ''
+				}`}
+			>
 				<h3 className={styles.columnTitle}>Red флаги</h3>
 				{Object.keys(red).length === 0 ? (
 					<p className={styles.emptyMessage}>Перетащите теги сюда</p>

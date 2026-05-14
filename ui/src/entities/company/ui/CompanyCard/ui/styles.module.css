@@ -4,12 +4,14 @@
 	flex-direction: column;
 	gap: var(--space-5);
 	width: 100%;
-	min-height: 280px;
-	padding: clamp(24px, 4vw, 32px);
-	background: rgba(255, 255, 255, 0.9);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-md);
+	min-height: 248px;
+	padding: clamp(22px, 4vw, 30px);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 247, 255, 0.92)),
+		radial-gradient(circle at top right, rgba(155, 108, 244, 0.08), transparent 38%);
+	border: 1px solid rgba(255, 255, 255, 0.76);
+	border-radius: 30px;
+	box-shadow: 0 18px 38px rgba(37, 29, 73, 0.08);
 	text-align: left;
 	cursor: pointer;
 	overflow: hidden;
@@ -22,10 +24,9 @@
 }
 
 .companyCard:hover {
-	transform: translateY(-3px);
-	box-shadow: var(--shadow-lg);
-	border-color: rgba(155, 108, 244, 0.18);
-	background: rgba(255, 255, 255, 0.96);
+	transform: translateY(-4px);
+	box-shadow: 0 24px 48px rgba(37, 29, 73, 0.12);
+	border-color: rgba(155, 108, 244, 0.24);
 }
 
 .companyCard:focus-visible {
@@ -35,11 +36,11 @@
 
 .cardGlow {
 	position: absolute;
-	inset: auto -15% -25% auto;
-	width: 220px;
-	height: 220px;
+	inset: auto -12% -28% auto;
+	width: 240px;
+	height: 240px;
 	border-radius: 50%;
-	background: radial-gradient(circle, rgba(155, 108, 244, 0.14) 0%, rgba(155, 108, 244, 0) 72%);
+	background: radial-gradient(circle, rgba(239, 140, 199, 0.16) 0%, rgba(155, 108, 244, 0) 70%);
 	pointer-events: none;
 }
 
@@ -52,19 +53,19 @@
 }
 
 .companyLogo {
-	width: clamp(88px, 12vw, 120px);
-	height: clamp(88px, 12vw, 120px);
-	border-radius: var(--radius-md);
-	background: linear-gradient(135deg, var(--color-purple-soft) 0%, #efe8ff 100%);
-	border: 1px solid rgba(155, 108, 244, 0.16);
+	width: clamp(76px, 10vw, 104px);
+	height: clamp(76px, 10vw, 104px);
+	border-radius: 24px;
+	background: linear-gradient(135deg, rgba(244, 239, 255, 1) 0%, rgba(255, 255, 255, 0.94) 100%);
+	border: 1px solid rgba(155, 108, 244, 0.14);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: var(--color-purple);
+	color: var(--color-purple-dark);
 	font-weight: var(--weight-bold);
-	font-size: clamp(36px, 6vw, 48px);
+	font-size: clamp(30px, 5vw, 40px);
 	flex-shrink: 0;
-	box-shadow: var(--shadow-xs);
+	box-shadow: 0 12px 24px rgba(155, 108, 244, 0.08);
 }
 
 .companyInfo {
@@ -79,7 +80,7 @@
 .companyName {
 	margin: 0;
 	color: var(--color-text-primary);
-	font-size: clamp(1.65rem, 3vw, 2.35rem);
+	font-size: clamp(1.5rem, 2.8vw, 2.15rem);
 	font-weight: var(--weight-bold);
 	line-height: 1.12;
 	letter-spacing: -0.03em;
@@ -95,7 +96,7 @@
 .companyDescription,
 .companyDescriptionMuted {
 	margin: 0;
-	font-size: var(--font-size-sm);
+	font-size: 15px;
 	line-height: var(--line-height-relaxed);
 }
 
@@ -114,11 +115,8 @@
 .companyFooter {
 	position: relative;
 	z-index: 1;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	gap: var(--space-4);
-	align-items: end;
-	padding-top: var(--space-5);
+	display: block;
+	padding-top: var(--space-4);
 	border-top: 1px solid rgba(90, 79, 132, 0.08);
 }
 
@@ -127,7 +125,7 @@
 	align-items: center;
 	gap: var(--space-2);
 	margin-bottom: var(--space-3);
-	color: var(--color-purple);
+	color: var(--color-purple-dark);
 	font-size: var(--font-size-sm);
 	font-weight: var(--weight-semibold);
 }
@@ -147,8 +145,8 @@
   border-radius: var(--radius-pill);
   font-size: var(--font-size-xs);
   font-weight: var(--weight-medium);
-  background: var(--color-surface-muted);
-  border: 1px solid rgba(90, 79, 132, 0.1);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(90, 79, 132, 0.08);
   color: var(--color-text-secondary);
 }
 
@@ -205,46 +203,35 @@
 
 @media (max-width: 768px) {
 	.companyCard {
-		min-height: 240px;
+		min-height: 224px;
 		padding: 24px;
 	}
 
 	.companyLogo {
-		width: 80px;
-		height: 80px;
-		font-size: 32px;
+		width: 72px;
+		height: 72px;
+		font-size: 28px;
 	}
 
 	.companyName {
-		font-size: 24px;
-	}
-
-	.companyFooter {
-		grid-template-columns: 1fr;
-		align-items: start;
-	}
-
-	.cardMeta {
-		flex-direction: row;
-		align-items: center;
-		flex-wrap: wrap;
+		font-size: 22px;
 	}
 }
 
 @media (max-width: 480px) {
 	.companyCard {
 		padding: 20px;
-		min-height: 220px;
+		min-height: 212px;
 	}
 
 	.companyLogo {
-		width: 68px;
-		height: 68px;
+		width: 64px;
+		height: 64px;
 		font-size: 26px;
 	}
 
 	.companyName {
-		font-size: 20px;
+		font-size: 19px;
 	}
 
 	.flagsTitle {

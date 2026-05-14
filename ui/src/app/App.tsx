@@ -3,6 +3,7 @@ import { AuthProvider } from 'features/auth';
 
 import { AboutPage } from 'pages/AboutPage';
 import { AddCompanyPage } from 'pages/AddCompanyPage';
+import { AdminPage } from 'pages/AdminPage';
 import { BlockedPage } from 'pages/BlockedPage';
 import { CompanyPage } from 'pages/CompanyPage';
 import { EditProfilePage } from 'pages/EditProfilePage';
@@ -46,6 +47,7 @@ const App = () => {
 							<Routes>
 
 							<Route path="/" element={<WelcomePage />} />
+							<Route path="/admin" element={<AdminPage />} />
 							<Route path="/login" element={<LoginPage />} />
 							<Route path="/register" element={<RegisterPage />} />
 							<Route path="/forgot-password" element={<ForgotPasswordPage />} />

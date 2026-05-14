@@ -61,6 +61,7 @@ ensure_hosts_entry() {
 ensure_hosts_entries() {
   local ip="${1:-127.0.0.1}"
   ensure_hosts_entry "$ip" "gateway.local"
+  ensure_hosts_entry "$ip" "review-admin.local"
   ensure_hosts_entry "$ip" "user.local"
   ensure_hosts_entry "$ip" "minio.console.local"
   ensure_hosts_entry "$ip" "minio.api.local"

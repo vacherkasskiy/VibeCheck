@@ -13,6 +13,6 @@ docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t ikeeo/vibecheck-review-admin-service:1.0 \
   -t ikeeo/vibecheck-review-admin-service:latest \
-  -f "${BACKEND_DIR}/ReviewService/Gateway/ReviewService.Admin.Api/Dockerfile" \
-  "${BACKEND_DIR}" \
+  -f ./ReviewService/Gateway/ReviewService.Admin.Api/Dockerfile \
+  . \
   --push

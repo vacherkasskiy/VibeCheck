@@ -6,13 +6,16 @@ import { UnsubscribeConfirmModal } from 'features/subscribe';
 import { useState } from 'react';
 import { Button } from 'shared/ui/Button';
 import { Spinner } from 'shared/ui/Spinner';
+import styles from './SubscriptionButton.module.css';
 import type { UserId } from 'entities/user';
 
 interface SubscriptionButtonProps {
   authorId: UserId;
+  userNickname?: string;
+  className?: string;
 }
 
-export const SubscriptionButton = ({ authorId }: SubscriptionButtonProps) => {
+export const SubscriptionButton = ({ authorId, userNickname, className = '' }: SubscriptionButtonProps) => {
   const { profile: currentUserProfile } = useProfile();
   const currentUserId = currentUserProfile?.user?.id;
   const isOwnProfile = authorId === currentUserId;
@@ -49,22 +52,21 @@ export const SubscriptionButton = ({ authorId }: SubscriptionButtonProps) => {
         variant={isSubscribed ? 'secondary' : 'primary'}
         onClick={handleToggle}
         disabled={isPending || statusLoading}
+        className={`${styles.button} ${isSubscribed ? styles.buttonSubscribed : ''} ${isPending || statusLoading ? styles.buttonPending : ''} ${className}`.trim()}
       >
-        {statusLoading || isPending ? (
-          <Spinner />
-        ) : isSubscribed ? (
-          'Отписаться'
-        ) : (
-          'Подписаться'
-        )}
+        <span className={styles.content}>
+          {statusLoading || isPending ? <Spinner /> : null}
+          <span className={styles.label}>
+            {statusLoading || isPending ? 'Обновляем...' : isSubscribed ? 'Отписаться' : 'Подписаться'}
+          </span>
+        </span>
       </Button>
       <UnsubscribeConfirmModal
         isOpen={showConfirm}
         onClose={handleCloseConfirm}
         onConfirm={handleConfirmUnsubscribe}
-        userNickname="" // pass from prop or context
+        userNickname={userNickname}
       />
     </>
   );
 };
-

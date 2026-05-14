@@ -20,6 +20,13 @@
 	display: flex;
 	align-items: center;
 	gap: var(--space-3);
+	cursor: pointer;
+}
+
+.logo {
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
 }
 
 .logoText {
@@ -63,6 +70,11 @@
 
 	.logoText {
 		font-size: 16px;
+	}
+
+	.logo {
+		width: 28px;
+		height: 28px;
 	}
 
 	.searchContainer {

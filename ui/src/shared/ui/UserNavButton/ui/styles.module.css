@@ -1,141 +1,210 @@
 .wrapper {
-  position: relative;
-  display: inline-flex;
+	position: relative;
+	display: inline-flex;
 }
 
 .button {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 12px 4px 6px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid rgba(28, 27, 40, 0.12);
-  border-radius: 999px;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 48px;
+	padding: 6px 16px 6px 8px;
+	cursor: pointer;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	border-radius: 999px;
+	background:
+		linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(249, 245, 255, 0.78)),
+		radial-gradient(circle at top left, rgba(239, 140, 199, 0.12), transparent 48%);
+	backdrop-filter: blur(16px);
+	box-shadow:
+		0 14px 30px rgba(37, 29, 73, 0.1),
+		inset 0 1px 0 rgba(255, 255, 255, 0.55);
+	transition:
+		transform var(--transition-smooth),
+		border-color var(--transition-smooth),
+		box-shadow var(--transition-smooth),
+		background var(--transition-smooth);
+	overflow: hidden;
+}
+
+.button::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.36) 50%, transparent 80%);
+	transform: translateX(-120%);
+	transition: transform 0.6s ease;
+	pointer-events: none;
 }
 
 .button:hover,
 .button[aria-expanded='true'] {
-  background: #fff;
-  border-color: rgba(139, 92, 246, 0.35);
-  box-shadow: 0 8px 24px rgba(28, 27, 40, 0.1);
-  transform: translateY(-1px);
+	border-color: rgba(155, 108, 244, 0.28);
+	background:
+		linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(244, 239, 255, 0.92)),
+		radial-gradient(circle at top left, rgba(239, 140, 199, 0.18), transparent 52%);
+	box-shadow:
+		0 18px 36px rgba(37, 29, 73, 0.14),
+		0 0 0 4px rgba(155, 108, 244, 0.08);
+	transform: translateY(-1px);
+}
+
+.button:hover::after {
+	transform: translateX(120%);
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--color-purple-light);
-  outline-offset: 3px;
+	outline: 3px solid rgba(155, 108, 244, 0.18);
+	outline-offset: 3px;
 }
 
 .avatar {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 3px 10px rgba(28, 27, 40, 0.16);
+	position: relative;
+	z-index: 1;
+	flex-shrink: 0;
+	width: 34px;
+	height: 34px;
+	object-fit: cover;
+	border: 2px solid rgba(255, 255, 255, 0.95);
+	border-radius: 50%;
+	box-shadow: 0 8px 16px rgba(37, 29, 73, 0.16);
 }
 
 .nickname {
-  max-width: clamp(80px, 20vw, 120px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--color-accent-black);
-  white-space: nowrap;
+	position: relative;
+	z-index: 1;
+	max-width: clamp(84px, 18vw, 132px);
+	overflow: hidden;
+	color: var(--color-text-primary);
+	font-size: 14px;
+	font-weight: var(--weight-semibold);
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  z-index: 50;
-  min-width: 260px;
-  padding: 22px 14px;
-  background: #fff;
-  border: 1px solid rgba(28, 27, 40, 0.08);
-  border-radius: 14px;
-  box-shadow:
-    0 18px 42px rgba(28, 27, 40, 0.18),
-    0 1px 3px rgba(28, 27, 40, 0.12);
+	position: absolute;
+	top: calc(100% + 12px);
+	right: 0;
+	z-index: 50;
+	min-width: 290px;
+	padding: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.76);
+	border-radius: 24px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 255, 0.92)),
+		radial-gradient(circle at top right, rgba(155, 108, 244, 0.1), transparent 44%);
+	backdrop-filter: blur(18px);
+	box-shadow:
+		0 24px 54px rgba(31, 24, 57, 0.16),
+		inset 0 1px 0 rgba(255, 255, 255, 0.56);
+	animation: dropdownIn 180ms ease-out;
+}
+
+.menu::before {
+	content: '';
+	position: absolute;
+	top: -7px;
+	right: 24px;
+	width: 14px;
+	height: 14px;
+	background: rgba(255, 255, 255, 0.94);
+	border-top: 1px solid rgba(255, 255, 255, 0.76);
+	border-left: 1px solid rgba(255, 255, 255, 0.76);
+	transform: rotate(45deg);
 }
 
 .menuItem {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  min-height: 34px;
-  padding: 4px 0;
-  font: inherit;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--color-accent-black);
-  text-align: left;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	min-height: 50px;
+	padding: 12px 14px;
+	font: inherit;
+	font-size: 15px;
+	font-weight: var(--weight-semibold);
+	line-height: 1.25;
+	color: var(--color-text-primary);
+	text-align: left;
+	cursor: pointer;
+	border: 1px solid transparent;
+	border-radius: 18px;
+	background: transparent;
+	transition:
+		color var(--transition-smooth),
+		background var(--transition-smooth),
+		border-color var(--transition-smooth),
+		transform var(--transition-smooth),
+		box-shadow var(--transition-smooth);
 }
 
 .menuItem:hover {
-  color: var(--color-purple);
-  transform: translateX(2px);
+	color: var(--color-purple-dark);
+	background: rgba(155, 108, 244, 0.08);
+	border-color: rgba(155, 108, 244, 0.14);
+	transform: translateX(2px);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .menuItem:focus-visible {
-  outline: 2px solid var(--color-purple-light);
-  outline-offset: 2px;
-  border-radius: 6px;
+	outline: 3px solid rgba(155, 108, 244, 0.14);
+	outline-offset: 2px;
 }
 
 .menuItem svg {
-  flex-shrink: 0;
-  color: currentColor;
+	flex-shrink: 0;
+	color: currentColor;
 }
 
 .logoutItem {
-  color: var(--color-red);
+	color: var(--color-red-badge);
 }
 
 .logoutItem:hover {
-  color: var(--color-red);
+	color: var(--color-red-badge);
+	background: rgba(217, 90, 107, 0.08);
+	border-color: rgba(217, 90, 107, 0.16);
+}
+
+@keyframes dropdownIn {
+	from {
+		opacity: 0;
+		transform: translateY(-8px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 @media (max-width: 480px) {
+	.button {
+		padding: 5px 12px 5px 7px;
+	}
 
-  .button {
-    padding: 4px 10px 4px 5px;
-  }
+	.avatar {
+		width: 30px;
+		height: 30px;
+	}
 
-  .avatar {
-    width: 28px;
-    height: 28px;
-  }
+	.nickname {
+		max-width: 88px;
+		font-size: 13px;
+	}
 
-  .nickname {
-    max-width: 80px;
-    font-size: 13px;
-  }
+	.menu {
+		right: -8px;
+		min-width: min(290px, calc(100vw - 24px));
+		padding: 12px;
+	}
 
-  .menu {
-    right: -8px;
-    min-width: min(260px, calc(100vw - 24px));
-    padding: 18px 14px;
-  }
-
-  .menuItem {
-    font-size: 16px;
-  }
+	.menuItem {
+		min-height: 46px;
+		padding: 11px 12px;
+		font-size: 14px;
+	}
 }

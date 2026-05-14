@@ -1,12 +1,15 @@
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
-import { UnsubscribeConfirmModal, useSubscribeMutation, useUnsubscribeMutation, useSubscriptionStatus } from 'features/subscribe';
-import { useState, useEffect } from 'react';
+import { SubscriptionButton } from 'features/subscription-toggle';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { translateEducation, translateExperience, translateSpecialization } from 'shared/lib';
 import { Button } from 'shared/ui/Button';
+import { CenterGlow } from 'shared/ui/CenterGlow';
+import { HeaderGlow } from 'shared/ui/HeaderGlow';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
+import { FooterLinks } from 'widgets/FooterLinks';
 import styles from './UserProfilePage.module.css';
 import type { User } from 'entities/user';
 
@@ -18,19 +21,8 @@ export const UserProfilePage = () => {
 	const [profile, setProfile] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
 
 	const isOwnProfile = !!userId && !!currentUserId && userId === currentUserId;
-	const skipStatusRequest = currentUserLoading || isOwnProfile;
-
-	const { data: isSubscribed = false, isLoading: statusLoading, error: statusError } = useSubscriptionStatus(userId, skipStatusRequest);
-
-	const subscribeMutation = useSubscribeMutation();
-	const unsubscribeMutation = useUnsubscribeMutation();
-	const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending || statusLoading;
-	const buttonDisabled = isPending || !!statusError;
-
-	// Tooltip not supported in Button, error handled by disabled + data=false fallback
 
 	useEffect(() => {
 		if (isOwnProfile) {
@@ -60,24 +52,6 @@ export const UserProfilePage = () => {
 		loadProfile();
 	}, [userId]);
 
-	const handleToggleSubscription = () => {
-		if (!userId || isOwnProfile) return;
-		if (isSubscribed) {
-			setShowUnsubscribeModal(true);
-		} else {
-			subscribeMutation.mutate(userId);
-		}
-	};
-
-	const handleConfirmUnsubscribe = () => {
-		unsubscribeMutation.mutate(userId!);
-		setShowUnsubscribeModal(false);
-	};
-
-	const handleCloseUnsubscribeModal = () => {
-		setShowUnsubscribeModal(false);
-	};
-
 	const formatRegistrationDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('ru-RU', {
@@ -90,6 +64,8 @@ export const UserProfilePage = () => {
 	if (loading) {
 		return (
 			<div className={styles.page}>
+				<HeaderGlow />
+				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -113,6 +89,8 @@ export const UserProfilePage = () => {
 	if (error || !profile) {
 		return (
 			<div className={styles.page}>
+				<HeaderGlow />
+				<CenterGlow />
 				<header className={styles.header}>
 					<div
 						className={styles.logoContainer}
@@ -141,6 +119,8 @@ export const UserProfilePage = () => {
 
 	return (
 		<div className={styles.page}>
+			<HeaderGlow />
+			<CenterGlow />
 			<header className={styles.header}>
 				<div className={styles.logoContainer} onClick={() => navigate('/recommendations')}>
 					<img
@@ -159,7 +139,8 @@ export const UserProfilePage = () => {
 			</header>
 
 			<main className={styles.main}>
-				<div className={styles.profileHeader}>
+				<section className={styles.profileHero}>
+					<div className={styles.heroAccent} />
 					<div className={styles.avatarSection}>
 						<div className={styles.avatar}>
 							{user.avatarUrl ? (
@@ -173,14 +154,19 @@ export const UserProfilePage = () => {
 					</div>
 
 					<div className={styles.infoSection}>
-						<h1 className={styles.nickname}>{user.nickname}</h1>
-						<div className={styles.levelInfo}>
-							<span className={styles.level}>Уровень {user.level}</span>
-							<span className={styles.levelLabel}>{user.levelLabel}</span>
+						<div className={styles.identityRow}>
+							<h1 className={styles.nickname}>{user.nickname}</h1>
+							<div className={styles.levelInfo}>
+								<span className={styles.level}>Уровень {user.level}</span>
+								<span className={styles.levelLabel}>{user.levelLabel}</span>
+							</div>
 						</div>
 						<div className={styles.registrationDate}>
 							{user.createdAt && `На платформе с ${formatRegistrationDate(user.createdAt)}`}
 						</div>
+						<p className={styles.profileSummary}>
+							Публичный профиль участника сообщества VibeCheck. Здесь можно быстро оценить бэкграунд пользователя и подписаться на его активность.
+						</p>
 						<div className={styles.details}>
 							<div className={styles.detailItem}>
 								<span className={styles.detailLabel}>Образование</span>
@@ -199,36 +185,24 @@ export const UserProfilePage = () => {
 
 					{!isOwnProfile && (
 						<div className={styles.actionsSection}>
-	{isSubscribed ? (
-		<Button
-			variant="secondary"
-			onClick={handleToggleSubscription}
-			disabled={buttonDisabled}
-		>
-			{statusLoading ? <Spinner /> : null}
-			{isPending ? 'Загрузка...' : 'Отписаться'}
-		</Button>
-	) : (
-		<Button
-			variant="primary"
-			onClick={handleToggleSubscription}
-			disabled={buttonDisabled}
-		>
-			{statusLoading ? <Spinner /> : null}
-			{isPending ? 'Загрузка...' : 'Подписаться'}
-		</Button>
-	)}
+							<div className={styles.actionsCard}>
+								<span className={styles.actionsEyebrow}>Активность автора</span>
+								<h2 className={styles.actionsTitle}>Следить за обновлениями</h2>
+								<p className={styles.actionsText}>
+									Подписка добавит автора в ваш список активности и позволит быстрее возвращаться к его профилю.
+								</p>
+								<SubscriptionButton
+									authorId={user.id}
+									userNickname={user.nickname}
+									className={styles.subscribeButton}
+								/>
+							</div>
 						</div>
 					)}
-				</div>
+				</section>
 
 			</main>
-			<UnsubscribeConfirmModal
-				isOpen={showUnsubscribeModal}
-				onClose={handleCloseUnsubscribeModal}
-				onConfirm={handleConfirmUnsubscribe}
-				userNickname={user.nickname}
-			/>
+			<FooterLinks />
 		</div>
 	);
 };

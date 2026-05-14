@@ -7,8 +7,9 @@ import type { Tag } from 'entities/tag';
 interface FlagsLibraryProps {
 	groupedByCategory: [string, Tag[]][];
 	onTagClick: (tag: Tag) => void;
-	onTagDragStart: (id: string) => void;
+	onTagDragStart: (id: string, point: { x: number; y: number }) => void;
 	onTagDragEnd: () => void;
+	draggingId?: string | null;
 	onAddToGreen?: (tag: Tag) => void;
 	onAddToRed?: (tag: Tag) => void;
 	greenTags?: Record<string, unknown>;
@@ -20,6 +21,7 @@ export const FlagsLibrary = ({
 	onTagClick,
 	onTagDragStart,
 	onTagDragEnd,
+	draggingId,
 	onAddToGreen,
 	onAddToRed,
 	greenTags = {},
@@ -73,10 +75,17 @@ export const FlagsLibrary = ({
 								{tags.map((tag) => (
 									<button
 										key={tag.id}
-										onMouseDown={() => onTagDragStart(tag.id)}
+										onMouseDown={(event) =>
+											onTagDragStart(tag.id, {
+												x: event.clientX,
+												y: event.clientY,
+											})
+										}
 										onMouseUp={onTagDragEnd}
 										onClick={() => handleTagClick(tag)}
-										className={styles.tagButton}
+										className={`${styles.tagButton} ${
+											draggingId === tag.id ? styles.dragging : ''
+										}`}
 									>
 										{tag.name}
 									</button>

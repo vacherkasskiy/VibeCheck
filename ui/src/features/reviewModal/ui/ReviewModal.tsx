@@ -318,6 +318,32 @@ export const ReviewModal = ({
 						/>
 					</div>
 
+					<div className={styles.mobileSelectedFlagsPanel}>
+						<div className={styles.mobileSelectedFlagsHeader}>
+							<h4 className={styles.mobileSelectedFlagsTitle}>
+								Выбрано флагов ({Object.keys(selected).length})
+							</h4>
+						</div>
+						<div className={styles.mobileSelectedFlagsList}>
+							{Object.values(selected).length > 0 ? (
+								Object.values(selected).map((tag) => (
+									<div key={tag.id} className={styles.mobileSelectedFlag}>
+										<span className={styles.mobileSelectedFlagName}>{tag.name}</span>
+										<button
+											className={styles.mobileSelectedFlagRemove}
+											onClick={() => removeTag(tag.id)}
+											title="Удалить"
+										>
+											×
+										</button>
+									</div>
+								))
+							) : (
+								<div className={styles.flagsState}>Флаги пока не выбраны</div>
+							)}
+						</div>
+					</div>
+
 					<div className={styles.flagsModalGrid}>
 						<div className={styles.flagsLibrarySection}>
 							<div className={styles.flagsLibraryContent}>

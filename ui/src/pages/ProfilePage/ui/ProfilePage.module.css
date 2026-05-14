@@ -75,13 +75,6 @@
 	color: var(--color-text-primary);
 }
 
-.spinnerWrapper {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 400px;
-}
-
 .errorMessage {
 	text-align: center;
 	padding: 48px 24px;
@@ -100,6 +93,153 @@
 	margin-bottom: 24px;
 }
 
+.skeleton {
+	background: linear-gradient(
+		90deg,
+		rgba(238, 235, 248, 0.95) 0%,
+		rgba(255, 255, 255, 0.98) 50%,
+		rgba(238, 235, 248, 0.95) 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonNavButton {
+	width: 146px;
+	height: 48px;
+	border-radius: 999px;
+}
+
+.profileSkeletonCard,
+.sectionSkeletonCard {
+	padding: 24px;
+	border: 1px solid rgba(255, 255, 255, 0.7);
+	border-radius: 24px;
+	background: rgba(255, 255, 255, 0.78);
+	backdrop-filter: blur(18px);
+	box-shadow: 0 14px 34px rgba(31, 24, 57, 0.08);
+}
+
+.profileSkeletonTop {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	gap: 20px;
+	align-items: center;
+}
+
+.profileSkeletonAvatar {
+	width: 88px;
+	height: 88px;
+	border-radius: 28px;
+}
+
+.profileSkeletonInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+}
+
+.profileSkeletonTitle {
+	width: min(320px, 70%);
+	height: 28px;
+	border-radius: 12px;
+}
+
+.profileSkeletonSubtitle {
+	width: min(440px, 90%);
+	height: 16px;
+	border-radius: 999px;
+}
+
+.profileSkeletonTags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.profileSkeletonTag,
+.profileSkeletonTagShort {
+	height: 34px;
+	border-radius: 999px;
+}
+
+.profileSkeletonTag {
+	width: 112px;
+}
+
+.profileSkeletonTagShort {
+	width: 72px;
+}
+
+.profileSkeletonAction {
+	width: 148px;
+	height: 46px;
+	border-radius: 999px;
+}
+
+.profileSkeletonStats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.profileSkeletonStat {
+	height: 76px;
+	border-radius: 20px;
+}
+
+.sectionSkeletonHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.sectionSkeletonTitle {
+	width: 168px;
+	height: 22px;
+	border-radius: 12px;
+}
+
+.sectionSkeletonAction {
+	width: 98px;
+	height: 34px;
+	border-radius: 999px;
+}
+
+.sectionSkeletonBody {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.sectionSkeletonLine,
+.sectionSkeletonLineShort {
+	height: 16px;
+	border-radius: 999px;
+}
+
+.sectionSkeletonLine {
+	width: 100%;
+}
+
+.sectionSkeletonLineShort {
+	width: 68%;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+
+	100% {
+		background-position: 200% 0;
+	}
+}
+
 @media (max-width: 768px) {
 	.sections {
 		grid-template-columns: 1fr;
@@ -113,5 +253,27 @@
 
 	.main {
 		padding: 20px 16px;
+	}
+
+	.profileSkeletonTop {
+		grid-template-columns: 1fr;
+	}
+
+	.profileSkeletonAvatar {
+		width: 72px;
+		height: 72px;
+	}
+
+	.profileSkeletonTitle,
+	.profileSkeletonSubtitle {
+		width: 100%;
+	}
+
+	.profileSkeletonAction {
+		width: 136px;
+	}
+
+	.profileSkeletonStats {
+		grid-template-columns: 1fr;
 	}
 }

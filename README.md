@@ -15,7 +15,7 @@ kubcetl get pod -n vibecheck
 Тестовый пользователь:
 ```json
 {
-  "login": "vladislav_fedotov_official@bk.ru",
+  "login": "anton_s@vibecheck.local",
   "password": "Test123!"
 }
 ```

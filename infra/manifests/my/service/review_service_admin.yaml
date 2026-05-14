@@ -15,7 +15,7 @@ data:
   MinioOptions__PublicEndpoint: "minio.api.local"
   KafkaOptions__BootstrapServers: "kafka.vibecheck.svc.cluster.local:9092"
   JwtOptions__Issuer: "user-service"
-  JwtOptions__Audience: "review-admin-service"
+  JwtOptions__Audience: "review-service"
   JwtOptions__PublicKeyPath: "/var/run/secrets/internal-jwt/public.pem"
 ---
 apiVersion: v1

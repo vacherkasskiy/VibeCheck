@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ReviewService.Admin.Api.Controllers;
 
 [ApiController]
-[Route("api/company-requests")]
+[Route("api/admin/company-requests")]
 [Produces("application/json")]
 [SwaggerTag("admin: заявки на добавление компаний")]
 [Authorize(Roles = "ADMIN,MANAGER")]

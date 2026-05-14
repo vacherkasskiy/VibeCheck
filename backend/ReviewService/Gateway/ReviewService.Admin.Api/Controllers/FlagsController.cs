@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ReviewService.Admin.Api.Controllers;
 
 [ApiController]
-[Route("api/flags")]
+[Route("api/admin/flags")]
 [Produces("application/json")]
 [SwaggerTag("admin: CRUD флагов")]
 [Authorize(Roles = "ADMIN,MANAGER")]

@@ -1,4 +1,5 @@
 using Confluent.Kafka;
+using GamificatonService.MessageBroker;
 using GamificatonService.MessageBroker.Abstractions.Options;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -18,21 +19,9 @@ public sealed class KafkaHealthCheck : IHealthCheck
     {
         try
         {
-            var config = new AdminClientConfig
-            {
-                BootstrapServers = _kafka.BootstrapServers,
-                SaslUsername = _kafka.Username,
-                SaslPassword = _kafka.Password,
-                SocketTimeoutMs = 3000
-            };
-
-            if (Enum.TryParse<SecurityProtocol>(_kafka.SecurityProtocol, true, out var securityProtocol))
-                config.SecurityProtocol = securityProtocol;
-
-            if (Enum.TryParse<SaslMechanism>(_kafka.SaslMechanism, true, out var saslMechanism))
-                config.SaslMechanism = saslMechanism;
-
-            using var adminClient = new AdminClientBuilder(config).Build();
+            using var adminClient = new AdminClientBuilder(
+                    KafkaClientConfigFactory.CreateAdminClientConfig(_kafka))
+                .Build();
             var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(3));
 
             return Task.FromResult(metadata.Brokers.Count > 0

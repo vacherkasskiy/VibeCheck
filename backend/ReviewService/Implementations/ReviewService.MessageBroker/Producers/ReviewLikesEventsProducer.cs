@@ -1,16 +1,19 @@
 using Common;
-using Google.Protobuf.WellKnownTypes;
-using MassTransit;
+using Confluent.Kafka;
+using Google.Protobuf;
 using Reviews;
 using ReviewService.Core.Abstractions.Observability;
 using ReviewService.MessageBroker.Abstractions.Producers;
 using System.Diagnostics;
+using ProtobufTimestamp = Google.Protobuf.WellKnownTypes.Timestamp;
 
 namespace ReviewService.MessageBroker.Producers;
 
 internal sealed class ReviewLikesEventsProducer(
-    ITopicProducer<ReviewLikedEvent> producer) : IReviewLikesEventsProducer
+    IProducer<string, byte[]> producer) : IReviewLikesEventsProducer
 {
+    private const string ReviewsLikedTopic = "reviews-liked";
+
     public async Task PublishReviewLikedAsync(
         Guid likedByUserId,
         Guid reviewId,
@@ -35,19 +38,26 @@ internal sealed class ReviewLikesEventsProducer(
                     EventType = voteMode == "like" ? "review.liked" : "review.disliked",
                     AggregateId = reviewId.ToString(),
                     PayloadVersion = 1,
-                    OccurredAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
+                    OccurredAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime),
                     Source = SourceType.ReviewService
                 },
                 ReviewId = reviewId.ToString(),
                 ReviewAuthorId = reviewAuthorId.ToString(),
                 ReviewCompanyId = reviewCompanyId.ToString(),
                 ReviewCompanyName = reviewCompanyName,
-                LikedAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
+                LikedAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime),
                 LikedByUserId = likedByUserId.ToString(),
                 VoteMode = voteMode
             };
 
-            await producer.Produce(message, ct);
+            await producer.ProduceAsync(
+                ReviewsLikedTopic,
+                new Message<string, byte[]>
+                {
+                    Key = message.LikedByUserId,
+                    Value = message.ToByteArray()
+                },
+                ct);
         }
         catch
         {
@@ -59,7 +69,7 @@ internal sealed class ReviewLikesEventsProducer(
         {
             ReviewMetrics.RecordProducedMessage(
                 "ReviewLikesEventsProducer",
-                "reviews-liked",
+                ReviewsLikedTopic,
                 voteMode == "like" ? "review.liked" : "review.disliked",
                 status);
             ReviewMetrics.RecordOperationDuration("publish_review_liked", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);

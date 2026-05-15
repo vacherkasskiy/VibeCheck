@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using GamificatonService.Core.Abstractions.Handlers;
 using GamificatonService.Core.Abstractions.Observability;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Reports;
 
@@ -10,35 +9,40 @@ namespace GamificationService.Gateway.Kafka.Consumers;
 internal sealed class ReviewReportedEventConsumer(
     IAchievementProgressService achievementProgressService,
     ILogger<ReviewReportedEventConsumer> logger)
-    : IConsumer<ReviewReportedEvent>
+    : IKafkaEventHandler<ReviewReportedEvent>
 {
-    public async Task Consume(ConsumeContext<ReviewReportedEvent> context)
+    public async Task HandleAsync(
+        ReviewReportedEvent message,
+        KafkaConsumedMessageMetadata metadata,
+        CancellationToken ct)
     {
         var stopwatch = Stopwatch.StartNew();
         var status = "success";
 
         try
         {
-            var message = context.Message;
-
             var userId = Guid.Parse(message.ReporterUserId);
 
             logger.LogInformation(
-                "Consuming {MessageType} reporterUserId {ReporterUserId} reviewId {ReviewId} messageId {MessageId} correlationId {CorrelationId}",
+                "Consuming {MessageType} reporterUserId {ReporterUserId} reviewId {ReviewId} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(ReviewReportedEvent),
                 userId,
                 message.ReviewId,
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
 
             await achievementProgressService.HandleReviewReportedAsync(
                 userId,
-                context.CancellationToken);
+                ct);
 
             logger.LogInformation(
-                "Consumed {MessageType} reviewId {ReviewId} in {ElapsedMs} ms",
+                "Consumed {MessageType} reviewId {ReviewId} topic {Topic} partition {Partition} offset {Offset} in {ElapsedMs} ms",
                 nameof(ReviewReportedEvent),
                 message.ReviewId,
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset,
                 stopwatch.Elapsed.TotalMilliseconds);
         }
         catch (Exception exception)
@@ -47,10 +51,11 @@ internal sealed class ReviewReportedEventConsumer(
             GamificationMetrics.RecordOperationError("review_reported_consumer", "message_broker", "exception");
             logger.LogError(
                 exception,
-                "Failed to consume {MessageType} messageId {MessageId} correlationId {CorrelationId}",
+                "Failed to consume {MessageType} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(ReviewReportedEvent),
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
             throw;
         }
         finally

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using GamificatonService.Core.Abstractions.Handlers;
 using GamificatonService.Core.Abstractions.Observability;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Subscriptions;
 
@@ -12,17 +11,18 @@ internal sealed class UserSubscribedEventConsumer(
     IAchievementProgressService achievementProgressService,
     IXpProgressService xpProgressService,
     ILogger<UserSubscribedEventConsumer> logger)
-    : IConsumer<UserSubscribedEvent>
+    : IKafkaEventHandler<UserSubscribedEvent>
 {
-    public async Task Consume(ConsumeContext<UserSubscribedEvent> context)
+    public async Task HandleAsync(
+        UserSubscribedEvent message,
+        KafkaConsumedMessageMetadata metadata,
+        CancellationToken ct)
     {
         var stopwatch = Stopwatch.StartNew();
         var status = "success";
 
         try
         {
-            var message = context.Message;
-
             var subscriberUserId = Guid.Parse(message.FollowerId);
             var targetUserId = Guid.Parse(message.TargetUserId);
             var eventId = message.Meta.EventId;
@@ -30,17 +30,18 @@ internal sealed class UserSubscribedEventConsumer(
             var occurredAt = message.Meta.OccurredAt.ToDateTimeOffset();
 
             logger.LogInformation(
-                "Consuming {MessageType} subscriberUserId {SubscriberUserId} targetUserId {TargetUserId} messageId {MessageId} correlationId {CorrelationId}",
+                "Consuming {MessageType} subscriberUserId {SubscriberUserId} targetUserId {TargetUserId} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(UserSubscribedEvent),
                 subscriberUserId,
                 targetUserId,
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
 
             await achievementProgressService.HandleUserSubscribedAsync(
                 subscriberUserId,
                 targetUserId,
-                context.CancellationToken);
+                ct);
 
             await xpProgressService.HandleUserSubscribedAsync(
                 subscriberUserId,
@@ -48,12 +49,15 @@ internal sealed class UserSubscribedEventConsumer(
                 eventId,
                 aggregateId,
                 occurredAt,
-                context.CancellationToken);
+                ct);
 
             logger.LogInformation(
-                "Consumed {MessageType} targetUserId {TargetUserId} in {ElapsedMs} ms",
+                "Consumed {MessageType} targetUserId {TargetUserId} topic {Topic} partition {Partition} offset {Offset} in {ElapsedMs} ms",
                 nameof(UserSubscribedEvent),
                 targetUserId,
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset,
                 stopwatch.Elapsed.TotalMilliseconds);
         }
         catch (Exception exception)
@@ -62,10 +66,11 @@ internal sealed class UserSubscribedEventConsumer(
             GamificationMetrics.RecordOperationError("user_subscribed_consumer", "message_broker", "exception");
             logger.LogError(
                 exception,
-                "Failed to consume {MessageType} messageId {MessageId} correlationId {CorrelationId}",
+                "Failed to consume {MessageType} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(UserSubscribedEvent),
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
             throw;
         }
         finally

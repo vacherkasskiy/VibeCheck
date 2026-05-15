@@ -1,14 +1,17 @@
 using Achievements;
 using Common;
+using Confluent.Kafka;
 using GamificatonService.MessageBroker.Abstractions.Producers;
-using Google.Protobuf.WellKnownTypes;
-using MassTransit;
+using Google.Protobuf;
+using ProtobufTimestamp = Google.Protobuf.WellKnownTypes.Timestamp;
 
 namespace GamificatonService.MessageBroker.Producers;
 
 internal sealed class UserLevelUpEventsProducer(
-    ITopicProducer<UserLevelUpEvent> producer) : IUserLevelUpEventsProducer
+    IProducer<string, byte[]> producer) : IUserLevelUpEventsProducer
 {
+    private const string LevelTopic = "gamification-level";
+
     public async Task PublishUserLevelUpAsync(
         Guid userId,
         int newLevel,
@@ -21,17 +24,24 @@ internal sealed class UserLevelUpEventsProducer(
             {
                 EventId = Guid.NewGuid()
                     .ToString(),
-                EventType = "user.level_up",
-                AggregateId = userId.ToString(),
-                PayloadVersion = 1,
-                OccurredAt = Timestamp.FromDateTime(occurredAt.UtcDateTime),
-                Source = SourceType.GamificationService
-            },
-            UserId = userId.ToString(),
-            NewLevel = (uint)newLevel,
-            LeveledAt = Timestamp.FromDateTime(occurredAt.UtcDateTime),
-        };
+                    EventType = "user.level_up",
+                    AggregateId = userId.ToString(),
+                    PayloadVersion = 1,
+                    OccurredAt = ProtobufTimestamp.FromDateTime(occurredAt.UtcDateTime),
+                    Source = SourceType.GamificationService
+                },
+                UserId = userId.ToString(),
+                NewLevel = (uint)newLevel,
+                LeveledAt = ProtobufTimestamp.FromDateTime(occurredAt.UtcDateTime),
+            };
 
-        await producer.Produce(message, ct);
+        await producer.ProduceAsync(
+            LevelTopic,
+            new Message<string, byte[]>
+            {
+                Key = message.UserId,
+                Value = message.ToByteArray()
+            },
+            ct);
     }
 }

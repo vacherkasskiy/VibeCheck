@@ -1,8 +1,5 @@
 using GamificationService.Gateway.Kafka.Consumers;
-using GamificatonService.MessageBroker;
-using GamificatonService.MessageBroker.Abstractions.Options;
-using MassTransit;
-using Microsoft.Extensions.Options;
+using Google.Protobuf;
 using Reports;
 using Reviews;
 using Subscriptions;
@@ -13,90 +10,53 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddConsumerServices(this IServiceCollection services)
     {
-        services.AddOptions<MassTransitHostOptions>().Configure(options =>
-        {
-            options.WaitUntilStarted = true;
-        });
+        services.AddScoped<IKafkaEventHandler<ReviewWrittenEvent>, ReviewWrittenEventConsumer>();
+        services.AddScoped<IKafkaEventHandler<ReviewUpdatedEvent>, ReviewUpdatedEventConsumer>();
+        services.AddScoped<IKafkaEventHandler<ReviewLikedEvent>, ReviewLikedEventConsumer>();
+        services.AddScoped<IKafkaEventHandler<ReviewReportedEvent>, ReviewReportedEventConsumer>();
+        services.AddScoped<IKafkaEventHandler<UserSubscribedEvent>, UserSubscribedEventConsumer>();
 
-        services.AddMassTransit(x =>
-        {
-            x.UsingInMemory((context, cfg) =>
-            {
-                cfg.ConfigureEndpoints(context);
-            });
+        services.AddKafkaConsumer(
+            "reviews-written",
+            "gamification-reviews-written-consumers",
+            ReviewWrittenEvent.Parser);
 
-            x.AddRider(rider =>
-            {
-                rider.AddProducersToRider();
-                
-                rider.AddConsumer<ReviewWrittenEventConsumer>();
-                rider.AddConsumer<ReviewUpdatedEventConsumer>();
-                rider.AddConsumer<ReviewLikedEventConsumer>();
-                rider.AddConsumer<ReviewReportedEventConsumer>();
-                rider.AddConsumer<UserSubscribedEventConsumer>();
+        services.AddKafkaConsumer(
+            "reviews-updated",
+            "gamification-reviews-updated-consumers",
+            ReviewUpdatedEvent.Parser);
 
-                rider.UsingKafka((context, k) =>
-                {
-                    var options = context.GetRequiredService<IOptions<KafkaOptions>>().Value;
+        services.AddKafkaConsumer(
+            "reviews-liked",
+            "gamification-reviews-liked-consumers",
+            ReviewLikedEvent.Parser);
 
-                    k.Host(options.BootstrapServers, host =>
-                    {
-                        host.UseSasl(sasl =>
-                        {
-                            sasl.Mechanism = Confluent.Kafka.SaslMechanism.Plain;
-                            sasl.SecurityProtocol = Confluent.Kafka.SecurityProtocol.SaslPlaintext;
-                            sasl.Username = options.Username;
-                            sasl.Password = options.Password;
-                        });
-                    });
+        services.AddKafkaConsumer(
+            "reports",
+            "gamification-reports-consumers",
+            ReviewReportedEvent.Parser);
 
-                    k.TopicEndpoint<ReviewWrittenEvent>(
-                        "reviews-written",
-                        "gamification-reviews-written-consumers",
-                        e =>
-                        {
-                            e.ConfigureConsumer<ReviewWrittenEventConsumer>(context);
-                        }
-                    );
+        services.AddKafkaConsumer(
+            "subscriptions",
+            "gamification-subscriptions-consumers",
+            UserSubscribedEvent.Parser);
 
-                    k.TopicEndpoint<ReviewUpdatedEvent>(
-                        "reviews-updated",
-                        "gamification-reviews-updated-consumers",
-                        e =>
-                        {
-                            e.ConfigureConsumer<ReviewUpdatedEventConsumer>(context);
-                        }
-                    );
+        return services;
+    }
 
-                    k.TopicEndpoint<ReviewLikedEvent>(
-                        "reviews-liked",
-                        "gamification-reviews-liked-consumers",
-                        e =>
-                        {
-                            e.ConfigureConsumer<ReviewLikedEventConsumer>(context);
-                        }
-                    );
-
-                    k.TopicEndpoint<ReviewReportedEvent>(
-                        "reports",
-                        "gamification-reports-consumers",
-                        e =>
-                        {
-                            e.ConfigureConsumer<ReviewReportedEventConsumer>(context);
-                        }
-                    );
-
-                    k.TopicEndpoint<UserSubscribedEvent>(
-                        "subscriptions",
-                        "gamification-subscriptions-consumers",
-                        e =>
-                        {
-                            e.ConfigureConsumer<UserSubscribedEventConsumer>(context);
-                        }
-                    );
-                });
-            });
-        });
+    private static IServiceCollection AddKafkaConsumer<TEvent>(
+        this IServiceCollection services,
+        string topic,
+        string groupId,
+        MessageParser<TEvent> parser)
+        where TEvent : class, IMessage<TEvent>
+    {
+        services.AddHostedService(sp =>
+            ActivatorUtilities.CreateInstance<KafkaTopicConsumerHostedService<TEvent>>(
+                sp,
+                topic,
+                groupId,
+                parser));
 
         return services;
     }

@@ -1,36 +1,119 @@
-using MassTransit;
+using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ReviewService.Core.Abstractions.Enums;
 using ReviewService.Core.Abstractions.Models.Users;
 using ReviewService.Core.Abstractions.Observability;
 using ReviewService.Core.Abstractions.Operations.Users;
+using ReviewService.MessageBroker.Abstractions.Options;
 using System.Diagnostics;
 using User.Profile.V1;
 
 namespace ReviewService.MessageBroker.Consumers;
 
 internal sealed class UserProfileUpdatedEventConsumer(
-    IApplyUserProfileUpdatedOperation operation,
+    IServiceScopeFactory scopeFactory,
+    IOptions<KafkaOptions> options,
     ILogger<UserProfileUpdatedEventConsumer> logger)
-    : IConsumer<UserProfileUpdatedEvent>
+    : BackgroundService
 {
-    public async Task Consume(ConsumeContext<UserProfileUpdatedEvent> context)
+    private const string Topic = "users";
+    private const string ConsumerGroup = "review-users-consumers";
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        await Task.Yield();
+
+        using var consumer = new ConsumerBuilder<string, byte[]>(
+                KafkaClientConfigFactory.CreateConsumerConfig(options.Value, ConsumerGroup))
+            .SetKeyDeserializer(Deserializers.Utf8)
+            .SetValueDeserializer(Deserializers.ByteArray)
+            .SetErrorHandler((_, error) =>
+            {
+                logger.LogError(
+                    "Kafka consumer error for topic {Topic}: {Reason}",
+                    Topic,
+                    error.Reason);
+            })
+            .Build();
+
+        consumer.Subscribe(Topic);
+
+        try
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                ConsumeResult<string, byte[]>? consumeResult = null;
+
+                try
+                {
+                    consumeResult = consumer.Consume(stoppingToken);
+                    if (consumeResult?.Message?.Value is null)
+                        continue;
+
+                    await ConsumeAsync(consumeResult, stoppingToken);
+                    consumer.Commit(consumeResult);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (ConsumeException exception)
+                {
+                    ReviewMetrics.RecordOperationError("user_profile_updated_consumer", "message_broker", "consume_exception");
+                    logger.LogError(
+                        exception,
+                        "Failed to consume Kafka message from topic {Topic}",
+                        Topic);
+                }
+                catch (Exception exception)
+                {
+                    ReviewMetrics.RecordOperationError("user_profile_updated_consumer", "message_broker", "exception");
+                    logger.LogError(
+                        exception,
+                        "Failed to process Kafka message from topic {Topic} partition {Partition} offset {Offset}",
+                        consumeResult?.Topic,
+                        consumeResult?.Partition.Value,
+                        consumeResult?.Offset.Value);
+
+                    if (consumeResult is not null)
+                        consumer.Seek(consumeResult.TopicPartitionOffset);
+
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+            }
+        }
+        finally
+        {
+            consumer.Close();
+        }
+    }
+
+    private async Task ConsumeAsync(
+        ConsumeResult<string, byte[]> consumeResult,
+        CancellationToken ct)
     {
         var stopwatch = Stopwatch.StartNew();
         var status = "success";
 
         try
         {
-            var message = context.Message;
+            var message = UserProfileUpdatedEvent.Parser.ParseFrom(consumeResult.Message.Value);
             var userId = Guid.Parse(message.UserId);
 
             logger.LogInformation(
-                "Consuming {MessageType} for user {UserId} profileVersion {ProfileVersion} messageId {MessageId} correlationId {CorrelationId}",
+                "Consuming {MessageType} for user {UserId} profileVersion {ProfileVersion} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(UserProfileUpdatedEvent),
                 userId,
                 message.ProfileVersion,
-                context.MessageId,
-                context.CorrelationId);
+                consumeResult.Topic,
+                consumeResult.Partition.Value,
+                consumeResult.Offset.Value);
+
+            using var scope = scopeFactory.CreateScope();
+            var operation = scope.ServiceProvider.GetRequiredService<IApplyUserProfileUpdatedOperation>();
 
             var result = await operation.ApplyAsync(
                 new ApplyUserProfileUpdatedOperationModel
@@ -52,7 +135,7 @@ internal sealed class UserProfileUpdatedEventConsumer(
                         })
                         .ToArray()
                 },
-                context.CancellationToken);
+                ct);
 
             if (result.IsFailure)
             {
@@ -66,9 +149,12 @@ internal sealed class UserProfileUpdatedEventConsumer(
             }
 
             logger.LogInformation(
-                "Consumed {MessageType} for user {UserId} in {ElapsedMs} ms",
+                "Consumed {MessageType} for user {UserId} topic {Topic} partition {Partition} offset {Offset} in {ElapsedMs} ms",
                 nameof(UserProfileUpdatedEvent),
                 userId,
+                consumeResult.Topic,
+                consumeResult.Partition.Value,
+                consumeResult.Offset.Value,
                 stopwatch.Elapsed.TotalMilliseconds);
         }
         catch (Exception exception)
@@ -77,10 +163,11 @@ internal sealed class UserProfileUpdatedEventConsumer(
             ReviewMetrics.RecordOperationError("user_profile_updated_consumer", "message_broker", "exception");
             logger.LogError(
                 exception,
-                "Failed to consume {MessageType} messageId {MessageId} correlationId {CorrelationId}",
+                "Failed to consume {MessageType} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(UserProfileUpdatedEvent),
-                context.MessageId,
-                context.CorrelationId);
+                consumeResult.Topic,
+                consumeResult.Partition.Value,
+                consumeResult.Offset.Value);
             throw;
         }
         finally

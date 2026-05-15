@@ -5,6 +5,7 @@ public interface IReportEventsProducer
     Task PublishReviewReportedAsync(
         Guid reportId,
         Guid reviewId,
+        Guid targetUserId,
         Guid reporterId,
         int reasonType,
         string? reasonText,

@@ -110,6 +110,7 @@ internal sealed class ReportReviewOperation(
             await reportEventsProducer.PublishReviewReportedAsync(
                 newReport.ReportId,
                 newReport.ReviewId,
+                review.AuthorId,
                 newReport.ReporterId,
                 (int)model.ReasonType,
                 newReport.ReasonText,

@@ -1,20 +1,24 @@
 using Common;
-using Google.Protobuf.WellKnownTypes;
-using MassTransit;
+using Confluent.Kafka;
+using Google.Protobuf;
 using Reports;
 using ReviewService.Core.Abstractions.Observability;
 using ReviewService.MessageBroker.Abstractions.Producers;
 using System.Diagnostics;
+using ProtobufTimestamp = Google.Protobuf.WellKnownTypes.Timestamp;
 
 namespace ReviewService.MessageBroker.Producers;
 
 internal sealed class ReportEventsProducer(
-    ITopicProducer<ReviewReportedEvent> producer)
+    IProducer<string, byte[]> producer)
     : IReportEventsProducer
 {
+    private const string ReportsTopic = "reports";
+
     public async Task PublishReviewReportedAsync(
         Guid reportId,
         Guid reviewId,
+        Guid targetUserId,
         Guid reporterId,
         int reasonType,
         string? reasonText,
@@ -34,18 +38,26 @@ internal sealed class ReportEventsProducer(
                     EventType = "review.reported",
                     AggregateId = reportId.ToString(),
                     PayloadVersion = 1,
-                    OccurredAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
+                    OccurredAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime),
                     Source = SourceType.ReviewService
                 },
                 ReportId = reportId.ToString(),
+                TargetUserId = targetUserId.ToString(),
                 ReviewId = reviewId.ToString(),
                 ReporterUserId = reporterId.ToString(),
-                ReasonType = (ReportReasonType)reasonType,
+                ReasonType = MapReasonType(reasonType),
                 ReasonText = reasonText ?? string.Empty,
-                CreatedAt = Timestamp.FromDateTime(createdAt.UtcDateTime)
+                CreatedAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime)
             };
 
-            await producer.Produce(message, ct);
+            await producer.ProduceAsync(
+                ReportsTopic,
+                new Message<string, byte[]>
+                {
+                    Key = message.TargetUserId,
+                    Value = message.ToByteArray()
+                },
+                ct);
         }
         catch
         {
@@ -55,8 +67,20 @@ internal sealed class ReportEventsProducer(
         }
         finally
         {
-            ReviewMetrics.RecordProducedMessage("ReportEventsProducer", "reports", "review.reported", status);
+            ReviewMetrics.RecordProducedMessage("ReportEventsProducer", ReportsTopic, "review.reported", status);
             ReviewMetrics.RecordOperationDuration("publish_review_reported", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
         }
     }
+
+    private static ReportReasonType MapReasonType(int reasonType)
+        => reasonType switch
+        {
+            0 => ReportReasonType.SpamOrAdvertisement,
+            1 => ReportReasonType.HarassmentOrInsult,
+            2 => ReportReasonType.HateSpeech,
+            3 => ReportReasonType.Other,
+            4 => ReportReasonType.ThreatOrViolence,
+            99 => ReportReasonType.Other,
+            _ => ReportReasonType.ReportReasonUnspecified
+        };
 }

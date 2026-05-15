@@ -1,18 +1,21 @@
 using Common;
-using Google.Protobuf.WellKnownTypes;
-using MassTransit;
+using Confluent.Kafka;
+using Google.Protobuf;
 using Reviews;
 using ReviewService.Core.Abstractions.Observability;
 using ReviewService.MessageBroker.Abstractions.Producers;
 using System.Diagnostics;
+using ProtobufTimestamp = Google.Protobuf.WellKnownTypes.Timestamp;
 
 namespace ReviewService.MessageBroker.Producers;
 
 internal sealed class ReviewWrittenEventsProducer(
-    ITopicProducer<ReviewWrittenEvent> writtenProducer,
-    ITopicProducer<ReviewUpdatedEvent> updatedProducer)
+    IProducer<string, byte[]> producer)
     : IReviewEventsProducer
 {
+    private const string ReviewsWrittenTopic = "reviews-written";
+    private const string ReviewsUpdatedTopic = "reviews-updated";
+
     public async Task PublishReviewWrittenAsync(
         Guid reviewId,
         Guid userId,
@@ -32,15 +35,22 @@ internal sealed class ReviewWrittenEventsProducer(
                     EventType = "review.written",
                     AggregateId = reviewId.ToString(),
                     PayloadVersion = 1,
-                    OccurredAt = Timestamp.FromDateTime(createdAt.UtcDateTime),
+                    OccurredAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime),
                     Source = SourceType.ReviewService
                 },
                 ReviewId = reviewId.ToString(),
                 UserId = userId.ToString(),
-                CreatedAt = Timestamp.FromDateTime(createdAt.UtcDateTime)
+                CreatedAt = ProtobufTimestamp.FromDateTime(createdAt.UtcDateTime)
             };
 
-            await writtenProducer.Produce(message, ct);
+            await producer.ProduceAsync(
+                ReviewsWrittenTopic,
+                new Message<string, byte[]>
+                {
+                    Key = message.UserId,
+                    Value = message.ToByteArray()
+                },
+                ct);
         }
         catch
         {
@@ -50,7 +60,7 @@ internal sealed class ReviewWrittenEventsProducer(
         }
         finally
         {
-            ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", "reviews-written", "review.written", status);
+            ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", ReviewsWrittenTopic, "review.written", status);
             ReviewMetrics.RecordOperationDuration("publish_review_written", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
         }
     }
@@ -74,15 +84,22 @@ internal sealed class ReviewWrittenEventsProducer(
                     EventType = "review.updated",
                     AggregateId = reviewId.ToString(),
                     PayloadVersion = 1,
-                    OccurredAt = Timestamp.FromDateTime(updatedAt.UtcDateTime),
+                    OccurredAt = ProtobufTimestamp.FromDateTime(updatedAt.UtcDateTime),
                     Source = SourceType.ReviewService
                 },
                 ReviewId = reviewId.ToString(),
                 UserId = userId.ToString(),
-                UpdatedAt = Timestamp.FromDateTime(updatedAt.UtcDateTime)
+                UpdatedAt = ProtobufTimestamp.FromDateTime(updatedAt.UtcDateTime)
             };
 
-            await updatedProducer.Produce(message, ct);
+            await producer.ProduceAsync(
+                ReviewsUpdatedTopic,
+                new Message<string, byte[]>
+                {
+                    Key = message.UserId,
+                    Value = message.ToByteArray()
+                },
+                ct);
         }
         catch
         {
@@ -92,7 +109,7 @@ internal sealed class ReviewWrittenEventsProducer(
         }
         finally
         {
-            ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", "reviews-updated", "review.updated", status);
+            ReviewMetrics.RecordProducedMessage("ReviewWrittenEventsProducer", ReviewsUpdatedTopic, "review.updated", status);
             ReviewMetrics.RecordOperationDuration("publish_review_updated", "message_broker", status, stopwatch.Elapsed.TotalMilliseconds);
         }
     }

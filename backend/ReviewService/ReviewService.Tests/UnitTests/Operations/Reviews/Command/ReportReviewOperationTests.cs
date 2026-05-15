@@ -228,12 +228,13 @@ public sealed class ReportReviewOperationTests
             ReasonType = ReportReasonTypeOperationEnum.Harassment,
             ReasonText = "оскорбительная формулировка"
         };
+        var reviewAuthorId = Guid.NewGuid();
 
         _queryRepository.GetReviewOwnershipAsync(model.ReviewId, Arg.Any<CancellationToken>())
             .Returns(new ReviewOwnershipRepositoryModel
             {
                 ReviewId = model.ReviewId,
-                AuthorId = Guid.NewGuid(),
+                AuthorId = reviewAuthorId,
                 IsDeleted = false
             });
 
@@ -254,6 +255,16 @@ public sealed class ReportReviewOperationTests
                 x.ReporterId == model.UserId &&
                 x.ReasonType == "harassment" &&
                 x.ReasonText == model.ReasonText),
+            Arg.Any<CancellationToken>());
+
+        await _reportEventsProducer.Received(1).PublishReviewReportedAsync(
+            Arg.Any<Guid>(),
+            model.ReviewId,
+            reviewAuthorId,
+            model.UserId,
+            (int)model.ReasonType,
+            model.ReasonText,
+            Arg.Any<DateTimeOffset>(),
             Arg.Any<CancellationToken>());
     }
 }

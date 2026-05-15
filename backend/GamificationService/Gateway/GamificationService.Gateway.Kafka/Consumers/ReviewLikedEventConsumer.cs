@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using GamificatonService.Core.Abstractions.Handlers;
 using GamificatonService.Core.Abstractions.Observability;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Reviews;
 
@@ -12,17 +11,18 @@ internal sealed class ReviewLikedEventConsumer(
     IAchievementProgressService achievementProgressService,
     IXpProgressService xpProgressService,
     ILogger<ReviewLikedEventConsumer> logger)
-    : IConsumer<ReviewLikedEvent>
+    : IKafkaEventHandler<ReviewLikedEvent>
 {
-    public async Task Consume(ConsumeContext<ReviewLikedEvent> context)
+    public async Task HandleAsync(
+        ReviewLikedEvent message,
+        KafkaConsumedMessageMetadata metadata,
+        CancellationToken ct)
     {
         var stopwatch = Stopwatch.StartNew();
         var status = "success";
 
         try
         {
-            var message = context.Message;
-
             var likedByUserId = Guid.Parse(message.LikedByUserId);
             var reviewAuthorId = Guid.Parse(message.ReviewAuthorId);
             var eventId = message.Meta.EventId;
@@ -33,20 +33,21 @@ internal sealed class ReviewLikedEventConsumer(
                 : message.VoteMode;
 
             logger.LogInformation(
-                "Consuming {MessageType} likedByUserId {LikedByUserId} reviewAuthorId {ReviewAuthorId} reviewId {ReviewId} voteMode {VoteMode} messageId {MessageId} correlationId {CorrelationId}",
+                "Consuming {MessageType} likedByUserId {LikedByUserId} reviewAuthorId {ReviewAuthorId} reviewId {ReviewId} voteMode {VoteMode} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(ReviewLikedEvent),
                 likedByUserId,
                 reviewAuthorId,
                 aggregateId,
                 voteMode,
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
 
             await achievementProgressService.HandleReviewReactedAsync(
                 likedByUserId,
                 reviewAuthorId,
                 voteMode,
-                context.CancellationToken);
+                ct);
 
             await xpProgressService.HandleReviewReactedAsync(
                 likedByUserId,
@@ -55,12 +56,15 @@ internal sealed class ReviewLikedEventConsumer(
                 eventId,
                 aggregateId,
                 occurredAt,
-                context.CancellationToken);
+                ct);
 
             logger.LogInformation(
-                "Consumed {MessageType} reviewId {ReviewId} in {ElapsedMs} ms",
+                "Consumed {MessageType} reviewId {ReviewId} topic {Topic} partition {Partition} offset {Offset} in {ElapsedMs} ms",
                 nameof(ReviewLikedEvent),
                 aggregateId,
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset,
                 stopwatch.Elapsed.TotalMilliseconds);
         }
         catch (Exception exception)
@@ -69,10 +73,11 @@ internal sealed class ReviewLikedEventConsumer(
             GamificationMetrics.RecordOperationError("review_liked_consumer", "message_broker", "exception");
             logger.LogError(
                 exception,
-                "Failed to consume {MessageType} messageId {MessageId} correlationId {CorrelationId}",
+                "Failed to consume {MessageType} topic {Topic} partition {Partition} offset {Offset}",
                 nameof(ReviewLikedEvent),
-                context.MessageId,
-                context.CorrelationId);
+                metadata.Topic,
+                metadata.Partition,
+                metadata.Offset);
             throw;
         }
         finally

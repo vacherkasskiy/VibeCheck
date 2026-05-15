@@ -1,5 +1,7 @@
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
+import { ReviewsModal } from 'features/profile/modals';
+import { ReviewViewModal } from 'features/reviewView';
 import { SubscriptionButton } from 'features/subscription-toggle';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -10,17 +12,25 @@ import { HeaderGlow } from 'shared/ui/HeaderGlow';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
+import { UserReviews } from 'widgets/UserReviews';
 import styles from './UserProfilePage.module.css';
+import type { CompanyReview } from 'entities/company';
 import type { User } from 'entities/user';
+import type { UserReview } from 'entities/user';
 
 export const UserProfilePage = () => {
 	const { userId } = useParams<{ userId: string }>();
 	const navigate = useNavigate();
-	const { profile: currentUserProfile, loading: currentUserLoading } = useProfile();
+	const { profile: currentUserProfile } = useProfile();
 	const currentUserId = currentUserProfile?.user?.id ?? '';
 	const [profile, setProfile] = useState<User | null>(null);
+	const [reviews, setReviews] = useState<UserReview[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [reviewsLoading, setReviewsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [reviewsError, setReviewsError] = useState<string | null>(null);
+	const [showReviewsModal, setShowReviewsModal] = useState(false);
+	const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
 
 	const isOwnProfile = !!userId && !!currentUserId && userId === currentUserId;
 
@@ -52,6 +62,31 @@ export const UserProfilePage = () => {
 		loadProfile();
 	}, [userId]);
 
+	useEffect(() => {
+		const loadReviews = async () => {
+			if (!userId) {
+				setReviews([]);
+				setReviewsLoading(false);
+				setReviewsError('ID пользователя не указан');
+				return;
+			}
+
+			try {
+				setReviewsLoading(true);
+				setReviewsError(null);
+				const reviewsData = await userApi.fetchUserReviewsById(userId);
+				setReviews(reviewsData);
+			} catch {
+				setReviews([]);
+				setReviewsError('Не удалось загрузить отзывы пользователя');
+			} finally {
+				setReviewsLoading(false);
+			}
+		};
+
+		loadReviews();
+	}, [userId]);
+
 	const formatRegistrationDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('ru-RU', {
@@ -60,6 +95,46 @@ export const UserProfilePage = () => {
 			day: 'numeric',
 		});
 	};
+
+	const handleViewAllReviews = () => {
+		setShowReviewsModal(true);
+	};
+
+	const handleCloseReviewsModal = () => {
+		setShowReviewsModal(false);
+	};
+
+	const handleOpenReview = (review: UserReview) => {
+		setSelectedReview(review);
+	};
+
+	const handleOpenReviewFromModal = (review: UserReview) => {
+		setShowReviewsModal(false);
+		setSelectedReview(review);
+	};
+
+	const handleCloseReview = () => {
+		setSelectedReview(null);
+	};
+
+	const selectedCompanyReview: CompanyReview | null = selectedReview
+		? {
+				reviewId: selectedReview.id,
+				authorId: selectedReview.authorId ?? '',
+				authorName: selectedReview.authorName,
+				authorAvatarUrl: selectedReview.authorAvatarUrl,
+				iconId: selectedReview.authorAvatarUrl ?? null,
+				text: selectedReview.text,
+				score: selectedReview.score,
+				createdAt: selectedReview.createdAt,
+				flags: selectedReview.flags.map((flag, index) => ({
+					id: `${selectedReview.id}-flag-${index}`,
+					name: flag,
+				})),
+				weight: 1,
+				myVote: undefined,
+			}
+		: null;
 
 	if (loading) {
 		return (
@@ -201,7 +276,43 @@ export const UserProfilePage = () => {
 					)}
 				</section>
 
+				<section className={styles.reviewsSection}>
+					{reviewsLoading ? (
+						<div className={styles.reviewsLoading}>
+							<Spinner />
+						</div>
+					) : reviewsError ? (
+						<div className={styles.reviewsError}>
+							<h2>Отзывы пользователя</h2>
+							<p>{reviewsError}</p>
+						</div>
+					) : (
+						<UserReviews
+							reviews={reviews}
+							onViewAll={handleViewAllReviews}
+							onOpenReview={handleOpenReview}
+						/>
+					)}
+				</section>
+
 			</main>
+			<ReviewsModal
+				isOpen={showReviewsModal}
+				onClose={handleCloseReviewsModal}
+				reviews={reviews}
+				onOpenReview={handleOpenReviewFromModal}
+				onEdit={() => undefined}
+				onDelete={() => undefined}
+				canEdit={() => false}
+			/>
+			<ReviewViewModal
+				isOpen={!!selectedReview}
+				review={selectedCompanyReview}
+				companyName={selectedReview?.companyName ?? ''}
+				authorName={profile.nickname}
+				authorAvatarUrl={profile.avatarUrl}
+				onClose={handleCloseReview}
+			/>
 			<FooterLinks />
 		</div>
 	);

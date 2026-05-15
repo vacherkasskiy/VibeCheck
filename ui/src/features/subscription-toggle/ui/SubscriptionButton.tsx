@@ -55,7 +55,7 @@ export const SubscriptionButton = ({ authorId, userNickname, className = '' }: S
         className={`${styles.button} ${isSubscribed ? styles.buttonSubscribed : ''} ${isPending || statusLoading ? styles.buttonPending : ''} ${className}`.trim()}
       >
         <span className={styles.content}>
-          {statusLoading || isPending ? <Spinner /> : null}
+          {statusLoading || isPending ? <Spinner className={styles.spinner} /> : null}
           <span className={styles.label}>
             {statusLoading || isPending ? 'Обновляем...' : isSubscribed ? 'Отписаться' : 'Подписаться'}
           </span>

@@ -6,6 +6,7 @@ import { UserProfilePage } from './UserProfilePage';
 const {
 	useProfileMock,
 	fetchUserPublicProfileByIdMock,
+	fetchUserReviewsByIdMock,
 	useSubscriptionStatusMock,
 	useSubscribeMutationMock,
 	useUnsubscribeMutationMock,
@@ -16,6 +17,7 @@ const {
 } = vi.hoisted(() => ({
 	useProfileMock: vi.fn(),
 	fetchUserPublicProfileByIdMock: vi.fn(),
+	fetchUserReviewsByIdMock: vi.fn(),
 	useSubscriptionStatusMock: vi.fn(),
 	useSubscribeMutationMock: vi.fn(),
 	useUnsubscribeMutationMock: vi.fn(),
@@ -28,6 +30,7 @@ const {
 vi.mock('entities/user', () => ({
 	userApi: {
 		fetchUserPublicProfileById: fetchUserPublicProfileByIdMock,
+		fetchUserReviewsById: fetchUserReviewsByIdMock,
 	},
 }));
 
@@ -63,6 +66,29 @@ vi.mock('shared/ui/UserNavButton', () => ({
 	UserNavButton: () => <div data-testid="user-nav-button" />,
 }));
 
+vi.mock('widgets/UserReviews', () => ({
+	UserReviews: ({
+		reviews,
+	}: {
+		reviews: Array<{ companyName: string; text: string }>;
+	}) => (
+		<div>
+			<div>Отзывы пользователя</div>
+			{reviews.map((review) => (
+				<div key={`${review.companyName}-${review.text}`}>{review.companyName}</div>
+			))}
+		</div>
+	),
+}));
+
+vi.mock('features/profile/modals', () => ({
+	ReviewsModal: () => null,
+}));
+
+vi.mock('features/reviewView', () => ({
+	ReviewViewModal: () => null,
+}));
+
 vi.mock('react-router-dom', async () => {
 	const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
 
@@ -89,6 +115,7 @@ describe('UserProfilePage', () => {
 	beforeEach(() => {
 		useProfileMock.mockReset();
 		fetchUserPublicProfileByIdMock.mockReset();
+		fetchUserReviewsByIdMock.mockReset();
 		useSubscriptionStatusMock.mockReset();
 		useSubscribeMutationMock.mockReset();
 		useUnsubscribeMutationMock.mockReset();
@@ -123,6 +150,23 @@ describe('UserProfilePage', () => {
 			isPending: false,
 		});
 		fetchUserPublicProfileByIdMock.mockResolvedValue(publicProfile);
+		fetchUserReviewsByIdMock.mockResolvedValue([
+			{
+				id: 'review-1',
+				authorId: 'target-user',
+				authorName: 'alexjohnson',
+				authorAvatarUrl: null,
+				companyId: 'company-1',
+				companyName: 'Acme',
+				text: 'Great team',
+				score: 5,
+				createdAt: '2026-05-01T00:00:00.000Z',
+				flags: ['Команда'],
+				greenFlags: ['Команда'],
+				redFlags: [],
+				reactions: { likes: 0, dislikes: 0, complaints: 0 },
+			},
+		]);
 	});
 
 	it('redirects to own profile when user opens themselves', async () => {
@@ -155,6 +199,8 @@ describe('UserProfilePage', () => {
 		expect(screen.getByText('education:EDUCATION_LEVEL_BACHELOR')).toBeInTheDocument();
 		expect(screen.getByText('experience:NO_EXPERIENCE')).toBeInTheDocument();
 		expect(screen.getByText('specialization:SPECIALTY_IT')).toBeInTheDocument();
+		expect(screen.getByText('Отзывы пользователя')).toBeInTheDocument();
+		expect(screen.getByText('Acme')).toBeInTheDocument();
 		expect(subscribeMutateMock).toHaveBeenCalledWith('target-user');
 	});
 

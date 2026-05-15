@@ -49,6 +49,11 @@ app.UseApplicationHealthChecks();
 app.UseApplicationObservability();
 app.MapControllers();
 
+logger.LogInformation("Applying persistent storage migrations for review service");
+await app.Services.ApplyPersistentStorageMigrationsAndSeedAsync();
+logger.LogInformation("Ensuring cloud storage seed for review service");
+await app.Services.EnsureCloudStorageSeededAsync();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 

@@ -19,7 +19,7 @@ internal sealed class ApplyUserProfileUpdatedOperation(
         if (model.UserId == Guid.Empty)
             return Error.Validation("userId is required");
 
-        if (model.ProfileVersion <= 0)
+        if (model.ProfileVersion < 0)
             return Error.Validation("profileVersion must be positive");
 
         await userProfilesCommandRepository.UpsertProfileAsync(

@@ -56,9 +56,16 @@ const AVATARS: AvatarOption[] = Object.entries(AVATAR_ID_TO_LOCAL_URL).map(([id,
   url,
 }));
 
-const MOCK_ACHIEVEMENTS: Achievement[] = [];
+const DEFAULT_USER_INFO: UserInfo = {
+  name: 'Пользователь',
+  iconId: '1',
+  email: '',
+  education: 'Не указано',
+  specialization: 'Не указано',
+  workExperience: [],
+};
 
-const MOCK_LEVEL: GetLevelGatewayResponse = {
+const DEFAULT_LEVEL: GetLevelGatewayResponse = {
   currentLevel: 1,
   progress: {
     current: 0,
@@ -70,6 +77,8 @@ const EMPTY_FLAGS: UserFlags = {
   green: [],
   red: [],
 };
+
+const FALLBACK_PROFILE_ERROR = 'Что-то пошло не так. Попробуйте еще раз позже.';
 
 interface UserInfo {
   name: string;
@@ -83,15 +92,6 @@ interface UserInfo {
     finishedAt: string | null;
   }>;
 }
-
-const DEFAULT_USER_INFO: UserInfo = {
-  name: 'Пользователь',
-  iconId: '1',
-  email: '',
-  education: 'Не указано',
-  specialization: 'Не указано',
-  workExperience: [],
-};
 
 interface FlagCatalogResponse {
   flags: Array<{
@@ -107,10 +107,8 @@ interface ActivityFeedParams {
 }
 
 const getMyUserInfo = async (): Promise<UserInfo> => {
-  return fetchWithMockFallback(
-    () => http.get<UserInfo>('/users/me/info'),
-    DEFAULT_USER_INFO,
-  );
+  const response = await http.get<UserInfo>('/users/me/info');
+  return response.data;
 };
 
 const getCurrentUserId = (): string => {
@@ -136,6 +134,14 @@ const getCurrentUserId = (): string => {
 
 export const getLocalAvatarUrl = (avatarId?: string | null): string =>
   (avatarId && AVATAR_ID_TO_LOCAL_URL[avatarId]) || DEFAULT_AVATAR_URL;
+
+const getSettledValue = <T>(
+  result: PromiseSettledResult<T>,
+  fallback: T,
+): T => (result.status === 'fulfilled' ? result.value : fallback);
+
+const hasFulfilledResult = (results: Array<PromiseSettledResult<unknown>>): boolean =>
+  results.some((result) => result.status === 'fulfilled');
 
 const getAvatarUrl = (
   avatarId: string | null | undefined,
@@ -360,32 +366,15 @@ export const setUserFlags = async (data: SetUserFlagsRequest): Promise<void> => 
 };
 
 export const fetchUserFlagsById = async (userId: string): Promise<UserFlags> => {
-  return fetchWithMockFallback(
-    async () => {
-      const [response, flagNames] = await Promise.all([
-        http.get<FlagsResponse>(`/api/users/${userId}/flags`),
-        fetchFlagNameMap(),
-      ]);
-      return { data: mapFlagsResponse(response.data, flagNames) };
-    },
-    EMPTY_FLAGS
-  );
-};
-
-const fetchWithMockFallback = async <T>(
-  apiCall: () => Promise<{ data: T }>,
-  mockData: T
-): Promise<T> => {
-  try {
-    const response = await apiCall();
-    return response.data ?? mockData;
-  } catch {
-    return mockData;
-  }
+  const [response, flagNames] = await Promise.all([
+    http.get<FlagsResponse>(`/api/users/${userId}/flags`),
+    fetchFlagNameMap(),
+  ]);
+  return mapFlagsResponse(response.data, flagNames);
 };
 
 export const fetchProfile = async (): Promise<UserProfileData> => {
-  const [userInfo, avatarList, flags, achievements, levelInfo, reviews, subscriptions] = await Promise.all([
+  const [userInfoResult, avatarListResult, flagsResult, achievementsResult, levelInfoResult, reviewsResult, subscriptionsResult] = await Promise.allSettled([
     getMyUserInfo(),
     getAvatars(),
     fetchUserFlags(),
@@ -394,6 +383,18 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
     fetchUserReviews(),
     fetchSubscriptions(),
   ]);
+
+  if (!hasFulfilledResult([userInfoResult, flagsResult, achievementsResult, levelInfoResult, reviewsResult, subscriptionsResult])) {
+    throw new Error(FALLBACK_PROFILE_ERROR);
+  }
+
+  const userInfo = getSettledValue(userInfoResult, DEFAULT_USER_INFO);
+  const avatarList = getSettledValue(avatarListResult, AVATARS);
+  const flags = getSettledValue(flagsResult, EMPTY_FLAGS);
+  const achievements = getSettledValue(achievementsResult, []);
+  const levelInfo = getSettledValue(levelInfoResult, DEFAULT_LEVEL);
+  const reviews = getSettledValue(reviewsResult, []);
+  const subscriptions = getSettledValue(subscriptionsResult, []);
 
   return {
     user: mapUser(getCurrentUserId(), userInfo, avatarList, levelInfo),
@@ -410,146 +411,108 @@ export const fetchProfile = async (): Promise<UserProfileData> => {
 };
 
 export const fetchUser = async (): Promise<User> => {
-  const [userInfo, avatarList, levelInfo] = await Promise.all([
+  const [userInfoResult, avatarListResult, levelInfoResult] = await Promise.allSettled([
     getMyUserInfo(),
     getAvatars(),
     fetchMyLevel(),
   ]);
 
+  if (!hasFulfilledResult([userInfoResult, levelInfoResult])) {
+    throw new Error(FALLBACK_PROFILE_ERROR);
+  }
+
+  const userInfo = getSettledValue(userInfoResult, DEFAULT_USER_INFO);
+  const avatarList = getSettledValue(avatarListResult, AVATARS);
+  const levelInfo = getSettledValue(levelInfoResult, DEFAULT_LEVEL);
+
   return mapUser(getCurrentUserId(), userInfo, avatarList, levelInfo);
 };
 
 export const fetchUserInfoById = async (userId: string): Promise<UserInfo> => {
-  return fetchWithMockFallback(
-    () => http.get<UserInfo>(`/users/${userId}/info`),
-    DEFAULT_USER_INFO,
-  );
+  const response = await http.get<UserInfo>(`/users/${userId}/info`);
+  return response.data;
 };
 
 export const fetchUserFlags = async (): Promise<UserFlags> => {
-  return fetchWithMockFallback(
-    async () => {
-      const [response, flagNames] = await Promise.all([
-        http.get<FlagsResponse>('/api/users/me/flags'),
-        fetchFlagNameMap(),
-      ]);
-      return { data: mapFlagsResponse(response.data, flagNames) };
-    },
-    EMPTY_FLAGS
-  );
+  const [response, flagNames] = await Promise.all([
+    http.get<FlagsResponse>('/api/users/me/flags'),
+    fetchFlagNameMap(),
+  ]);
+  return mapFlagsResponse(response.data, flagNames);
 };
 
 export const fetchMyLevel = async (): Promise<GetLevelGatewayResponse> => {
-  return fetchWithMockFallback(
-    async () => {
-      const data = await gamificationApi.getMyLevel();
-      return { data };
-    },
-    MOCK_LEVEL,
-  );
+  return gamificationApi.getMyLevel();
 };
 
 export const fetchAchievements = async (): Promise<Achievement[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await gamificationApi.getMyAchievements(100, 1, 'All');
-      return { data: (response.achievements ?? []).map(mapAchievement) };
-    },
-    MOCK_ACHIEVEMENTS,
-  );
+  const response = await gamificationApi.getMyAchievements(100, 1, 'All');
+  return (response.achievements ?? []).map(mapAchievement);
 };
 
 export const fetchUserReviews = async (): Promise<UserReview[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<GetUserReviewsResponse>('/api/users/me/reviews');
-      return { data: (response.data.reviews ?? []).map(mapUserReview) };
-    },
-    []
-  );
+  const response = await http.get<GetUserReviewsResponse>('/api/users/me/reviews');
+  return (response.data.reviews ?? []).map(mapUserReview);
 };
 
 export const fetchUserReviewsById = async (userId: string): Promise<UserReview[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<GetUserReviewsResponse>(`/api/users/${userId}/reviews`);
-      return { data: (response.data.reviews ?? []).map(mapUserReview) };
-    },
-    []
-  );
+  const response = await http.get<GetUserReviewsResponse>(`/api/users/${userId}/reviews`);
+  return (response.data.reviews ?? []).map(mapUserReview);
 };
 
 export const fetchActivity = async (
   params: ActivityFeedParams = { limit: 10 },
 ): Promise<FeedPageDto> => {
-  return fetchWithMockFallback(
-    () => http.get<FeedPageDto>('/activity', params),
-    { totalCount: 0, activities: [] }
-  );
+  const response = await http.get<FeedPageDto>('/activity', params);
+  return response.data;
 };
 
 export const fetchSubscriptions = async (): Promise<Subscription[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<SubscriptionUserProfileDto[]>('/users/me/subscriptions');
-      const subscriptions = response.data ?? [];
+  const response = await http.get<SubscriptionUserProfileDto[]>('/users/me/subscriptions');
+  const subscriptions = response.data ?? [];
 
-      // Fetch user info for each subscription to get fresh name and icon
-      const userInfos = await Promise.all(
-        subscriptions.map((sub) => fetchUserInfoById(sub.userId))
-      );
-
-      return {
-        data: subscriptions.map((item, index) => {
-          const userInfo = userInfos[index];
-          const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
-          const iconId = userInfo?.iconId || item.iconId;
-          const avatarUrl = getLocalAvatarUrl(iconId);
-
-          return {
-            id: item.userId,
-            userId: item.userId,
-            nickname,
-            avatarUrl,
-            subscribedAt: new Date().toISOString(),
-          } as Subscription;
-        }),
-      };
-    },
-    []
+  const userInfoResults = await Promise.allSettled(
+    subscriptions.map((sub) => fetchUserInfoById(sub.userId))
   );
+
+  return subscriptions.map((item, index) => {
+    const userInfo = getSettledValue(userInfoResults[index], null);
+    const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
+    const iconId = userInfo?.iconId || item.iconId;
+    const avatarUrl = getLocalAvatarUrl(iconId);
+
+    return {
+      id: item.userId,
+      userId: item.userId,
+      nickname,
+      avatarUrl,
+      subscribedAt: new Date().toISOString(),
+    } as Subscription;
+  });
 };
 
 export const fetchUserSubscriptions = async (userId: string): Promise<Subscription[]> => {
-  return fetchWithMockFallback(
-    async () => {
-      const response = await http.get<SubscriptionUserProfileDto[]>(`/users/${userId}/subscriptions`);
-      const subscriptions = response.data ?? [];
+  const response = await http.get<SubscriptionUserProfileDto[]>(`/users/${userId}/subscriptions`);
+  const subscriptions = response.data ?? [];
 
-      // Fetch user info for each subscription to get fresh name and icon
-      const userInfos = await Promise.all(
-        subscriptions.map((sub) => fetchUserInfoById(sub.userId))
-      );
-
-      return {
-        data: subscriptions.map((item, index) => {
-          const userInfo = userInfos[index];
-          const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
-          const iconId = userInfo?.iconId || item.iconId;
-          const avatarUrl = getLocalAvatarUrl(iconId);
-
-          return {
-            id: item.userId,
-            userId: item.userId,
-            nickname,
-            avatarUrl,
-            subscribedAt: new Date().toISOString(),
-          } as Subscription;
-        }),
-      };
-    },
-    []
+  const userInfoResults = await Promise.allSettled(
+    subscriptions.map((sub) => fetchUserInfoById(sub.userId))
   );
+
+  return subscriptions.map((item, index) => {
+    const userInfo = getSettledValue(userInfoResults[index], null);
+    const nickname = userInfo?.name?.trim() || item.name?.trim() || 'Пользователь';
+    const iconId = userInfo?.iconId || item.iconId;
+    const avatarUrl = getLocalAvatarUrl(iconId);
+
+    return {
+      id: item.userId,
+      userId: item.userId,
+      nickname,
+      avatarUrl,
+      subscribedAt: new Date().toISOString(),
+    } as Subscription;
+  });
 };
 
 export const fetchSubscriptionStatus = async (authorId: string): Promise<boolean> => {
@@ -566,24 +529,29 @@ export const unsubscribeFromUser = async (authorId: string): Promise<void> => {
 };
 
 export const fetchUserProfileById = async (userId: string): Promise<UserProfileData> => {
-  const [userInfo, avatarList, flags, achievements, levelInfo, reviews, subscriptions] = await Promise.all([
+  const [userInfoResult, avatarListResult, flagsResult, achievementsResult, levelInfoResult, reviewsResult, subscriptionsResult] = await Promise.allSettled([
     fetchUserInfoById(userId),
     getAvatars(),
     fetchUserFlagsById(userId),
-    fetchWithMockFallback(
-      async () => {
-        const response = await gamificationApi.getUserAchievements(userId, 100, 1);
-        return { data: (response.achievements ?? []).map(mapUserAchievement) };
-      },
-      MOCK_ACHIEVEMENTS,
+    gamificationApi.getUserAchievements(userId, 100, 1).then(
+      (response) => (response.achievements ?? []).map(mapUserAchievement),
     ),
-    fetchWithMockFallback(
-      async () => ({ data: await gamificationApi.getUserLevel(userId) }),
-      MOCK_LEVEL,
-    ),
+    gamificationApi.getUserLevel(userId),
     fetchUserReviewsById(userId),
     fetchUserSubscriptions(userId),
   ]);
+
+  if (!hasFulfilledResult([userInfoResult, flagsResult, achievementsResult, levelInfoResult, reviewsResult, subscriptionsResult])) {
+    throw new Error(FALLBACK_PROFILE_ERROR);
+  }
+
+  const userInfo = getSettledValue(userInfoResult, DEFAULT_USER_INFO);
+  const avatarList = getSettledValue(avatarListResult, AVATARS);
+  const flags = getSettledValue(flagsResult, EMPTY_FLAGS);
+  const achievements = getSettledValue(achievementsResult, []);
+  const levelInfo = getSettledValue(levelInfoResult, DEFAULT_LEVEL);
+  const reviews = getSettledValue(reviewsResult, []);
+  const subscriptions = getSettledValue(subscriptionsResult, []);
 
   return {
     user: mapUser(userId, userInfo, avatarList, levelInfo),
@@ -601,34 +569,31 @@ export const fetchUserProfileById = async (userId: string): Promise<UserProfileD
 };
 
 export const fetchUserPublicProfileById = async (userId: string): Promise<User> => {
-  const [userInfo, avatarList, levelInfo] = await Promise.all([
+  const [userInfoResult, avatarListResult, levelInfoResult] = await Promise.allSettled([
     fetchUserInfoById(userId),
     getAvatars(),
-    fetchWithMockFallback(
-      async () => ({ data: await gamificationApi.getUserLevel(userId) }),
-      MOCK_LEVEL,
-    ),
+    gamificationApi.getUserLevel(userId),
   ]);
+
+  if (!hasFulfilledResult([userInfoResult, levelInfoResult])) {
+    throw new Error(FALLBACK_PROFILE_ERROR);
+  }
+
+  const userInfo = getSettledValue(userInfoResult, DEFAULT_USER_INFO);
+  const avatarList = getSettledValue(avatarListResult, AVATARS);
+  const levelInfo = getSettledValue(levelInfoResult, DEFAULT_LEVEL);
 
   return mapUser(userId, userInfo, avatarList, levelInfo);
 };
 
 export const deleteReview = async (reviewId: string): Promise<void> => {
-  try {
-    await http.delete(`/api/companies/reviews/${reviewId}`, {
-      config: { data: { reviewId } },
-    });
-  } catch {
-    console.log('Mock delete review:', reviewId);
-  }
+  await http.delete(`/api/companies/reviews/${reviewId}`, {
+    config: { data: { reviewId } },
+  });
 };
 
 export const unsubscribe = async (subscriptionId: string): Promise<void> => {
-  try {
-    await unsubscribeFromUser(subscriptionId);
-  } catch {
-    console.log('Mock unsubscribe:', subscriptionId);
-  }
+  await unsubscribeFromUser(subscriptionId);
 };
 
 export const userApi = {

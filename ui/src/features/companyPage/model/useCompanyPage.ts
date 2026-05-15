@@ -1,7 +1,4 @@
 import { companyApi } from 'entities/company';
-import { useMemo } from 'react';
-import { mockCompanies } from 'shared/model/mockCompanies';
-import { TEST_COMPANY_MOCK } from 'shared/model/mockCompanyForTest';
 import useSWR from 'swr';
 import type { CompanyDTO } from 'entities/company';
 
@@ -17,15 +14,6 @@ export const useCompanyPage = (id: string | undefined): UseCompanyPageResult => 
     async ([, companyId]: readonly [string, string]) => companyApi.fetchCompanyById(companyId),
   );
 
-  const fallbackCompany = useMemo(() => {
-    if (!id) return null;
-
-    return (
-      mockCompanies.find((company) => company.companyId === id) ||
-      (id === TEST_COMPANY_MOCK.companyId ? TEST_COMPANY_MOCK : null)
-    );
-  }, [id]);
-
   if (!id) {
     return {
       company: null,
@@ -35,8 +23,8 @@ export const useCompanyPage = (id: string | undefined): UseCompanyPageResult => 
   }
 
   return {
-    company: data ?? fallbackCompany,
-    loading: isLoading && !fallbackCompany,
-    error: data || fallbackCompany ? null : error instanceof Error ? error.message : 'Failed to load company',
+    company: data ?? null,
+    loading: isLoading,
+    error: data ? null : error instanceof Error ? error.message : 'Что-то пошло не так. Попробуйте еще раз позже.',
   };
 };

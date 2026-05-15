@@ -1,6 +1,10 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { setAccessTokenProvider } from 'shared/api/http';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { setAccessTokenProvider, setAuthTokensHandler, setUnauthorizedHandler } from 'shared/api/http';
+import { Button } from 'shared/ui/Button';
+import { Modal } from 'shared/ui/Modal';
 import { logout as logoutRequest, refreshAccessToken } from './api';
+import styles from './AuthProvider.module.css';
 import type { AuthState, AuthAction, AuthContextType } from './types';
 import type { ReactNode } from 'react';
 
@@ -67,6 +71,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+	const navigate = useNavigate();
+	const location = useLocation();
 	const [state, dispatch] = useReducer(authReducer, {
 		isAuthenticated: false,
 		accessToken: null,
@@ -74,11 +80,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		loading: true,
 		error: null,
 	});
+	const [authRequiredMessage, setAuthRequiredMessage] = useState<string | null>(null);
+
+	const requestLogin = useCallback((message = 'Необходимо авторизоваться, чтобы продолжить.') => {
+		dispatch({ type: 'LOGOUT' });
+		setAuthRequiredMessage((currentMessage) => currentMessage ?? message);
+	}, []);
+
+	const handleAuthRequiredClose = useCallback(() => {
+		setAuthRequiredMessage(null);
+		if (location.pathname !== '/login') {
+			navigate('/login', { replace: true });
+		}
+	}, [location.pathname, navigate]);
 
 	const refreshTokens = async (): Promise<boolean> => {
 		const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 		if (!refreshToken) {
-			dispatch({ type: 'SET_ERROR', payload: 'No refresh token available' });
+			requestLogin();
 			return false;
 		}
 
@@ -95,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			return true;
 		} catch (error) {
 			console.error('Token refresh failed:', error);
-			dispatch({ type: 'LOGOUT' });
+			requestLogin('Сессия истекла. Войдите снова.');
 			return false;
 		}
 	};
@@ -109,6 +128,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			dispatch({ type: 'LOGOUT' });
 		}
 	};
+
+	useEffect(() => {
+		setAccessTokenProvider(() => localStorage.getItem(ACCESS_TOKEN_KEY));
+		setAuthTokensHandler((tokens) => {
+			dispatch({ type: 'SET_TOKENS', payload: tokens });
+		});
+		setUnauthorizedHandler((message) => {
+			requestLogin(message);
+		});
+
+		return () => {
+			setAccessTokenProvider(null);
+			setAuthTokensHandler(null);
+			setUnauthorizedHandler(null);
+		};
+	}, [requestLogin]);
 
 	useEffect(() => {
 		const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -125,8 +160,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	return (
-		<AuthContext.Provider value={{ state, dispatch, refreshTokens, logout }}>
+		<AuthContext.Provider value={{ state, dispatch, refreshTokens, logout, requestLogin }}>
 			{children}
+			<Modal
+				isOpen={!!authRequiredMessage}
+				onClose={handleAuthRequiredClose}
+				className={styles.authRequiredModal}
+			>
+				<div className={styles.authRequiredContent}>
+					<h2 className={styles.authRequiredTitle}>Требуется авторизация</h2>
+					<p className={styles.authRequiredText}>
+						{authRequiredMessage}
+					</p>
+					<div className={styles.authRequiredActions}>
+						<Button onClick={handleAuthRequiredClose} size="small">
+							Перейти ко входу
+						</Button>
+					</div>
+				</div>
+			</Modal>
 		</AuthContext.Provider>
 	);
 

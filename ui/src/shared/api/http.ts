@@ -17,8 +17,13 @@ import type {
 } from 'axios';
 
 export const DEFAULT_TIMEOUT = 60000;
+const SERVER_ERROR_DISPLAY_DELAY_MS = 1500;
 
 let accessTokenProvider: (() => string | null | undefined) | null = null;
+let authTokensHandler:
+  | ((tokens: { accessToken: string | null; refreshToken: string | null }) => void)
+  | null = null;
+let unauthorizedHandler: ((message: string) => void) | null = null;
 
 export const setAccessTokenProvider = (
   provider: (() => string | null | undefined) | null,
@@ -26,13 +31,57 @@ export const setAccessTokenProvider = (
   accessTokenProvider = provider;
 };
 
+export const setAuthTokensHandler = (
+  handler: ((tokens: { accessToken: string | null; refreshToken: string | null }) => void) | null,
+): void => {
+  authTokensHandler = handler;
+};
+
+export const setUnauthorizedHandler = (
+  handler: ((message: string) => void) | null,
+): void => {
+  unauthorizedHandler = handler;
+};
+
 const buildApiUrl = (path: string): string => {
   const baseUrl = __API_URL__ || '/';
   return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 };
 
-const PUBLIC_AUTH_ROUTE_RE =
-  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh)/;
+const NO_AUTH_HEADER_ROUTE_RE =
+  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh|auth\/internal(?:\/login)?)/;
+const NO_REFRESH_RETRY_ROUTE_RE =
+  /(auth\/email\/login|auth\/email\/register(?:\/confirm)?|auth\/email\/password\/reset|auth\/refresh|auth\/logout|auth\/internal(?:\/login)?)/;
+const AUTH_REQUIRED_MESSAGE = 'Необходимо авторизоваться, чтобы продолжить.';
+const SESSION_EXPIRED_MESSAGE = 'Сессия истекла. Войдите снова.';
+
+const syncTokens = (accessToken: string, refreshToken?: string | null) => {
+  localStorage.setItem('accessToken', accessToken);
+
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  authTokensHandler?.({
+    accessToken,
+    refreshToken: refreshToken ?? localStorage.getItem('refreshToken'),
+  });
+};
+
+const clearTokens = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  authTokensHandler?.({ accessToken: null, refreshToken: null });
+};
+
+const notifyUnauthorized = (message: string) => {
+  unauthorizedHandler?.(message);
+};
+
+const delay = async (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 
 class Http implements IAxios {
   private static isRefreshing = false;
@@ -62,7 +111,7 @@ class Http implements IAxios {
     this.http.interceptors.request.use(
       (config) => {
         const token = accessTokenProvider ? accessTokenProvider() : localStorage.getItem('accessToken');
-        if (token && !config.url?.match(PUBLIC_AUTH_ROUTE_RE)) {
+        if (token && !config.url?.match(NO_AUTH_HEADER_ROUTE_RE)) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
@@ -78,7 +127,7 @@ class Http implements IAxios {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
         if (response?.status === 401 && !originalRequest._retry) {
-          if (originalRequest.url?.match(PUBLIC_AUTH_ROUTE_RE)) {
+          if (originalRequest.url?.match(NO_REFRESH_RETRY_ROUTE_RE)) {
             throw error;
           }
 
@@ -86,15 +135,21 @@ class Http implements IAxios {
 
           const refreshToken = localStorage.getItem('refreshToken');
           if (!refreshToken) {
-            throw new ApiError('Токен авторизации истёк. Обновите страницу.', 401);
+            clearTokens();
+            notifyUnauthorized(AUTH_REQUIRED_MESSAGE);
+            throw new ApiError(AUTH_REQUIRED_MESSAGE, 401);
           }
 
           if (Http.isRefreshing) {
-            const refreshedData = await Http.refreshPromise!;
-            localStorage.setItem('accessToken', refreshedData.accessToken);
-            if (refreshedData.refreshToken) localStorage.setItem('refreshToken', refreshedData.refreshToken);
-            (originalRequest.headers as any).Authorization = `Bearer ${refreshedData.accessToken}`;
-            return this.http(originalRequest);
+            try {
+              const refreshedData = await Http.refreshPromise!;
+              (originalRequest.headers as any).Authorization = `Bearer ${refreshedData.accessToken}`;
+              return this.http(originalRequest);
+            } catch {
+              clearTokens();
+              notifyUnauthorized(SESSION_EXPIRED_MESSAGE);
+              throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
+            }
           }
 
           Http.isRefreshing = true;
@@ -102,8 +157,7 @@ class Http implements IAxios {
             .post(buildApiUrl('/auth/refresh'), { refreshToken })
             .then(({ data }) => {
               if (data.accessToken) {
-                localStorage.setItem('accessToken', data.accessToken);
-                if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+                syncTokens(data.accessToken, data.refreshToken);
                 return data;
               }
               throw new Error('Invalid refresh');
@@ -112,6 +166,10 @@ class Http implements IAxios {
           let refreshedData;
           try {
             refreshedData = await Http.refreshPromise;
+          } catch {
+            clearTokens();
+            notifyUnauthorized(SESSION_EXPIRED_MESSAGE);
+            throw new ApiError(SESSION_EXPIRED_MESSAGE, 401);
           } finally {
             Http.isRefreshing = false;
             Http.refreshPromise = null;
@@ -132,15 +190,25 @@ class Http implements IAxios {
           else if (status === 404) message = 'Ресурс не найден';
           else if (status === 400) message = 'Некорректные данные';
           else if (status === 500) {
-            message = 'Серверная ошибка';
+            message = 'Что-то пошло не так. Попробуйте еще раз позже.';
             console.error('API 500 Error:', response.config?.url, problems);
+          }
+
+          if (status >= 500) {
+            await delay(SERVER_ERROR_DISPLAY_DELAY_MS);
           }
 
           throw new ApiError(message, status, problems);
         }
 
-        if (error.code === 'ECONNABORTED') throw new ApiError('Превышен таймаут запроса', 408);
-        if (!response) throw new ApiError('Ошибка сети. Проверьте соединение.', 0);
+        if (error.code === 'ECONNABORTED') {
+          await delay(SERVER_ERROR_DISPLAY_DELAY_MS);
+          throw new ApiError('Что-то пошло не так. Попробуйте еще раз позже.', 408);
+        }
+        if (!response) {
+          await delay(SERVER_ERROR_DISPLAY_DELAY_MS);
+          throw new ApiError('Что-то пошло не так. Попробуйте еще раз позже.', 0);
+        }
 
         throw error;
       },

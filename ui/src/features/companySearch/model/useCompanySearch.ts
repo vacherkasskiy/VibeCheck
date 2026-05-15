@@ -1,7 +1,6 @@
 import { companyApi } from 'entities/company';
 import { useEffect, useMemo, useState } from 'react';
 import { ApiError } from 'shared/api/types';
-import { mockCompanies } from 'shared/model/mockCompanies';
 import useSWRInfinite from 'swr/infinite';
 import { useCompanySearchStore } from './store';
 import type { CompanyDTO } from 'entities/company';
@@ -18,33 +17,6 @@ interface UseCompanySearchResult {
   loadMore: () => Promise<void>;
   error: ApiError | null;
 }
-
-const getMockCompanies = (query: string): { items: CompanyDTO[]; total: number } => {
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const filteredCompanies = mockCompanies.filter((company) => {
-    if (!normalizedQuery) return true;
-
-    const haystack = [
-      company.name ?? '',
-      company.description ?? '',
-      ...(company.topFlags ?? []).map((flag) => flag.name ?? ''),
-    ]
-      .join(' ')
-      .toLowerCase();
-
-    return haystack.includes(normalizedQuery);
-  });
-
-  const sortedCompanies = [...filteredCompanies].sort(
-    (left, right) => (right.weight ?? 0) - (left.weight ?? 0),
-  );
-
-  return {
-    items: sortedCompanies,
-    total: sortedCompanies.length,
-  };
-};
 
 export const useCompanySearch = (): UseCompanySearchResult => {
   const query = useCompanySearchStore((state) => state.query);
@@ -96,14 +68,11 @@ export const useCompanySearch = (): UseCompanySearchResult => {
   );
   const liveTotal = data?.[0]?.totalCount ?? 0;
 
-  const mockResult = useMemo(() => getMockCompanies(debouncedQuery), [debouncedQuery]);
   const normalizedError = error instanceof ApiError ? error : null;
-  const shouldUseMock = !!error && normalizedError?.status !== 403 && liveItems.length === 0;
-
-  const items = shouldUseMock ? mockResult.items.slice(0, size * COMPANIES_PAGE_SIZE) : liveItems;
-  const total = shouldUseMock ? mockResult.total : liveTotal;
+  const items = liveItems;
+  const total = liveTotal;
   const hasMore = items.length < total;
-  const pending = shouldUseMock ? false : (isLoading || isValidating) && items.length === 0;
+  const pending = (isLoading || isValidating) && items.length === 0;
 
   const loadMore = async (): Promise<void> => {
     if (pending || isValidating || !hasMore) return;

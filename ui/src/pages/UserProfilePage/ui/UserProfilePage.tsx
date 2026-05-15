@@ -1,9 +1,11 @@
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
 import { ReviewsModal } from 'features/profile/modals';
+import { ReportModal, useReportModal } from 'features/reportModal';
 import { ReviewViewModal } from 'features/reviewView';
 import { SubscriptionButton } from 'features/subscription-toggle';
-import { useEffect, useState } from 'react';
+import { useVoteReviewMutation } from 'features/userReviews';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { translateEducation, translateExperience, translateSpecialization } from 'shared/lib';
 import { Button } from 'shared/ui/Button';
@@ -14,7 +16,7 @@ import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
 import { UserReviews } from 'widgets/UserReviews';
 import styles from './UserProfilePage.module.css';
-import type { CompanyReview } from 'entities/company';
+import type { CompanyReview, VoteModeGatewayEnum } from 'entities/company';
 import type { User } from 'entities/user';
 import type { UserReview } from 'entities/user';
 
@@ -31,6 +33,9 @@ export const UserProfilePage = () => {
 	const [reviewsError, setReviewsError] = useState<string | null>(null);
 	const [showReviewsModal, setShowReviewsModal] = useState(false);
 	const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
+	const [userVotes, setUserVotes] = useState<Record<string, VoteModeGatewayEnum | undefined>>({});
+	const voteMutation = useVoteReviewMutation();
+	const reportModal = useReportModal();
 
 	const isOwnProfile = !!userId && !!currentUserId && userId === currentUserId;
 
@@ -117,18 +122,83 @@ export const UserProfilePage = () => {
 		setSelectedReview(null);
 	};
 
-	const selectedCompanyReview: CompanyReview | null = selectedReview
+	const updateReviewScore = (reviewId: string, nextMode: VoteModeGatewayEnum) => {
+		const currentMode = userVotes[reviewId];
+
+		setReviews((prev) =>
+			prev.map((review) => {
+				if (review.id !== reviewId) return review;
+
+				let scoreDelta = 0;
+
+				if (currentMode === 'Like') scoreDelta -= 1;
+				if (currentMode === 'Dislike') scoreDelta += 1;
+				if (nextMode === 'Like') scoreDelta += 1;
+				if (nextMode === 'Dislike') scoreDelta -= 1;
+
+				return {
+					...review,
+					score: review.score + scoreDelta,
+				};
+			}),
+		);
+
+		setSelectedReview((prev) => {
+			if (!prev || prev.id !== reviewId) return prev;
+
+			let scoreDelta = 0;
+
+			if (currentMode === 'Like') scoreDelta -= 1;
+			if (currentMode === 'Dislike') scoreDelta += 1;
+			if (nextMode === 'Like') scoreDelta += 1;
+			if (nextMode === 'Dislike') scoreDelta -= 1;
+
+			return {
+				...prev,
+				score: prev.score + scoreDelta,
+			};
+		});
+
+		setUserVotes((prev) => ({
+			...prev,
+			[reviewId]: nextMode === 'Clear' ? undefined : nextMode,
+		}));
+	};
+
+	const handleVote = (reviewId: string, mode: VoteModeGatewayEnum) => {
+		updateReviewScore(reviewId, mode);
+
+		voteMutation.mutate(
+			{ reviewId, mode },
+			{
+				onError: () => {
+					const previousMode = userVotes[reviewId];
+					updateReviewScore(reviewId, previousMode ?? 'Clear');
+				},
+			},
+		);
+	};
+
+	const selectedDisplayedReview = useMemo(() => {
+		if (!selectedReview) return null;
+
+		return reviews.find((review) => review.id === selectedReview.id) ?? selectedReview;
+	}, [reviews, selectedReview]);
+
+	const selectedReviewVote = selectedDisplayedReview ? userVotes[selectedDisplayedReview.id] : undefined;
+
+	const selectedCompanyReview: CompanyReview | null = selectedDisplayedReview
 		? {
-				reviewId: selectedReview.id,
-				authorId: selectedReview.authorId ?? '',
-				authorName: selectedReview.authorName,
-				authorAvatarUrl: selectedReview.authorAvatarUrl,
-				iconId: selectedReview.authorAvatarUrl ?? null,
-				text: selectedReview.text,
-				score: selectedReview.score,
-				createdAt: selectedReview.createdAt,
-				flags: selectedReview.flags.map((flag, index) => ({
-					id: `${selectedReview.id}-flag-${index}`,
+				reviewId: selectedDisplayedReview.id,
+				authorId: selectedDisplayedReview.authorId ?? '',
+				authorName: selectedDisplayedReview.authorName,
+				authorAvatarUrl: selectedDisplayedReview.authorAvatarUrl,
+				iconId: selectedDisplayedReview.authorAvatarUrl ?? null,
+				text: selectedDisplayedReview.text,
+				score: selectedDisplayedReview.score,
+				createdAt: selectedDisplayedReview.createdAt,
+				flags: selectedDisplayedReview.flags.map((flag, index) => ({
+					id: `${selectedDisplayedReview.id}-flag-${index}`,
 					name: flag,
 				})),
 				weight: 1,
@@ -306,12 +376,36 @@ export const UserProfilePage = () => {
 				canEdit={() => false}
 			/>
 			<ReviewViewModal
-				isOpen={!!selectedReview}
+				isOpen={!!selectedDisplayedReview}
 				review={selectedCompanyReview}
-				companyName={selectedReview?.companyName ?? ''}
+				companyName={selectedDisplayedReview?.companyName ?? ''}
 				authorName={profile.nickname}
 				authorAvatarUrl={profile.avatarUrl}
+				myVote={selectedReviewVote}
+				onVote={
+					selectedDisplayedReview
+						? (mode) => handleVote(selectedDisplayedReview.id, mode)
+						: undefined
+				}
+				isVoting={voteMutation.isPending}
+				onReport={
+					selectedDisplayedReview
+						? (reviewId) => reportModal.open(reviewId)
+						: undefined
+				}
 				onClose={handleCloseReview}
+			/>
+			<ReportModal
+				isOpen={reportModal.isOpen}
+				reviewId={reportModal.reviewId}
+				onClose={reportModal.close}
+				reasonType={reportModal.reasonType}
+				setReasonType={reportModal.setReasonType}
+				reasonText={reportModal.reasonText}
+				setReasonText={reportModal.setReasonText}
+				isFormValid={reportModal.isFormValid}
+				isSubmitting={reportModal.isSubmitting}
+				onSubmit={reportModal.submit}
 			/>
 			<FooterLinks />
 		</div>

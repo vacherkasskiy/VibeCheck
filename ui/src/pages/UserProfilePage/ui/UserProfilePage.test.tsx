@@ -10,6 +10,7 @@ const {
 	useSubscriptionStatusMock,
 	useSubscribeMutationMock,
 	useUnsubscribeMutationMock,
+	useVoteReviewMutationMock,
 	navigateMock,
 	useParamsMock,
 	subscribeMutateMock,
@@ -21,6 +22,7 @@ const {
 	useSubscriptionStatusMock: vi.fn(),
 	useSubscribeMutationMock: vi.fn(),
 	useUnsubscribeMutationMock: vi.fn(),
+	useVoteReviewMutationMock: vi.fn(),
 	navigateMock: vi.fn(),
 	useParamsMock: vi.fn(),
 	subscribeMutateMock: vi.fn(),
@@ -85,8 +87,29 @@ vi.mock('features/profile/modals', () => ({
 	ReviewsModal: () => null,
 }));
 
+vi.mock('features/reportModal', () => ({
+	useReportModal: () => ({
+		isOpen: false,
+		reviewId: undefined,
+		close: vi.fn(),
+		reasonType: 'Spam',
+		setReasonType: vi.fn(),
+		reasonText: '',
+		setReasonText: vi.fn(),
+		isFormValid: true,
+		isSubmitting: false,
+		submit: vi.fn(),
+		open: vi.fn(),
+	}),
+	ReportModal: () => null,
+}));
+
 vi.mock('features/reviewView', () => ({
 	ReviewViewModal: () => null,
+}));
+
+vi.mock('features/userReviews', () => ({
+	useVoteReviewMutation: () => useVoteReviewMutationMock(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -119,6 +142,7 @@ describe('UserProfilePage', () => {
 		useSubscriptionStatusMock.mockReset();
 		useSubscribeMutationMock.mockReset();
 		useUnsubscribeMutationMock.mockReset();
+		useVoteReviewMutationMock.mockReset();
 		navigateMock.mockReset();
 		useParamsMock.mockReset();
 		subscribeMutateMock.mockReset();
@@ -147,6 +171,10 @@ describe('UserProfilePage', () => {
 		});
 		useUnsubscribeMutationMock.mockReturnValue({
 			mutate: unsubscribeMutateMock,
+			isPending: false,
+		});
+		useVoteReviewMutationMock.mockReturnValue({
+			mutate: vi.fn(),
 			isPending: false,
 		});
 		fetchUserPublicProfileByIdMock.mockResolvedValue(publicProfile);
@@ -220,5 +248,18 @@ describe('UserProfilePage', () => {
 
 		// Assert
 		expect(unsubscribeMutateMock).toHaveBeenCalledWith('target-user');
+	});
+
+	it('renders public profile even when reviews request fails', async () => {
+		// Arrange
+		fetchUserReviewsByIdMock.mockRejectedValue(new Error('Reviews failed'));
+
+		// Act
+		render(<UserProfilePage />);
+
+		// Assert
+		await screen.findByText('alexjohnson');
+		expect(screen.getByText('education:EDUCATION_LEVEL_BACHELOR')).toBeInTheDocument();
+		expect(screen.getByText('Не удалось загрузить отзывы пользователя')).toBeInTheDocument();
 	});
 });

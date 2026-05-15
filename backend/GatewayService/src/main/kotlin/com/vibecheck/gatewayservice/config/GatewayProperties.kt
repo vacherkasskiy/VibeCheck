@@ -11,6 +11,7 @@ data class GatewayProperties(
         val userServiceUrl: String,
         val subscriptionServiceUrl: String,
         val reviewServiceUrl: String,
+        val reviewAdminServiceUrl: String,
         val gamificationServiceUrl: String
     )
 

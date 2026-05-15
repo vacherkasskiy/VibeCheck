@@ -80,7 +80,6 @@ class GatewayRoutesConfig(
                     "/api/companies/**",
                     "/api/company-requests",
                     "/api/company-requests/**",
-                    "/api/flags",
                     "/api/flags/**",
                     "/api/review-reports",
                     "/api/review-reports/**",
@@ -99,6 +98,26 @@ class GatewayRoutesConfig(
                         gatewayProperties.internalTokenAudiences.reviewService
                     )
                     .uri(gatewayProperties.services.reviewServiceUrl)
+            }
+            .route("review-admin-service-authorized") { route ->
+                route.path(
+                    "/api/admin/companies",
+                    "/api/admin/companies/**",
+                    "/api/admin/company-requests",
+                    "/api/admin/company-requests/**",
+                    "/api/admin/flags",
+                    "/api/admin/flags/**",
+                    "/api/admin/review-reports",
+                    "/api/admin/review-reports/**",
+                    "/api/admin/reviews",
+                    "/api/admin/reviews/**"
+                )
+                    .metadata(AUTH_MODE_METADATA_KEY, ProxyAuthMode.INTERNAL_TOKEN.name)
+                    .metadata(
+                        INTERNAL_TOKEN_AUDIENCE_METADATA_KEY,
+                        gatewayProperties.internalTokenAudiences.reviewService
+                    )
+                    .uri(gatewayProperties.services.reviewAdminServiceUrl)
             }
             .route("gamification-service-authorized") { route ->
                 route.path(

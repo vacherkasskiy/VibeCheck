@@ -109,6 +109,11 @@ class DownstreamOpenApiController(
                 docsPath = "/swagger/v1/swagger.json"
             ),
             ServiceDescriptor(
+                serviceName = "review-admin-service",
+                baseUrl = { it.services.reviewAdminServiceUrl },
+                docsPath = "/swagger/v1/swagger.json"
+            ),
+            ServiceDescriptor(
                 serviceName = "gamification-service",
                 baseUrl = { it.services.gamificationServiceUrl },
                 docsPath = "/swagger/v1/swagger.json"

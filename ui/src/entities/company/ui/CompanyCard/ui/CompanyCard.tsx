@@ -1,5 +1,6 @@
 /* eslint-disable @conarti/feature-sliced/layers-slices */
 import { useUserFlags } from 'entities/user';
+import { Tags } from 'lucide-react';
 import { Badge } from 'shared/ui';
 import styles from './styles.module.css';
 import type { CompanyDTO } from '../../../model/types';
@@ -35,18 +36,19 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 		<button type="button" className={`${styles.companyCard} ${className}`} onClick={handleClick}>
 			<div className={styles.cardGlow} />
 			<div className={styles.companyHeader}>
-          {company.iconUrl ? (
-            <img 
-              src={company.iconUrl} 
-              alt={companyName} 
-              className={styles.companyLogo}
-              style={{ objectFit: 'contain' }} 
-            />
-          ) : (
-            <div className={styles.companyLogo}>
-              {companyName.charAt(0).toUpperCase()}
-            </div>
-          )}
+				<div className={styles.companyLogoFrame}>
+					{company.iconUrl ? (
+						<img
+							src={company.iconUrl}
+							alt={companyName}
+							className={styles.companyLogoImage}
+						/>
+					) : (
+						<div className={styles.companyLogoFallback}>
+							{companyName.charAt(0).toUpperCase()}
+						</div>
+					)}
+				</div>
 				<div className={styles.companyInfo}>
 					<div className={styles.companyName}>{companyName}</div>
 
@@ -66,15 +68,7 @@ export const CompanyCard: FC<CompanyCardProps> = ({ company, onClick, className 
 			<div className={styles.companyFooter}>
 				<div className={styles.flagsSection}>
 					<div className={styles.flagsTitle}>
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path
-							d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-						</svg>
+						<Tags size={16} strokeWidth={2.2} />
 						<span>Топ-флаги</span>
 					</div>
 

@@ -131,7 +131,7 @@ class TestUsersStartupSeeder(
             SeedUser(
                 id = UUID.fromString("4d3f9d74-c4cb-4e6f-8d31-4ef4c2eaa101"),
                 email = "anton_s@vibecheck.local",
-                roles = listOf(UserRole.USER),
+                roles = listOf(UserRole.USER, UserRole.ADMIN),
                 name = "Anton",
                 sex = Sex.SEX_MALE,
                 birthday = Instant.parse("1997-04-14T00:00:00Z"),

@@ -42,7 +42,11 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorIconId = x.Author.IconId,
                 x.Text,
                 x.Score,
-                x.CreatedAt
+                x.CreatedAt,
+                CurrentUserVoteMode = x.ReviewVotes
+                    .Where(vote => vote.VoterId == input.CurrentUserId)
+                    .Select(vote => vote.Mode)
+                    .FirstOrDefault()
             })
             .ToListAsync(ct);
 
@@ -77,6 +81,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorIconId = x.AuthorIconId,
                 Text = x.Text,
                 Score = x.Score,
+                CurrentUserReaction = ToCurrentUserReaction(x.CurrentUserVoteMode),
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
             })
@@ -91,6 +96,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
 
     public async Task<GetCompanyReviewsRepositoryOutputModel?> GetCompanyReviewsForWeightAsync(
         Guid companyId,
+        Guid currentUserId,
         CancellationToken ct)
     {
         var companyExists = await CompanyExistsAsync(companyId, ct);
@@ -113,7 +119,11 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorIconId = x.Author.IconId,
                 x.Text,
                 x.Score,
-                x.CreatedAt
+                x.CreatedAt,
+                CurrentUserVoteMode = x.ReviewVotes
+                    .Where(vote => vote.VoterId == currentUserId)
+                    .Select(vote => vote.Mode)
+                    .FirstOrDefault()
             })
             .ToListAsync(ct);
 
@@ -148,6 +158,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorIconId = x.AuthorIconId,
                 Text = x.Text,
                 Score = x.Score,
+                CurrentUserReaction = ToCurrentUserReaction(x.CurrentUserVoteMode),
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
             })
@@ -188,7 +199,11 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 x.AuthorId,
                 x.Text,
                 x.Score,
-                x.CreatedAt
+                x.CreatedAt,
+                CurrentUserVoteMode = x.ReviewVotes
+                    .Where(vote => vote.VoterId == input.CurrentUserId)
+                    .Select(vote => vote.Mode)
+                    .FirstOrDefault()
             })
             .ToListAsync(ct);
 
@@ -224,6 +239,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,
+                CurrentUserReaction = ToCurrentUserReaction(x.CurrentUserVoteMode),
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
             })
@@ -271,7 +287,11 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 x.AuthorId,
                 x.Text,
                 x.Score,
-                x.CreatedAt
+                x.CreatedAt,
+                CurrentUserVoteMode = x.ReviewVotes
+                    .Where(vote => vote.VoterId == input.CurrentUserId)
+                    .Select(vote => vote.Mode)
+                    .FirstOrDefault()
             })
             .ToListAsync(ct);
 
@@ -307,6 +327,7 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
                 AuthorId = x.AuthorId,
                 Text = x.Text,
                 Score = x.Score,
+                CurrentUserReaction = ToCurrentUserReaction(x.CurrentUserVoteMode),
                 CreatedAt = ToDateTimeOffsetUtc(x.CreatedAt),
                 Flags = flagsByReviewId.GetValueOrDefault(x.Id, Array.Empty<FlagRepositoryModel>())
             })
@@ -432,4 +453,14 @@ internal sealed class ReviewsQueryRepository(AppDbContext dbContext) : IReviewsQ
             DateTimeKind.Local => value.ToUniversalTime(),
             _ => new DateTimeOffset(DateTime.SpecifyKind(value, DateTimeKind.Utc))
         };
+
+    private static CurrentUserReactionRepositoryEnum ToCurrentUserReaction(string? voteMode)
+    {
+        return voteMode?.ToLowerInvariant() switch
+        {
+            "like" => CurrentUserReactionRepositoryEnum.Like,
+            "dislike" => CurrentUserReactionRepositoryEnum.Dislike,
+            _ => CurrentUserReactionRepositoryEnum.None
+        };
+    }
 }

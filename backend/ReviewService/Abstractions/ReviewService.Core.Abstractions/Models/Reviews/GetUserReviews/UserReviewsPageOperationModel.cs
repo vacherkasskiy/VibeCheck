@@ -1,3 +1,5 @@
+using ReviewService.Core.Abstractions.Enums;
+
 namespace ReviewService.Core.Abstractions.Models.Reviews.GetUserReviews;
 
 public sealed record UserReviewsPageOperationModel
@@ -16,6 +18,7 @@ public sealed record UserReviewReadOperationModel
     public required string Text { get; init; }
     public required string AuthorIconId { get; set; }
     public required long Score { get; init; }
+    public required CurrentUserReactionOperationEnum CurrentUserReaction { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }
     public required IReadOnlyList<FlagOperationModel> Flags { get; init; }
 }

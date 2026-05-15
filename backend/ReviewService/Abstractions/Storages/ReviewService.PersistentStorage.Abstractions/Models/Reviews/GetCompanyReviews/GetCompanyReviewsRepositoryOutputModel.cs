@@ -1,3 +1,4 @@
+using ReviewService.PersistentStorage.Abstractions.Enums;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 
 namespace ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetCompanyReviews;
@@ -15,6 +16,7 @@ public sealed record CompanyReviewRepositoryItemOutputModel
     public required string AuthorIconId { get; init; }
     public required string Text { get; init; }
     public required long Score { get; init; }
+    public required CurrentUserReactionRepositoryEnum CurrentUserReaction { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }
     public required IReadOnlyList<FlagRepositoryModel> Flags { get; init; }
 }

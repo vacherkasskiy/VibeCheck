@@ -13,6 +13,7 @@ public interface IReviewsQueryRepository
 
     Task<GetCompanyReviewsRepositoryOutputModel?> GetCompanyReviewsForWeightAsync(
         Guid companyId,
+        Guid currentUserId,
         CancellationToken ct);
 
     Task<GetMyReviewsRepositoryOutputModel?> GetMyReviewsAsync(

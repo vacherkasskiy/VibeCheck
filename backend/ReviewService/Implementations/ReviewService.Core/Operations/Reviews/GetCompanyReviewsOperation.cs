@@ -41,7 +41,7 @@ internal sealed class GetCompanyReviewsOperation(
             }
 
             var repoOutput = IsWeightSort(model.Sort)
-                ? await queryRepository.GetCompanyReviewsForWeightAsync(model.CompanyId, ct)
+                ? await queryRepository.GetCompanyReviewsForWeightAsync(model.CompanyId, model.CurrentUserId, ct)
                 : await GetCompanyReviewsAsync(model, ct);
 
             if (repoOutput is null)

@@ -15,8 +15,11 @@ export interface ReviewFlagDto {
   name: string | null;
 }
 
+export type CurrentUserReactionGatewayEnum = 'Like' | 'Dislike' | 'None';
+
 export interface CompanyReview {
 	myVote?: string | undefined;
+  currentUserReaction?: CurrentUserReactionGatewayEnum;
   weight: number;
   reviewId: string;
   authorId: string;

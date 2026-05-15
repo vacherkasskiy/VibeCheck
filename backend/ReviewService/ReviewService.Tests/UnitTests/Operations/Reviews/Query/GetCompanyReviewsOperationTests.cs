@@ -9,6 +9,7 @@ using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetCompanyRevi
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 using ReviewService.PersistentStorage.Abstractions.Models.UserProfiles;
 using ReviewService.PersistentStorage.Abstractions.Models.UserProfiles.Enums;
+using ReviewService.PersistentStorage.Abstractions.Enums;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
 using ReviewService.PersistentStorage.Abstractions.Repositories.UserProfiles;
 
@@ -70,6 +71,7 @@ public sealed class GetCompanyReviewsOperationTests
 
         var repoInput = new GetCompanyReviewsRepositoryInputModel
         {
+            CurrentUserId = model.CurrentUserId,
             CompanyId = model.CompanyId,
             Take = 20,
             PageNum = 1,
@@ -119,6 +121,7 @@ public sealed class GetCompanyReviewsOperationTests
 
         var repoInput = new GetCompanyReviewsRepositoryInputModel
         {
+            CurrentUserId = model.CurrentUserId,
             CompanyId = companyId,
             Take = 20,
             PageNum = 1,
@@ -137,6 +140,7 @@ public sealed class GetCompanyReviewsOperationTests
                     // в storage модели авторской иконки может не быть — мы её подтягиваем отдельно
                     Text = "review 1",
                     Score = 10,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [
@@ -154,6 +158,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorId = authorId2,
                     Text = "review 2",
                     Score = -1,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                     Flags =
                     [
@@ -176,6 +181,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorIconId = null, // будет обогащено
                     Text = "review 1",
                     Score = 10,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     Weight = 0,
                     CreatedAt = repoOutput.Reviews[0].CreatedAt,
                     Flags =
@@ -190,6 +196,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorIconId = null, // будет обогащено
                     Text = "review 2",
                     Score = -1,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     Weight = 0,
                     CreatedAt = repoOutput.Reviews[1].CreatedAt,
                     Flags = []
@@ -252,6 +259,7 @@ public sealed class GetCompanyReviewsOperationTests
 
         var repoInput = new GetCompanyReviewsRepositoryInputModel
         {
+            CurrentUserId = model.CurrentUserId,
             CompanyId = companyId,
             Take = 20,
             PageNum = 1,
@@ -269,6 +277,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorId = authorId1,
                     Text = "review 1",
                     Score = 1,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [
@@ -281,6 +290,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorId = authorId2,
                     Text = "review 2",
                     Score = 2,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [
@@ -302,6 +312,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorIconId = null,
                     Text = "review 1",
                     Score = 1,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     Weight = 0,
                     CreatedAt = repoOutput.Reviews[0].CreatedAt,
                     Flags = []
@@ -313,6 +324,7 @@ public sealed class GetCompanyReviewsOperationTests
                     AuthorIconId = null,
                     Text = "review 2",
                     Score = 2,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     Weight = 0,
                     CreatedAt = repoOutput.Reviews[1].CreatedAt,
                     Flags = []
@@ -359,6 +371,7 @@ public sealed class GetCompanyReviewsOperationTests
 
         var repoInput = new GetCompanyReviewsRepositoryInputModel
         {
+            CurrentUserId = currentUserId,
             CompanyId = companyId,
             Take = 20,
             PageNum = 1,
@@ -386,7 +399,7 @@ public sealed class GetCompanyReviewsOperationTests
         };
 
         _mapper.Map<GetCompanyReviewsRepositoryInputModel>(model).Returns(repoInput);
-        _queryRepository.GetCompanyReviewsForWeightAsync(companyId, Arg.Any<CancellationToken>()).Returns(repoOutput);
+        _queryRepository.GetCompanyReviewsForWeightAsync(companyId, currentUserId, Arg.Any<CancellationToken>()).Returns(repoOutput);
         _mapper.Map<CompanyReviewsPageOperationModel>(repoOutput).Returns(mapped);
         _userProfilesQueryRepository.GetProfilesForSimilarityByUserIdsAsync(
                 Arg.Is<IReadOnlyCollection<Guid>>(ids =>
@@ -435,6 +448,7 @@ public sealed class GetCompanyReviewsOperationTests
 
         var repoInput = new GetCompanyReviewsRepositoryInputModel
         {
+            CurrentUserId = currentUserId,
             CompanyId = companyId,
             Take = 20,
             PageNum = 1,
@@ -462,7 +476,7 @@ public sealed class GetCompanyReviewsOperationTests
         };
 
         _mapper.Map<GetCompanyReviewsRepositoryInputModel>(model).Returns(repoInput);
-        _queryRepository.GetCompanyReviewsForWeightAsync(companyId, Arg.Any<CancellationToken>()).Returns(repoOutput);
+        _queryRepository.GetCompanyReviewsForWeightAsync(companyId, currentUserId, Arg.Any<CancellationToken>()).Returns(repoOutput);
         _mapper.Map<CompanyReviewsPageOperationModel>(repoOutput).Returns(mapped);
         _userProfilesQueryRepository.GetProfilesForSimilarityByUserIdsAsync(
                 Arg.Any<IReadOnlyCollection<Guid>>(),
@@ -491,6 +505,7 @@ public sealed class GetCompanyReviewsOperationTests
             AuthorIconId = null,
             Text = "review",
             Score = 0,
+            CurrentUserReaction = CurrentUserReactionOperationEnum.None,
             Weight = 0,
             CreatedAt = createdAt,
             Flags = []

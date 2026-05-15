@@ -185,13 +185,17 @@ public sealed class ReviewsController(IMapper mapper) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetUserReviewsResponse>> GetUserReviews(
         [FromServices] IGetUserReviewsOperation operation,
+        [FromServices] ICurrentUserAccessor currentUserAccessor,
         Guid userId,
         [FromQuery] int take = 20,
         [FromQuery] int pageNum = 1,
         [FromQuery] ReviewsSortGatewayEnum sort = ReviewsSortGatewayEnum.Newest,
         CancellationToken ct = default)
     {
+        var currentUserId = currentUserAccessor.GetRequiredUserId(User);
+
         var model = new GetUserReviewsOperationModel(
+            currentUserId,
             userId,
             take,
             pageNum,

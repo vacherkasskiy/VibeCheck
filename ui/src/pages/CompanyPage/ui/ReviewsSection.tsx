@@ -9,7 +9,12 @@ import { Button } from 'shared/ui/Button';
 import { Select } from 'shared/ui/Select';
 import { ReviewCard } from './ReviewCard';
 import styles from './ReviewsSection.module.css';
-import type { CompanyReview, ReviewsSortGatewayEnum, VoteModeGatewayEnum } from 'entities/company';
+import type {
+	CompanyReview,
+	CurrentUserReactionGatewayEnum,
+	ReviewsSortGatewayEnum,
+	VoteModeGatewayEnum,
+} from 'entities/company';
 
 type SortOption = {
 	value: ReviewsSortGatewayEnum;
@@ -41,6 +46,12 @@ const canEditReview = (review: CompanyReview, currentUserId: string): boolean =>
 	return diffMs <= 5 * 60 * 1000;
 };
 
+const toVoteMode = (
+	reaction: CurrentUserReactionGatewayEnum | undefined,
+): VoteModeGatewayEnum | undefined => {
+	return reaction === 'Like' || reaction === 'Dislike' ? reaction : undefined;
+};
+
 export const ReviewsSection = ({
 	className,
 	companyName,
@@ -50,7 +61,9 @@ export const ReviewsSection = ({
 }: ReviewsSectionProps) => {
 	const { id } = useParams<{ id: string }>();
 	const [voteRefreshKey, setVoteRefreshKey] = useState(0);
-	const [userVotes, setUserVotes] = useState<Record<string, VoteModeGatewayEnum | undefined>>({});
+	const [userVotes, setUserVotes] = useState<
+		Record<string, CurrentUserReactionGatewayEnum | undefined>
+	>({});
 
 	const { reviews, total, loading, loadingMore, error, sort, setSort, hasMore, loadMore } =
 		useCompanyReviews({
@@ -90,7 +103,7 @@ export const ReviewsSection = ({
 					onSuccess: () => {
 						setUserVotes((prev) => ({
 							...prev,
-							[reviewId]: mode === 'Clear' ? undefined : mode,
+							[reviewId]: mode === 'Clear' ? 'None' : mode,
 						}));
 
 						setVoteRefreshKey((prev) => prev + 1);
@@ -177,7 +190,9 @@ export const ReviewsSection = ({
 				<div className={styles.reviewsList}>
 					{reviews.length > 0 ? (
 						reviews.map((review) => {
-							const currentVote = userVotes[review.reviewId];
+							const currentVote = toVoteMode(
+								userVotes[review.reviewId] ?? review.currentUserReaction,
+							);
 
 							return (
 								<ReviewCard
@@ -219,7 +234,10 @@ export const ReviewsSection = ({
 				onClose={closeReviewView}
 				myVote={
 					selectedDisplayedReview
-						? userVotes[selectedDisplayedReview.reviewId]
+						? toVoteMode(
+								userVotes[selectedDisplayedReview.reviewId] ??
+									selectedDisplayedReview.currentUserReaction,
+							)
 						: undefined
 				}
 				onVote={

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from 'features/auth';
+import { userApi } from 'entities/user';
+import { getMyInfo, useAuth } from 'features/auth';
 import {
 	AlertTriangle,
 	BadgeCheck,
@@ -141,11 +142,62 @@ const normalizeFlagPayload = (form: FlagFormState): CreateFlagRequest | UpdateFl
 const isCompanyFormValid = (form: CompanyFormState) => form.name.trim().length > 0;
 const isFlagFormValid = (form: FlagFormState) => form.name.trim().length > 0 && form.description.trim().length > 0;
 
+const ADMIN_ROLES = new Set(['ADMIN', 'MANAGER']);
+
+const decodeJwtPayload = (token: string | null): Record<string, unknown> | null => {
+	if (!token) return null;
+
+	const payload = token.split('.')[1];
+	if (!payload) return null;
+
+	try {
+		const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+		const paddedPayload = normalizedPayload.padEnd(
+			Math.ceil(normalizedPayload.length / 4) * 4,
+			'=',
+		);
+
+		return JSON.parse(atob(paddedPayload)) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+};
+
+const normalizeRole = (role: unknown): string | null => {
+	if (typeof role !== 'string') return null;
+
+	return role.replace(/^ROLE_/i, '').toUpperCase();
+};
+
+const getRolesFromToken = (token: string | null): string[] => {
+	const payload = decodeJwtPayload(token);
+	const rawRoles = payload?.roles ?? payload?.role ?? payload?.authorities;
+	const roles = Array.isArray(rawRoles) ? rawRoles : rawRoles ? [rawRoles] : [];
+
+	return roles
+		.map(normalizeRole)
+		.filter((role): role is string => Boolean(role));
+};
+
+const canOpenAdminPage = (roles: string[]) => roles.some((role) => ADMIN_ROLES.has(role));
+
+const resolveAvatarUrl = (
+	iconId: string | null | undefined,
+	avatars: Array<{ id: string; url: string }>,
+): string | null => {
+	if (!iconId) return null;
+
+	return avatars.find((avatar) => avatar.id === iconId)?.url ?? null;
+};
+
 export const AdminPage = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { showToast } = useToast();
 	const { state } = useAuth();
+	const roles = useMemo(() => getRolesFromToken(state.accessToken), [state.accessToken]);
+	const hasAdminAccess = state.isAuthenticated && canOpenAdminPage(roles);
+	const accessDenied = !state.loading && state.isAuthenticated && !hasAdminAccess;
 
 	const [activeSection, setActiveSection] = useState<AdminSection>('overview');
 
@@ -182,6 +234,19 @@ export const AdminPage = () => {
 		}
 	}, [navigate, state.isAuthenticated, state.loading]);
 
+	const currentUserQuery = useQuery({
+		queryKey: ['admin', 'current-user'],
+		queryFn: async () => {
+			const [userInfo, avatars] = await Promise.all([getMyInfo(), userApi.getAvatars()]);
+
+			return {
+				name: userInfo.name?.trim() || 'Администратор',
+				avatarUrl: resolveAvatarUrl(userInfo.iconId, avatars),
+			};
+		},
+		enabled: hasAdminAccess,
+	});
+
 	const companiesQuery = useQuery({
 		queryKey: ['admin', 'companies', companyQuery, companyTake, companyPage],
 		queryFn: () =>
@@ -190,13 +255,13 @@ export const AdminPage = () => {
 				take: companyTake,
 				pageNum: companyPage,
 			}),
-		enabled: state.isAuthenticated,
+		enabled: hasAdminAccess,
 	});
 
 	const companyDetailQuery = useQuery({
 		queryKey: ['admin', 'company', selectedCompanyId],
 		queryFn: () => adminApi.getCompany(selectedCompanyId as string),
-		enabled: state.isAuthenticated && !!selectedCompanyId,
+		enabled: hasAdminAccess && !!selectedCompanyId,
 	});
 
 	const flagsQueryResult = useQuery({
@@ -204,17 +269,17 @@ export const AdminPage = () => {
 		queryFn: () =>
 			adminApi.getFlags({
 				q: flagsQuery.trim() || undefined,
-				category: flagsCategory || undefined,
+				category: (flagsCategory as FlagCategory) || undefined,
 				take: flagsTake,
 				pageNum: flagsPage,
 			}),
-		enabled: state.isAuthenticated,
+		enabled: hasAdminAccess,
 	});
 
 	const flagDetailQuery = useQuery({
 		queryKey: ['admin', 'flag', selectedFlagId],
 		queryFn: () => adminApi.getFlag(selectedFlagId as string),
-		enabled: state.isAuthenticated && !!selectedFlagId,
+		enabled: hasAdminAccess && !!selectedFlagId,
 	});
 
 	const companyRequestsQuery = useQuery({
@@ -226,7 +291,7 @@ export const AdminPage = () => {
 				take: requestTake,
 				pageNum: requestPage,
 			}),
-		enabled: state.isAuthenticated,
+		enabled: hasAdminAccess,
 	});
 
 	const reviewReportsQuery = useQuery({
@@ -237,7 +302,7 @@ export const AdminPage = () => {
 				take: reportTake,
 				pageNum: reportPage,
 			}),
-		enabled: state.isAuthenticated,
+		enabled: hasAdminAccess,
 	});
 
 	const companyMutation = useMutation({
@@ -456,8 +521,25 @@ export const AdminPage = () => {
 		{ id: 'reports', label: 'Жалобы', icon: ShieldAlert },
 	] as const;
 
-	if (!state.isAuthenticated) {
+	if (state.loading || !state.isAuthenticated) {
 		return null;
+	}
+
+	if (accessDenied) {
+		return (
+			<div className={styles.page}>
+				<HeaderGlow />
+				<CenterGlow />
+				<main className={styles.accessDenied}>
+					<ShieldAlert size={42} />
+					<h1>Доступ запрещён</h1>
+					<p>Админ-панель доступна только пользователям с ролями ADMIN или MANAGER.</p>
+					<Button size="medium" onClick={() => navigate('/recommendations', { replace: true })}>
+						Вернуться к рекомендациям
+					</Button>
+				</main>
+			</div>
+		);
 	}
 
 	return (
@@ -478,7 +560,10 @@ export const AdminPage = () => {
 						</p>
 					</div>
 				</div>
-				<UserNavButton nickname="Admin" />
+				<UserNavButton
+					avatarUrl={currentUserQuery.data?.avatarUrl}
+					nickname={currentUserQuery.data?.name ?? 'Администратор'}
+				/>
 			</header>
 
 			<main className={styles.main}>
@@ -660,7 +745,7 @@ export const AdminPage = () => {
 									title="Карточка компании"
 									loading={companyDetailQuery.isLoading}
 									empty={!selectedCompanyId}
-									emptyText="Выберите компанию из списка, чтобы вызвать GET /api/companies/{companyId}."
+									emptyText="Выберите компанию из списка, чтобы вызвать GET /api/admin/companies/{companyId}."
 								>
 									{companyDetailQuery.data && (
 										<dl className={styles.detailList}>
@@ -770,7 +855,7 @@ export const AdminPage = () => {
 									title="Карточка флага"
 									loading={flagDetailQuery.isLoading}
 									empty={!selectedFlagId}
-									emptyText="Выберите флаг из списка, чтобы вызвать GET /api/flags/{flagId}."
+									emptyText="Выберите флаг из списка, чтобы вызвать GET /api/admin/flags/{flagId}."
 								>
 									{flagDetailQuery.data && (
 										<dl className={styles.detailList}>
@@ -792,7 +877,7 @@ export const AdminPage = () => {
 						<div className={styles.panelHeader}>
 							<div>
 								<h3 className={styles.panelTitle}>Заявки на компании</h3>
-								<p className={styles.panelText}>GET /api/company-requests со статусом, поиском и пагинацией.</p>
+								<p className={styles.panelText}>GET /api/admin/company-requests со статусом, поиском и пагинацией.</p>
 							</div>
 							<div className={styles.panelActions}>
 								<Button variant="secondary" size="small" onClick={() => void companyRequestsQuery.refetch()}>
@@ -859,7 +944,7 @@ export const AdminPage = () => {
 						<div className={styles.panelHeader}>
 							<div>
 								<h3 className={styles.panelTitle}>Жалобы и модерация отзывов</h3>
-								<p className={styles.panelText}>GET /api/review-reports и DELETE /api/reviews/{'{reviewId}'}.</p>
+								<p className={styles.panelText}>GET /api/admin/review-reports и DELETE /api/admin/reviews/{'{reviewId}'}.</p>
 							</div>
 							<div className={styles.panelActions}>
 								<Button variant="secondary" size="small" onClick={() => void reviewReportsQuery.refetch()}>
@@ -939,7 +1024,7 @@ export const AdminPage = () => {
 				<div className={styles.modalBody}>
 					<div className={styles.modalHeader}>
 						<h3 className={styles.modalTitle}>{editingCompany ? 'Редактировать компанию' : 'Новая компания'}</h3>
-						<p className={styles.modalText}>POST /api/companies и PUT /api/companies/{'{companyId}'}</p>
+						<p className={styles.modalText}>POST /api/admin/companies и PUT /api/admin/companies/{'{companyId}'}</p>
 					</div>
 					<div className={styles.formGrid}>
 						<Input
@@ -992,7 +1077,7 @@ export const AdminPage = () => {
 				<div className={styles.modalBody}>
 					<div className={styles.modalHeader}>
 						<h3 className={styles.modalTitle}>{editingFlag ? 'Редактировать флаг' : 'Новый флаг'}</h3>
-						<p className={styles.modalText}>POST /api/flags и PUT /api/flags/{'{flagId}'}</p>
+						<p className={styles.modalText}>POST /api/admin/flags и PUT /api/admin/flags/{'{flagId}'}</p>
 					</div>
 					<div className={styles.formGrid}>
 						<Input

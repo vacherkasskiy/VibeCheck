@@ -86,7 +86,7 @@ export interface GetReviewReportsResponse {
 }
 
 export interface CreateCompanyRequest {
-	name: string;
+	name: string | null;
 	description?: string | null;
 	iconId?: string | null;
 	siteUrl?: string | null;
@@ -97,9 +97,9 @@ export interface CreateCompanyRequest {
 export interface UpdateCompanyRequest extends CreateCompanyRequest {}
 
 export interface CreateFlagRequest {
-	name: string;
+	name: string | null;
 	category: FlagCategory;
-	description: string;
+	description: string | null;
 }
 
 export interface UpdateFlagRequest extends CreateFlagRequest {}

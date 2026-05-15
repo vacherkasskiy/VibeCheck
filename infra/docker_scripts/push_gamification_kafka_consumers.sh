@@ -5,8 +5,8 @@ docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t ikeeo/vibecheck-gamification-kafka-consumers:1.0 \
+  -t ikeeo/vibecheck-gamification-kafka-consumers:2.0 \
   -t ikeeo/vibecheck-gamification-kafka-consumers:latest \
-  -f ../../backend/GamificationService/Gateway/GamificationService.Gateway.Kafka/Dockerfile \
-  ../../backend \
+  -f ./GamificationService/Gateway/GamificationService.Gateway.Kafka/Dockerfile \
+  . \
   --push

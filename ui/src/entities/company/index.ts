@@ -16,7 +16,14 @@ export type {
   ReportReviewRequest, 
   ReportReasonGatewayEnum 
 } from './model/reviewTypes';
-export type { CompanyDTO, CompanyFlag, CompanyReview, CompanyLinksDto, ReviewFlagDto } from './model/types';
+export type {
+  CompanyDTO,
+  CompanyFlag,
+  CompanyReview,
+  CompanyLinksDto,
+  ReviewFlagDto,
+  CurrentUserReactionGatewayEnum,
+} from './model/types';
 
 
 export type { ReviewFormData } from 'features/reviewModal';

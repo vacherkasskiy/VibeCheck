@@ -5,6 +5,7 @@ using ReviewService.Core.Abstractions.Models.Reviews;
 using ReviewService.Core.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Enums;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
@@ -25,6 +26,7 @@ public sealed class GetUserReviewsOperationTests
         var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var model = new GetUserReviewsOperationModel(
+            CurrentUserId: Guid.NewGuid(),
             UserId: Guid.Empty,
             Take: 20,
             PageNum: 1,
@@ -55,6 +57,7 @@ public sealed class GetUserReviewsOperationTests
         var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var model = new GetUserReviewsOperationModel(
+            CurrentUserId: Guid.NewGuid(),
             UserId: Guid.NewGuid(),
             Take: 20,
             PageNum: 1,
@@ -62,6 +65,7 @@ public sealed class GetUserReviewsOperationTests
 
         var repoInput = new GetUserReviewsRepositoryInputModel
         {
+            CurrentUserId = model.CurrentUserId,
             UserId = model.UserId,
             Take = 20,
             PageNum = 1,
@@ -96,11 +100,13 @@ public sealed class GetUserReviewsOperationTests
         var operation = new GetUserReviewsOperation(_mapper, _queryRepository, _userProfilesQueryRepository);
 
         var userId = Guid.NewGuid();
+        var currentUserId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var reviewId = Guid.NewGuid();
         var flagId = Guid.NewGuid();
 
         var model = new GetUserReviewsOperationModel(
+            CurrentUserId: currentUserId,
             UserId: userId,
             Take: 20,
             PageNum: 1,
@@ -108,6 +114,7 @@ public sealed class GetUserReviewsOperationTests
 
         var repoInput = new GetUserReviewsRepositoryInputModel
         {
+            CurrentUserId = currentUserId,
             UserId = userId,
             Take = 20,
             PageNum = 1,
@@ -126,6 +133,7 @@ public sealed class GetUserReviewsOperationTests
                     AuthorId = null,
                     Text = "интересные задачи и сильные коллеги, но ритм местами тяжёлый",
                     Score = 7,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [
@@ -152,6 +160,7 @@ public sealed class GetUserReviewsOperationTests
                     AuthorId = Guid.Empty,
                     Text = repoOutput.Reviews[0].Text,
                     Score = repoOutput.Reviews[0].Score,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     CreatedAt = repoOutput.Reviews[0].CreatedAt,
                     Flags =
                     [

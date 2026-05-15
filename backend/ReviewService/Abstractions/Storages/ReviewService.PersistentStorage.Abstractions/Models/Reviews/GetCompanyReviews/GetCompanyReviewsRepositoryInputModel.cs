@@ -4,6 +4,7 @@ namespace ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetCompany
 
 public sealed record GetCompanyReviewsRepositoryInputModel
 {
+    public required Guid CurrentUserId { get; init; }
     public required Guid CompanyId { get; init; }
     public required int Take { get; init; }
     public required int PageNum { get; init; }

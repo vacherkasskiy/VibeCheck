@@ -6,6 +6,7 @@ using ReviewService.Core.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.Core.Abstractions.Models.Reviews.GetUserReviews;
 using ReviewService.Core.Abstractions.Models.Shared;
 using ReviewService.Core.Operations.Reviews;
+using ReviewService.PersistentStorage.Abstractions.Enums;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.GetMyReviews;
 using ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 using ReviewService.PersistentStorage.Abstractions.Repositories.Reviews;
@@ -127,6 +128,7 @@ public sealed class GetMyReviewsOperationTests
                     AuthorId = null,
                     Text = "компания быстро растёт, но процессы не всегда успевают за масштабом",
                     Score = 5,
+                    CurrentUserReaction = CurrentUserReactionRepositoryEnum.None,
                     CreatedAt = DateTimeOffset.UtcNow,
                     Flags =
                     [
@@ -149,6 +151,7 @@ public sealed class GetMyReviewsOperationTests
                     AuthorId = Guid.Empty,
                     Text = repoOutput.Reviews[0].Text,
                     Score = repoOutput.Reviews[0].Score,
+                    CurrentUserReaction = CurrentUserReactionOperationEnum.None,
                     CreatedAt = repoOutput.Reviews[0].CreatedAt,
                     Flags =
                     [

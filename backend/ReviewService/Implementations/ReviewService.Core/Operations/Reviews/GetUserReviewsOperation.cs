@@ -31,6 +31,12 @@ internal sealed class GetUserReviewsOperation(
                 return Error.Validation("userId is required");
             }
 
+            if (model.CurrentUserId == Guid.Empty)
+            {
+                status = "validation";
+                return Error.Validation("currentUserId is required");
+            }
+
             var repoInput = mapper.Map<GetUserReviewsRepositoryInputModel>(model);
             var repoOutput = await queryRepository.GetUserReviewsAsync(repoInput, ct);
 

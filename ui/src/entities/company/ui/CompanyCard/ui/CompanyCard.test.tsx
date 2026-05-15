@@ -75,6 +75,6 @@ describe('CompanyCard', () => {
 		// Assert
 		expect(fallbackDescription).toBeInTheDocument();
 		expect(screen.getByText('Флаги пока не добавлены')).toBeInTheDocument();
-		expect(screen.getByText('0')).toBeInTheDocument();
+		expect(screen.getByText('A')).toBeInTheDocument();
 	});
 });

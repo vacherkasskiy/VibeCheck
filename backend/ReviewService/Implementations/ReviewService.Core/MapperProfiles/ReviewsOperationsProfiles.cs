@@ -24,6 +24,7 @@ internal sealed class ReviewsOperationsProfiles : Profile
         CreateMap<GetMyReviewsOperationModel, GetMyReviewsRepositoryInputModel>();
         CreateMap<GetUserReviewsOperationModel, GetUserReviewsRepositoryInputModel>();
         CreateMap<ReviewsSortOperationEnum, ReviewsSortRepositoryEnum>();
+        CreateMap<CurrentUserReactionRepositoryEnum, CurrentUserReactionOperationEnum>();
         // -------------------------
         // output: repository -> operation
         // -------------------------

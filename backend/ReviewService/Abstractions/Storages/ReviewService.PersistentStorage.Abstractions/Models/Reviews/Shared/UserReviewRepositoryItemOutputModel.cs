@@ -1,3 +1,5 @@
+using ReviewService.PersistentStorage.Abstractions.Enums;
+
 namespace ReviewService.PersistentStorage.Abstractions.Models.Reviews.Shared;
 
 public sealed record UserReviewRepositoryItemOutputModel
@@ -8,6 +10,7 @@ public sealed record UserReviewRepositoryItemOutputModel
     public string? CompanyName { get; init; }  // (remove?) в спеках
     public required string Text { get; init; }
     public required long Score { get; init; }
+    public required CurrentUserReactionRepositoryEnum CurrentUserReaction { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }
     public required IReadOnlyList<FlagRepositoryModel> Flags { get; init; }
 }

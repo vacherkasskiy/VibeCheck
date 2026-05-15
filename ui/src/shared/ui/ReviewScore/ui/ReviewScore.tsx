@@ -19,19 +19,24 @@ export const ReviewScore = ({
 	disabled = false,
 	compact = false,
 }: ReviewScoreProps) => {
-	const scoreClassName =
-		score > 0 ? styles.scorePositive : score < 0 ? styles.scoreNegative : styles.scoreNeutral;
+	const getScoreClassName = () => {
+		if (isDownActive) return styles.scoreNegative;
+		if (isUpActive) return styles.scorePositive;
+		return styles.scoreNeutral;
+	};
+
+	const scoreClassName = getScoreClassName();
 
 	const upClassName = [
 		styles.arrowButton,
 		styles.arrowUp,
-		(isUpActive || (!isDownActive && score > 0)) && styles.arrowActive,
+		isUpActive && styles.arrowActive,
 	].filter(Boolean).join(' ');
 
 	const downClassName = [
 		styles.arrowButton,
 		styles.arrowDown,
-		(isDownActive || (!isUpActive && score < 0)) && styles.arrowActive,
+		isDownActive && styles.arrowActive,
 	].filter(Boolean).join(' ');
 
 	const containerClassName = [

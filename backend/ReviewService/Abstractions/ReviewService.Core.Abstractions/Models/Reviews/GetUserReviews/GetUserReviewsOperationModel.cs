@@ -3,6 +3,7 @@ using ReviewService.Core.Abstractions.Enums;
 namespace ReviewService.Core.Abstractions.Models.Reviews.GetUserReviews;
 
 public sealed record GetUserReviewsOperationModel(
+    Guid CurrentUserId,
     Guid UserId,
     int Take,
     int PageNum,

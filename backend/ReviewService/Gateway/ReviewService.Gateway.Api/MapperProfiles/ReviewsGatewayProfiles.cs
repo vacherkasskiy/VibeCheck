@@ -40,6 +40,7 @@ public sealed class ReviewsGatewayProfiles : Profile
             .ForMember(x => x.ReasonType, opt => opt.MapFrom(src => src.ReasonType));
 
         CreateMap<VoteModeGatewayEnum, VoteModeOperationEnum>();
+        CreateMap<CurrentUserReactionOperationEnum, CurrentUserReactionGatewayEnum>();
         CreateMap<ReportReasonGatewayEnum, ReportReasonTypeOperationEnum>();
 
         // report/vote

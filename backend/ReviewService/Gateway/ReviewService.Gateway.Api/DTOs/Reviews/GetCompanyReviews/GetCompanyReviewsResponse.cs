@@ -14,6 +14,7 @@ public sealed record CompanyReviewItemDto
     public required string IconId { get; init; }
     public required string Text { get; init; }
     public required long Score { get; init; } // likes - dislikes
+    public required CurrentUserReactionGatewayEnum CurrentUserReaction { get; init; }
     public required DateTimeOffset CreatedAt { get; init; }
     public required IReadOnlyList<FlagDto> Flags { get; init; }
 }

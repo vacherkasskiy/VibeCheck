@@ -1,7 +1,11 @@
 import { userApi } from 'entities/user';
 import { useProfile } from 'features/profile';
+import { ReviewsModal } from 'features/profile/modals';
+import { ReportModal, useReportModal } from 'features/reportModal';
+import { ReviewViewModal } from 'features/reviewView';
 import { SubscriptionButton } from 'features/subscription-toggle';
-import { useEffect, useState } from 'react';
+import { useVoteReviewMutation } from 'features/userReviews';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { translateEducation, translateExperience, translateSpecialization } from 'shared/lib';
 import { Button } from 'shared/ui/Button';
@@ -10,17 +14,28 @@ import { HeaderGlow } from 'shared/ui/HeaderGlow';
 import { Spinner } from 'shared/ui/Spinner';
 import { UserNavButton } from 'shared/ui/UserNavButton';
 import { FooterLinks } from 'widgets/FooterLinks';
+import { UserReviews } from 'widgets/UserReviews';
 import styles from './UserProfilePage.module.css';
+import type { CompanyReview, VoteModeGatewayEnum } from 'entities/company';
 import type { User } from 'entities/user';
+import type { UserReview } from 'entities/user';
 
 export const UserProfilePage = () => {
 	const { userId } = useParams<{ userId: string }>();
 	const navigate = useNavigate();
-	const { profile: currentUserProfile, loading: currentUserLoading } = useProfile();
+	const { profile: currentUserProfile } = useProfile();
 	const currentUserId = currentUserProfile?.user?.id ?? '';
 	const [profile, setProfile] = useState<User | null>(null);
+	const [reviews, setReviews] = useState<UserReview[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [reviewsLoading, setReviewsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [reviewsError, setReviewsError] = useState<string | null>(null);
+	const [showReviewsModal, setShowReviewsModal] = useState(false);
+	const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
+	const [userVotes, setUserVotes] = useState<Record<string, VoteModeGatewayEnum | undefined>>({});
+	const voteMutation = useVoteReviewMutation();
+	const reportModal = useReportModal();
 
 	const isOwnProfile = !!userId && !!currentUserId && userId === currentUserId;
 
@@ -52,6 +67,31 @@ export const UserProfilePage = () => {
 		loadProfile();
 	}, [userId]);
 
+	useEffect(() => {
+		const loadReviews = async () => {
+			if (!userId) {
+				setReviews([]);
+				setReviewsLoading(false);
+				setReviewsError('ID пользователя не указан');
+				return;
+			}
+
+			try {
+				setReviewsLoading(true);
+				setReviewsError(null);
+				const reviewsData = await userApi.fetchUserReviewsById(userId);
+				setReviews(reviewsData);
+			} catch {
+				setReviews([]);
+				setReviewsError('Не удалось загрузить отзывы пользователя');
+			} finally {
+				setReviewsLoading(false);
+			}
+		};
+
+		loadReviews();
+	}, [userId]);
+
 	const formatRegistrationDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('ru-RU', {
@@ -60,6 +100,111 @@ export const UserProfilePage = () => {
 			day: 'numeric',
 		});
 	};
+
+	const handleViewAllReviews = () => {
+		setShowReviewsModal(true);
+	};
+
+	const handleCloseReviewsModal = () => {
+		setShowReviewsModal(false);
+	};
+
+	const handleOpenReview = (review: UserReview) => {
+		setSelectedReview(review);
+	};
+
+	const handleOpenReviewFromModal = (review: UserReview) => {
+		setShowReviewsModal(false);
+		setSelectedReview(review);
+	};
+
+	const handleCloseReview = () => {
+		setSelectedReview(null);
+	};
+
+	const updateReviewScore = (reviewId: string, nextMode: VoteModeGatewayEnum) => {
+		const currentMode = userVotes[reviewId];
+
+		setReviews((prev) =>
+			prev.map((review) => {
+				if (review.id !== reviewId) return review;
+
+				let scoreDelta = 0;
+
+				if (currentMode === 'Like') scoreDelta -= 1;
+				if (currentMode === 'Dislike') scoreDelta += 1;
+				if (nextMode === 'Like') scoreDelta += 1;
+				if (nextMode === 'Dislike') scoreDelta -= 1;
+
+				return {
+					...review,
+					score: review.score + scoreDelta,
+				};
+			}),
+		);
+
+		setSelectedReview((prev) => {
+			if (!prev || prev.id !== reviewId) return prev;
+
+			let scoreDelta = 0;
+
+			if (currentMode === 'Like') scoreDelta -= 1;
+			if (currentMode === 'Dislike') scoreDelta += 1;
+			if (nextMode === 'Like') scoreDelta += 1;
+			if (nextMode === 'Dislike') scoreDelta -= 1;
+
+			return {
+				...prev,
+				score: prev.score + scoreDelta,
+			};
+		});
+
+		setUserVotes((prev) => ({
+			...prev,
+			[reviewId]: nextMode === 'Clear' ? undefined : nextMode,
+		}));
+	};
+
+	const handleVote = (reviewId: string, mode: VoteModeGatewayEnum) => {
+		updateReviewScore(reviewId, mode);
+
+		voteMutation.mutate(
+			{ reviewId, mode },
+			{
+				onError: () => {
+					const previousMode = userVotes[reviewId];
+					updateReviewScore(reviewId, previousMode ?? 'Clear');
+				},
+			},
+		);
+	};
+
+	const selectedDisplayedReview = useMemo(() => {
+		if (!selectedReview) return null;
+
+		return reviews.find((review) => review.id === selectedReview.id) ?? selectedReview;
+	}, [reviews, selectedReview]);
+
+	const selectedReviewVote = selectedDisplayedReview ? userVotes[selectedDisplayedReview.id] : undefined;
+
+	const selectedCompanyReview: CompanyReview | null = selectedDisplayedReview
+		? {
+				reviewId: selectedDisplayedReview.id,
+				authorId: selectedDisplayedReview.authorId ?? '',
+				authorName: selectedDisplayedReview.authorName,
+				authorAvatarUrl: selectedDisplayedReview.authorAvatarUrl,
+				iconId: selectedDisplayedReview.authorAvatarUrl ?? null,
+				text: selectedDisplayedReview.text,
+				score: selectedDisplayedReview.score,
+				createdAt: selectedDisplayedReview.createdAt,
+				flags: selectedDisplayedReview.flags.map((flag, index) => ({
+					id: `${selectedDisplayedReview.id}-flag-${index}`,
+					name: flag,
+				})),
+				weight: 1,
+				myVote: undefined,
+			}
+		: null;
 
 	if (loading) {
 		return (
@@ -201,7 +346,67 @@ export const UserProfilePage = () => {
 					)}
 				</section>
 
+				<section className={styles.reviewsSection}>
+					{reviewsLoading ? (
+						<div className={styles.reviewsLoading}>
+							<Spinner />
+						</div>
+					) : reviewsError ? (
+						<div className={styles.reviewsError}>
+							<h2>Отзывы пользователя</h2>
+							<p>{reviewsError}</p>
+						</div>
+					) : (
+						<UserReviews
+							reviews={reviews}
+							onViewAll={handleViewAllReviews}
+							onOpenReview={handleOpenReview}
+						/>
+					)}
+				</section>
+
 			</main>
+			<ReviewsModal
+				isOpen={showReviewsModal}
+				onClose={handleCloseReviewsModal}
+				reviews={reviews}
+				onOpenReview={handleOpenReviewFromModal}
+				onEdit={() => undefined}
+				onDelete={() => undefined}
+				canEdit={() => false}
+			/>
+			<ReviewViewModal
+				isOpen={!!selectedDisplayedReview}
+				review={selectedCompanyReview}
+				companyName={selectedDisplayedReview?.companyName ?? ''}
+				authorName={profile.nickname}
+				authorAvatarUrl={profile.avatarUrl}
+				myVote={selectedReviewVote}
+				onVote={
+					selectedDisplayedReview
+						? (mode) => handleVote(selectedDisplayedReview.id, mode)
+						: undefined
+				}
+				isVoting={voteMutation.isPending}
+				onReport={
+					selectedDisplayedReview
+						? (reviewId) => reportModal.open(reviewId)
+						: undefined
+				}
+				onClose={handleCloseReview}
+			/>
+			<ReportModal
+				isOpen={reportModal.isOpen}
+				reviewId={reportModal.reviewId}
+				onClose={reportModal.close}
+				reasonType={reportModal.reasonType}
+				setReasonType={reportModal.setReasonType}
+				reasonText={reportModal.reasonText}
+				setReasonText={reportModal.setReasonText}
+				isFormValid={reportModal.isFormValid}
+				isSubmitting={reportModal.isSubmitting}
+				onSubmit={reportModal.submit}
+			/>
 			<FooterLinks />
 		</div>
 	);

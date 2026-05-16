@@ -11,14 +11,14 @@ import type { FC } from 'react';
 
 export const RecommendationsPage: FC = () => {
 	const navigate = useNavigate();
-	const { state } = useAuth();
+	const { state, requestLogin } = useAuth();
 	const { query, setQuery, items, pending, hasMore, loadMore, error } = useCompanySearch();
 
 	useEffect(() => {
 		if (!state.loading && !state.isAuthenticated) {
-			navigate('/login', { replace: true });
+			requestLogin('Для доступа к рекомендациям необходимо войти в аккаунт.');
 		}
-	}, [navigate, state.isAuthenticated, state.loading]);
+	}, [requestLogin, state.isAuthenticated, state.loading]);
 
 	useEffect(() => {
 		if (error?.status === 403) {
@@ -52,13 +52,22 @@ export const RecommendationsPage: FC = () => {
 				</section>
 
 				<section className={styles.listSection}>
-					<CompanyList
-						items={items}
-						pending={pending}
-						hasMore={hasMore}
-						onLoadMore={loadMore}
-						onCardClick={handleCardClick}
-					/>
+					{error && error.status !== 403 ? (
+						<div className={styles.errorState}>
+							<h2 className={styles.errorStateTitle}>Что-то пошло не так</h2>
+							<p className={styles.errorStateText}>
+								Не удалось загрузить список компаний. Попробуйте еще раз позже.
+							</p>
+						</div>
+					) : (
+						<CompanyList
+							items={items}
+							pending={pending}
+							hasMore={hasMore}
+							onLoadMore={loadMore}
+							onCardClick={handleCardClick}
+						/>
+					)}
 				</section>
 			</main>
 			<FooterLinks />

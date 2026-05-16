@@ -4,9 +4,10 @@ import { ApiError } from 'shared/api/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecommendationsPage } from './RecommendationsPage';
 
-const { useCompanySearchMock, navigateMock, authStateMock } = vi.hoisted(() => ({
+const { useCompanySearchMock, navigateMock, authStateMock, requestLoginMock } = vi.hoisted(() => ({
 	useCompanySearchMock: vi.fn(),
 	navigateMock: vi.fn(),
+	requestLoginMock: vi.fn(),
 	authStateMock: {
 		isAuthenticated: true,
 		loading: false,
@@ -20,6 +21,7 @@ vi.mock('features/companySearch', () => ({
 vi.mock('features/auth', () => ({
 	useAuth: () => ({
 		state: authStateMock,
+		requestLogin: requestLoginMock,
 	}),
 }));
 
@@ -86,6 +88,7 @@ describe('RecommendationsPage', () => {
 	beforeEach(() => {
 		useCompanySearchMock.mockReset();
 		navigateMock.mockReset();
+		requestLoginMock.mockReset();
 		authStateMock.isAuthenticated = true;
 		authStateMock.loading = false;
 	});
@@ -135,7 +138,9 @@ describe('RecommendationsPage', () => {
 
 		render(<RecommendationsPage />);
 
-		expect(navigateMock).toHaveBeenCalledWith('/login', { replace: true });
+		expect(requestLoginMock).toHaveBeenCalledWith(
+			'Для доступа к рекомендациям необходимо войти в аккаунт.',
+		);
 	});
 
 	it('redirects to blocked page when recommendations API returns 403', () => {

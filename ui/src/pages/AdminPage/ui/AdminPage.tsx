@@ -194,7 +194,7 @@ export const AdminPage = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { showToast } = useToast();
-	const { state } = useAuth();
+	const { state, requestLogin } = useAuth();
 	const roles = useMemo(() => getRolesFromToken(state.accessToken), [state.accessToken]);
 	const hasAdminAccess = state.isAuthenticated && canOpenAdminPage(roles);
 	const accessDenied = !state.loading && state.isAuthenticated && !hasAdminAccess;
@@ -230,9 +230,9 @@ export const AdminPage = () => {
 
 	useEffect(() => {
 		if (!state.loading && !state.isAuthenticated) {
-			navigate('/login', { replace: true });
+			requestLogin('Для доступа к панели администратора необходимо войти в аккаунт.');
 		}
-	}, [navigate, state.isAuthenticated, state.loading]);
+	}, [requestLogin, state.isAuthenticated, state.loading]);
 
 	const currentUserQuery = useQuery({
 		queryKey: ['admin', 'current-user'],

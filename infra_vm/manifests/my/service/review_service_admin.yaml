@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${NAMESPACE}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: review-admin-service-config
+  namespace: ${NAMESPACE}
+data:
+  ASPNETCORE_ENVIRONMENT: "Test"
+  DbOptions__Host: "postgres-postgresql"
+  MinioOptions__Endpoint: "http://minio.${NAMESPACE}.svc.cluster.local:9000"
+  MinioOptions__PublicEndpoint: "${MINIO_PUBLIC_ENDPOINT}"
+  KafkaOptions__BootstrapServers: "kafka.${NAMESPACE}.svc.cluster.local:9092"
+  JwtOptions__Issuer: "user-service"
+  JwtOptions__Audience: "review-service"
+  JwtOptions__PublicKeyPath: "/var/run/secrets/internal-jwt/public.pem"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: review-admin-service-secrets
+  namespace: ${NAMESPACE}
+type: Opaque
+stringData:
+  DbOptions__Username: "app_user"
+  DbOptions__Password: "app_password"
+  MinioOptions__AccessKey: "minio_admin"
+  MinioOptions__SecretKey: "minio_admin_password"
+  KafkaOptions__Username: "app_user"
+  KafkaOptions__Password: "app_password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-admin-service
+  namespace: ${NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-admin-service
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+      labels:
+        app: review-admin-service
+    spec:
+      containers:
+        - name: review-admin-service
+          image: ikeeo/vibecheck-review-admin-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: review-admin-service-config
+            - secretRef:
+                name: review-admin-service-secrets
+          volumeMounts:
+            - name: internal-jwt-key
+              mountPath: /var/run/secrets/internal-jwt
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+
+          startupProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 12
+
+          livenessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 6
+      volumes:
+        - name: internal-jwt-key
+          secret:
+            secretName: internal-jwt-public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-admin-service
+  namespace: ${NAMESPACE}
+spec:
+  type: ClusterIP
+  selector:
+    app: review-admin-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway-service
+  namespace: ${NAMESPACE}
+spec:
+  ingressClassName: ${INGRESS_CLASS_NAME}
+  rules:
+    - host: gateway.${BASE_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8080

@@ -1,0 +1,40 @@
+adminUser: admin
+adminPassword: admin12345
+
+service:
+  type: ClusterIP
+  port: 80
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+initChownData:
+  enabled: false
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    cpu: 300m
+    memory: 384Mi
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: vibecheck-prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-server.${NAMESPACE}.svc.cluster.local:9090
+        isDefault: true
+        jsonData:
+          timeInterval: 15s
+        editable: false

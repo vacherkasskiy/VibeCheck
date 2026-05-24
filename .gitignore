@@ -1,2 +1,3 @@
 .idea/
 infra/deploy/.env
+infra_vm/deploy/.env

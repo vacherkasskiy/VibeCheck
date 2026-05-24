@@ -14,7 +14,7 @@ auth:
 
 mode: standalone
 
-defaultBuckets: "review-service,gamification-service"
+defaultBuckets: "user-service,review-service,gamification-service"
 
 persistence:
   enabled: true

@@ -264,6 +264,7 @@ apply_app_ingresses() {
     gamification_ingress.yaml
     review_ingress.yaml
     kafka_ui_ingress.yaml
+    ui_ingress.yaml
   )
 
   for file in "${files[@]}"; do
@@ -289,6 +290,7 @@ wait_for_app_rollouts() {
     gamification-service
     gamification-kafka-consumers
     kafka-ui
+    ui
   )
 
   for deployment in "${deployments[@]}"; do
@@ -313,6 +315,7 @@ print_access_urls() {
   echo "Review:       http://review.${BASE_DOMAIN}"
   echo "Review admin: http://review-admin.${BASE_DOMAIN}"
   echo "Gamification: http://gamification.${BASE_DOMAIN}"
+  echo "UI:           http://ui.${BASE_DOMAIN}"
   echo "Kafka UI:     http://kafka-ui.${BASE_DOMAIN}"
   echo "MinIO API:    http://minio.api.${BASE_DOMAIN}"
   echo "MinIO UI:     http://minio.console.${BASE_DOMAIN}"

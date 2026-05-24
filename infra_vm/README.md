@@ -16,6 +16,7 @@ The current default public IP is `66.151.43.218`, so ingress hosts are rendered 
 - `http://review.66.151.43.218.sslip.io`
 - `http://review-admin.66.151.43.218.sslip.io`
 - `http://gamification.66.151.43.218.sslip.io`
+- `http://ui.66.151.43.218.sslip.io`
 - `http://kafka-ui.66.151.43.218.sslip.io`
 - `http://minio.api.66.151.43.218.sslip.io`
 - `http://minio.console.66.151.43.218.sslip.io`
@@ -57,6 +58,7 @@ Run push scripts from any directory. They resolve Docker build contexts from the
 ```sh
 sh infra_vm/docker_scripts/push_user.sh 18.2
 sh infra_vm/docker_scripts/push_gateway.sh 16.1
+sh infra_vm/docker_scripts/push_ui.sh 1.1
 ```
 
 Set `PLATFORMS=linux/amd64` when you only need images for this VM.
